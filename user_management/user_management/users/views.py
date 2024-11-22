@@ -1,5 +1,5 @@
 # Create your views here.
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UsernameSerializer
 import json
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
@@ -7,7 +7,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
+from .serializers import RegisterSerializer
+from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -45,15 +47,17 @@ def Get_user_infos(request, user_id):
 @permission_classes([IsAuthenticated]) 
 def ChangeLogin(request):
     user = request.user
-    print(user)
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     # Update username
-    user.username = body['username']
-    user.save()
-    # Return updated user info
-    serializer = UserSerializer(user)
-    return Response(serializer.data, status=200)
+    serializer = UsernameSerializer(data=request.data)
+    if serializer.is_valid():
+        user.username = body['username']
+        user.save()
+        # Return updated user info
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=200)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated]) 
@@ -62,9 +66,7 @@ def DeleteUser(request):
     user.delete()
     return Response(status=200)
 
-from .serializers import RegisterSerializer
-from rest_framework.views import APIView
-from rest_framework import status
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny]) 

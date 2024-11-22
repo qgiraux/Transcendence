@@ -32,6 +32,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 import re
+class UsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username',)
+    def validate_username(self, value):
+        if len(value) < 5:
+            raise serializers.ValidationError("Username must be at least 5 characters long.")
+        if not re.match("^[a-zA-Z0-9_]+$", value):
+            raise serializers.ValidationError("Username can only contain alphanumeric characters and underscores.")
+        return value
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
