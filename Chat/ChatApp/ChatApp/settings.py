@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '10.24.103.5',  # Add your local network IP
+    '10.24.106.6',  # Add your local network IP
 ]
 
 
