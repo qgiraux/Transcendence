@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
     libpq-dev \ 
+    redis-server \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up a working directory (used as mount target)
@@ -18,7 +19,7 @@ RUN pip install  --upgrade pip \
 
 COPY ./user_management .
 
-EXPOSE 8001
+EXPOSE 8001 6379
 
 # Keep the container running
 CMD ["python", "user_management/manage.py", "runserver", "0.0.0.0:8001"]

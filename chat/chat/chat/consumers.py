@@ -36,14 +36,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Use SimpleJWT to validate the token
             UntypedToken(token)  # Validates the token signature and expiry
             decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-            self.username = decoded_token.get("username")
+            self.username = decoded_token.get("nickname")
 
         except (InvalidToken, TokenError):
             # Close connection if token is invalid
             await self.close(code=4002)
             return
 
-        
         await self.accept()
 
 
@@ -66,4 +65,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def sendMessage(self , event) : 
         message = event["message"]
         username = event["username"]
-        await self.send(text_data = json.dumps({"message":message ,"username":username}))
+        await self.send(text_data = json.dumps({"name":username, "message":message}))

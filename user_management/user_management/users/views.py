@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from .utils import is_user_online
 
 
 User = get_user_model()
@@ -59,6 +60,21 @@ def ChangeLogin(request):
         return Response(serializer.data, status=200)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
+def ChangeNickname(request):
+    user = request.user
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    # Update nickname
+    if body['nickname']:
+        user.nickname = body['nickname']
+        user.save()
+        # Return updated user info
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=200)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated]) 
 def DeleteUser(request):
@@ -74,10 +90,17 @@ def RegisterUser(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
+        user.nickname = user.username
         user.set_password(serializer.validated_data['password'])
         user.save()
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def CheckUserStatus(request, user_id):
+    online = is_user_online(user_id)
+    return JsonResponse({"user_id": user_id, "online": online})
 
 

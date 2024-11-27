@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
+    'redis',
     '10.24.106.6',  # Add your local network IP
 ]
 
@@ -143,11 +144,13 @@ application = ProtocolTypeRouter({
     # Just HTTP for now. (We can add other protocols later.)
 })
 
+
+
 ASGI_APPLICATION = 'ChatApp.asgi.application'
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     }
 }
 
@@ -164,3 +167,20 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',  # Ensure authentication is required
     ],
 }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    },
+    'redis': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/',  # Replace with your Redis server info
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Use the Redis cache as the default cache
+CACHES['default'] = CACHES['redis']

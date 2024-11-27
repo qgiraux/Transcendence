@@ -61,76 +61,14 @@ services:
     networks:
       - transcendence
 
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6380:6379"
+    networks:
+      - transcendence
+
 volumes:
   postgres_user_management:
   postgres_chat:
-
-
-# version: "3.9"
-
-# networks:
-#   transcendence:
-#     name: transcendence
-#     driver: bridge
-
-# services:
-#   user_management:
-#     build:
-#       context: .
-#       dockerfile: user_management/Dockerfile
-#     volumes:
-#       - .:/workspace
-#     ports:
-#       - "8001:8001"
-#     depends_on:
-#       - db_user_management
-#     networks :
-#       - transcendence
-    
-
-#   db_user_management:
-#     image: postgres:15
-#     restart: always
-#     environment:
-#       POSTGRES_USER: django
-#       POSTGRES_PASSWORD: django
-#       POSTGRES_DB: db_user_management
-#     ports:
-#       - "5433:5433"
-#     volumes:
-#       - postgres_user_management:/var/lib/postgresql/data
-#     networks :
-#       - transcendence
-
-
-#   chat:
-#     build:
-#       context: .
-#       dockerfile: Chat/Dockerfile
-#     volumes:
-#       - .:/workspace
-#     ports:
-#       - "8000:8000"
-#     depends_on:
-#       - user_management
-#       - db_chat
-#     networks :
-#       - transcendence
-
-#   db_chat:
-#     image: postgres:15
-#     restart: always
-#     environment:
-#       POSTGRES_USER: django
-#       POSTGRES_PASSWORD: django
-#       POSTGRES_DB: db_chat
-#     ports:
-#       - "5432:5432"
-#     volumes:
-#       - postgres_chat:/var/lib/postgresql/data
-#     networks :
-#       - transcendence
-
-# volumes:
-#   postgres_user_management:
-#   postgres_chat:

@@ -27,10 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    
+    'channels',
     'users',
 ]
 
@@ -71,6 +75,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'user_management.wsgi.application'
+ASGI_APPLICATION = 'user_management.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
 
 
 # Database
@@ -141,3 +154,14 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    }
+}
+

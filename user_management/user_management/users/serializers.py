@@ -6,13 +6,13 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'nickname')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data.get('email'),
+            nickname=validated_data['nickname'],
         )
         return user
 
@@ -25,6 +25,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom fields
         token['username'] = user.username
+        token['nickname'] = user.nickname
 
         # Add any other custom claims
         token['is_admin'] = user.is_staff
@@ -46,7 +47,7 @@ class UsernameSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'password')
+        fields = ('username', 'password', 'nickname')
 
     def validate_username(self, value):
         if len(value) < 5:
