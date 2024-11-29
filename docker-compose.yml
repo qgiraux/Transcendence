@@ -1,4 +1,4 @@
-version: "3.9"
+# version: "3.9"
 
 networks:
   transcendence:
@@ -7,40 +7,40 @@ networks:
 
 services:
   user_management:
+    image: user_management
+    container_name: user_management
     build:
       context: .
       dockerfile: user_management/Dockerfile
     volumes:
       - ./user_management:/workspace/user_management
-    ports:
-      - "8001:8001"
     depends_on:
       - db_user_management
     networks:
       - transcendence
+    init: true
 
   db_user_management:
     image: postgres:15
     restart: always
+    container_name: db_user_management
     environment:
       POSTGRES_USER: django
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
       POSTGRES_DB: db_user_management
-    ports:
-      - "5433:5432" # Map internal 5432 to external 5433
     volumes:
       - postgres_user_management:/var/lib/postgresql/data
     networks:
       - transcendence
 
   chat:
+    image: chat
+    container_name: chat
     build:
       context: .
       dockerfile: chat/Dockerfile
     volumes:
       - ./chat:/workspace/chat
-    ports:
-      - "8000:8000"
     depends_on:
       - user_management
       - db_chat
@@ -48,27 +48,26 @@ services:
       - transcendence
 
   db_chat:
+    container_name: db_chat
     image: postgres:15
     restart: always
     environment:
       POSTGRES_USER: django
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
       POSTGRES_DB: db_chat
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_chat:/var/lib/postgresql/data
     networks:
       - transcendence
-  
+
   friends_list:
+    image: friends_list
+    container_name: friends_list
     build:
       context: .
       dockerfile: friends_list/Dockerfile
     volumes:
       - ./friends_list:/workspace/friends_list
-    ports:
-      - "8002:8002"
     depends_on:
       - db_friends_list
       - user_management
@@ -76,26 +75,39 @@ services:
       - transcendence
 
   db_friends_list:
+    container_name: db_friends_list
     image: postgres:15
     restart: always
     environment:
       POSTGRES_USER: django
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
       POSTGRES_DB: db_friends_list
-    ports:
-      - "5434:5432" # Map internal 5432 to external 5433
     volumes:
       - postgres_friends_list:/var/lib/postgresql/data
     networks:
       - transcendence
 
   redis:
+    container_name: redis
     image: redis
     restart: always
-    ports:
-      - "6380:6379"
     networks:
       - transcendence
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    depends_on:
+      - user_management
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    networks:
+      - transcendence
+    ports:
+      - "5000:443"
+    restart: unless-stopped
+    init: true
 
 volumes:
   postgres_user_management:
