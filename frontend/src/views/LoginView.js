@@ -12,8 +12,7 @@ class LoginView extends AbstractView {
   onStart() {
     this.setHtml();
     //Alert placeholder
-    const alert = document.querySelector("#alert");
-    alert.style.display = "none";
+    // this._hideAlert();
 
     // Submit button
     this.addEventListener(
@@ -32,19 +31,19 @@ class LoginView extends AbstractView {
     // Logique a ameliorer avec un regex
     return loginValue.length >= 3;
   }
-  _displayError(msg) {
-    const alert = document.querySelector("#alert");
-    alert.innerHTML = msg;
-    alert.style.display = "block";
-  }
-  _hideError() {
-    const alert = document.querySelector("#alert");
-    alert.style.display = "none";
-  }
+  //   _displayAlert(msg) {
+  //     const alert = document.querySelector("#alert-placeholder");
+  //     alert.innerHTML = msg;
+  //     alert.style.display = "block";
+  //   }
+  //   _hideAlert() {
+  //     const alert = document.querySelector("#alert-placeholder");
+  //     alert.style.display = "none";
+  //   }
   _submitHandler(event) {
     event.preventDefault();
     event.stopPropagation();
-    this._hideError();
+    // this._hideAlert();
     const login = document.querySelector("#InputLogin");
     const password = document.querySelector("#InputPassword");
     if (
@@ -67,17 +66,16 @@ class LoginView extends AbstractView {
         },
         body: JSON.stringify(credentials),
       });
-      if (!response.ok) {
-        throw new Error(
-          `Response status: ${response.status} ${response.statusText}`
-        );
-      }
       const json = await response.json();
+      if (!response.ok) {
+        console.log(json.detail);
+        return;
+      }
       Application.setToken(json);
       Application.setUserInfos(); //extract and store the id and username
       Router.reroute("/home");
     } catch (error) {
-      console.error(error.message); //ajouter affichge erreur dans le dom
+      Alert.error(error.message); //ajouter affichge erreur dans le dom
     }
   }
 
@@ -90,7 +88,7 @@ class LoginView extends AbstractView {
     if (container) {
       container.innerHTML = `<h1>Welcome to Transcendence</h1><br>
 	  <h2>Please login to access your account</h2><br>
-    <div class="alert alert-danger" role="alert" id='alert'></div>
+	  <div id="alert-placeholder"></div>
     <form>
   <div class="form-group">
     <label for="InputLogin">Login</label>

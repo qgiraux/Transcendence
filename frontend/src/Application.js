@@ -17,12 +17,11 @@ class Application {
     throw new Error("Application class must not be instantiated.");
   }
   static setToken(newtoken) {
-    // voir pour modifier code de verification
     if (
       !Object.hasOwn(newtoken, "access") ||
       !Object.hasOwn(newtoken, "refresh")
     )
-      throw "invalid token";
+      throw `invalid token: ${newtoken}`;
     try {
       const access = Application.#_parseToken(newtoken.access);
       if (access.header.typ !== "JWT")
@@ -32,6 +31,10 @@ class Application {
     } catch (error) {
       throw new Error(`Failed to parse and store the token: ${error}`);
     }
+  }
+
+  static setAccessToken(newAccesstoken) {
+    Application.#token.access = newAccesstoken;
   }
 
   static getAccessToken() {
