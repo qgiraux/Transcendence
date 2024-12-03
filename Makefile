@@ -2,10 +2,11 @@
 ### VARIABLES
 #########################################################
 
-Off='\033[0m'       # Text Reset
-Blue='\033[0;34m'         # Blue
-Red='\033[1;31m'         # Red
-Green='\033[1;32m'       # Green
+Off=\033[0m       # Text Reset
+Blue=\033[0;34m         # Blue
+Purple=\033[1;95m    # Bold Light Purple
+Red=\033[1;31m        # Red
+Green=\033[0;32m       # Green
 #########################################################
 ### REGLES
 #########################################################
@@ -23,22 +24,27 @@ build:
 	@docker compose  -f docker-compose.yml build
 
 test-front:
-	@echo "UNIT TESTS : FRONTEND"
+	@echo "${Purple}UNIT TESTS : FRONTEND${Off}"
 	@cd ./frontend && npm i && npm test
 	# @rm -rf frontend/node_modules
 	@echo
 
 test-users:
-	@echo "UNIT TESTS : USERS SERVICE"
-	docker exec -it user_management python manage.py test
+	@echo "${Purple}UNIT TESTS : USERS SERVICE${Off}"
+	@docker exec -it user_management python manage.py test
 	@echo
 
-tests: test-front test-users
+test-friends:
+	@echo "${Purple}UNIT TESTS : FRIEND LIST SERVICE${Off}"
+	@docker exec -it friends_list python manage.py test
+	@echo
+
+tests: test-front test-users test-friends
 
 #cree et demarre les container
 up:
 	@ echo '🚀      starting the containers...'
-	@docker compose  -f docker-compose.yml up --detach
+	@docker compose  -f docker-compose.yml up
 
 stop:
 	@ echo '✋🏻     stopping the containers...'

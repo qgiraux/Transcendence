@@ -8,15 +8,17 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
-WORKDIR /workspace/chat
+WORKDIR /friends_list
 
 # Upgrade pip and install project dependencies
 COPY friends_list/requirements.txt ./
 RUN pip install --upgrade pip \
     && pip install  -r requirements.txt
 
+    COPY ./friends_list/friends_list .
+    RUN chmod 777 docker-entrypoint.sh
 # Expose ports (8000 for Django, optional 6379 for Redis if applicable)
-EXPOSE 8002
+EXPOSE 8000
 
 # Command to start Django development server
-CMD  ["python", "/workspace/friends_list/manage.py", "runserver", "0.0.0.0:8002"]
+CMD ["./docker-entrypoint.sh"]
