@@ -62,7 +62,7 @@ class HomeView extends AbstractView {
 
   _setHtml() {
     let pm = "";
-    const container = document.querySelector(".container");
+    const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `<h1>Welcome back ${
         Application.getUserInfos().userName
