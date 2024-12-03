@@ -1,6 +1,7 @@
 # Create your views here.
 from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UsernameSerializer
 import json
+import logging
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -8,14 +9,16 @@ from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import RegisterSerializer
-from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .utils import is_user_online
+from django.views.decorators.csrf import ensure_csrf_cookie
+
 
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
@@ -25,6 +28,10 @@ class UserListView(generics.ListAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 

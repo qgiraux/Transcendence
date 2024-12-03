@@ -23,7 +23,6 @@ RUN chmod 777 docker-entrypoint.sh
 
 
 EXPOSE 8000 6379
-# Keep the container running
+
 CMD ["./docker-entrypoint.sh"]
-# CMD ["tail", "-f", "/dev/null"]
-# CMD ["cd ", "user_management/manage.py", "runserver", "0.0.0.0:8000"]
+
