@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Chat Overlay</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		.chat-box {
+			width: 300px;
+			height: 400px;
+			bottom: 20px;
+			right: 20px;
+			z-index: 1050;
+			/* Plus élevé que les composants standards */
+			background: white;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			border: 1px solid #ddd;
+			border-radius: 8px;
+		}
+
+		.chat-header {
+			background-color: #007bff;
+			color: white;
+			padding: 10px;
+			border-top-left-radius: 8px;
+			border-top-right-radius: 8px;
+		}
+
+		.chat-body {
+			padding: 10px;
+			overflow-y: auto;
+			height: calc(100% - 80px);
+			/* En tenant compte du header et footer */
+		}
+
+		.chat-footer {
+			padding: 10px;
+			border-top: 1px solid #ddd;
+		}
+
+		.chat-footer input {
+			width: calc(100% - 50px);
+			display: inline-block;
+		}
+
+		.chat-footer button {
+			width: 40px;
+			height: 40px;
+			margin-left: 5px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="view">
+		<h1>Contenu Principal</h1>
+		<p>Ceci est le contenu de la div principale.</p>
+	</div>
+
+	<div class="position-fixed chat-box d-none">
+		<div class="chat-header d-flex justify-content-between align-items-center">
+			<span>Chat</span>
+			<button class="btn btn-sm btn-close" onclick="toggleChat()"></button>
+		</div>
+		<div class="chat-body">
+			<p><strong>Bot:</strong> Bonjour ! Comment puis-je vous aider ?</p>
+		</div>
+		<div class="chat-footer">
+			<input type="text" class="form-control" placeholder="Écrivez un message...">
+			<button class="btn btn-primary">➤</button>
+		</div>
+	</div>
+
+	<button class="btn btn-primary position-fixed bottom-0 end-0 m-4" onclick="toggleChat()">Chat</button>
+
+	<script>
+		function toggleChat() {
+			const chatBox = document.querySelector('.chat-box');
+			chatBox.classList.toggle('d-none');
+		}
+	</script>
+</body>
+
+</html>

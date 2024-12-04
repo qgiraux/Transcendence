@@ -24,19 +24,14 @@
 			flex-grow: 1;
 			padding: 20px;
 			overflow-y: auto;
-			background-color: #333232;
-		}
-
-		.btn-custom {
-			width: 150px;
-
+			background-color: #272727;
 		}
 	</style>
 </head>
 
 <body>
 	<!-- sidebar html -->
-	<div id="sidebar" class="col-md-2 col-xl-2 px-sm-2 py-4 px-0 bg-dark d-none">
+	<div id="sidebar" class="col-md-2 col-xl-2 px-sm-2 py-4 px-0 bg-dark">
 		<div class="dropdown pb-4">
 			<a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
 				id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -76,10 +71,10 @@
 		</ul>
 	</div>
 	</div>
-
+	<!-- END sidebar html -->
 	<!--  alert container html -->
 	<div id="alert-container" class="position-fixed top-0 start-0 w-100 p-3" style="z-index: 1050;">
-		<!-- <div class="row">
+		<div class="row">
 			<div class="col-6 mx-auto">
 				<div class="alert alert-danger alert-dismissible fade show" role="alert">
 					<strong>This is an error</strong> The error message.
@@ -94,18 +89,56 @@
 					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 				</div>
 			</div>
-		</div> -->
+		</div>
 	</div>
-
+	<!--  END alert container html -->
 	<!--  view  container this div is programmatically updated by
 	  the View classes instantiated by the Router  -->
 	<div id="view-container" class="container-fluid col py-3">
-	</div>
 
-	<!-- The code of our app  is called below -->
-	<script type="module" src="/index.js"></script>
-	<!-- Bootsrap js loading-->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+		<div class="row">
+			<div class="col-12  mt-5 ">
+
+				<h2 class="  text-white font-weight-bold  mt-3">Welcome to</h2>
+				<h1 class="  text-white font-weight-bold display-1  mt-3">transcendance</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-4">
+				<div class="text-white p-3">
+					<p class="text-white text-justify">Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit
+						dolore rem
+						placeat animi
+						quas
+						temporibus
+						reiciendis sequi fugit tempore nobis commodi nihil at, consectetur mollitia, fugiat enim facere
+						sit
+						suscipit?</p>
+				</div>
+			</div>
+
+			<div class="col-md-8">
+				<div class="text-white p-3">
+					<p class="text-white text-justify">Lorem ipsum dolor sit amet consectetur adipisicing
+						elit. Impedit
+						dolore rem
+						placeat animi
+						quas
+						temporibus
+						reiciendis sequi fugit tempore nobis commodi nihil at, consectetur mollitia, fugiat enim facere
+						sit
+						suscipit? Lorem ipsum dolor sit amet consectetur adipisicing elit. Et minus, quisquam natus
+						dolorem error vel quam facere eligendi reiciendis a esse maiores ducimus officiis ad voluptate
+						molestias doloremque sed. Autem?</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Our code goes here -->
+		<script type="module" src="/index.js"></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

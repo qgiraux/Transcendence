@@ -7,19 +7,48 @@ class LoginView extends AbstractView {
     super(params);
     this._setTitle("Login");
     this.onStart();
+    const loginRadio = document.getElementById("loginradio");
+    const createAccountRadio = document.getElementById("registerradio");
+    this.addEventListener(loginRadio, "change", this._handleToggle.bind(this));
+    this.addEventListener(
+      createAccountRadio,
+      "change",
+      this._handleToggle.bind(this)
+    );
+    document.getElementById("register-form").style.display = "none";
   }
 
   onStart() {
     this.setHtml();
-    //Alert placeholder
-    // this._hideAlert();
+  }
 
-    // Submit button
-    this.addEventListener(
-      document.querySelector("#submit-btn"),
-      "click",
-      this._submitHandler.bind(this)
-    );
+  _handleToggle(event) {
+    event.stopPropagation();
+    const loginRadio = document.getElementById("loginradio");
+    const createAccountRadio = document.getElementById("registerradio");
+    const loginButton = document.getElementById("login-btn");
+    const registerButton = document.getElementById("register-btn");
+    const register = document.getElementById("register-form");
+    const login = document.getElementById("login-form");
+    if (loginRadio.checked) {
+      register.style.display = "none";
+      login.style.display = "block";
+      this.addEventListener(
+        loginButton,
+        "click",
+        this._loginHandler.bind(this)
+      );
+      this.deleteEventListenerByElement(registerButton);
+    } else if (createAccountRadio.checked) {
+      login.style.display = "none";
+      register.style.display = "block";
+      this.addEventListener(
+        registerButton,
+        "click",
+        this._registerHandler.bind(this)
+      );
+      this.deleteEventListenerByElement(loginButton);
+    }
   }
 
   _validatePass(passwordValue) {
@@ -31,19 +60,16 @@ class LoginView extends AbstractView {
     // Logique a ameliorer avec un regex
     return loginValue.length >= 3;
   }
-  //   _displayAlert(msg) {
-  //     const alert = document.querySelector("#alert-placeholder");
-  //     alert.innerHTML = msg;
-  //     alert.style.display = "block";
-  //   }
-  //   _hideAlert() {
-  //     const alert = document.querySelector("#alert-placeholder");
-  //     alert.style.display = "none";
-  //   }
-  _submitHandler(event) {
+
+  _toggleHandler(event) {
     event.preventDefault();
     event.stopPropagation();
-    // this._hideAlert();
+    Application.toggleSideBar();
+  }
+
+  _loginHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
     const login = document.querySelector("#InputLogin");
     const password = document.querySelector("#InputPassword");
     if (
@@ -52,7 +78,7 @@ class LoginView extends AbstractView {
     ) {
       this.loginRequest({ username: login.value, password: password.value });
     } else {
-      this._displayError("You must provide a valid login and password");
+      console.log("You must provide a valid login and password");
     }
   }
 
@@ -73,9 +99,46 @@ class LoginView extends AbstractView {
       }
       Application.setToken(json);
       Application.setUserInfos(); //extract and store the id and username
+      Application.toggleSideBar();
       Router.reroute("/home");
     } catch (error) {
       Alert.error(error.message); //ajouter affichge erreur dans le dom
+    }
+  }
+
+  _registerHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const login = document.querySelector("#RegisterLogin");
+    const password = document.querySelector("#RegisterPassword");
+    const passwordConfirm = document.querySelector("#RegisterPasswordConfirm");
+    if (
+      this._validateLogin(login.value) &&
+      password.value === passwordConfirm.value &&
+      this._validatePass(password.value)
+    ) {
+      this.RegisterRequest({ username: login.value, password: password.value });
+    } else {
+      console.log("You must provide a valid user name and password "); // Ameliorer la gestion d'erreur
+    }
+  }
+
+  async RegisterRequest(credentials) {
+    try {
+      const response = await fetch("/api/users/register/", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
+      if (response.status !== 201) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      this.loginRequest(credentials);
+    } catch (error) {
+      console.error(error.message);
     }
   }
 
@@ -86,22 +149,67 @@ class LoginView extends AbstractView {
       pm += String(key) + " : " + this.params[key] + "<br>";
     }
     if (container) {
-      container.innerHTML = `<h1>Welcome to Transcendence</h1><br>
-	  <h2>Please login to access your account</h2><br>
-	  <div id="alert-placeholder"></div>
-    <form>
-  <div class="form-group">
-    <label for="InputLogin">Login</label>
-    <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp" placeholder="Enter login">
-    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-  </div>
-  <div class="form-group">
-    <label for="InputPassword">Password</label>
-    <input type="password" class="form-control" id="InputPassword" placeholder="Password">
-  </div>
-  <button id="submit-btn" type="submit" class="btn btn-primary">Submit</button>
-</form>
-<p>Don't have an account yet ? <a href="/register" data-link>register</a></p>
+      container.innerHTML = `
+			<div class="row text-white ">
+			<div class="col-10 mx-auto justify-content-center mb-5">
+				<img src="/img/transcendence.webp" class="img-fluid" alt="Responsive image">
+			</div>
+
+		</div>
+		<div class="row text-white ">
+			<div class="col-6 mx-auto">
+				<div class="btn-group d-flex text-center" role="group" aria-label="toggle login register">
+					<input type="radio" class="btn-check" name="btnradio" id="loginradio" autocomplete="off" checked>
+					<label class="btn btn-outline-primary btn-custom" for="loginradio"> Login</label>
+
+					<input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
+					<label class="btn btn-outline-primary btn-custom" for="registerradio">Create an account</label>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="row " id="login-form">
+			<div class="col-6 mx-auto mt-5">
+				<form>
+					<div class="form-group text-white ">
+						<label for="InputLogin">Login</label>
+						<input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
+							placeholder="Enter login">
+
+					</div>
+					<div class="form-group text-white ">
+						<label for="InputPassword">Password</label>
+						<input type="password" class="form-control" id="InputPassword" placeholder="Password">
+					</div>
+					<button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
+				</form>
+
+			</div>
+
+		</div>
+
+		<div class="row " id="register-form">
+			<div class="col-6 mx-auto mt-5 ">
+				<form>
+					<div class="form-group text-white  ">
+						<label for="RegisterLogin">Choose your Login</label>
+						<input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
+							placeholder="Choose a login">
+
+					</div>
+					<div class="form-group text-white mt-2 ">
+						<label for="RegisterPassword">Choose your Password</label>
+						<input type="password" class="form-control" id="RegisterPassword" placeholder="Password">
+					</div>
+					<div class="form-group text-white mt-2 ">
+						<label for="RegisterPasswordConfirm">Confirm your Password</label>
+						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password">
+					</div>
+					<button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
+				</form>
+
+			</div>
 `;
     }
   }
