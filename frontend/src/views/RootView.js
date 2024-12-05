@@ -11,7 +11,7 @@ class RootView extends AbstractView {
 
   onStart() {
     if (Application.getAccessToken === null) {
-      Router.reroute("/login");
+      Router.reroute("/landing");
     } else {
       Router.reroute("/home");
     }

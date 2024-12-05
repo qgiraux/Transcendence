@@ -12,7 +12,7 @@ class HomeView extends AbstractView {
 
   onStart() {
     if (Application.getAccessToken() === null) {
-      Router.reroute("/login");
+      Router.reroute("/landing");
     } else {
       this._setHtml();
       this.addEventListener(

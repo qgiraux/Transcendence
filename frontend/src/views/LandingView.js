@@ -2,11 +2,15 @@ import AbstractView from "./AbstractView.js";
 import Application from "../Application.js";
 import Router from "../Router.js";
 
-class LoginView extends AbstractView {
+class LandingView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("Login");
     this.onStart();
+  }
+
+  onStart() {
+    this.setHtml();
     const loginRadio = document.getElementById("loginradio");
     const createAccountRadio = document.getElementById("registerradio");
     this.addEventListener(loginRadio, "change", this._handleToggle.bind(this));
@@ -16,10 +20,11 @@ class LoginView extends AbstractView {
       this._handleToggle.bind(this)
     );
     document.getElementById("register-form").style.display = "none";
-  }
-
-  onStart() {
-    this.setHtml();
+    this.addEventListener(
+      document.getElementById("login-btn"),
+      "click",
+      this._loginHandler.bind(this)
+    );
   }
 
   _handleToggle(event) {
@@ -68,6 +73,7 @@ class LoginView extends AbstractView {
   }
 
   _loginHandler(event) {
+    console.log("_loginHandler");
     event.preventDefault();
     event.stopPropagation();
     const login = document.querySelector("#InputLogin");
@@ -76,6 +82,10 @@ class LoginView extends AbstractView {
       this._validateLogin(login.value) &&
       this._validatePass(password.value)
     ) {
+      console.log("login request", {
+        username: login.value,
+        password: password.value,
+      });
       this.loginRequest({ username: login.value, password: password.value });
     } else {
       console.log("You must provide a valid login and password");
@@ -215,4 +225,4 @@ class LoginView extends AbstractView {
   }
 }
 
-export default LoginView;
+export default LandingView;
