@@ -111,3 +111,9 @@ def CheckUserStatus(request, user_id):
     return JsonResponse({"user_id": user_id, "online": online})
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def GetAllUsers(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return JsonResponse(serializer.data, safe=False)
