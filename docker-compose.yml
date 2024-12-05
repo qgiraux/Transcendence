@@ -73,6 +73,7 @@ services:
       - user_management
     networks:
       - transcendence
+    init: true
 
   db_friends_list:
     container_name: db_friends_list
