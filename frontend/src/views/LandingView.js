@@ -1,5 +1,6 @@
 import AbstractView from "./AbstractView.js";
 import Application from "../Application.js";
+import Alert from "../Alert.js";
 import Router from "../Router.js";
 
 class LandingView extends AbstractView {
@@ -57,13 +58,15 @@ class LandingView extends AbstractView {
   }
 
   _validatePass(passwordValue) {
-    // Logique a ameliorer avec un regex
-    return passwordValue.length >= 3;
+    const validatExpr = new RegExp(
+      "^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$"
+    );
+    return validatExpr.test(passwordValue);
   }
 
   _validateLogin(loginValue) {
-    // Logique a ameliorer avec un regex
-    return loginValue.length >= 3;
+    const validatExpr = new RegExp("^[a-zA-Z0-9]+$");
+    return validatExpr.test(loginValue);
   }
 
   _toggleHandler(event) {
@@ -73,7 +76,6 @@ class LandingView extends AbstractView {
   }
 
   _loginHandler(event) {
-    console.log("_loginHandler");
     event.preventDefault();
     event.stopPropagation();
     const login = document.querySelector("#InputLogin");
@@ -82,13 +84,14 @@ class LandingView extends AbstractView {
       this._validateLogin(login.value) &&
       this._validatePass(password.value)
     ) {
-      console.log("login request", {
-        username: login.value,
-        password: password.value,
-      });
       this.loginRequest({ username: login.value, password: password.value });
     } else {
-      console.log("You must provide a valid login and password");
+      Alert.errorMessage(
+        "You must provide a valid username and password.",
+        `The login must contains only letters or digits and be at least 8 characters long <br>
+		 The password must be contains at least 8 characters and contains one digit,
+		 one uppercase letter and one special character !@#$%^&* `
+      );
     }
   }
 
@@ -104,15 +107,15 @@ class LandingView extends AbstractView {
       });
       const json = await response.json();
       if (!response.ok) {
-        console.log(json.detail);
+        Alert.errorMessage("Login error", "Invalid user or password");
         return;
       }
       Application.setToken(json);
-      Application.setUserInfos(); //extract and store the id and username
+      Application.setUserInfos();
       Application.toggleSideBar();
       Router.reroute("/home");
     } catch (error) {
-      Alert.error(error.message); //ajouter affichge erreur dans le dom
+      Alert.errorMessage("Login error", "Connexion issue");
     }
   }
 
@@ -129,7 +132,10 @@ class LandingView extends AbstractView {
     ) {
       this.RegisterRequest({ username: login.value, password: password.value });
     } else {
-      console.log("You must provide a valid user name and password "); // Ameliorer la gestion d'erreur
+      Alert.errorMessage(
+        "Error",
+        " You must provide a valid username and password"
+      );
     }
   }
 
@@ -148,7 +154,7 @@ class LandingView extends AbstractView {
       }
       this.loginRequest(credentials);
     } catch (error) {
-      console.error(error.message);
+      Alert.errorMessage("register error", error.message);
     }
   }
 
@@ -185,12 +191,12 @@ class LandingView extends AbstractView {
 					<div class="form-group text-white ">
 						<label for="InputLogin">Login</label>
 						<input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
-							placeholder="Enter login">
+							placeholder="Enter login" required>
 
 					</div>
 					<div class="form-group text-white ">
 						<label for="InputPassword">Password</label>
-						<input type="password" class="form-control" id="InputPassword" placeholder="Password">
+						<input type="password" class="form-control" id="InputPassword" placeholder="Password required">
 					</div>
 					<button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
 				</form>
@@ -205,16 +211,16 @@ class LandingView extends AbstractView {
 					<div class="form-group text-white  ">
 						<label for="RegisterLogin">Choose your Login</label>
 						<input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
-							placeholder="Choose a login">
+							placeholder="Choose a login" required>
 
 					</div>
 					<div class="form-group text-white mt-2 ">
 						<label for="RegisterPassword">Choose your Password</label>
-						<input type="password" class="form-control" id="RegisterPassword" placeholder="Password">
+						<input type="password" class="form-control" id="RegisterPassword" placeholder="Password" required>
 					</div>
 					<div class="form-group text-white mt-2 ">
 						<label for="RegisterPasswordConfirm">Confirm your Password</label>
-						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password">
+						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
 					</div>
 					<button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
 				</form>
