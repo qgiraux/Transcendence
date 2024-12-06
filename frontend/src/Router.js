@@ -25,7 +25,7 @@ class Router {
 
   setListeners() {
     window.addEventListener("popstate", this.route.bind(this));
-    document.body.addEventListener("click", this._handleLinkClick.bind(this));
+    document.addEventListener("click", this._handleLinkClick.bind(this));
     document.addEventListener("redirect", this._redirect.bind(this));
   }
 

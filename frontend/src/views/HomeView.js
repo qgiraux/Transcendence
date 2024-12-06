@@ -69,6 +69,7 @@ class HomeView extends AbstractView {
       }!</h1>
 	<button id="refresh-btn" class="btn btn-primary">refresh token</button><br>
 	<button id="request-btn" class="btn btn-primary">make a request</button>
+	<a href="/friends" data-link> test friends</a>
 					`;
     }
   }

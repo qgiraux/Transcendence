@@ -36,8 +36,8 @@
 
 <body>
 	<!-- sidebar html -->
-	<div id="sidebar" class="col-md-2 col-xl-2 px-sm-2 py-4 px-0 bg-dark d-none">
-		<div class="dropdown pb-4">
+	<div id="sidebar" class="col-md-2 col-xl-2 px-sm-2 py-4 px-0 d-none " style="background-color: #1f1f1f;" data-link>
+		<div class="dropdown pb-4" data-link>
 			<a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
 				id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
 				<img src="https://github.com/mdo.png" alt="hugenerd" width="40" height="40" class="rounded-circle">
@@ -48,29 +48,18 @@
 			</ul>
 		</div>
 
-		<ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start d-flex  justify-content-center"
+		<ul data-link
+			class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start d-flex  justify-content-center"
 			id="menu">
-			<li class="nav-item">
-				<a href="#" class="nav-link align-middle px-0">
-					<span class="">
-						<h5>Home</h5>
-					</span>
-				</a>
+			<li class="nav-item" data-link>
+				<a href="/tournaments" data-link class="nav-link px-0 align-middle">Tournaments</a>
 			</li>
 
 			<li>
-				<a href="#" class="nav-link px-0 align-middle">
-					<span class="">
-						<h5>Friends</h5>
-					</span>
-				</a>
+				<a href="/friends" data-link class="nav-link px-0 align-middle">Friends</a>
 			</li>
 			<li>
-				<a href="#" class="nav-link px-0 align-middle">
-					<span class="">
-						<h5>Tournaments</h5>
-					</span>
-				</a>
+				<a href="/settings" data-link class="nav-link px-0 align-middle">settings</a>
 			</li>
 
 		</ul>
