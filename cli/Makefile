@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/06 10:28:10 by jerperez          #+#    #+#              #
-#    Updated: 2024/11/16 16:03:04 by jerperez         ###   ########.fr        #
+#    Updated: 2024/11/28 15:58:38 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,18 +15,22 @@ NAME = pong-cli
 CXX = c++
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98	
 
-SRCS	=	main.cpp \
-			cli_field.cpp \
-			cli_demo.cpp \
-			cli_paddle.cpp \
-			cli_print.cpp \
-			cli_put09.cpp \
-			cli_game_loop.cpp \
-			cli_keys.cpp \
-			cli_cursor.cpp \
-			cli_parse_args.cpp \
-			Game.cpp \
-			Game_api.cpp
+#SRCS	=	cli_login.cpp
+
+SRCS	=	Screen.cpp
+
+# SRCS	=	main.cpp \
+# 			cli_field.cpp \
+# 			cli_demo.cpp \
+# 			cli_paddle.cpp \
+# 			cli_print.cpp \
+# 			cli_put09.cpp \
+# 			cli_game_loop.cpp \
+# 			cli_keys.cpp \
+# 			cli_cursor.cpp \
+# 			cli_parse_args.cpp \
+# 			Game.cpp \
+# 			Game_api.cpp
 
 OBJ_DIR	=	obj
 
