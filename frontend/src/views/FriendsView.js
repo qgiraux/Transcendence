@@ -5,30 +5,31 @@ import Application from "../Application.js";
 import Router from "../Router.js";
 
 class FriendsView extends AbstractView {
+  friendList = [];
+  userList = [];
   constructor(params) {
     super(params);
     this.onStart();
   }
 
   onStart() {
+    this._setTitle("Friends");
     if (Application.getAccessToken() === null) {
       setTimeout(() => {
         Router.reroute("/landing");
       }, 50);
       return;
     }
+    this._getFriendsList();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
-        this.userList = result.filter((user) => {
-          return user["id"] !== Application.getUserInfos().userId;
-        });
+        this.userList = result;
       })
       .catch((error) => {
         Alert.errorMessage("Error", error.message);
       });
-    this._setHtml();
 
-    this._getFriendsList();
+    this._setHtml();
 
     this.addEventListener(
       document.querySelector("#searchInput"),
@@ -67,6 +68,7 @@ class FriendsView extends AbstractView {
             result.username;
           document.getElementById("modal-nickname").textContent =
             result.nickname;
+          document.getElementById("UserSelectModal").dataset.id = userId;
           const modal = new bootstrap.Modal(
             document.getElementById("UserSelectModal")
           );
@@ -86,11 +88,17 @@ class FriendsView extends AbstractView {
   _updateDropdown() {
     const searchInput = document.querySelector("#searchInput");
     const dropDownMenu = document.querySelector("#dropdownMenu");
-
+    const searchList = this.userList
+      .filter((user) => {
+        return user["id"] !== Application.getUserInfos().userId;
+      })
+      .filter((user) => {
+        return !this.friendList.includes(user["id"]);
+      });
     dropDownMenu.innerHTML = "";
     if (searchInput.value.length > 0) {
       const lowercaseValue = searchInput.value.toLowerCase();
-      const filtered = this.userList.filter((user) => {
+      const filtered = searchList.filter((user) => {
         return (
           user.username.toLowerCase().startsWith(lowercaseValue) ||
           user.nickname.toLowerCase().startsWith(lowercaseValue)
@@ -114,7 +122,8 @@ class FriendsView extends AbstractView {
         "GET",
         "/api/friends/friendslist/"
       );
-      console.log("friends", friendsList);
+      this.friendList = friendsList.friends;
+      this.displayFriendsList(friendsList.friends);
     } catch (error) {
       Alert.errorMessage(
         "get Friends list : something went wrong",
@@ -122,17 +131,81 @@ class FriendsView extends AbstractView {
       );
     }
   }
-  async _addFriend(id) {
+
+  addFriendCard(friend) {
+    const friendsContainer = document.querySelector("#friends-container");
+    const div = document.createElement("div");
+    div.classList.add("col-md-4");
+    div.classList.add("col-lg-3");
+    div.style.maxWidth = " 160px";
+    div.innerHTML = `
+	<div class="col-md-4 col-lg-3 " style="width: 150px;">
+		<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
+		style="background-color: #303030;">
+			<img class="card-img-top  rounded" src="img/avatar_placeholder.jpg" alt="Card image cap">
+				<div class="card-body">
+					<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
+					${friend.username}'s nickname
+					</h5>
+					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${friend.username})</p>
+					<span class="bg-success"></span>
+					<div class="dropdown">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Dropdown button
+					</button>
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						<a class="dropdown-item" href="#">Action</a>
+						<a class="dropdown-item" href="#">Another action</a>
+						<a class="dropdown-item" href="#">Something else here</a>
+					</div>
+					</div>
+					<p class="card-text  my-0 mb-0"
+						style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);">
+						Online
+
+				</div>
+			</div>
+	</div>`;
+    friendsContainer.appendChild(div);
+  }
+
+  displayFriendsList(friendsList) {
+    const friendsContainer = document.querySelector("#friends-container");
+    friendsContainer.innerHTML = "";
+    friendsList.forEach((friendId) => {
+      const FriendInfo = TRequest.request(
+        "GET",
+        `/api/users/userinfo/${friendId}`
+      )
+        .then((result) => {
+          this.addFriendCard(result);
+        })
+        .catch((error) => {
+          Alert.errorMessage("displayFriendsList error", error.message);
+        });
+    });
+  }
+
+  async _addFriend(event) {
     try {
+      const button = event.target;
+      const modal = button.closest(".modal");
+      if (!modal) {
+        throw new Error("Modal not found");
+      }
+      const friendId = modal.getAttribute("data-id");
+      if (!friendId) {
+        throw new Error("data-id attribute not found on modal");
+      }
       const request = await TRequest.request(
         "POST",
         "/api/friends/addfriend/",
         {
-          id: id,
+          id: friendId,
         }
       );
       if (request.message !== "Friend added successfully")
-        throw new Error("error");
+        throw new Error("The user couldn't be added as a friend");
       this._getFriendsList();
     } catch (error) {
       Alert.errorMessage("something went wrong", error.message);
@@ -158,13 +231,11 @@ class FriendsView extends AbstractView {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="add-friend-button">Add as a friend</button>
+        <button type="button" class="btn btn-primary" id="add-friend-button"  data-bs-dismiss="modal">Add as a friend</button>
       </div>
     </div>
   </div>
 </div>
-
-
 
 
 <div class="row">
@@ -173,73 +244,12 @@ class FriendsView extends AbstractView {
 			</div>
 		</div>
 		<div class="row g-2  border border-secondary p-2 rounded" id="friends-container">
-			<div class="col-md-4 col-lg-3" style="max-width: 150px;">
-				<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
-					style="background-color: #303030;">
-					<img class="card-img-top  rounded" src="img/avatar_placeholder.jpg" alt="Card image cap">
-					<div class="card-body">
-						<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">Nicolas The
-							destructor
-						</h5>
-						<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(NicolasRea)</p>
-						<span class="bg-success"></span>
-						<p class="card-text  my-0 mb-0"
-							style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);">
-							Online
-						</p>
-						<a href="#" class="text-primary my-0 mb-0" style=" font-size: 0.8rem;">View profile</a>
-						<a href="#" class="text-danger my-0 mb-0" style=" font-size: 0.8rem;">Remove friend</a>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-md-4 col-lg-3" style="max-width: 150px;">
-				<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
-					style="background-color: #303030;">
-					<img class="card-img-top  rounded" src="img/avatar_placeholder.jpg" alt="Card image cap">
-					<div class="card-body">
-						<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">Nicolas The
-							destructor
-						</h5>
-						<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(NicolasRea)</p>
-						<span class="bg-success"></span>
-						<p class="card-text  my-0 mb-0"
-							style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);">
-							Online
-						</p>
-						<a href="#" class="text-primary my-0 mb-0" style=" font-size: 0.8rem;">View profile</a>
-						<a href="#" class="text-primary my-0 mb-0" style=" font-size: 0.8rem;">Invite to a game</a>
-						<a href="#" class="text-danger my-0 mb-0" style=" font-size: 0.8rem;">Remove friend</a>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-4 col-lg-3" style="max-width: 150px;">
-				<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
-					style="background-color: #303030;">
-					<img class="card-img-top  rounded" src="img/avatar_placeholder.jpg" alt="Card image cap">
-					<div class="card-body">
-						<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">Nicolas The
-							destructor
-						</h5>
-						<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(NicolasRea)</p>
-						<span class="bg-success"></span>
-						<p class="card-text  my-0 mb-0"
-							style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);">
-							Online
-						</p>
-						<a href="#" class="text-primary my-0 mb-0" style=" font-size: 0.8rem;">View profile</a>
-						<a href="#" class="text-danger my-0 mb-0" style=" font-size: 0.8rem;">Remove friend</a>
-					</div>
-				</div>
-			</div>
 		</div>
 
 		<div class="row">
 			<div class="col-12">
 				<h3 class="text-white display-5 mt-5 mb-0">Still looking for a friend ?</h3>
 			</div>
-
-
 			<div class="row mt-0">
 				<div class="col-9 mx-auto">
 					<div class="container mt-5">
@@ -262,18 +272,3 @@ class FriendsView extends AbstractView {
 }
 
 export default FriendsView;
-
-/*
-recuperer la liste des utilisateurs
-
-		<div class="">
-		<div class="card" style="width: 18rem;">
-		<img class="card-img-top" src=".../100px180/" alt="Card image cap">
-		<div class="card-body">
-			<h5 class="card-title">Card title</h5>
-			<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-			<a href="#" class="btn btn-primary">Go somewhere</a>
-		</div>
-		</div>
-		</div>
-*/
