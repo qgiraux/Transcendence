@@ -28,6 +28,8 @@ class FriendsView extends AbstractView {
       });
     this._setHtml();
 
+    this._getFriendsList();
+
     this.addEventListener(
       document.querySelector("#searchInput"),
       "input",
@@ -39,6 +41,18 @@ class FriendsView extends AbstractView {
       "click",
       this._dropDownClickHandler.bind(this)
     );
+
+    this.addEventListener(
+      document.querySelector("#add-friend-button"),
+      "click",
+      this._addFriend.bind(this)
+    );
+  }
+
+  // safely removing focus form the modal when it closes - accessibility issue
+  _modalSafeClose(event) {
+    console.log(" "); // data race fun instruction
+    document.getElementById("searchInput").focus();
   }
 
   _dropDownClickHandler(event) {
@@ -53,9 +67,13 @@ class FriendsView extends AbstractView {
             result.username;
           document.getElementById("modal-nickname").textContent =
             result.nickname;
-          console.log(result);
           const modal = new bootstrap.Modal(
             document.getElementById("UserSelectModal")
+          );
+          this.addEventListener(
+            document.getElementById("UserSelectModal"),
+            "hidden.bs.modal",
+            this._modalSafeClose.bind(this)
           );
           modal.show();
         })
@@ -82,11 +100,42 @@ class FriendsView extends AbstractView {
       filtered.forEach((user) => {
         const li = document.createElement("li");
         li.dataset.id = user["id"];
-        li.innerHTML = `<a class="dropdown-item" >
+        li.innerHTML = `<a class="dropdown-item" style="max-width: 500px;" >
 		<img src="img/avatar_placeholder.jpg" alt="hugenerd" width="40" height="40" class="rounded-circle">
 		${user.username}</a>`;
         dropDownMenu.appendChild(li);
       });
+    }
+  }
+
+  async _getFriendsList() {
+    try {
+      const friendsList = await TRequest.request(
+        "GET",
+        "/api/friends/friendslist/"
+      );
+      console.log("friends", friendsList);
+    } catch (error) {
+      Alert.errorMessage(
+        "get Friends list : something went wrong",
+        error.message
+      );
+    }
+  }
+  async _addFriend(id) {
+    try {
+      const request = await TRequest.request(
+        "POST",
+        "/api/friends/addfriend/",
+        {
+          id: id,
+        }
+      );
+      if (request.message !== "Friend added successfully")
+        throw new Error("error");
+      this._getFriendsList();
+    } catch (error) {
+      Alert.errorMessage("something went wrong", error.message);
     }
   }
 
@@ -109,7 +158,7 @@ class FriendsView extends AbstractView {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Add as a friend</button>
+        <button type="button" class="btn btn-primary" id="add-friend-button">Add as a friend</button>
       </div>
     </div>
   </div>
