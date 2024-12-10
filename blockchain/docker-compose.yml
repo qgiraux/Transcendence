@@ -7,27 +7,40 @@ services:
     networks:
       - docker-network
     depends_on:
-      - ethereum-testnet
-    volumes:
-      - ethereum-testnet:/data/
+      - hardhat-network
+    # volumes:
+    #   - ethereum-testnet:/data/
     #   - adminer:/data/adminer
     #   - mariadb:/data/mysql
     #   - website:/data/website
     # expose:
     #   - 8546 #
-  ethereum-testnet:
-    build: ./ethereum-testnet
-    container_name: ethereum-testnet
+  hardhat-network:
+    build: ./hardhat-network
+    container_name: hardhat-network
     restart: always
     env_file: ./.env
-    volumes:
-      - ethereum-testnet:/data/
+    # volumes:
+    #   - ethereum-testnet:/data/
     networks:
       - docker-network
-    # expose:
-    #   - 85450
+    expose:
+      - 8545
     # ports:
     #   - 80:80
+  # ethereum-testnet:
+  #   build: ./ethereum-testnet
+  #   container_name: ethereum-testnet
+  #   restart: always
+  #   env_file: ./.env
+  #   volumes:
+  #     - ethereum-testnet:/data/
+  #   networks:
+  #     - docker-network
+  #   # expose:
+  #   #   - 85450
+  #   # ports:
+  #   #   - 80:80
 
 networks:
   docker-network:

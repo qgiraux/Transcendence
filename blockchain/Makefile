@@ -54,6 +54,9 @@ exec-eth-daemon:
 exec-testnet:
 	docker exec -it ethereum-testnet /bin/sh
 
+exec-hardhat-network:
+	docker exec -it hardhat-network /bin/sh
+
 # ls $(VOLUME_DEVICE)
 
 # $(VOLUME_WP_DEVICE):

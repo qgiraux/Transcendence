@@ -3,3 +3,4 @@ eth-tester
 py-evm
 Django
 py-solc-x
+cbor2
