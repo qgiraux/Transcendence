@@ -110,9 +110,6 @@ class Router {
   }
 
   _redirect(event) {
-    console.log("redirected");
-    console.log("this", this);
-    console.log("event", event.detail.route);
     history.pushState(null, null, event.detail.route);
     this.route();
   }
@@ -125,7 +122,6 @@ class Router {
         route: uri,
       },
     });
-    console.log("rerouting");
     document.dispatchEvent(event);
   }
 }

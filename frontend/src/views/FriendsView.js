@@ -20,10 +20,11 @@ class FriendsView extends AbstractView {
       }, 50);
       return;
     }
-    this._getFriendsList();
+
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
         this.userList = result;
+        this._refreshFriendsList();
       })
       .catch((error) => {
         Alert.errorMessage("Error", error.message);
@@ -48,12 +49,41 @@ class FriendsView extends AbstractView {
       "click",
       this._addFriend.bind(this)
     );
+
+    this.addEventListener(
+      document.querySelector("#friends-container"),
+      "click",
+      this._friendDropDownhandler.bind(this)
+    );
   }
 
   // safely removing focus form the modal when it closes - accessibility issue
   _modalSafeClose(event) {
     console.log(" "); // data race fun instruction
+    console.log(" "); // data race fun instruction
     document.getElementById("searchInput").focus();
+  }
+
+  async _friendDropDownhandler(event) {
+    const target = event.target;
+    if (target.matches(".dropdown-item[data-action]")) {
+      const action = target.getAttribute("data-action");
+      const id = target.getAttribute("data-id");
+
+      switch (action) {
+        case "view-profile":
+          console.log(`Viewing profile for ID: ${id}`);
+          break;
+        case "invite-game":
+          console.log(`Inviting to a game for ID: ${id}`);
+          break;
+        case "unfriend":
+          this._removeFriend(id);
+          break;
+        default:
+          console.warn(`Action inconnue : ${action} pour ID : ${id}`);
+      }
+    }
   }
 
   _dropDownClickHandler(event) {
@@ -116,19 +146,36 @@ class FriendsView extends AbstractView {
     }
   }
 
-  async _getFriendsList() {
+  async _refreshFriendsList() {
     try {
       const friendsList = await TRequest.request(
         "GET",
         "/api/friends/friendslist/"
       );
       this.friendList = friendsList.friends;
-      this.displayFriendsList(friendsList.friends);
+      this.displayFriendsList(this.friendList);
     } catch (error) {
       Alert.errorMessage(
         "get Friends list : something went wrong",
         error.message
       );
+    }
+  }
+
+  async displayFriendsList(friendsList) {
+    const friendsContainer = document.querySelector("#friends-container");
+    friendsContainer.innerHTML = ""; // Vider le conteneur
+
+    try {
+      const friendPromises = friendsList.map((friendId) =>
+        TRequest.request("GET", `/api/users/userinfo/${friendId}`)
+      );
+      const friendsInfos = await Promise.all(friendPromises);
+      friendsInfos.forEach((friend) => {
+        this.addFriendCard(friend);
+      });
+    } catch (error) {
+      Alert.errorMessage("displayFriendsList error", error.message);
     }
   }
 
@@ -148,42 +195,23 @@ class FriendsView extends AbstractView {
 					${friend.username}'s nickname
 					</h5>
 					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${friend.username})</p>
-					<span class="bg-success"></span>
-					<div class="dropdown">
-					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						Dropdown button
-					</button>
-					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<a class="dropdown-item" href="#">Action</a>
-						<a class="dropdown-item" href="#">Another action</a>
-						<a class="dropdown-item" href="#">Something else here</a>
-					</div>
-					</div>
-					<p class="card-text  my-0 mb-0"
-						style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);">
-						Online
 
+					<div class="btn-group">
+					<button  style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);"
+					class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+					aria-expanded="false">
+					Online
+					</button>
+					<ul class="dropdown-menu">
+					<li><button class="dropdown-item" data-id=${friend.id} data-action="view-profile">View profile</button></li>
+                    <li><button class="dropdown-item" data-id=${friend.id} data-action="invite-game">Invite to a game</button></li>
+                    <li><button class="dropdown-item" data-id=${friend.id} data-action="unfriend">Unfriend</button></li>
+					</ul>
+					</div>
 				</div>
 			</div>
 	</div>`;
     friendsContainer.appendChild(div);
-  }
-
-  displayFriendsList(friendsList) {
-    const friendsContainer = document.querySelector("#friends-container");
-    friendsContainer.innerHTML = "";
-    friendsList.forEach((friendId) => {
-      const FriendInfo = TRequest.request(
-        "GET",
-        `/api/users/userinfo/${friendId}`
-      )
-        .then((result) => {
-          this.addFriendCard(result);
-        })
-        .catch((error) => {
-          Alert.errorMessage("displayFriendsList error", error.message);
-        });
-    });
   }
 
   async _addFriend(event) {
@@ -206,9 +234,20 @@ class FriendsView extends AbstractView {
       );
       if (request.message !== "Friend added successfully")
         throw new Error("The user couldn't be added as a friend");
-      this._getFriendsList();
+      await this._refreshFriendsList();
     } catch (error) {
       Alert.errorMessage("something went wrong", error.message);
+    }
+  }
+
+  async _removeFriend(friendId) {
+    try {
+      await TRequest.request("DELETE", "/api/friends/removefriend/", {
+        id: friendId,
+      });
+      this._refreshFriendsList();
+    } catch (error) {
+      Alert.errorMessage("remove friend error", error.message);
     }
   }
 
