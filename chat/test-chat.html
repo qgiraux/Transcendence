@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #chatBox {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #messages, #notifications {
+            max-height: 200px;
+            overflow-y: scroll;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+        .message, .notification {
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .sent {
+            background-color: #d0f0c0;
+            text-align: right;
+        }
+        .received {
+            background-color: #f0f0f0;
+        }
+        .notification {
+            background-color: #ffeb3b;
+        }
+        #inputArea {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        #inputArea input, #inputArea select {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #inputArea button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #inputArea button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatBox">
+        <h2>WebSocket Chat Test</h2>
+        <div id="messages"></div>
+        <div id="notifications"></div>
+        <div id="inputArea">
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <input type="text" id="groupInput" placeholder="Group name (default: global_chat)" />
+            <select id="messageType">
+                <option value="chat">Chat</option>
+                <option value="notification">Notification</option>
+            </select>
+            <button id="sendButton">Send</button>
+        </div>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // WebSocket setup
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzODQwMzU5LCJpYXQiOjE3MzM4NDAwNTksImp0aSI6ImJmNmNiM2IyNDY0MTRiNDNiNzk0N2QwNjFhNGFmYzI3IiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJxZ2lyYXV4Iiwibmlja25hbWUiOiJib2IiLCJpc19hZG1pbiI6ZmFsc2V9.f89qDJegIvD9HFesmPZb3wsjbc10enC2lcNLRODd7LY";
+        const socketUrl = `https://localhost:5000/ws/chat/?token=${token}`; // Replace with your WebSocket URL
+        let socket;
+
+        // DOM elements
+        const messageInput = document.getElementById('messageInput');
+        const groupInput = document.getElementById('groupInput');
+        const messageType = document.getElementById('messageType');
+        const sendButton = document.getElementById('sendButton');
+        const messagesContainer = document.getElementById('messages');
+        const notificationsContainer = document.getElementById('notifications');
+        const statusDiv = document.getElementById('status');
+
+        // Function to update status
+        function updateStatus(status) {
+            statusDiv.textContent = status;
+        }
+
+        // Function to append a message to the chat window
+        function appendMessage(sender, message, type) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            if (type === 'sent') {
+                messageElement.classList.add('sent');
+            } else {
+                messageElement.classList.add('received');
+            }
+
+            // Create sender and message content
+            const senderElement = document.createElement('strong');
+            senderElement.textContent = sender + ": ";
+            const messageText = document.createElement('span');
+            messageText.textContent = message;
+
+            // Append sender and message to the message div
+            messageElement.appendChild(senderElement);
+            messageElement.appendChild(messageText);
+            
+            // Append the message to the message container
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll to the latest message
+        }
+
+        // Function to append a notification to the notification box
+        function appendNotification(message) {
+            const notificationElement = document.createElement('div');
+            notificationElement.classList.add('notification');
+            notificationElement.textContent = message;
+
+            // Append the notification to the notification container
+            notificationsContainer.appendChild(notificationElement);
+            notificationsContainer.scrollTop = notificationsContainer.scrollHeight; // Scroll to the latest notification
+        }
+
+        // Connect to the WebSocket server
+        function connectWebSocket() {
+            socket = new WebSocket(socketUrl);
+
+            socket.onopen = function() {
+                updateStatus("Connected to the server!");
+            };
+
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'notification') {
+                    appendNotification(data.message);
+                } else {
+                    appendMessage(data.sender, data.message, 'received');
+                }
+            };
+
+            socket.onclose = function() {
+                updateStatus("Disconnected from the server.");
+            };
+
+            socket.onerror = function(error) {
+                updateStatus("Error connecting to the server.");
+            };
+        }
+
+        function sendMessage() {
+            const message = messageInput.value;
+            const group = groupInput.value || 'global_chat';
+            const type = messageType.value;
+            if (message && socket && socket.readyState === WebSocket.OPEN) {
+                const data = {
+                    type: type,
+                    group: group,
+                    message: message
+                };
+                socket.send(JSON.stringify(data));
+                //if (type === 'chat') {
+                //    appendMessage("You", message, 'sent');
+                //} else {
+                //    appendNotification(message);
+                //}
+                messageInput.value = ''; // Clear input after sending
+            }
+        }
+
+        // Set up the send button click event
+        sendButton.addEventListener('click', function() {
+            sendMessage();
+        });
+
+        // Set up the Enter key event
+        messageInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Start WebSocket connection on page load
+        connectWebSocket();
+    </script>
+</body>
+</html>

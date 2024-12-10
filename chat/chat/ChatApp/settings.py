@@ -23,13 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',
     'localhost',
     'redis',
-    '10.24.106.6',  # Add your local network IP
+    'nginx',   
 ]
 
 
@@ -77,6 +76,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ChatApp.wsgi.application'
+ASGI_APPLICATION = 'ChatApp.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.cors.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
 
 
 # Database
@@ -175,7 +184,7 @@ CACHES = {
     },
     'redis': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/',  # Replace with your Redis server info
+        'LOCATION': 'redis://redis:6379/1',  # Replace with your Redis server info
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -184,3 +193,4 @@ CACHES = {
 
 # Use the Redis cache as the default cache
 CACHES['default'] = CACHES['redis']
+REDIS_URL = "redis://redis:6379/1"

@@ -7,3 +7,4 @@ redis
 channels 
 channels_redis
 django_redis
+aioredis
