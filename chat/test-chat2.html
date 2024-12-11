@@ -47,7 +47,7 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        #inputArea input, #inputArea select {
+        #inputArea input, #inputArea select, #inputArea textarea {
             flex-grow: 1;
             padding: 10px;
             border-radius: 5px;
@@ -78,6 +78,7 @@
                 <option value="chat">Chat</option>
                 <option value="notification">Notification</option>
             </select>
+            <textarea id="jsonInput" placeholder="Type JSON message..."></textarea>
             <button id="sendButton">Send</button>
         </div>
         <div id="status"></div>
@@ -85,7 +86,7 @@
 
     <script>
         // WebSocket setup
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzODM5NzkzLCJpYXQiOjE3MzM4Mzk0OTMsImp0aSI6ImVmMmZmYzU0NWY4ZDQzY2Q5MWFiYmE3Zjc3NGZkY2ZiIiwidXNlcl9pZCI6MiwidXNlcm5hbWUiOiJxZ2lyYXV4MiIsIm5pY2tuYW1lIjoicWdpcmF1eDIiLCJpc19hZG1pbiI6ZmFsc2V9.tUq1VSWaheCIY-MtsstGyv9bApNpWMdGhur-U_1V3sQ";
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzOTI3Mjc0LCJpYXQiOjE3MzM5MjY5NzQsImp0aSI6IjNhNDQxN2MwOTFiNTRlZmNiMmNiNzkyNTVmMTlmMDljIiwidXNlcl9pZCI6MiwidXNlcm5hbWUiOiJxZ2lyYXV4MiIsIm5pY2tuYW1lIjoicWdpcmF1eDIiLCJpc19hZG1pbiI6ZmFsc2V9.7_SQpwjiVdRr08z4uzdgcsg5WoIgB6DjCu2Y8zoHXB8";
         const socketUrl = `https://localhost:5000/ws/chat/?token=${token}`; // Replace with your WebSocket URL
         let socket;
 
@@ -93,6 +94,7 @@
         const messageInput = document.getElementById('messageInput');
         const groupInput = document.getElementById('groupInput');
         const messageType = document.getElementById('messageType');
+        const jsonInput = document.getElementById('jsonInput');
         const sendButton = document.getElementById('sendButton');
         const messagesContainer = document.getElementById('messages');
         const notificationsContainer = document.getElementById('notifications');
@@ -169,18 +171,22 @@
             const message = messageInput.value;
             const group = groupInput.value || 'global_chat';
             const type = messageType.value;
-            if (message && socket && socket.readyState === WebSocket.OPEN) {
+            const jsonMessage = jsonInput.value;
+
+            if (jsonMessage) {
+                try {
+                    const data = JSON.parse(jsonMessage);
+                    socket.send(JSON.stringify(data));
+                } catch (e) {
+                    updateStatus("Invalid JSON format.");
+                }
+            } else if (message && socket && socket.readyState === WebSocket.OPEN) {
                 const data = {
                     type: type,
                     group: group,
                     message: message
                 };
                 socket.send(JSON.stringify(data));
-                if (type === 'chat') {
-                    appendMessage("You", message, 'sent');
-                } else {
-                    appendNotification(message);
-                }
                 messageInput.value = ''; // Clear input after sending
             }
         }

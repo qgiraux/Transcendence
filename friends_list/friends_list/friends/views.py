@@ -5,7 +5,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from .models import Friends
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})
 
-@ensure_csrf_cookie
+@csrf_exempt
 @permission_classes([IsAuthenticated])
 def add_friend(request):
     if request.method != 'POST':
@@ -56,7 +56,7 @@ def add_friend(request):
         logger.error(f"Unexpected error: {e}")
         return JsonResponse({'detail': 'An error occurred', 'code': 'error_occurred'}, status=500)
 
-@ensure_csrf_cookie
+@csrf_exempt
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
     if request.method != 'DELETE':
@@ -110,8 +110,8 @@ def remove_friend(request):
         )
 
 
+@csrf_exempt
 @permission_classes([IsAuthenticated])
-@ensure_csrf_cookie
 def friends_list(request):
     if request.method != 'GET':
         return HttpResponse(
