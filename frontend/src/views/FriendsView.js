@@ -37,7 +37,11 @@ class FriendsView extends AbstractView {
       "input",
       this._updateDropdown.bind(this)
     );
-
+    this.addEventListener(
+      document.querySelector("#searchInput"),
+      "click",
+      this._updateDropdown.bind(this)
+    );
     this.addEventListener(
       document.querySelector("#dropdownMenu"),
       "click",
@@ -59,9 +63,11 @@ class FriendsView extends AbstractView {
 
   // safely removing focus form the modal when it closes - accessibility issue
   _modalSafeClose(event) {
-    console.log(" "); // data race fun instruction
-    console.log(" "); // data race fun instruction
-    document.getElementById("searchInput").focus();
+    setTimeout(() => {
+      const search = document.getElementById("searchInput");
+      search.value = "";
+      search.focus();
+    }, 10);
   }
 
   async _friendDropDownhandler(event) {
@@ -73,6 +79,7 @@ class FriendsView extends AbstractView {
       switch (action) {
         case "view-profile":
           console.log(`Viewing profile for ID: ${id}`);
+          Router.reroute(`/profile/${id}`);
           break;
         case "invite-game":
           console.log(`Inviting to a game for ID: ${id}`);
@@ -104,7 +111,7 @@ class FriendsView extends AbstractView {
           );
           this.addEventListener(
             document.getElementById("UserSelectModal"),
-            "hidden.bs.modal",
+            "hide.bs.modal",
             this._modalSafeClose.bind(this)
           );
           modal.show();
@@ -116,8 +123,11 @@ class FriendsView extends AbstractView {
   }
 
   _updateDropdown() {
+    console.log("_updateDropdown");
+    console.log("friendlist: ", this.friendList);
     const searchInput = document.querySelector("#searchInput");
     const dropDownMenu = document.querySelector("#dropdownMenu");
+    let filtered = [];
     const searchList = this.userList
       .filter((user) => {
         return user["id"] !== Application.getUserInfos().userId;
@@ -128,22 +138,25 @@ class FriendsView extends AbstractView {
     dropDownMenu.innerHTML = "";
     if (searchInput.value.length > 0) {
       const lowercaseValue = searchInput.value.toLowerCase();
-      const filtered = searchList.filter((user) => {
+      filtered = searchList.filter((user) => {
         return (
           user.username.toLowerCase().startsWith(lowercaseValue) ||
           user.nickname.toLowerCase().startsWith(lowercaseValue)
         );
       });
-
-      filtered.forEach((user) => {
-        const li = document.createElement("li");
-        li.dataset.id = user["id"];
-        li.innerHTML = `<a class="dropdown-item" style="max-width: 500px;" >
-		<img src="img/avatar_placeholder.jpg" alt="hugenerd" width="40" height="40" class="rounded-circle">
-		${user.username}</a>`;
-        dropDownMenu.appendChild(li);
+    } else {
+      filtered = searchList.filter((user) => {
+        return !this.friendList.includes(user.id);
       });
     }
+    filtered.forEach((user) => {
+      const li = document.createElement("li");
+      li.dataset.id = user["id"];
+      li.innerHTML = `<a class="dropdown-item" style="max-width: 500px;" >
+			<img src="img/avatar_placeholder.jpg" alt="hugenerd" width="40" height="40" class="rounded-circle">
+			${user.username}</a>`;
+      dropDownMenu.appendChild(li);
+    });
   }
 
   async _refreshFriendsList() {
