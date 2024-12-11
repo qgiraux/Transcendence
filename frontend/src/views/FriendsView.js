@@ -59,6 +59,12 @@ class FriendsView extends AbstractView {
       "click",
       this._friendDropDownhandler.bind(this)
     );
+
+    this.addEventListener(
+      document.getElementById("UserSelectModal"),
+      "hide.bs.modal",
+      this._modalSafeClose.bind(this)
+    );
   }
 
   // safely removing focus form the modal when it closes - accessibility issue
@@ -109,11 +115,7 @@ class FriendsView extends AbstractView {
           const modal = new bootstrap.Modal(
             document.getElementById("UserSelectModal")
           );
-          this.addEventListener(
-            document.getElementById("UserSelectModal"),
-            "hide.bs.modal",
-            this._modalSafeClose.bind(this)
-          );
+
           modal.show();
         })
         .catch((error) => {
@@ -123,8 +125,6 @@ class FriendsView extends AbstractView {
   }
 
   _updateDropdown() {
-    console.log("_updateDropdown");
-    console.log("friendlist: ", this.friendList);
     const searchInput = document.querySelector("#searchInput");
     const dropDownMenu = document.querySelector("#dropdownMenu");
     let filtered = [];
