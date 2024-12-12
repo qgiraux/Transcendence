@@ -83,10 +83,9 @@
         </div>
         <div id="status"></div>
     </div>
-
     <script>
         // WebSocket setup
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMzOTI3Mjc0LCJpYXQiOjE3MzM5MjY5NzQsImp0aSI6IjNhNDQxN2MwOTFiNTRlZmNiMmNiNzkyNTVmMTlmMDljIiwidXNlcl9pZCI6MiwidXNlcm5hbWUiOiJxZ2lyYXV4MiIsIm5pY2tuYW1lIjoicWdpcmF1eDIiLCJpc19hZG1pbiI6ZmFsc2V9.7_SQpwjiVdRr08z4uzdgcsg5WoIgB6DjCu2Y8zoHXB8";
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM0MDEzMjEwLCJpYXQiOjE3MzQwMTI5MTAsImp0aSI6IjQ0NThjZDQ3YjNiNjQ1ZGZiOGFjZGNmNjc0OGM2YjM4IiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJxZ2lyYXV4Iiwibmlja25hbWUiOiJxZ2lyYXV4IiwiaXNfYWRtaW4iOmZhbHNlfQ.p-GgdDt0ZjNnENwqLl_QR6dEm6_GXSQu7g4MqTQ3kfM";
         const socketUrl = `https://localhost:5000/ws/chat/?token=${token}`; // Replace with your WebSocket URL
         let socket;
 

@@ -1,7 +1,6 @@
-from django.urls import path, include
+from django.urls import path
 from .views import TestView
-from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_exempt
+
 
 
 urlpatterns = [

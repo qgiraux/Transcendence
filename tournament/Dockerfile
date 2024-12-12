@@ -10,19 +10,19 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up a working directory (used as mount target)
-WORKDIR /user_management
+WORKDIR /tournament
 
 # Upgrade pip and install project dependencies
-COPY user_management/requirements.txt ./
+COPY tournament/requirements.txt ./
 RUN pip install  --upgrade pip \
     && pip install  -r requirements.txt
 
 
-COPY ./user_management/user_management .
+COPY ./tournament/tournament .
 RUN chmod 777 docker-entrypoint.sh
 
 
-EXPOSE 8000
+EXPOSE 8000 6379
 
 CMD ["./docker-entrypoint.sh"]
 
