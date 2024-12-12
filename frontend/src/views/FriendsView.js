@@ -84,17 +84,16 @@ class FriendsView extends AbstractView {
 
       switch (action) {
         case "view-profile":
-          console.log(`Viewing profile for ID: ${id}`);
           Router.reroute(`/profile/${id}`);
           break;
         case "invite-game":
-          console.log(`Inviting to a game for ID: ${id}`);
+          console.log(`placeHolder Inviting to a game for ID: ${id}`);
           break;
         case "unfriend":
           this._removeFriend(id);
           break;
         default:
-          console.warn(`Action inconnue : ${action} pour ID : ${id}`);
+          console.warn(`Unknown action: ${action} for ID : ${id}`);
       }
     }
   }

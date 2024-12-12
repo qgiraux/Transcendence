@@ -114,7 +114,6 @@ class Router {
     this.route();
   }
   static reroute(uri) {
-    //ajouter verification de la route
     const regex = /^\/[a-zA-Z0-9\/]*$/;
     if (!regex.test(uri)) throw new Error("Router::reroute : invalid route");
     const event = new CustomEvent("redirect", {
