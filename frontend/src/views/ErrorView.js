@@ -13,7 +13,7 @@ class ErrorView extends AbstractView {
 
   _setHtml() {
     let pm = "";
-    const container = document.querySelector(".container");
+    const container = document.querySelector("#view-container");
     for (const key in this.params) {
       pm += String(key) + " : " + this.params[key] + "<br>";
     }

@@ -25,7 +25,7 @@ class Router {
 
   setListeners() {
     window.addEventListener("popstate", this.route.bind(this));
-    document.body.addEventListener("click", this._handleLinkClick.bind(this));
+    document.addEventListener("click", this._handleLinkClick.bind(this));
     document.addEventListener("redirect", this._redirect.bind(this));
   }
 
@@ -110,14 +110,10 @@ class Router {
   }
 
   _redirect(event) {
-    console.log("redirected");
-    console.log("this", this);
-    console.log("event", event.detail.route);
     history.pushState(null, null, event.detail.route);
     this.route();
   }
   static reroute(uri) {
-    //ajouter verification de la route
     const regex = /^\/[a-zA-Z0-9\/]*$/;
     if (!regex.test(uri)) throw new Error("Router::reroute : invalid route");
     const event = new CustomEvent("redirect", {
@@ -125,7 +121,6 @@ class Router {
         route: uri,
       },
     });
-    console.log("rerouting");
     document.dispatchEvent(event);
   }
 }

@@ -91,5 +91,9 @@ class Application {
       payload: JSON.parse(jsonPayload),
     };
   }
+  static toggleSideBar() {
+    const chatBox = document.querySelector("#sidebar");
+    chatBox.classList.toggle("d-none");
+  }
 }
 export default Application;

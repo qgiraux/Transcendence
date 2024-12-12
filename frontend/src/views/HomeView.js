@@ -12,63 +12,19 @@ class HomeView extends AbstractView {
 
   onStart() {
     if (Application.getAccessToken() === null) {
-      Router.reroute("/login");
+      Router.reroute("/landing");
     } else {
       this._setHtml();
-      this.addEventListener(
-        document.querySelector("#refresh-btn"),
-        "click",
-        this._refreshHandler.bind(this)
-      );
-      this.addEventListener(
-        document.querySelector("#request-btn"),
-        "click",
-        this._requestHandler.bind(this)
-      );
-    }
-  }
-
-  async _test() {
-    try {
-      const infos = await TRequest.request("GET", `/api/users/userinfo/`);
-      console.log(infos);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async _refreshHandler(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log("old token:", Application.getAccessToken());
-    try {
-      await TRequest.refreshToken();
-      console.log("refresh done:", Application.getAccessToken());
-    } catch (error) {
-      console.log("the refresh has failed:", error);
-    }
-  }
-
-  async _requestHandler(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    try {
-      const infos = await TRequest.request("GET", "/api/users/userinfo/");
-      console.log(infos);
-    } catch (error) {
-      console.log("the request has failed:", error);
     }
   }
 
   _setHtml() {
     let pm = "";
-    const container = document.querySelector(".container");
+    const container = document.querySelector("#view-container");
     if (container) {
-      container.innerHTML = `<h1>Welcome back ${
+      container.innerHTML = `<h1 class="text-white display-1">${
         Application.getUserInfos().userName
-      }!</h1>
-	<button id="refresh-btn" class="btn btn-primary">refresh token</button><br>
-	<button id="request-btn" class="btn btn-primary">make a request</button>
+      } welcome to your home page!</h1>
 					`;
     }
   }
