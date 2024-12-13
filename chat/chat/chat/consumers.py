@@ -58,8 +58,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.accept()
 
             # Start listening to Redis messages (subscribe to the global chat and user-specific channels)
-            self.add_channel(self.group_name)
-            self.add_channel('global_chat')
+            await self.add_channel(self.group_name)
+            await self.add_channel('global_chat')
             if self.group_name:
                 self.channels.append(self.group_name)
                 await pubsub.subscribe(self.group_name)
@@ -87,13 +87,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Handles the disconnect event."""
         logger.info(f"User {self.nickname} disconnected with code {close_code}")
         # Remove the user from the groups
+        await redis_client.srem('online_users', self.user_id)
         if self.group_name:
             await self.channel_layer.group_discard(
                 self.group_name,
                 self.channel_name
             )
-        if self.user_id is not None:
-            await redis_client.srem('online_users', self.user_id)
 
     async def receive(self, text_data):
         """Handles incoming messages from WebSocket clients."""
@@ -135,14 +134,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
                 await self.add_channel(channel_name)
                 await self.channel_layer.group_send(
-                    channel_name,
+                    f'user_{self.user_id}',
                     {
                     'type': 'notification_message',
                     'sender':'system',
                     'group': channel_name,
                     'message': f'{self.nickname} subscribed to {channel_name}'
                 })
-                logger.error(f"User {self.nickname} subscribed to {channel_name}")
+                # logger.error(f"User {self.nickname} subscribed to {channel_name}")
 
     async def chat_message(self, event):
         """Send the chat message to the WebSocket."""
@@ -167,18 +166,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             await pubsub.subscribe('global_chat')
             async for message in pubsub.listen():
-                logger.error('message received from server')
-                logger.error(message)
+                # logger.error('message received from server')
+                # logger.error(message)
                 try:
                     
                     # Send the message to the appropriate WebSocket group
                     if not isinstance(message['data'], int):
                         data = json.loads((message['data']))
-                        logger.error('sending message')
-                        logger.error(data['type'])
-                        logger.error(data['message'])
-                        logger.error(data['sender'])
-                        logger.error(data['group'])
+                        # logger.error('sending message')
+                        # logger.error(data['type'])
+                        # logger.error(data['message'])
+                        # logger.error(data['sender'])
+                        # logger.error(data['group'])
                         await self.channel_layer.group_send(
                             data['group'],
                             {
@@ -206,4 +205,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if channel_name not in self.channels:
             self.channels.append(channel_name)
             await pubsub.subscribe(channel_name)
-            logger.error(f"Subscribed to new channel: {channel_name}")
+            # logger.error(f"Subscribed to new channel: {channel_name}")

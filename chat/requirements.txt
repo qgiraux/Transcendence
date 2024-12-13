@@ -8,3 +8,5 @@ channels
 channels_redis
 django_redis
 aioredis
+pytest 
+pytest-asyncio

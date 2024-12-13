@@ -14,6 +14,11 @@ class Tournament(models.Model):
             )
         ]
     )
+    tournament_size = models.IntegerField(
+        choices=[(2, '2'), (4, '4'), (8, '8')],
+        default=2
+    )
+    
     player_list = ArrayField(
         models.IntegerField(),
         default=list,  # Starts as an empty list

@@ -1,17 +1,11 @@
-from rest_framework.views import APIView
-from rest_framework.decorators import api_view, permission_classes
-from django.http import JsonResponse
+
 import json
 import jwt
 import logging
-from .models import Tournament
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from django.conf import settings
 import redis
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from .models import Tournament
+from django.conf import settings
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
@@ -36,7 +30,7 @@ def CreateTournament(request):
         return JsonResponse({'detail': 'no tournament name', 'code': 'error_occurred'}, status=400)
     if Tournament.objects.filter(tournament_name=tournament_name).exists():
         return JsonResponse({'detail': 'tournament name already in use', 'code': 'error_occurred'}, status=400)
-    tournament = Tournament.objects.create(tournament_name=tournament_name)
+    tournament = Tournament.objects.create(tournament_name=tournament_name, tournament_size = tournament_size)
     tournament.player_list.append(user_id)
     tournament.save()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=201)
@@ -102,4 +96,5 @@ def JoinTournament(request):
     tournament.save()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
     
-    
+
+  
