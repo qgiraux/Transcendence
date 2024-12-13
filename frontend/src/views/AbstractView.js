@@ -30,6 +30,15 @@ class AbstractView {
     element.removeEventListener(event, handler);
   }
 
+  deleteEventListenerByElement(element) {
+    this.eventListeners.forEach((ObjListener) => {
+      if (ObjListener.element === element) {
+        this.deleteEventListener(ObjListener);
+        return;
+      }
+    });
+  }
+
   // child onDestryClass to be overrided for in child cleaning
   childOnDestroy() {}
 

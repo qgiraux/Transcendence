@@ -49,7 +49,7 @@ tests: test-front test-users test-friends test-chat
 #cree et demarre les container
 up:
 	@ echo '🚀      starting the containers...'
-	@docker compose -f docker-compose.yml up -d
+	@docker compose  -f docker-compose.yml up -d
 
 stop:
 	@ echo '✋🏻     stopping the containers...'

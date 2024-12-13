@@ -105,5 +105,9 @@ class Application {
     Application.#mainSocket = new WebSocket(fullpath);
     return socket;
   }
+  static toggleSideBar() {
+    const chatBox = document.querySelector("#sidebar");
+    chatBox.classList.toggle("d-none");
+  }
 }
 export default Application;

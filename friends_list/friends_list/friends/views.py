@@ -5,7 +5,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from .models import Friends
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -53,8 +53,8 @@ def add_friend(request):
     except InvalidTokenError:
         return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        return JsonResponse({'detail': 'An error occurred', 'code': 'error_occurred'}, status=500)
+        # logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'detail': f"An error occurred {e} ", 'code': 'error_occurred'}, status=500)
 
 @csrf_exempt
 @permission_classes([IsAuthenticated])
@@ -78,11 +78,11 @@ def remove_friend(request):
         friend_id = data.get('id')
         if not friend_id:
             return JsonResponse({'detail': 'Friend ID is required', 'code': 'friend_id_required'}, status=400)
-        
+
         friend_ids = list(Friends.objects.filter(user_id=user_id, friend_id=friend_id).values_list('friend_id', flat=True))
         if len(friend_ids) == 0:
             return JsonResponse({'error': 'user not in friend list', 'code': 'not found'}, status=404)
-        
+
         deleted, _ = Friends.objects.filter(user_id=user_id, friend_id=friend_id).delete()
         if deleted:
             return JsonResponse({'message': 'Friend removed successfully'}, status=200)
@@ -112,6 +112,7 @@ def remove_friend(request):
 
 @csrf_exempt
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def friends_list(request):
     if request.method != 'GET':
         return HttpResponse(
@@ -123,7 +124,7 @@ def friends_list(request):
         logger = logging.getLogger(__name__)
         auth_header = request.headers.get('Authorization').split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
-        user_id = decoded['user_id']    
+        user_id = decoded['user_id']
         user_id = decoded.get('user_id')
         if not user_id:
             return JsonResponse({'detail': 'User ID not found in token', 'code': 'user_id_not_found'}, status=400)

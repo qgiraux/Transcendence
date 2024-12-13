@@ -44,7 +44,6 @@ class TRequest {
       return json;
     } catch (error) {
       throw new Error(`TRequest: ${error}`);
-      x;
     }
   }
 
