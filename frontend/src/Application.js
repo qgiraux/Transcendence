@@ -12,6 +12,7 @@ class Application {
     userId: null,
     userName: null,
   };
+  static #mainSocket = null;
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -90,6 +91,19 @@ class Application {
       header: JSON.parse(jsonHeader),
       payload: JSON.parse(jsonPayload),
     };
+  }
+  static openWebSocket(url) {
+    if (Application.#token !== null){
+      console.error(`Application: Error oppening websoket: user not identified`)
+      return null;
+    }
+    if (!url) {
+      console.error("WebSocket URL must be provided.");
+      return null;
+    }
+    fullpath = `${url}?token=${Application.getAccessToken}`
+    Application.#mainSocket = new WebSocket(fullpath);
+    return socket;
   }
 }
 export default Application;

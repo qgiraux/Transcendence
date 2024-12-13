@@ -72,6 +72,7 @@ class LoginView extends AbstractView {
         return;
       }
       Application.setToken(json);
+      Application.openWebSocket();
       Application.setUserInfos(); //extract and store the id and username
       Router.reroute("/home");
     } catch (error) {
