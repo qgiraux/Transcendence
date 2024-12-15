@@ -6,19 +6,19 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/09 16:40:24 by jerperez         ###   ########.fr        #
+#    Updated: 2024/12/15 14:33:36 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #
 import re
 import json
-import asyncio
 import logging
 #
 import cbor2
 #
 import Utils
+import Compile
 
 SOURCE_FILE = "/TournamentScores.sol"
 SOLC_OUTPUT_JSON = "/solc_output.json"
@@ -56,7 +56,7 @@ def _get_metadata(ipfs):
 	logger.info(f"metadata IPFS (from node bytecode): {ipfs}")
 	if (True):
 		logger.warning(f"using metadata local copy instead of IPFS")
-	bytecode, metadata = Utils.get_solc_output_from_json(SOLC_OUTPUT_JSON)
+	bytecode, metadata = Compile.get_solc_output_from_json(SOLC_OUTPUT_JSON)
 	return metadata
 
 def _get_source(ipfs):
@@ -114,13 +114,19 @@ async def verify_transact(
 		_verify_versions(version_cbor, version_meta)
 	except Exception as e:
 		logger.error(f"Verification failed: {e}")
+		return 1
 	logger.info(f"Verification completed.")
+	return 0
 
 async def main():
-	import daemon
-	web3_ = await daemon.initialize_web3(daemon.get_private_key_from_env()) #
-	address, metadata = daemon.load_contract() #
+	import AsyncWeb3, Deploy
+	logging.basicConfig(level=logging.INFO)
+	web3_ = await AsyncWeb3.initialize_web3()
+	tournament = await Deploy.get_contract(web3_)
+	address, metadata = Utils.load_contract()
 	await verify_transact(address, web3_)
+	await AsyncWeb3.disconnect(web3_)
 
 if __name__ == '__main__':
+	import asyncio
 	asyncio.run(main())

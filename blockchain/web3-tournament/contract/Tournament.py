@@ -6,12 +6,11 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/10 10:24:26 by jerperez         ###   ########.fr        #
+#    Updated: 2024/12/15 12:06:00 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #
-import asyncio
 import logging
 #
 import AsyncWeb3
@@ -34,9 +33,10 @@ async def store_tournament_async(
 		cupName : str, 
 		value : str, 
 		contract : any, 
-		web3_ : any
-	) -> int:
-	"""Stores tournament `cupName` results `value`"""
+		web3_ : any,
+		shouldThrow=False
+	) -> dict:
+	"""Stores tournament `cupName` results `receipt` as json string"""
 	try:
 		_balance0 = await web3_.eth.get_balance(web3_.eth.default_account)
 		logger.info(f"balance before: `{_balance0}`")
@@ -46,25 +46,31 @@ async def store_tournament_async(
 		_balance1 = await web3_.eth.get_balance(web3_.eth.default_account)
 		logger.info(f"balance after: {_balance1} cost: {_balance0 - _balance1}")
 	except Exception as e:
+		if (True == shouldThrow):
+			raise e
 		logger.error(f"set: `{cupName}`: ", e)
-		return 1
-	return 0
+		return {}
+	return dict(_tx_receipt)
 
-async def get_owner(contract : any) -> str:
+async def get_owner(contract : any, shouldThrow=False) -> str:
 	"""Gets contract `owner`"""
 	_owner = ""
 	try:
 		_owner = await contract.functions.owner().call()
 	except Exception as e:
+		if (True == shouldThrow):
+			raise e
 		logger.error(f"owner: ", e)
 	return _owner
 
-async def get_score(cupName : str, contract : any) -> str:
+async def get_score(cupName : str, contract : any, shouldThrow=False) -> str:
 	"""Gets tournament `cupName` results"""
 	_results = ""
 	try:
 		_results = await contract.functions.score(_s_to_byte32(cupName)).call()
 	except Exception as e:
+		if (True == shouldThrow):
+			raise e
 		logger.error(f"get: `{cupName}`: ", e)
 	return _results
 
@@ -83,19 +89,22 @@ async def _do_stuff_async(
 async def main():
 	"""Tests Tournament"""
 	import Deploy
-	logging.basicConfig(level=logging.INFO)
 	#
 	logger.info("Logging in as owner")
 	env_ver = AsyncWeb3.ENV_ACCOUNT_SERVICE_KEY
 	web3_ = await AsyncWeb3.initialize_web3(AsyncWeb3.get_private_key_from_env(env_ver))
 	tournament = await Deploy.get_contract(web3_)
 	await _do_stuff_async(tournament, web3_)
+	await web3_.provider.disconnect()
 	#
 	logger.info("Logging in as user")
 	env_ver = AsyncWeb3.ENV_ACCOUNT_USER_KEY
 	web3_ = await AsyncWeb3.initialize_web3(AsyncWeb3.get_private_key_from_env(env_ver))
 	tournament = await Deploy.get_contract(web3_)
 	await _do_stuff_async(tournament, web3_)
+	await web3_.provider.disconnect()
 
 if __name__ == '__main__':
+	import asyncio
+	logging.basicConfig(level=logging.INFO)
 	asyncio.run(main())

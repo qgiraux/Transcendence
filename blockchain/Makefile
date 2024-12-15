@@ -45,17 +45,23 @@ status:
 exec-web3-tournament:
 	docker exec -it web3-tournament bash
 
-exec-eth-client:
-	docker exec -t web3-tournament python3 eth_client_script.py
+# exec-eth-client:
+# 	docker exec -t web3-tournament python3 eth_client_script.py
 
-exec-eth-daemon:
-	docker exec -t web3-tournament python3 daemon.py
+# exec-eth-daemon:
+# 	docker exec -t web3-tournament python3 daemon.py
 
-exec-testnet:
-	docker exec -it ethereum-testnet /bin/sh
+# exec-testnet:
+# 	docker exec -it ethereum-testnet /bin/sh
 
 exec-hardhat-network:
 	docker exec -it hardhat-network /bin/sh
+
+runserver:
+	docker exec -t web3-tournament python3 django/manage.py runserver
+
+test:
+	docker exec -it web3-tournament python3 django/manage.py test score
 
 # ls $(VOLUME_DEVICE)
 
@@ -68,7 +74,7 @@ exec-hardhat-network:
 # $(VOLUME_AMR_DEVICE):
 # 	mkdir -p $(VOLUME_AMR_DEVICE)
 
-.phony: all status clean fclean re exec-tournament exec-testnet exec-eth-daemon
+.phony: all status clean fclean re exec-web3-tournament exec-hardhat-network runserver
 
 
 # sudo apt-get update

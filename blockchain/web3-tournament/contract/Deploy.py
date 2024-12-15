@@ -6,13 +6,12 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/09 16:35:13 by jerperez         ###   ########.fr        #
+#    Updated: 2024/12/15 12:05:46 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #
 import os
-import asyncio
 import logging
 #
 import Utils
@@ -49,7 +48,9 @@ def get_contract_from_json(web3_ : any, jsonFile=JSON_FILE) -> any:
 async def _deploy_contract(web3_ : any, solc_json=SOLC_OUTPUT_JSON, save_json=JSON_FILE):
 	"""Gets contract from JSON"""
 	address, metadata = await _transact_contract(solc_json, web3_)
-	Utils.save_contract(address, metadata, save_json)
+	if ("" != save_json):
+		Utils.save_contract(address, metadata, save_json)
+	logger.info(f"contract address: {address}")
 	return web3_.eth.contract(
 		address=address,
 		abi=Utils.get_abi_from_metadata(metadata)
@@ -57,16 +58,23 @@ async def _deploy_contract(web3_ : any, solc_json=SOLC_OUTPUT_JSON, save_json=JS
 
 async def get_contract(web3_ : any, jsonFile = JSON_FILE) -> any:
 	"""Deploys contract or gets it from `jsonFile`, returns contract"""
-	if (True == os.path.isfile(jsonFile)):
+	if ("" != jsonFile and True == os.path.isfile(jsonFile)):
 		return get_contract_from_json(web3_, jsonFile)
-	return await _deploy_contract(web3_, SOLC_OUTPUT_JSON)
+	return await _deploy_contract(web3_, SOLC_OUTPUT_JSON, jsonFile)
+
+def forget_contract(jsonFile = JSON_FILE):
+	"""Removes contract info"""
+	if (True == os.path.isfile(jsonFile)):
+		os.remove(jsonFile) 
 
 async def main():
 	"""Deploys contract"""
 	import AsyncWeb3
-	logging.basicConfig(level=logging.INFO)
 	web3_ = await AsyncWeb3.initialize_web3()
 	tournament = await get_contract(web3_, JSON_FILE)
+	await web3_.provider.disconnect()
 
 if __name__ == '__main__':
+	import asyncio
+	logging.basicConfig(level=logging.INFO)
 	asyncio.run(main())

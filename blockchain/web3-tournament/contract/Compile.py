@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/09 16:08:46 by jerperez         ###   ########.fr        #
+#    Updated: 2024/12/15 14:30:19 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 # 	metadata = contract_interface['metadata']
 # 	return bytecode, metadata
 
-def get_solc_output_from_json(jsonFile : str) -> tuple[str, str]:
+def get_solc_output_from_json(jsonFile=JSON_FILE) -> tuple[str, str]:
 	"""Gets compiled contract `bytecode` and `metadata`"""
 	data = json.loads(Utils.readfile(jsonFile))
 	contract_data=data['contracts']['TournamentScores']['TournamentScores']

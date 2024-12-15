@@ -12,6 +12,7 @@ RUN		set -eux; \
 			add-apt-repository -y ppa:ethereum/ethereum; \
 			apt-get update -y; \
 			apt-get install -y \
+					curl \
 					solc \
 					python3 \
 					python3-pip \
@@ -28,15 +29,18 @@ COPY requirements.txt ./
 # TODO: :( --break-system-packages
 RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
+#Checking install
+RUN django-admin --version
+
 COPY ./entrypoint.sh /.
 
-COPY ./eth_client_script.py ./
-COPY ./daemon.py ./
 COPY ./TournamentScores.sol ./
 COPY ./solc_input.json /.
-COPY ./python /python
+COPY ./contract /contract
+COPY ./Interface.py /.
+COPY ./django /django
 
 ENTRYPOINT		[ "bash", "/entrypoint.sh" ]
 # TODO: django daemon
-CMD				[ "python3", "./daemon.py"]
-#CMD				[ "sleep", "infinity"]
+#CMD				[ "python3", "./daemon.py"]
+CMD				[ "sleep", "infinity"]

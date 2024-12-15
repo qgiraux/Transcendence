@@ -6,13 +6,12 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/10 10:07:30 by jerperez         ###   ########.fr        #
+#    Updated: 2024/12/15 12:06:43 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #
 import os
-import asyncio
 import logging
 #
 import web3
@@ -82,10 +81,15 @@ async def initialize_web3(owner_private_key=get_private_key_from_env()) -> web3.
 	logger.info(f"owner public address: {web3_.eth.default_account}")
 	return web3_
 
+async def disconnect(web3_):
+	await web3_.provider.disconnect()
+
 async def main():
 	"""Uploads contract"""
-	logging.basicConfig(level=logging.INFO)
 	web3_ = await initialize_web3()
+	await web3_.provider.disconnect()
 
 if __name__ == '__main__':
+	logging.basicConfig(level=logging.INFO)
+	import asyncio
 	asyncio.run(main())

@@ -1,5 +1,5 @@
 services:
-  tournament:
+  web3-tournament:
     build: ./web3-tournament
     container_name: web3-tournament
     restart: always
@@ -8,6 +8,8 @@ services:
       - docker-network
     depends_on:
       - hardhat-network
+    ports:
+      - 8000:8000
     # volumes:
     #   - ethereum-testnet:/data/
     #   - adminer:/data/adminer

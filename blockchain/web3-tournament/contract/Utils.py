@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/09 16:41:55 by jerperez         ###   ########.fr        #
+#    Updated: 2024/12/15 14:26:48 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,7 @@ def save_contract(address : str, metadata : str, jsonFile = JSON_FILE):
 	""" Saves `contract` `address` and `metadata` in `jsonFile`"""
 	writefile(jsonFile, json.dumps({"address":address, "metadata":metadata}))
 
-def load_contract(jsonFile : str):
+def load_contract(jsonFile=JSON_FILE):
 	""" Loads `contract` `address` and `metadata` from `jsonFile`"""
 	d = json.loads(readfile(jsonFile))
 	return d["address"], d["metadata"]
