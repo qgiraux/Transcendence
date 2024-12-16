@@ -12,7 +12,7 @@ class Application {
     userId: null,
     userName: null,
   };
-  static #mainSocket = null;
+  static mainSocket = null;
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -93,18 +93,31 @@ class Application {
     };
   }
   static openWebSocket(url) {
-    if (Application.#token !== null){
-      console.error(`Application: Error oppening websoket: user not identified`)
+    if (Application.#token === null) { // Correct the check
+      console.error(`Application: Error opening WebSocket: user not identified`);
       return null;
     }
     if (!url) {
       console.error("WebSocket URL must be provided.");
       return null;
     }
-    fullpath = `${url}?token=${Application.getAccessToken}`
-    Application.#mainSocket = new WebSocket(fullpath);
-    return socket;
+    const fullpath = `${url}?token=${Application.getAccessToken()}`; // Fix token retrieval
+    Application.mainSocket = new WebSocket(fullpath);
+  
+    // Add event listeners for debugging
+    Application.mainSocket.onopen = () => {
+      console.log("WebSocket connection opened:", fullpath);
+    };
+    Application.mainSocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    Application.mainSocket.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+  
+    return Application.mainSocket;
   }
+
   static toggleSideBar() {
     const chatBox = document.querySelector("#sidebar");
     chatBox.classList.toggle("d-none");
