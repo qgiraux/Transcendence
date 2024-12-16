@@ -11,16 +11,13 @@ import os
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import path
 from django.core.asgi import get_asgi_application
-
-from pong.pong_consumer import PongConsumer
+from pong.routing import websocket_urlpatterns
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pongAPI.settings')
 
 application = ProtocolTypeRouter({
 	'http': get_asgi_application(),
-	'websocket': URLRouter([
-		path('ws/game/<int:game_id>/', PongConsumer.as_asgi()),
-	])
+	'websocket': URLRouter(websocket_urlpatterns),
 })
 
 ASGI_APPLICATION = 'pongAPI.asgi.application'

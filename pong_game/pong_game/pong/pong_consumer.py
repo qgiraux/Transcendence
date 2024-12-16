@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 class PlayerConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		log.inf("Connect")
+		log.info("Connect")
 		self.group_name = "pong_game"
 		self.game = None
 		log.info("Connected to game group")

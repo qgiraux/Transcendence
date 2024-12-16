@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import os
-from django.core.asgi import get_asgi_application
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +24,7 @@ SECRET_KEY = 'django-insecure-m#ic+uw#oy_*&zu4n$!o#kb&vlo@==zt0^gzz_d8zz3k&6t_#-
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -88,7 +86,10 @@ WSGI_APPLICATION = 'pongAPI.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'test_database.sqlite3',#BASE_DIR / 'db.sqlite3',
+        'TEST': {
+            'NAME': 'test_database.sqlite3', #explicits database for testing
+        }
     }
 }
 

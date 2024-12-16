@@ -1,11 +1,6 @@
 from django.shortcuts import render
 # from pong import serializers
 from rest_framework.views import APIView
-import logging
-
-
-logger = logging.getLogger(__name__)
-logger.error("view")
 
 # from rest_framework.response import Response
 # from rest_framework import status
@@ -50,8 +45,3 @@ logger.error("view")
 
 def pong_view(request):
     return render(request, '../static/index.html')
-
-class test(APIView):
-    def get(self):
-        logger.error("test")
-        pass
