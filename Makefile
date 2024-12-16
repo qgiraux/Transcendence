@@ -63,6 +63,10 @@ prune: down
 	@docker image prune -fa
 	@docker system prune -f
 
+wipe-volumes: prune
+	@./tools/wipe_volumes.sh
+
+
 logs:
 	@echo "${Blue}=========== LOGS NGINX     ===============${Off}"
 	@docker logs nginx

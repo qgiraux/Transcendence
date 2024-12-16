@@ -110,7 +110,38 @@ services:
     restart: unless-stopped
     init: true
 
+  avatar:
+    image: avatar
+    container_name: avatar
+    build:
+      context: .
+      dockerfile: avatar/Dockerfile
+    volumes:
+      - avatar_images_volume:/avatar_images/images
+    depends_on:
+      - db_avatar
+    networks:
+      - transcendence
+    ports:
+      - 8000:8000
+    init: true
+
+  db_avatar:
+    image: postgres:15
+    restart: always
+    container_name: db_avatar
+    environment:
+      POSTGRES_USER: avatar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avatar}
+      POSTGRES_DB: db_avatar
+    volumes:
+      - postgres_avatar:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
 volumes:
   postgres_user_management:
   postgres_chat:
   postgres_friends_list:
+  postgres_avatar:
+  avatar_images_volume:
