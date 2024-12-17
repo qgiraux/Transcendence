@@ -20,6 +20,6 @@ from avatar.views import  get_image, AvatarUploadView, AvatarListView
 
 urlpatterns = [
     path('upload/', AvatarUploadView.as_view(), name='avatar-upload'),
-    path('avatar/<uuid:img_id>/', get_image, name='get_image'),
+    path('picture/<uuid:img_id>/', get_image, name='get_image'),
     path('avatar_list/', AvatarListView.as_view(), name='get_list'),
 ]
