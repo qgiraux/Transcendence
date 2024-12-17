@@ -30,9 +30,20 @@ class HomeView extends AbstractView {
       try {
         // Parse the incoming JSON
         const data = JSON.parse(event.data);
-        const sender = data.sender || "Unknown Sender"; // Default if field missing
+        const sender = data.sender || 0; // Default if field missing
         const message = data.message || "No message content"; // Default if field missing
-        chatBox.DisplayNewMessage(message, sender);
+        TRequest.request("GET", "/api/friends/blocks/blockslist/").then(blocklist => {
+          console.log('received message:', data);
+          if (!blocklist.blocks.includes(sender)) {
+            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(nickname => {
+              chatBox.DisplayNewMessage(message, nickname.nickname);
+            }).catch(err => {
+              console.error("Failed to fetch user info:", err);
+            });
+          }
+        }).catch(err => {
+          console.error("Failed to fetch blocklist:", err);
+        });
       } catch (err) {
         console.error("Failed to process WebSocket message:", err);
       }

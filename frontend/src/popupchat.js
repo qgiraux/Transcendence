@@ -30,7 +30,7 @@ closeChat.addEventListener('click', () => {
             message: chatInput.value,
             group: group,
             type: 'chat',
-            sender: Application.getUserInfos().userName
+            sender: Application.getUserInfos().userId
         };
         Application.mainSocket.send(JSON.stringify(body));
         chatInput.value = '';

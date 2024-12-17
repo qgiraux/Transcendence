@@ -7,6 +7,7 @@ import HomeView from "./views/HomeView.js";
 import ProfileView from "./views/ProfileView.js";
 import Router from "./Router.js";
 import FriendsView from "./views/FriendsView.js";
+import BlocksView from "./views/BlocksView.js";
 
 const router = new Router();
 router.addRoute("/", RootView);
@@ -15,5 +16,6 @@ router.addRoute("/home", HomeView);
 router.addRoute("/profile", ProfileView);
 router.addRoute("/profile/:id", ProfileView);
 router.addRoute("/friends", FriendsView);
+router.addRoute("/blocks", BlocksView);
 router.setListeners();
 router.route();

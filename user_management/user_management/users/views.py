@@ -48,6 +48,7 @@ def Get_user_infos(request, user_id):
     user_info = {
         "id": user.id,
         "username": user.username,
+        "nickname": user.nickname,
     }
     return JsonResponse(user_info)
 

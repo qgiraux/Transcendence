@@ -99,7 +99,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         message_type = data.get('type')
         group = data.get('group', 'global_chat')
-        sender_name = self.nickname
+        sender_name = self.user_id
 
         # Handle different message types
         if message_type == 'chat':
