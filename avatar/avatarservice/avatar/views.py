@@ -231,8 +231,17 @@ def get_image(request, img_id):
             with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
                 response = HttpResponse(image_file.read(), content_type='image/jpeg')
                 response['Cache-Control'] = 'max-age=3600'  # duree cache a ajuster
-                logging.info(f"uuid not found returning fallback image");
+                logging.info(f"uuid not found returning fallback image")
                 return response
+
+
+@api_view(['GET'])
+def get_default(request):
+    with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
+        response = HttpResponse(image_file.read(), content_type='image/jpeg')
+        response['Cache-Control'] = 'max-age=3600'  # duree cache a ajuster
+        return response
+
 
 class AvatarListView(APIView):
     def validate_jwt_token(self, request):

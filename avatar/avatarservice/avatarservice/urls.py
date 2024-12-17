@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from avatar.views import  get_image, AvatarUploadView, AvatarListView
+from avatar.views import  get_image, get_default, AvatarUploadView, AvatarListView
 
 urlpatterns = [
     path('upload/', AvatarUploadView.as_view(), name='avatar-upload'),
     path('picture/<uuid:img_id>/', get_image, name='get_image'),
+    path('picture/default/', get_default, name='get_image'),
     path('avatar_list/', AvatarListView.as_view(), name='get_list'),
 ]
