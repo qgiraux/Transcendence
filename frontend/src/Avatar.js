@@ -11,10 +11,8 @@ class Avatar {
    *
    */
   static #uuidList = null;
-  static #lastUpdate = null;
-  static DELTA_TIME = 60000;
-
   static url(userId) {
+    if (typeof userId !== Number) userId = Number(userId);
     const urlObj = Avatar.#uuidList.filter((obj) => {
       return obj.Userid === userId;
     });
@@ -23,34 +21,38 @@ class Avatar {
     }
     return `/api/avatar/picture/${urlObj[0].uuid}/`;
   }
-  static async getPictures() {
+
+  static async getUUid() {
+    /**
+     *Get an update of he uuid/user_id list
+     *from the Avatar service and refresh
+     *the class attribute
+     */
+
+    try {
+      const response = await TRequest.request(
+        "GET",
+        "/api/avatar/avatar_list/"
+      );
+      Avatar.#uuidList = response;
+    } catch (error) {
+      Alert.errorMessage(
+        "Error during avatar pictures retrieval",
+        error.message
+      );
+    }
+  }
+
+  static async refreshAvatars() {
     /**
      * Update the src attribute
      * of all images with attribute data-avatar
      */
-    const current = new Date();
-    if (
-      Avatar.#uuidList === null ||
-      current.getTime() - Avatar.DELTA_TIME > Avatar.#lastUpdate.getTime()
-    ) {
-      try {
-        const response = await TRequest.request(
-          "GET",
-          "/api/avatar/avatar_list/"
-        );
-        Avatar.#uuidList = response;
-        Avatar.#lastUpdate = new Date();
-      } catch (error) {
-        Alert.errorMessage(
-          "Error during avatar pictures retrieval",
-          error.message
-        );
-      }
-    }
+    Avatar.getUUid();
     const avatarsImg = document.querySelectorAll("img[data-avatar]");
     avatarsImg.forEach((img) => {
       const userId = img.getAttribute("data-avatar");
-      img.src = Avatar.url(Number(userId));
+      img.src = Avatar.url(userId);
     });
   }
 }

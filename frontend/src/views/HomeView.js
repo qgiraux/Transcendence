@@ -15,7 +15,11 @@ class HomeView extends AbstractView {
       Router.reroute("/landing");
     } else {
       this._setHtml();
-      Avatar.getPictures();
+      Avatar.getUUid().then(() => {
+        const SideBarImg = document.querySelector("#side-img");
+        if (SideBarImg)
+          SideBarImg.src = Avatar.url(Application.getUserInfos().userId);
+      });
     }
   }
 

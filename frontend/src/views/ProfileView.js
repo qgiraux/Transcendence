@@ -26,7 +26,7 @@ class ProfileView extends AbstractView {
         this.currentUserInfos = result;
 
         this._setHtml();
-        Avatar.getPictures();
+        Avatar.getUUid();
       })
       .catch((error) => {
         Alert.errorMessage("something went wrong", error.message);
