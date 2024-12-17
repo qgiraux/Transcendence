@@ -201,24 +201,13 @@ class BlocksView extends AbstractView {
 	<div class="col-md-4 col-lg-3 " style="width: 150px;">
 		<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
 		style="background-color: #303030;">
-			<img class="card-img-top  rounded" src="img/avatar_placeholder.jpg" alt="Card image cap">
+
 				<div class="card-body">
 					<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
-					${block.username}'s nickname
+					${block.nickname}
 					</h5>
-					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${block.username})</p>
-
 					<div class="btn-group">
-					<button  style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);"
-					class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-					aria-expanded="false">
-					Online
-					</button>
-					<ul class="dropdown-menu">
-					<li><button class="dropdown-item" data-id=${block.id} data-action="view-profile">View profile</button></li>
-                    <li><button class="dropdown-item" data-id=${block.id} data-action="invite-game">Invite to a game</button></li>
-                    <li><button class="dropdown-item" data-id=${block.id} data-action="unblock">Unblock</button></li>
-					</ul>
+          <button style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);" class="dropdown-item" data-id=${block.id} data-action="unblock">Unblock</button>
 					</div>
 				</div>
 			</div>
@@ -291,7 +280,7 @@ class BlocksView extends AbstractView {
 
 <div class="row">
 			<div class="col-12">
-				<h1 class="text-white display-1">Blocks</h1>
+				<h1 class="text-white display-1">Blocklist</h1>
 			</div>
 		</div>
 		<div class="row g-2  border border-secondary p-2 rounded" id="blocks-container">
@@ -299,14 +288,14 @@ class BlocksView extends AbstractView {
 
 		<div class="row">
 			<div class="col-12">
-				<h3 class="text-white display-5 mt-5 mb-0">Still looking for a block ?</h3>
+				<h3 class="text-white display-5 mt-5 mb-0">Do you wish to add a user to your blocklist ?</h3>
 			</div>
 			<div class="row mt-0">
 				<div class="col-9 mx-auto">
 					<div class="container mt-5">
 						<div class="dropdown" mx-auto>
 							<input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
-								placeholder="Search a block" data-bs-toggle="dropdown" aria-expanded="false" />
+								placeholder="Search a user" data-bs-toggle="dropdown" aria-expanded="false" />
 							<ul class="dropdown-menu w-100" id="dropdownMenu">
 								<!-- Les options seront ajoutées ici dynamiquement -->
 							</ul>

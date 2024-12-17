@@ -25,29 +25,22 @@ class HomeView extends AbstractView {
     } else {
       this._setHtml();
     }
-
-    Application.mainSocket.onmessage = (event) => {
-      try {
+    try {
+      Application.mainSocket.onmessage = (event) => 
+      {
         // Parse the incoming JSON
         const data = JSON.parse(event.data);
         const sender = data.sender || 0; // Default if field missing
         const message = data.message || "No message content"; // Default if field missing
         TRequest.request("GET", "/api/friends/blocks/blockslist/").then(blocklist => {
-          console.log('received message:', data);
-          if (!blocklist.blocks.includes(sender)) {
+          if (!blocklist.blocks.includes(sender)) 
+          {
             TRequest.request("GET", `/api/users/userinfo/${sender}`).then(nickname => {
               chatBox.DisplayNewMessage(message, nickname.nickname);
-            }).catch(err => {
-              console.error("Failed to fetch user info:", err);
-            });
+            }).catch(err => {console.error("Failed to fetch user info:", err);});
           }
-        }).catch(err => {
-          console.error("Failed to fetch blocklist:", err);
-        });
-      } catch (err) {
-        console.error("Failed to process WebSocket message:", err);
-      }
-    };
+        }).catch(err => {console.error("Failed to fetch blocklist:", err);});
+      }} catch (err) {console.error("Failed to process WebSocket message:", err);};
     
     Application.mainSocket.onerror = (error) => {
       console.error("WebSocket error:", error);
