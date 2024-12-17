@@ -113,6 +113,7 @@ class LandingView extends AbstractView {
       Application.setToken(json);
       Application.setUserInfos();
       Application.toggleSideBar();
+      Application.toggleChat();
       Application.openWebSocket("wss://localhost:5000/ws/chat/")
       Router.reroute("/home");
     } catch (error) {

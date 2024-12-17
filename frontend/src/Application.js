@@ -122,5 +122,12 @@ class Application {
     const chatBox = document.querySelector("#sidebar");
     chatBox.classList.toggle("d-none");
   }
+
+  static toggleChat() {
+    const chatBox = document.querySelector("#chat-btn");
+    chatBox.classList.toggle("d-none");
+  }
 }
+
+
 export default Application;
