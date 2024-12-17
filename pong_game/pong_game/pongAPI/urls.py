@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from pong.views import pong_view
+from pong.views import pong_view, pong_test
 
 import logging
 
@@ -17,9 +17,7 @@ urlpatterns = [
 	# # path('pong/start/', StartGameView.as_view(), name='start_game'),
 	# # path('pong/move/', MovePaddle.as_view(), name='move_paddle'),
 	# # path('pong/state/', GameState.as_view(), name='game_state'),
-    path('pong/', pong_view, name='pong'),
+    path('', include('pong.urls')),
 ]
 
 handler500=view500
-
-logger.error("url2")

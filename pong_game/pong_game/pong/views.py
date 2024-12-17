@@ -1,6 +1,11 @@
 from django.shortcuts import render
 # from pong import serializers
 from rest_framework.views import APIView
+from django.http import HttpResponse
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import permission_classes
+from django.views.decorators.csrf import csrf_exempt
+
 
 # from rest_framework.response import Response
 # from rest_framework import status
@@ -45,3 +50,12 @@ from rest_framework.views import APIView
 
 def pong_view(request):
     return render(request, '../static/index.html')
+
+# class pong_test(APIView):
+#     def get(self, request):
+#         return render(request, '../static/template.html')
+
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def pong_test(request):
+    return HttpResponse("Hello, world!")

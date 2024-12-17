@@ -17,7 +17,8 @@ RUN pip install --upgrade pip \
 
 COPY ./pong_game/pong_game .
 # Expose ports (8000 for Django, optional 6379 for Redis if applicable)
-EXPOSE 8000 6378
+EXPOSE 8000 6379
 
 # Command to start Django development server
-CMD  ["python", "manage.py", "runserver"]
+CMD  ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# CMD ["tail", "-f"]

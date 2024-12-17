@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-m#ic+uw#oy_*&zu4n$!o#kb&vlo@==zt0^gzz_d8zz3k&6t_#-
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -79,6 +79,14 @@ TEMPLATES = [
 ASGI_APPLICATION = 'pongAPI.asgi.application'
 WSGI_APPLICATION = 'pongAPI.wsgi.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.cors.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -118,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
@@ -138,12 +146,29 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Cache settings
 CACHES = {
     'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    },
+    'redis': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://localhost:6379/1',
-		'OPTIONS': {
-			'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        'LOCATION': 'redis://redis:6379/1',  # Replace with your Redis server info
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
+}
+
+# Use the Redis cache as the default cache
+CACHES['default'] = CACHES['redis']
+REDIS_URL = "redis://redis:6379/1"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Use JWT Authentication
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # Ensure authentication is required
+    ],
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
