@@ -20,13 +20,14 @@ class ProfileView extends AbstractView {
       }, 50);
       return;
     }
-    const id = this.params["id"] || Application.getUserInfos().userId;
-    TRequest.request("GET", `/api/users/userinfo/${id}`)
+    this.id = this.params["id"] || Application.getUserInfos().userId;
+    TRequest.request("GET", `/api/users/userinfo/${this.id}`)
       .then((result) => {
         this.currentUserInfos = result;
 
-        this._setHtml();
-        Avatar.getUUid();
+        Avatar.getUUid().then(() => {
+          this._setHtml();
+        });
       })
       .catch((error) => {
         Alert.errorMessage("something went wrong", error.message);
@@ -44,13 +45,11 @@ class ProfileView extends AbstractView {
 
     if (container) {
       container.innerHTML = `
-
-
-
-
 	  <div class="row p-3">
 			<div class="col-3  mx-1 ">
-				<img src="" data-avatar="1" alt="user" class=" rounded-circle">
+				<img src="${Avatar.url(
+          this.id
+        )}" data-avatar="1" alt="user" class=" rounded-circle">
 			</div>
 		</div>
 
