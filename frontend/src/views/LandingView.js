@@ -2,6 +2,7 @@ import AbstractView from "./AbstractView.js";
 import Application from "../Application.js";
 import Alert from "../Alert.js";
 import Router from "../Router.js";
+import Avatar from "../Avatar.js";
 
 class LandingView extends AbstractView {
   constructor(params) {

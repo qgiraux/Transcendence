@@ -3,6 +3,7 @@ import AbstractView from "./AbstractView.js";
 import Router from "../Router.js";
 import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
+import Avatar from "../Avatar.js";
 
 class ProfileView extends AbstractView {
   constructor(params) {
@@ -25,6 +26,7 @@ class ProfileView extends AbstractView {
         this.currentUserInfos = result;
 
         this._setHtml();
+        Avatar.getPictures();
       })
       .catch((error) => {
         Alert.errorMessage("something went wrong", error.message);
@@ -48,7 +50,7 @@ class ProfileView extends AbstractView {
 
 	  <div class="row p-3">
 			<div class="col-3  mx-1 ">
-				<img src="/img/avatar_placeholder.jpg" alt="user" class=" rounded-circle">
+				<img src="" data-avatar="1" alt="user" class=" rounded-circle">
 			</div>
 		</div>
 

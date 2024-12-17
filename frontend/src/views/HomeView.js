@@ -1,7 +1,7 @@
 import Application from "../Application.js";
 import AbstractView from "./AbstractView.js";
-import TRequest from "../TRequest.js";
 import Router from "../Router.js";
+import Avatar from "../Avatar.js";
 
 class HomeView extends AbstractView {
   constructor(params) {
@@ -15,6 +15,7 @@ class HomeView extends AbstractView {
       Router.reroute("/landing");
     } else {
       this._setHtml();
+      Avatar.getPictures();
     }
   }
 
