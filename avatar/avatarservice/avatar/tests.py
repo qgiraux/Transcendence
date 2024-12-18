@@ -5,6 +5,7 @@ from PIL import Image, ImageChops
 from datetime import timedelta, datetime, timezone
 import jwt
 import io
+import os
 
 
 def valid_jwt_token(user_id):
@@ -126,3 +127,21 @@ class MyTests(TestCase):
                 HTTP_AUTHORIZATION=f"Bearer {self.token}"
             )
         assert response.status_code == 415
+    def testDelete(self):
+        c = Client()
+        with open('avatar/tests-images/test-image.jpg', 'rb') as img:
+            response = c.post(
+                path='/upload/',
+                data={"image": img},
+                HTTP_AUTHORIZATION=f"Bearer {self.token}"
+            )
+        assert response.status_code == 201 or response.status_code == 200
+        uuid = response.json()['uuid']
+        delete = c.delete(
+            path='/delete/',
+            HTTP_AUTHORIZATION=f"Bearer {self.token}"
+        )
+        assert delete.status_code == 204
+        assert os.path.exists(f"images/{uuid}.jpg") == False
+        with self.assertRaises(Avatar.DoesNotExist):
+             Avatar.objects.get(Userid=9999)

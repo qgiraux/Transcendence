@@ -15,7 +15,7 @@ import logging
 import uuid
 import jwt
 import os, io
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 
 
 MAX_SIZE = 5 # the maximum accepted image size in MB
@@ -37,6 +37,41 @@ class UnsupportedFormatError(ImageValidationError):
 class ImageTooLargeDimensionsError(ImageValidationError):
     """Raised when the image exceeds maximum allowed dimensions."""
     pass
+
+def validate_jwt_token(request):
+    """
+    Custom JWT token validation method.
+
+    Args:
+        request (Request): Incoming HTTP request
+
+    Returns:
+        dict: Decoded token payload if valid
+    Raises:
+        ValidationError: If token is invalid
+    """
+    auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+
+    if not auth_header.startswith('Bearer '):
+        raise ValidationError("Invalid Authorization header format")
+
+    token = auth_header.split(' ')[1]
+
+    try:
+        payload = jwt.decode(
+            token,
+            'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q',
+            algorithms=['HS256']
+        )
+        return payload
+
+    except jwt.ExpiredSignatureError:
+        raise ValidationError("Token has expired")
+    except jwt.InvalidTokenError:
+        raise ValidationError("Invalid token")
+
+
+
 
 def validate_image(file_obj, allowed_formats=None, max_size=None):
     """
@@ -134,178 +169,142 @@ def very_unique_uuid(new_uuid, avatar_list, max_recursion):
             max_recursion -= 1
             return very_unique_uuid(uuid.uuid4())
     return new_uuid
+logger = logging.getLogger(__name__)
 
 class AvatarUploadView(APIView):
-
-    def validate_jwt_token(self, request):
-        """
-        Custom JWT token validation method.
-
-        Args:
-            request (Request): Incoming HTTP request
-
-        Returns:
-            dict: Decoded token payload if valid
-        Raises:
-            ValidationError: If token is invalid
-        """
-        # Get Authorization header
-        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-
-        if not auth_header.startswith('Bearer '):
-            raise ValidationError("Invalid Authorization header format")
-
-        token = auth_header.split(' ')[1]
-
-        try:
-            payload = jwt.decode(
-                token,
-                SECRET_KEY,
-                algorithms=['HS256']
-            )
-            return payload
-
-        except jwt.ExpiredSignatureError:
-            raise ValidationError("Token has expired")
-        except jwt.InvalidTokenError:
-            raise ValidationError("Invalid token")
-
     def post(self, request):
         """
         Handle avatar upload with JWT authentication
         """
+        logger.info("Avatar upload request received.")
         try:
-            token_payload = self.validate_jwt_token(request)
+            token_payload = validate_jwt_token(request)
             user_id = token_payload.get('user_id')
             if not user_id:
+                logger.warning("No user_id found in token.")
                 return Response(
                     {"error": "No user_id found in token"},
                     status=status.HTTP_400_BAD_REQUEST
-                    )
+                )
+            logger.info(f"Token validated for user_id: {user_id}.")
+
             image = request.FILES.get('image')
             if not image:
+                logger.warning("No image provided in the request.")
                 return Response(
-                    {"error": "invalid image provided"},
+                    {"error": "Invalid image provided"},
                     status=status.HTTP_400_BAD_REQUEST
-                    )
-            validate_image(image, allowed_formats=['JPEG', 'PNG'], max_size=(1200,1200))
+                )
+            validate_image(image, allowed_formats=['JPEG', 'PNG'], max_size=(1200, 1200))
+            logger.info("Image validation successful.")
         except ValidationError as e:
+            logger.error(f"Validation error: {e}")
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         except UnsupportedFormatError as e:
+            logger.error(f"Unsupported format error: {e}")
             return Response(
                 f"{e}",
                 status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
             )
         except ImageTooLargeError as e:
+            logger.error(f"Image too large error: {e}")
             return Response(
                 f"{e}",
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
         except ImageTooLargeDimensionsError as e:
+            logger.error(f"Image dimension error: {e}")
             return Response(
                 f"{e}",
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
         except Exception as e:
+            logger.exception("Unexpected error during image validation.")
             return Response(
                 f"{e}",
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
         try:
             avatar = Avatar.objects.get(Userid=user_id)
-            old_img_path  =f"images/{avatar.uuid}.jpg"
-            if (os.path.exists(old_img_path)):
+            logger.info(f"Existing avatar found for user_id: {user_id}. Updating it.")
+            old_img_path = f"images/{avatar.uuid}.jpg"
+            if os.path.exists(old_img_path):
                 os.remove(old_img_path)
+                logger.info(f"Old avatar image deleted: {old_img_path}.")
             avatar.image = convert_image(file_obj=image)
-            avatar.uuid = very_unique_uuid(uuid.uuid4(),
-                avatar_list = Avatar.objects.all().iterator(),
-                max_recursion=10)
-            avatar.save()
-            return Response(
-                {"message": f"Image updated successfully" , "uuid": avatar.uuid}
-                )
-        except Avatar.DoesNotExist:
-            avatar = Avatar.objects.create(
-            Userid= user_id,
-            image= convert_image(file_obj=image)
+            avatar.uuid = very_unique_uuid(
+                uuid.uuid4(),
+                avatar_list=Avatar.objects.all().iterator(),
+                max_recursion=10
             )
             avatar.save()
+            logger.info(f"Avatar updated successfully for user_id: {user_id}.")
+            return Response(
+                {"message": f"Image updated successfully", "uuid": avatar.uuid}
+            )
+        except Avatar.DoesNotExist:
+            logger.info(f"No existing avatar found for user_id: {user_id}. Creating a new one.")
+            avatar = Avatar.objects.create(
+                Userid=user_id,
+                image=convert_image(file_obj=image)
+            )
+            avatar.save()
+            logger.info(f"Avatar created successfully for user_id: {user_id}.")
             return Response(
                 {"message": "Image uploaded successfully", "uuid": avatar.uuid},
-                  status=201
-                  )
+                status=201
+            )
         except Exception as e:
+            logger.exception("Unexpected error during avatar save operation.")
             return Response(
                 f"{e}",
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 @api_view(['GET'])
 def get_image(request, img_id):
     try:
-        avatar = Avatar.objects.get(uuid = img_id)
+        logger.info(f"Fetching image with uuid: {img_id}.")
+        avatar = Avatar.objects.get(uuid=img_id)
         with open(avatar.image.path, 'rb') as image_file:
             response = HttpResponse(image_file.read(), content_type='image/jpeg')
             response['Cache-Control'] = 'max-age=3600'
-            logging.info(f"returning image from id: {img_id}")
+            logger.info(f"Image successfully returned for uuid: {img_id}.")
             return response
-    except (Avatar.DoesNotExist,FileNotFoundError):
-            with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
-                response = HttpResponse(image_file.read(), content_type='image/jpeg')
-                response['Cache-Control'] = 'max-age=10800'
-                logging.info(f"uuid not found returning fallback image")
-                return response
+    except Avatar.DoesNotExist:
+        logger.warning(f"Avatar with uuid {img_id} does not exist. Returning fallback image.")
+        with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
+            response = HttpResponse(image_file.read(), content_type='image/jpeg')
+            response['Cache-Control'] = 'max-age=10800'
+            return response
+    except FileNotFoundError as e:
+        logger.error(f"File not found for uuid {img_id}: {e}")
+        with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
+            response = HttpResponse(image_file.read(), content_type='image/jpeg')
+            response['Cache-Control'] = 'max-age=10800'
+            return response
 
 
 @api_view(['GET'])
 def get_default(request):
+    logger.info("Returning default avatar image.")
     with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
         response = HttpResponse(image_file.read(), content_type='image/jpeg')
         response['Cache-Control'] = 'max-age=10800'
         return response
 
-
 class AvatarListView(APIView):
-    def validate_jwt_token(self, request):
-        """
-        Custom JWT token validation method.
-
-        Args:
-            request (Request): Incoming HTTP request
-
-        Returns:
-            dict: Decoded token payload if valid
-        Raises:
-            ValidationError: If token is invalid
-        """
-        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-
-        if not auth_header.startswith('Bearer '):
-            raise ValidationError("Invalid Authorization header format")
-
-        token = auth_header.split(' ')[1]
-
-        try:
-            payload = jwt.decode(
-                token,
-                'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q',
-                algorithms=['HS256']
-            )
-            return payload
-
-        except jwt.ExpiredSignatureError:
-            raise ValidationError("Token has expired")
-        except jwt.InvalidTokenError:
-            raise ValidationError("Invalid token")
-
     def get(self, request):
         """
         Return user list with corresponding uuid
         """
         try:
-            self.validate_jwt_token(request)
+            validate_jwt_token(request)
             users = Avatar.objects.all()
             serializer = AvatarListSerializer(users, many=True)
             return JsonResponse(serializer.data, safe=False)
@@ -322,3 +321,39 @@ class AvatarListView(APIView):
 
 
 
+
+class AvatarDeleteView(APIView):
+    def delete(self, request):
+        try:
+            logger.info("Avatar delete request received.")
+            token_payload = validate_jwt_token(request)
+            user_id = token_payload.get('user_id')
+            if not user_id:
+                logger.warning("No user_id found in token.")
+                return Response(
+                    {"error": "No user_id found in token"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            avatar = Avatar.objects.get(Userid=user_id)
+            old_img_path = f"images/{avatar.uuid}.jpg"
+            if os.path.exists(old_img_path):
+                os.remove(old_img_path)
+                logger.info(f"Deleted avatar image file: {old_img_path}.")
+            avatar.delete()
+            logger.info(f"Avatar successfully deleted for user_id: {user_id}.")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ValidationError as e:
+            logger.error(f"Token validation error: {e}")
+            return Response(
+                f"error {str(e)}",
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        except Avatar.DoesNotExist:
+            logger.warning(f"No avatar found for user_id: {user_id}.")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            logger.exception("Unexpected error during avatar deletion.")
+            return Response(
+                f"error {e}",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
