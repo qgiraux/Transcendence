@@ -7,7 +7,7 @@
     <h1>Pong Game</h1>
     <div id="game-status"></div>
     <script>
-        const ws = new WebSocket('https://localhost:5000/ws/pong/1/');
+        const ws = new WebSocket('wss://localhost:5000/ws/pong/');
 
         ws.onopen = function () {
             console.log('WebSocket connection established');

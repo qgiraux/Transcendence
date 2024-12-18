@@ -60,11 +60,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'pongAPI.urls'
 
+import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'pong_game/pong/templates'],  # Or include BASE_DIR / 'pong_game/templates' for project-level
+        'APP_DIRS': True,  # Allows templates in app-specific `templates` directories
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -76,14 +77,17 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'pongAPI.asgi.application'
+
+
 WSGI_APPLICATION = 'pongAPI.wsgi.application'
+
+ASGI_APPLICATION = 'pongAPI.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.cors.RedisChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',  # Corrected import path
         'CONFIG': {
-            "hosts": [('redis', 6379)],
+            'hosts': [('redis', 6379)],
         },
     },
 }

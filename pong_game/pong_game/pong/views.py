@@ -5,24 +5,12 @@ from django.http import HttpResponse
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
 from django.views.decorators.csrf import csrf_exempt
+from django.template.exceptions import TemplateDoesNotExist
 
 
-# from rest_framework.response import Response
-# from rest_framework import status
-# from .models import Game
-# from .serializers import StartGameSerializer, GameStateSerializer
-# from .tasks import update_game_state
 
-# class StartGameView(APIView):
-# 	def post(self, request):
-# 		serializer = StartGameSerializer(data=request.data)
-# 		if serializer.is_valid():
-# 			serializer.save()
-# 			return Response(
-# 				{"mesage": "Game started", "game": serializer.data},
-# 				status=status.HTTP_201_CREATED)
-# 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+# @csrf_exempt
+# @permission_classes([AllowAny])
 # class MovePaddle(APIView):
 #     def post(self, request):
 #         game_id = request.data.get("game_id")
@@ -41,6 +29,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 #         return Response({"status": "success", "message": "Paddle moved"})
 
+# @csrf_exempt
+# @permission_classes([AllowAny])
 # class GameState(APIView):
 #     def get(self, request):
 #         game_id = request.query_params.get("game_id")
@@ -48,14 +38,16 @@ from django.views.decorators.csrf import csrf_exempt
 #         serializer = GameStateSerializer(game)
 #         return Response(serializer.data)
 
+@csrf_exempt
+@permission_classes([AllowAny])
 def pong_view(request):
-    return render(request, '../static/index.html')
-
-# class pong_test(APIView):
-#     def get(self, request):
-#         return render(request, '../static/template.html')
+    try:
+        context ={}
+        return render(request, 'pong/index.html', context)
+    except TemplateDoesNotExist:
+        return HttpResponse("Template not found", status=404)
 
 @csrf_exempt
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def pong_test(request):
     return HttpResponse("Hello, world!")

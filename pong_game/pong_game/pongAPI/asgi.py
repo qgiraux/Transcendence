@@ -12,23 +12,16 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import path
 from django.core.asgi import get_asgi_application
 from pong.routing import websocket_urlpatterns
+from channels.auth import AuthMiddlewareStack
+from pong import routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pongAPI.settings')
 
 application = ProtocolTypeRouter({
 	'http': get_asgi_application(),
-	'websocket': URLRouter(websocket_urlpatterns),
+	"websocket" : AuthMiddlewareStack(
+            URLRouter(
+                routing.websocket_urlpatterns
+            )    
+        )
 })
-
-ASGI_APPLICATION = 'pongAPI.asgi.application'
-WSGI_APPLICATION = 'pongAPI.wsgi.application'
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [("redis", 6379)],
-			'capacity': 1000,
-        },
-    }
-}
