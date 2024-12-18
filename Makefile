@@ -39,7 +39,20 @@ test-friends:
 	@docker exec -it friends_list python manage.py test
 	@echo
 
-tests: test-front test-users test-friends
+test-avatar:
+	@echo "${Purple}UNIT TESTS : AVATAR SERVICE${Off}"
+	@docker exec -it avatar python manage.py test
+	@echo
+
+test-up:
+	@echo "🔧 Building the tests images..."
+	@docker compose  -f test.docker-compose.yml build
+	@ echo '🚀      starting the Django testing environement...'
+	@docker compose -f test.docker-compose.yml up -d
+	@ sleep 5
+
+tests: test-front test-up test-users test-friends test-avatar down
+	@./tools/wipe_test_volumes.sh
 
 #cree et demarre les container
 up:

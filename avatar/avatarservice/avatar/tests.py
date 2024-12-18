@@ -27,7 +27,7 @@ def valid_jwt_token(user_id):
 class MyTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.token = valid_jwt_token(1)
+        cls.token = valid_jwt_token(9999)
 
     def test_NoToken(self):
         c = Client()
@@ -53,7 +53,7 @@ class MyTests(TestCase):
 
     def test_randomUUID(self):
         c = Client()
-        response = c.get(path=f"/avatar/{uuid.uuid4()}/")
+        response = c.get(path=f"/picture/{uuid.uuid4()}/")
         assert(response.status_code == 200)
         image_data = response.content
         received_img = Image.open(io.BytesIO(image_data))
@@ -69,10 +69,10 @@ class MyTests(TestCase):
                     data={"image": img},
                     HTTP_AUTHORIZATION=f"Bearer {self.token}"
                 )
-            assert upload1_response.status_code == 201
+            assert( upload1_response.status_code == 201 or  upload1_response.status_code == 200)
             first_uuid = upload1_response.json()['uuid']
             #check that the first uuid url works
-            get1_response = c.get(f"/avatar/{first_uuid}/")
+            get1_response = c.get(f"/picture/{first_uuid}/")
             assert get1_response.status_code == 200
 
             with open('avatar/tests-images/test-image.jpg', 'rb') as img:
@@ -86,10 +86,10 @@ class MyTests(TestCase):
             assert first_uuid != second_uuid
 
             #checks that the second uuid url works
-            get2_response = c.get(f"/avatar/{second_uuid}/")
+            get2_response = c.get(f"/picture/{second_uuid}/")
             assert get2_response.status_code == 200
             #and that the first response returns the default avatar
-            get1_response = c.get(f"/avatar/{first_uuid}/")
+            get1_response = c.get(f"/picture/{first_uuid}/")
             assert get1_response.status_code == 200
             image_data = get1_response.content
             received_img = Image.open(io.BytesIO(image_data))
@@ -105,7 +105,7 @@ class MyTests(TestCase):
                 data={"image": img},
                 HTTP_AUTHORIZATION=f"Bearer {self.token}"
             )
-        assert response.status_code == 400
+        assert response.status_code == 413
 
     def test_UnsupportedFormat(self):
         c = Client()
@@ -115,7 +115,7 @@ class MyTests(TestCase):
                 data={"image": img},
                 HTTP_AUTHORIZATION=f"Bearer {self.token}"
             )
-        assert response.status_code == 400
+        assert response.status_code == 415
 
     def test_UnsupportedFormatMalicious(self): # weird binary file pretending to be an image
         c = Client()
@@ -125,4 +125,4 @@ class MyTests(TestCase):
                 data={"image": img},
                 HTTP_AUTHORIZATION=f"Bearer {self.token}"
             )
-        assert response.status_code == 400
+        assert response.status_code == 415

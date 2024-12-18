@@ -18,38 +18,51 @@ import os, io
 from PIL import Image, UnidentifiedImageError
 
 
+MAX_SIZE = 5 # the maximum accepted image size in MB
+SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q' # a remplacer dans .env
+
+
+class ImageValidationError(ValueError):
+    """Base class for image validation errors."""
+    pass
+
+class ImageTooLargeError(ImageValidationError):
+    """Raised when the image file is too large."""
+    pass
+
+class UnsupportedFormatError(ImageValidationError):
+    """Raised when the image format is unsupported."""
+    pass
+
+class ImageTooLargeDimensionsError(ImageValidationError):
+    """Raised when the image exceeds maximum allowed dimensions."""
+    pass
+
 def validate_image(file_obj, allowed_formats=None, max_size=None):
     """
-    Comprehensive image validation using Pillow
-
+     image validation
     Args:
         file_obj: File-like object containing the image
         allowed_formats (list, optional): List of allowed image formats
         max_size int : Maximum size in MB allowed
-
-    Returns:
-        boolean: True if the image is valid
+        raise execeptions if the image is not validated
+    Returns: None
     """
     file_obj.seek(0)
     if hasattr(file_obj, 'size'):
-        if file_obj.size > 5 * (1024 * 1024):
-            return False
+        if file_obj.size > MAX_SIZE * (1024 * 1024):
+            raise ImageTooLargeError(f"Image file is too large")
     file_obj.seek(0)
-    try:
-        with Image.open(file_obj) as img:
-            detected_format = img.format.upper() if img.format else None
-            if allowed_formats:
-                allowed_formats = [fmt.upper() for fmt in allowed_formats]
-                if detected_format not in allowed_formats:
-                    raise ValueError(f"Unsupported format. Allowed: {allowed_formats}")
-            if max_size:
-                max_width, max_height = max_size
-                if img.width > max_width or img.height > max_height:
-                    raise ValueError(f"Image exceeds maximum dimensions of {max_size}")
-            return True
-
-    except (UnidentifiedImageError, ValueError,Exception):
-        return False
+    with Image.open(file_obj) as img:
+        detected_format = img.format.upper() if img.format else None
+        if allowed_formats:
+            allowed_formats = [fmt.upper() for fmt in allowed_formats]
+            if detected_format not in allowed_formats:
+                raise UnsupportedFormatError(f"Unsupported format. Allowed: {allowed_formats}")
+        if max_size:
+            max_width, max_height = max_size
+            if img.width > max_width or img.height > max_height:
+                raise ImageTooLargeDimensionsError(f"Image exceeds maximum dimensions of {max_size}")
 
 
 def convert_image(file_obj):
@@ -109,10 +122,8 @@ def convert_image(file_obj):
                 size=buffer.getbuffer().nbytes,  # file size
                 charset=None           # charset (not applicable for images)
             )
-
     except Exception as e:
-        # More specific error handling
-        raise ValueError(f"Image conversion failed: {str(e)}")
+        raise RuntimeError(f"Image conversion failed: {str(e)}")
 
 
 def very_unique_uuid(new_uuid, avatar_list, max_recursion):
@@ -149,7 +160,7 @@ class AvatarUploadView(APIView):
         try:
             payload = jwt.decode(
                 token,
-                'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q',
+                SECRET_KEY,
                 algorithms=['HS256']
             )
             return payload
@@ -172,19 +183,35 @@ class AvatarUploadView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                     )
             image = request.FILES.get('image')
-            if not image or not validate_image(image, allowed_formats=['JPEG', 'PNG']):
+            if not image:
                 return Response(
                     {"error": "invalid image provided"},
                     status=status.HTTP_400_BAD_REQUEST
                     )
+            validate_image(image, allowed_formats=['JPEG', 'PNG'], max_size=(1200,1200))
         except ValidationError as e:
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+        except UnsupportedFormatError as e:
+            return Response(
+                f"{e}",
+                status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
+            )
+        except ImageTooLargeError as e:
+            return Response(
+                f"{e}",
+                status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+            )
+        except ImageTooLargeDimensionsError as e:
+            return Response(
+                f"{e}",
+                status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+            )
         except Exception as e:
             return Response(
-                {"error": "Unexpected error occurred"},
+                f"{e}",
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         try:
@@ -193,15 +220,9 @@ class AvatarUploadView(APIView):
             if (os.path.exists(old_img_path)):
                 os.remove(old_img_path)
             avatar.image = convert_image(file_obj=image)
-            try:
-                avatar.uuid = very_unique_uuid(uuid.uuid4(),
-                              avatar_list = Avatar.objects.all().iterator(),
-                              max_recursion=10)
-            except RuntimeError:
-                return Response(
-                {"error": "Unexpected error occurred"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            avatar.uuid = very_unique_uuid(uuid.uuid4(),
+                avatar_list = Avatar.objects.all().iterator(),
+                max_recursion=10)
             avatar.save()
             return Response(
                 {"message": f"Image updated successfully" , "uuid": avatar.uuid}
@@ -216,7 +237,10 @@ class AvatarUploadView(APIView):
                 {"message": "Image uploaded successfully", "uuid": avatar.uuid},
                   status=201
                   )
-
+        except Exception as e:
+            return Response(
+                f"{e}",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def get_image(request, img_id):
@@ -224,13 +248,13 @@ def get_image(request, img_id):
         avatar = Avatar.objects.get(uuid = img_id)
         with open(avatar.image.path, 'rb') as image_file:
             response = HttpResponse(image_file.read(), content_type='image/jpeg')
-            response['Cache-Control'] = 'max-age=3600'  # duree cache a ajuster
+            response['Cache-Control'] = 'max-age=3600'
             logging.info(f"returning image from id: {img_id}")
             return response
     except (Avatar.DoesNotExist,FileNotFoundError):
             with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
                 response = HttpResponse(image_file.read(), content_type='image/jpeg')
-                response['Cache-Control'] = 'max-age=3600'  # duree cache a ajuster
+                response['Cache-Control'] = 'max-age=10800'
                 logging.info(f"uuid not found returning fallback image")
                 return response
 
@@ -239,7 +263,7 @@ def get_image(request, img_id):
 def get_default(request):
     with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
         response = HttpResponse(image_file.read(), content_type='image/jpeg')
-        response['Cache-Control'] = 'max-age=3600'  # duree cache a ajuster
+        response['Cache-Control'] = 'max-age=10800'
         return response
 
 
