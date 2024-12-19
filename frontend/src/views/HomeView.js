@@ -48,6 +48,11 @@ class HomeView extends AbstractView {
           // Display the notification
           Alert.classicMessage(type, message)
         }
+        if (type === "GOTO")
+        {
+          // Display the alert
+          Router.reroute(message);
+        }
       }} catch (err) {console.error("Failed to process WebSocket message:", err);};
     
     Application.mainSocket.onerror = (error) => {
