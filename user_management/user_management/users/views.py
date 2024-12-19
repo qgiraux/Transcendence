@@ -48,6 +48,7 @@ def Get_user_infos(request, user_id):
     user_info = {
         "id": user.id,
         "username": user.username,
+        "nickname": user.nickname,
     }
     return JsonResponse(user_info)
 
@@ -117,3 +118,7 @@ def GetAllUsers(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return JsonResponse(serializer.data, safe=False)
+
+def AddChannel(request):
+    pass
+    

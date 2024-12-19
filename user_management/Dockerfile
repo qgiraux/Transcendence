@@ -22,7 +22,7 @@ COPY ./user_management/user_management .
 RUN chmod 777 docker-entrypoint.sh
 
 
-EXPOSE 8000 6379
+EXPOSE 8000
 
 CMD ["./docker-entrypoint.sh"]
 

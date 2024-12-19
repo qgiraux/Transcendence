@@ -39,7 +39,12 @@ test-friends:
 	@docker exec -it friends_list python manage.py test
 	@echo
 
-tests: test-front test-users test-friends
+test-chat:
+	@echo "${Purple}UNIT TESTS : FRIEND LIST SERVICE${Off}"
+	@docker exec -e TESTING=1 -it chat python manage.py test chat --verbosity=1
+	@echo
+
+tests: test-front test-users test-friends test-chat
 
 #cree et demarre les container
 up:

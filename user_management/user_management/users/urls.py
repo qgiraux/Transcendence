@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_csrf_token, GetAllUsers
+from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_csrf_token, GetAllUsers, AddChannel
 from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import CustomTokenObtainPairView
@@ -17,6 +17,7 @@ urlpatterns = [
     path('userstatus/<int:user_id>', CheckUserStatus, name='check user status'),
     path('csrf/', get_csrf_token, name='get csrf'),
     path('userlist/', GetAllUsers, name='user list'),
+    path('addchannel/', AddChannel, name='add channel'),
     
 
 ]
