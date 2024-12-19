@@ -51,8 +51,12 @@ test-up:
 	@docker compose -f test.docker-compose.yml up -d
 	@ sleep 5
 
-tests: test-front test-up test-users test-friends test-avatar down
+tests: test-front test-up test-users test-friends test-avatar test-chat down
 	@./tools/wipe_test_volumes.sh
+test-chat:
+	@echo "${Purple}UNIT TESTS : FRIEND LIST SERVICE${Off}"
+	@docker exec -e TESTING=1 -it chat python manage.py test chat --verbosity=1
+	@echo
 
 #cree et demarre les container
 up:
