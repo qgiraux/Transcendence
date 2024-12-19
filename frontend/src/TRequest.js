@@ -33,7 +33,6 @@ class TRequest {
 
     try {
       const response = await fetch(route, fetchobj);
-      const json = await response.json();
       if (!response.ok) {
         if (response.status == 401) {
           // let's try to refresh the token
@@ -41,7 +40,11 @@ class TRequest {
           return TRequest.request(method, route, body);
         }
       }
-      return json;
+      const contentType = response.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        const json = await response.json();
+        return json;
+      }
     } catch (error) {
       throw new Error(`TRequest: ${error}`);
     }
