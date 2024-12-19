@@ -2,6 +2,7 @@ import Application from "../Application.js";
 import AbstractView from "./AbstractView.js";
 import Router from "../Router.js";
 import Avatar from "../Avatar.js";
+import TRequest from "../TRequest.js";
 import chatBox from "../Chat.js";
 
 class HomeView extends AbstractView {
