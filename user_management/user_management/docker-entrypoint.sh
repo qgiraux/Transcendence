@@ -3,7 +3,9 @@
 set -e
 # sleep 5
 # Apply database migrations
-python manage.py makemigrations
+for i in {1..15}; do
+    python manage.py makemigrations && break || sleep 1;
+done
 python manage.py migrate
 
 # Run the server
