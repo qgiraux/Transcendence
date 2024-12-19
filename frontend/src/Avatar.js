@@ -11,6 +11,10 @@ class Avatar {
    *
    */
   static #uuidList = null;
+  constructor() {
+    throw new Error("Avatar classe can't be instantiated.");
+  }
+
   static url(userId) {
     if (typeof userId !== Number) userId = Number(userId);
     const urlObj = Avatar.#uuidList.filter((obj) => {
