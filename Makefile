@@ -39,12 +39,27 @@ test-friends:
 	@docker exec -it friends_list python manage.py test
 	@echo
 
+test-avatar:
+	@echo "${Purple}UNIT TESTS : AVATAR SERVICE${Off}"
+	@docker exec -it avatar python manage.py test
+	@echo
+
+test-up:
+	@echo "🔧 Building the tests images..."
+	@docker compose  -f test.docker-compose.yml build
+	@ echo '🚀      starting the Django testing environement...'
+	@docker compose -f test.docker-compose.yml up -d
+	@ sleep 5
+
 test-chat:
 	@echo "${Purple}UNIT TESTS : FRIEND LIST SERVICE${Off}"
 	@docker exec -e TESTING=1 -it chat python manage.py test chat --verbosity=1
 	@echo
 
-tests: test-front test-users test-friends test-chat
+tests: test-front test-up test-users test-friends test-chat test-avatar down
+	@./tools/wipe_test_volumes.sh
+
+
 
 #cree et demarre les container
 up:
@@ -67,6 +82,10 @@ prune: down
 	@docker container prune -f
 	@docker image prune -fa
 	@docker system prune -f
+
+wipe-volumes: prune
+	@./tools/wipe_volumes.sh
+
 
 logs:
 	@echo "${Blue}=========== LOGS NGINX     ===============${Off}"

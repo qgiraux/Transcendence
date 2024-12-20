@@ -1,7 +1,7 @@
 #!/bin/bash
 # Exit immediately if a command exits with a non-zero status
 set -e
-# sleep 5
+sleep 4
 # Apply database migrations
 python manage.py makemigrations
 python manage.py migrate

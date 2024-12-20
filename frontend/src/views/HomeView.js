@@ -1,9 +1,9 @@
 import Application from "../Application.js";
 import AbstractView from "./AbstractView.js";
-import TRequest from "../TRequest.js";
 import Router from "../Router.js";
 import chatBox from "../Chat.js";
 import Alert from "../Alert.js";
+import TRequest from "../TRequest.js";
 
 class HomeView extends AbstractView {
   constructor(params) {
@@ -27,8 +27,7 @@ class HomeView extends AbstractView {
       this._setHtml();
     }
     try {
-      Application.mainSocket.onmessage = (event) => 
-      {
+      Application.mainSocket.onmessage = (event) => {
         // Parse the incoming JSON
         const data = JSON.parse(event.data);
         const sender = data.sender || 0; // Default if field missing
@@ -66,7 +65,6 @@ class HomeView extends AbstractView {
     Application.mainSocket.onclose = () => {
       console.log("WebSocket connection closed.");
     };
-
   }
 
   _setHtml() {
@@ -83,7 +81,6 @@ class HomeView extends AbstractView {
     }
     const container2 = document.querySelector("#view-container");
   }
-}  
+}
 
 export default HomeView;
-

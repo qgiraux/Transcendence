@@ -79,7 +79,7 @@ services:
     restart: always
     networks:
       - transcendence
-    
+
   nginx:
     container_name: nginx
     image: nginx
@@ -94,7 +94,7 @@ services:
       - "5000:443"
     restart: unless-stopped
     init: true
-  
+
   tournament:
     image: tournament
     container_name: tournament
@@ -121,9 +121,39 @@ services:
       - postgres_tournament:/var/lib/postgresql/data
     networks:
       - transcendence
-  
+
+  avatar:
+    image: avatar
+    container_name: avatar
+    build:
+      context: .
+      dockerfile: avatar/Dockerfile
+    volumes:
+      - avatar_images_volume:/avatar_images/images
+    depends_on:
+      - db_avatar
+    networks:
+      - transcendence
+    ports:
+      - 8000:8000
+    init: true
+
+  db_avatar:
+    image: postgres:15
+    restart: always
+    container_name: db_avatar
+    environment:
+      POSTGRES_USER: avatar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avatar}
+      POSTGRES_DB: db_avatar
+    volumes:
+      - postgres_avatar:/var/lib/postgresql/data
+    networks:
+      - transcendence
 
 volumes:
   postgres_user_management:
   postgres_friends_list:
+  postgres_avatar:
+  avatar_images_volume:
   postgres_tournament:
