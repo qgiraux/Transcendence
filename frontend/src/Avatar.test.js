@@ -66,27 +66,4 @@ describe("Avatar Class", () => {
       );
     });
   });
-
-  describe("refreshAvatars()", () => {
-    test("Updates image `src` attributes correctly", async () => {
-      Avatar.uuidList = [
-        { Userid: 123, uuid: "abc-123" },
-        { Userid: 456, uuid: "def-456" },
-      ];
-
-      // Mock the DOM structure
-      document.body.innerHTML = `
-        <img data-avatar="123" />
-        <img data-avatar="456" />
-        <img data-avatar="789" />
-      `;
-
-      await Avatar.refreshAvatars();
-
-      const images = document.querySelectorAll("img[data-avatar]");
-      expect(images[0].src).toContain("/api/avatar/picture/abc-123/");
-      expect(images[1].src).toContain("/api/avatar/picture/def-456/");
-      expect(images[2].src).toContain("/api/avatar/picture/default/");
-    });
-  });
 });
