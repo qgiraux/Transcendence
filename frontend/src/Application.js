@@ -1,6 +1,8 @@
 /**
 
  */
+import Avatar from "./Avatar.js";
+
 class Application {
   /**
    * A placeholder class, I'm not really sure for what
@@ -93,8 +95,11 @@ class Application {
     };
   }
   static openWebSocket(url) {
-    if (Application.#token === null) { // Correct the check
-      console.error(`Application: Error opening WebSocket: user not identified`);
+    if (Application.#token === null) {
+      // Correct the check
+      console.error(
+        `Application: Error opening WebSocket: user not identified`
+      );
       return null;
     }
     if (!url) {
@@ -103,7 +108,7 @@ class Application {
     }
     const fullpath = `${url}?token=${Application.getAccessToken()}`; // Fix token retrieval
     Application.mainSocket = new WebSocket(fullpath);
-  
+
     // Add event listeners for debugging
     Application.mainSocket.onopen = () => {
       console.log("WebSocket connection opened:", fullpath);
@@ -114,13 +119,22 @@ class Application {
     Application.mainSocket.onclose = () => {
       console.log("WebSocket connection closed.");
     };
-  
+
     return Application.mainSocket;
   }
 
   static toggleSideBar() {
-    const chatBox = document.querySelector("#sidebar");
-    chatBox.classList.toggle("d-none");
+    const sideBar = document.querySelector("#sidebar");
+    const avatarImg = document.querySelector("#side-img");
+    console.log(avatarImg);
+    const userId = Application.getUserInfos().userId;
+    console.log(userId, "userId");
+    document.querySelector("#side-username").textContent =
+      Application.getUserInfos().userName;
+    avatarImg.setAttribute("data-avatar", userId);
+    Avatar.refreshAvatars().then(() => {
+      sideBar.classList.toggle("d-none");
+    });
   }
 
   static toggleChat() {
@@ -128,6 +142,5 @@ class Application {
     chatBox.classList.toggle("d-none");
   }
 }
-
 
 export default Application;

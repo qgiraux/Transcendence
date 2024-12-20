@@ -25,7 +25,7 @@ class ProfileView extends AbstractView {
       .then((result) => {
         this.currentUserInfos = result;
 
-        Avatar.getUUid().then(() => {
+        Avatar.refreshAvatars().then(() => {
           this._setHtml();
           const manageBtn = document.querySelector("#manage-btn");
           if (manageBtn) {
@@ -35,22 +35,79 @@ class ProfileView extends AbstractView {
               this._manageProfileClickHandler.bind(this)
             );
           }
+          const modal = document.getElementById("avatarModal");
           this.addEventListener(
-            document.querySelector("#reset-profile-picture"),
-            "click",
-            this._resetAvatarHandler.bind(this)
-          );
-
-          this.addEventListener(
-            document.getElementById("profileModal"),
+            modal,
             "hide.bs.modal",
             this._modalSafeClose.bind(this)
+          );
+          this.addEventListener(
+            modal,
+            "change",
+            this._avataRadioHandler.bind(this)
+          );
+          this.avatarChoice = "reset";
+
+          this.addEventListener(
+            document.querySelector("#update-button"),
+            "click",
+            this._avatarButtonHandler.bind(this)
           );
         });
       })
       .catch((error) => {
         Alert.errorMessage("something went wrong", error.message);
       });
+  }
+
+  async _avatarButtonHandler(event) {
+    event.stopPropagation();
+    if (this.avatarChoice === "reset") {
+      TRequest.request("DELETE", "/api/avatar/delete/")
+        .then(() => {
+          Avatar.refreshAvatars();
+        })
+        .catch(() => {
+          Alert.errorMessage("Avatar reset", `something went wrong ${e}`);
+        });
+      const focusedElement = document.activeElement;
+
+      const ancestorWithAriaHidden = focusedElement.closest(
+        '[aria-hidden="true"]'
+      );
+    } else if (this.avatarChoice === "update") {
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length === 0) {
+        Alert.errorMessage("Avatar", "You must select a file");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+      try {
+        const response = await TRequest.formRequest(
+          "POST",
+          "/api/avatar/upload/",
+          formData
+        );
+        await Avatar.refreshAvatars();
+      } catch (error) {
+        Alert.errorMessage("Avatar", error.message);
+      }
+    }
+  }
+
+  _avataRadioHandler(event) {
+    event.stopPropagation();
+    if (event.target.name === "avatarOption") {
+      const fileInput = document.querySelector("#fileInput");
+      if (event.target.value === "reset") {
+        this.avatarChoice = "reset";
+        fileInput.disabled = true;
+      } else if (event.target.value === "file") {
+        this.avatarChoice = "update";
+        fileInput.disabled = false;
+      }
+    }
   }
 
   // safely removing focus form the modal when it closes - accessibility issue
@@ -64,75 +121,60 @@ class ProfileView extends AbstractView {
   _manageProfileClickHandler(event) {
     event.stopPropagation();
 
-    const manageModal = new bootstrap.Modal(
-      document.getElementById("profileModal")
+    const avatarModal = new bootstrap.Modal(
+      document.getElementById("avatarModal")
     );
-    manageModal.show();
-  }
-
-  _resetAvatarHandler(event) {
-    event.stopPropagation();
-    TRequest.request("DELETE", "/api/avatar/delete/").then(() => {
-      Avatar.refreshAvatars();
-    });
+    avatarModal.show();
   }
 
   _setHtml() {
     const profileEdit = `
-	<button class="btn btn-primary" id="manage-btn" >Manage profile</button>
+	<button class="btn btn-primary" id="manage-btn" >Manage Avatar</button>
 	`;
     const container = document.querySelector("#view-container");
 
     if (container) {
       container.innerHTML = `
-
-  <!-- Modal -->
-<div class="modal fade text-white" id="profileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
-                <h2>Profile Settings</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="update-profile-form">
-                    <div class="mb-3">
-                        <h5 class="mb-3">Nickname</h5>
-                        <div class="input-group">
-                            <div class="col-xs-2">
-                            <input type="text" class="form-control bg-dark text-white" id="nickname" name="nickname" placeholder= ${
-                              this.currentUserInfos.nickname
-                            } />
+      <!-- Modal -->
+        <div class="modal fade text-white" id="avatarModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                        <h2>Avatar Settings</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="avatarOption" id="resetDefault"
+                                value="reset" checked>
+                            <label class="form-check-label" for="resetDefault">
+                                Reset to Default
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="avatarOption" id="uploadFile"
+                                value="file">
+                            <label class="form-check-label" for="uploadFile">
+                                Choose from File
+                            </label>
+                            <div class="input-group mb-3" >
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" accept="image/png,image/jpeg" id="fileInput" disabled>
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-primary" id="update-nickname">Update Nickname</button>
+                        </div>
+                        </form>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="update-button"  data-bs-dismiss="modal">Update</button>
                         </div>
                     </div>
-
-                    <h5 class="mb-3">Profile Picture</h5>
-                    <div class="d-flex justify-content-between gap-2 mb-3">
-                        <button type="button" class="btn btn-primary flex-fill" id="update-profile-picture">Update</button>
-                        <button type="button" class="btn btn-warning flex-fill"   data-bs-dismiss="modal" id="reset-profile-picture">Reset</button>
-                    </div>
-
-                    <h5 class="mb-3">Account</h5>
-                    <div class="text-center">
-                        <button type="button" class="btn btn-danger" id="delete-account">Delete Account</button>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-
-
-
+        <!-- END MODAL -->
 
         <div class="row p-3">
-
             <div class="row align-items-center">
                 <!-- Colonne pour l'image -->
                 <div class="col-md-6">
@@ -195,6 +237,7 @@ class ProfileView extends AbstractView {
 
             </div>
         </div>
+    </div>
 					`;
     }
   }
