@@ -41,7 +41,7 @@ class ProfileView extends AbstractView {
 	const profileTwofa = `
 	<label class="btn btn-primary">
 	Activate 2FA
-	<a href="/friends" data-link class="nav-link px-0 align-middle">profile</a>	</label>
+	<a href="/twofa" data-link class="nav-link px-0 align-middle">profile</a>	</label>
 	`;
     const container = document.querySelector("#view-container");
 
