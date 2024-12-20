@@ -131,6 +131,11 @@ class ProfileView extends AbstractView {
     const profileEdit = `
 	<button class="btn btn-primary" id="manage-btn" >Manage Avatar</button>
 	`;
+	const profileTwofa = `
+	<label class="btn btn-primary">
+	Activate 2FA
+	<a href="/twofa" data-link class="nav-link px-0 align-middle">profile</a>	</label>
+	`;
     const container = document.querySelector("#view-container");
 
     if (container) {
@@ -198,6 +203,11 @@ class ProfileView extends AbstractView {
                         ? profileEdit
                         : ""
                     }
+                    ${
+                      this.currentUserInfos.id === Application.getUserInfos().userId
+                        ? profileTwofa
+                        : ""
+                      }
                 </div>
             </div>
 
