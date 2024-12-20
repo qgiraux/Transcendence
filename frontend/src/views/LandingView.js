@@ -2,6 +2,7 @@ import AbstractView from "./AbstractView.js";
 import Application from "../Application.js";
 import Alert from "../Alert.js";
 import Router from "../Router.js";
+import Avatar from "../Avatar.js";
 
 class LandingView extends AbstractView {
   constructor(params) {
@@ -114,10 +115,10 @@ class LandingView extends AbstractView {
       Application.setUserInfos();
       Application.toggleSideBar();
       Application.toggleChat();
-      Application.openWebSocket("wss://localhost:5000/ws/chat/")
+      Application.openWebSocket("wss://localhost:5000/ws/chat/");
       Router.reroute("/home");
     } catch (error) {
-      Alert.errorMessage("Login error", "Connexion issue");
+      Alert.errorMessage("Login error", error.message);
     }
   }
 
