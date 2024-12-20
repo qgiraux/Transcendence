@@ -1,8 +1,9 @@
-from django.urls import path
-from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_csrf_token, GetAllUsers
+from django.urls import path, re_path
+from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_csrf_token, GetAllUsers, AddChannel
 from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import CustomTokenObtainPairView
+from .views import CustomTokenObtainPairView, TOTPCreateView, TOTPVerifyView
+
 
 
 urlpatterns = [
@@ -17,6 +18,10 @@ urlpatterns = [
     path('userstatus/<int:user_id>', CheckUserStatus, name='check user status'),
     path('csrf/', get_csrf_token, name='get csrf'),
     path('userlist/', GetAllUsers, name='user list'),
+    path('addchannel/', AddChannel, name='add channel'),
+
+    path('totp/create/', TOTPCreateView.as_view(), name='totp-create'),
+    re_path(r'totp/login/(?P<token>[0-9]{6})/', TOTPVerifyView.as_view(), name='totp-login'),
     
 
 ]

@@ -1,0 +1,60 @@
+services:
+  web3-tournament:
+    build: ./web3-tournament
+    container_name: web3-tournament
+    restart: always
+    env_file: ./.env
+    networks:
+      - docker-network
+    depends_on:
+      - hardhat-network
+    ports:
+      - 8000:8000
+    # volumes:
+    #   - ethereum-testnet:/data/
+    #   - adminer:/data/adminer
+    #   - mariadb:/data/mysql
+    #   - website:/data/website
+    # expose:
+    #   - 8546 #
+  hardhat-network:
+    build: ./hardhat-network
+    container_name: hardhat-network
+    restart: always
+    env_file: ./.env
+    # volumes:
+    #   - ethereum-testnet:/data/
+    networks:
+      - docker-network
+    expose:
+      - 8545
+    # ports:
+    #   - 80:80
+  # ethereum-testnet:
+  #   build: ./ethereum-testnet
+  #   container_name: ethereum-testnet
+  #   restart: always
+  #   env_file: ./.env
+  #   volumes:
+  #     - ethereum-testnet:/data/
+  #   networks:
+  #     - docker-network
+  #   # expose:
+  #   #   - 85450
+  #   # ports:
+  #   #   - 80:80
+
+networks:
+  docker-network:
+    driver: bridge
+
+volumes:
+  ethereum-testnet:
+
+# volumes:
+#   mariadb:
+#     driver: local
+#     driver_opts:
+#       type: 'none'
+#       o: 'bind'
+#       device: '/tmp/mariadb'
