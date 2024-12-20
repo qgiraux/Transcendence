@@ -206,25 +206,25 @@ class AvatarUploadView(APIView):
         except UnsupportedFormatError as e:
             logger.error(f"Unsupported format error: {e}")
             return Response(
-                f"{e}",
+                {"error":{"error":f"{e}"}},
                 status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
             )
         except ImageTooLargeError as e:
             logger.error(f"Image too large error: {e}")
             return Response(
-                f"{e}",
+                {"error":f"{e}"},
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
         except ImageTooLargeDimensionsError as e:
             logger.error(f"Image dimension error: {e}")
             return Response(
-                f"{e}",
+                {"error":f"{e}"},
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
         except Exception as e:
             logger.exception("Unexpected error during image validation.")
             return Response(
-                f"{e}",
+                {"error":f"{e}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -261,7 +261,7 @@ class AvatarUploadView(APIView):
         except Exception as e:
             logger.exception("Unexpected error during avatar save operation.")
             return Response(
-                f"{e}",
+                {"error":f"{e}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -345,7 +345,7 @@ class AvatarDeleteView(APIView):
         except ValidationError as e:
             logger.error(f"Token validation error: {e}")
             return Response(
-                f"error {str(e)}",
+                {"error":f"error {str(e)}"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         except Avatar.DoesNotExist:
@@ -354,6 +354,6 @@ class AvatarDeleteView(APIView):
         except Exception as e:
             logger.exception("Unexpected error during avatar deletion.")
             return Response(
-                f"error {e}",
+                {"error":f"error {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

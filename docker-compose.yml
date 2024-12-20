@@ -79,7 +79,7 @@ services:
     restart: always
     networks:
       - transcendence
-    
+
   nginx:
     container_name: nginx
     image: nginx
@@ -94,7 +94,7 @@ services:
       - "5000:443"
     restart: unless-stopped
     init: true
-  
+
   tournament:
     image: tournament
     container_name: tournament
@@ -121,7 +121,6 @@ services:
       - postgres_tournament:/var/lib/postgresql/data
     networks:
       - transcendence
-  
 
   avatar:
     image: avatar

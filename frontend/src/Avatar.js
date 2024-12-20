@@ -10,10 +10,14 @@ class Avatar {
    * getUrl(userId) for caching purposes
    *
    */
-  static #uuidList = null;
+  static uuidList = null;
+  constructor() {
+    throw new Error("Avatar class can't be instantiated.");
+  }
+
   static url(userId) {
     if (typeof userId !== Number) userId = Number(userId);
-    const urlObj = Avatar.#uuidList.filter((obj) => {
+    const urlObj = Avatar.uuidList.filter((obj) => {
       return obj.Userid === userId;
     });
     if (urlObj.length === 0) {
@@ -34,7 +38,7 @@ class Avatar {
         "GET",
         "/api/avatar/avatar_list/"
       );
-      Avatar.#uuidList = response;
+      Avatar.uuidList = response;
     } catch (error) {
       Alert.errorMessage(
         "Error during avatar pictures retrieval",
@@ -48,11 +52,12 @@ class Avatar {
      * Update the src attribute
      * of all images with attribute data-avatar
      */
-    Avatar.getUUid();
-    const avatarsImg = document.querySelectorAll("img[data-avatar]");
-    avatarsImg.forEach((img) => {
-      const userId = img.getAttribute("data-avatar");
-      img.src = Avatar.url(userId);
+    Avatar.getUUid().then(() => {
+      const avatarsImg = document.querySelectorAll("img[data-avatar]");
+      avatarsImg.forEach((img) => {
+        const userId = img.getAttribute("data-avatar");
+        img.src = Avatar.url(userId);
+      });
     });
   }
 }

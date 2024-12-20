@@ -9,6 +9,15 @@ import Application from "./Application.js";
  * The class must not be instantiated
  */
 class TRequest {
+  static canBeConvertedToJSON(value) {
+    try {
+      JSON.stringify(value);
+      return true; // Si pas d'erreur, la conversion est possible
+    } catch (error) {
+      return false; // Si une erreur se produit, ce n'est pas convertible
+    }
+  }
+
   /**
    * Make a request to the route by
    * @param {string} method - The route
@@ -23,17 +32,20 @@ class TRequest {
       method: method,
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
         Authorization: `Bearer ${access}`,
       },
     };
-    if (body !== undefined && body !== null) {
+    if (
+      body !== undefined &&
+      body !== null &&
+      TRequest.canBeConvertedToJSON(body)
+    ) {
       fetchobj.body = JSON.stringify(body);
+      fetchobj.headers["Content-Type"] = "application/json";
     }
 
     try {
       const response = await fetch(route, fetchobj);
-      const json = await response.json();
       if (!response.ok) {
         if (response.status == 401) {
           // let's try to refresh the token
@@ -41,7 +53,41 @@ class TRequest {
           return TRequest.request(method, route, body);
         }
       }
-      return json;
+      const contentType = response.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        const json = await response.json();
+        return json;
+      }
+    } catch (error) {
+      throw new Error(`TRequest: ${error}`);
+    }
+  }
+
+  static async formRequest(method, route, form) {
+    let access = Application.getAccessToken();
+    if (access === null) throw new Error("No access token");
+    let fetchobj = {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+      body: form,
+    };
+
+    try {
+      const response = await fetch(route, fetchobj);
+      if (!response.ok) {
+        if (response.status == 401) {
+          // let's try to refresh the token
+          await TRequest.refreshToken();
+          return TRequest.request(method, route, form);
+        }
+      }
+      const contentType = response.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        const json = await response.json();
+        return json;
+      }
     } catch (error) {
       throw new Error(`TRequest: ${error}`);
     }
@@ -57,7 +103,7 @@ class TRequest {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ refresh: Application.getRefreshToken() }),
+      form: JSON.stringify({ refresh: Application.getRefreshToken() }),
     });
     if (!response.ok) {
       throw new Error("The server refused to refresh the token");
