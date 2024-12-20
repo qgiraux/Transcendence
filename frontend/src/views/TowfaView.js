@@ -39,9 +39,10 @@ class TwofaView extends AbstractView {
             const imageUrl = URL.createObjectURL(this.imageBlob);
 
             container.innerHTML = `
+                <h1 class="text-white display-4">scan this qrcode with your authentificator app</h1>
                 <div class="row p-2 mb-0">
                     <div class="col-3 mx-1">
-						<h1 class="text-white display-2">scan this qrcode with your authentificator app</h1>
+						
                         <img src="${imageUrl}" alt="QR Code" class="img-fluid">
                     </div>
                 </div>    
