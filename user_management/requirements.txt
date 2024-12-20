@@ -8,3 +8,4 @@ daphne
 redis
 django-redis
 django-otp
+qrcode[pil]

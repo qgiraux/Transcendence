@@ -3,8 +3,9 @@ import AbstractView from "./AbstractView.js";
 import Router from "../Router.js";
 import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
+import qrcode from "qrcode";
 
-class ProfileView extends AbstractView {
+class TwofaView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("DefaultView");
@@ -12,7 +13,7 @@ class ProfileView extends AbstractView {
   }
 
   onStart() {
-    this._setTitle("Profile");
+    this._setTitle("Two Factor Authentication");
     if (Application.getAccessToken() === null) {
       setTimeout(() => {
         Router.reroute("/landing");
@@ -20,7 +21,7 @@ class ProfileView extends AbstractView {
       return;
     }
     const id = this.params["id"] || Application.getUserInfos().userId;
-    TRequest.request("GET", `/api/users/userinfo/${id}`)
+    TRequest.request("GET", `/api/users/totp/create/`)
       .then((result) => {
         this.currentUserInfos = result;
 
@@ -121,4 +122,4 @@ ${
   }
 }
 
-export default ProfileView;
+export default TwofaView;

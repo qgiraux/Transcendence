@@ -80,11 +80,12 @@ class LandingView extends AbstractView {
     event.stopPropagation();
     const login = document.querySelector("#InputLogin");
     const password = document.querySelector("#InputPassword");
+    const twofa = document.querySelector("#InputTwofa");
     if (
       this._validateLogin(login.value) &&
       this._validatePass(password.value)
     ) {
-      this.loginRequest({ username: login.value, password: password.value });
+      this.loginRequest({ username: login.value, password: password.value, twofa: twofa.value });
     } else {
       Alert.errorMessage(
         "You must provide a valid username and password.",
@@ -199,6 +200,10 @@ class LandingView extends AbstractView {
 					<div class="form-group text-white ">
 						<label for="InputPassword">Password</label>
 						<input type="password" class="form-control" id="InputPassword" placeholder="Password required">
+					</div>
+          <div class="form-group text-white ">
+						<label for="InputPassword">2FA code (if activated)</label>
+						<input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
 					</div>
 					<button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
 				</form>

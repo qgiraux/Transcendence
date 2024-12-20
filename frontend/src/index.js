@@ -8,6 +8,7 @@ import ProfileView from "./views/ProfileView.js";
 import Router from "./Router.js";
 import FriendsView from "./views/FriendsView.js";
 import BlocksView from "./views/BlocksView.js";
+import TwofaView from "./views/TowfaView.js";
 
 const router = new Router();
 router.addRoute("/", RootView);
@@ -17,5 +18,6 @@ router.addRoute("/profile", ProfileView);
 router.addRoute("/profile/:id", ProfileView);
 router.addRoute("/friends", FriendsView);
 router.addRoute("/blocks", BlocksView);
+router.addRoute("/twofa", TwofaView);
 router.setListeners();
 router.route();

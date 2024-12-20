@@ -12,9 +12,14 @@ from .serializers import RegisterSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .utils import is_user_online
+from .utils import is_user_online, get_user_totp_device, generate_qr_code
 from django.views.decorators.csrf import ensure_csrf_cookie
-from rest_framework import views, permissions
+from rest_framework import views, permissions, status
+
+
+from urllib.parse import urlencode
+import base64
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 
@@ -31,9 +36,58 @@ class UserListView(generics.ListAPIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-@ensure_csrf_cookie
-def get_csrf_token(request):
-    return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})
+        
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def get_jwt_token(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    user = User.objects.get(username=body['username'])
+    if user.twofa_enabled == True:
+        try:
+            token = body.get('twofa')
+            logger.error("1")
+            if not token:
+                return Response({'error': '2FA token missing'}, status=status.HTTP_400_BAD_REQUEST)
+            logger.error("2")
+            device = get_user_totp_device(user)
+            logger.error("3")
+            if device and device.verify_token(token):
+                if not device.confirmed:
+                    device.confirmed = True
+                    device.save()
+                logger.error("4")
+                refresh = RefreshToken.for_user(user)
+                access = str(refresh.access_token)
+                # Add custom claims to the access token
+                access_token = refresh.access_token
+                access_token['username'] = user.username
+                access_token['nickname'] = user.nickname
+                access = str(access_token)
+                logger.error("5")
+                return Response({
+                    'refresh': str(refresh),
+                    'access': access
+                })
+
+            return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except json.JSONDecodeError:
+            return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
+    logger.error("test2")
+    # 2FA not enabled: directly generate tokens
+    refresh = RefreshToken.for_user(user)
+    access = str(refresh.access_token)
+    access_token = refresh.access_token
+    access_token['username'] = user.username
+    access_token['nickname'] = user.nickname
+    access = str(access_token)
+    logger.error("test3")
+    return Response({
+        'refresh': str(refresh),
+        'access': access
+    })
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
@@ -51,8 +105,17 @@ def Get_user_infos(request, user_id):
         "id": user.id,
         "username": user.username,
         "nickname": user.nickname,
+        "2fa": user.twofa_enabled,
     }
     return JsonResponse(user_info)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
+def Enable_Twofa(request):
+    user = request.user
+    user.twofa_enabled = True
+    user.save()
+    return Response('2fa enabled', status=200)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
@@ -114,33 +177,13 @@ def CheckUserStatus(request, user_id):
     return JsonResponse({"user_id": user_id, "online": online})
 
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def GetAllUsers(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return JsonResponse(serializer.data, safe=False)
-
-def AddChannel(request):
-    pass
-
-from rest_framework import views, permissions
-from rest_framework.response import Response
-from rest_framework import status
-from django_otp import devices_for_user
-from django_otp.plugins.otp_totp.models import TOTPDevice
-from urllib.parse import urlencode
-
-def get_user_totp_device(self, user, confirmed=None):
-    devices = devices_for_user(user, confirmed=confirmed)
-    for device in devices:
-        if isinstance(device, TOTPDevice):
-            return device
-
-import base64
-from rest_framework import permissions, status, views
-from rest_framework.response import Response
-from urllib.parse import urlencode
 
 class TOTPCreateView(views.APIView):
     """
@@ -150,9 +193,10 @@ class TOTPCreateView(views.APIView):
     
     def get(self, request, format=None):
         user = request.user
-        
+        user.twofa_enabled = True
+        user.save()
         # Check if the user already has a TOTP device
-        device = get_user_totp_device(self, user)
+        device = get_user_totp_device(user)
         if not device:
             device = user.totpdevice_set.create(confirmed=False)
         
@@ -174,8 +218,8 @@ class TOTPCreateView(views.APIView):
             "period": 30,
         }
         totp_url = f"otpauth://totp/{label}?{urlencode(params)}"
-
-        return Response(totp_url, status=status.HTTP_201_CREATED)
+        return generate_qr_code(totp_url)
+        # return Response(totp_url, status=status.HTTP_201_CREATED)
 
     
 class TOTPVerifyView(views.APIView):
@@ -186,10 +230,11 @@ class TOTPVerifyView(views.APIView):
     
     def post(self, request, token, format=None):
         user = request.user
+        logger.error(user)
         device = get_user_totp_device(self, user)
         if not device == None and device.verify_token(token):
             if not device.confirmed:
                 device.confirmed = True
                 device.save()
             return Response(True, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(False, status=status.HTTP_400_BAD_REQUEST)
