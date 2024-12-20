@@ -3,6 +3,7 @@ import AbstractView from "./AbstractView.js";
 import TRequest from "../TRequest.js";
 import Router from "../Router.js";
 import chatBox from "../Chat.js";
+import Alert from "../Alert.js";
 
 class HomeView extends AbstractView {
   constructor(params) {
@@ -32,14 +33,26 @@ class HomeView extends AbstractView {
         const data = JSON.parse(event.data);
         const sender = data.sender || 0; // Default if field missing
         const message = data.message || "No message content"; // Default if field missing
-        TRequest.request("GET", "/api/friends/blocks/blockslist/").then(blocklist => {
-          if (!blocklist.blocks.includes(sender)) 
-          {
-            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(nickname => {
-              chatBox.DisplayNewMessage(message, nickname.nickname);
-            }).catch(err => {console.error("Failed to fetch user info:", err);});
-          }
-        }).catch(err => {console.error("Failed to fetch blocklist:", err);});
+        const type = data.type || "chat"; // Default if field missing
+        if (type === "chat")
+        {
+          TRequest.request("GET", "/api/friends/blocks/blockslist/").then(blocklist => {
+            if (!blocklist.blocks.includes(sender)) 
+            {
+              chatBox.DisplayNewMessage(message, sender);
+            }
+          }).catch(err => {console.error("Failed to fetch blocklist:", err);});
+        }
+        if (type === "notification")
+        {
+          // Display the notification
+          Alert.classicMessage(type, message)
+        }
+        if (type === "GOTO")
+        {
+          // Display the alert
+          Router.reroute(message);
+        }
       }} catch (err) {console.error("Failed to process WebSocket message:", err);};
     
     Application.mainSocket.onerror = (error) => {

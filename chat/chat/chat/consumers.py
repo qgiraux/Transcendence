@@ -124,6 +124,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'group': group,
                 }
             )
+        elif message_type == 'GOTO':
+            # Send the message directly to the specified user
+            await self.channel_layer.group_send(
+                group,
+                {
+                    'type': 'redirection_message',
+                    'message': data['message'],
+                    'sender': sender_name,
+                    'group': group,
+                }
+            )
         elif message_type == 'subscribe':
             # Handle subscription to additional channels (e.g., tournament channels)
             channel_name = data.get('channel')
@@ -156,6 +167,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Send the chat message to the WebSocket."""
         await self.send(text_data=json.dumps({
             'type': 'notification',
+            'message': event['message'],
+            'group': event['group'],
+            'sender': event['sender'],
+        }))
+    
+    async def redirection_message(self, event):
+        """Send the chat message to the WebSocket."""
+        await self.send(text_data=json.dumps({
+            'type': 'GOTO',
             'message': event['message'],
             'group': event['group'],
             'sender': event['sender'],
