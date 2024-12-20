@@ -68,11 +68,10 @@ class TRequest {
       // If the response is a PNG image or other binary data, handle it as a Blob
       if (contentType && contentType.includes("image/png")) {
         const imageBlob = await response.blob();
-        return imageBlob;  // Return the Blob object
+        return imageBlob; // Return the Blob object
       }
 
       // You can add other content types here if needed, for example, for PDF or other files
-
     } catch (error) {
       throw new Error(`TRequest: ${error}`);
     }
@@ -118,7 +117,7 @@ class TRequest {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      form: JSON.stringify({ refresh: Application.getRefreshToken() }),
+      body: JSON.stringify({ refresh: Application.getRefreshToken() }),
     });
 
     if (!response.ok) {
