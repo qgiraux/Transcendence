@@ -48,40 +48,36 @@ class ProfileView extends AbstractView {
         const table = document.createElement("table");
         table.className = "table table-dark table-striped";
   
-        // Create the table header row with "tournament_name" first
+        // Create the table header row with fixed order 'date', 'win', 'score', 'opponent'
         const headerRow = document.createElement("tr");
-        if (result["001"]) {  // Check if there's at least one stat to get the keys
-          const tournamentHeader = document.createElement("th");
-          tournamentHeader.textContent = "Tournament Name";  // Always show tournament_name first
-          headerRow.appendChild(tournamentHeader);
   
-          // Add other headers (keys) excluding tournament_name
-          Object.keys(result["001"]).forEach((key) => {
-            if (key !== "tournament_name") {
-              const th = document.createElement("th");
-              th.textContent = key;
-              headerRow.appendChild(th);
-            }
-          });
-          table.appendChild(headerRow);  // Append the header row
-        }
+        // Create the headers in the correct order
+        const headers = ['date', 'win', 'score', 'opponent'];
+        headers.forEach((header) => {
+          const th = document.createElement("th");
+          th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalize first letter
+          headerRow.appendChild(th);
+        });
+        
+        table.appendChild(headerRow);  // Append the header row
+  
+        // Sort the result based on the 'date' field in descending order (most recent first)
+        const sortedStats = Object.values(result).sort((a, b) => {
+          const dateA = new Date(a.date); // Convert 'date' string to Date object
+          const dateB = new Date(b.date); // Convert 'date' string to Date object
+          return dateB - dateA; // Sort in descending order (most recent first)
+        });
   
         // Create the table body, where each row corresponds to a stat (e.g., "001", "002")
-        Object.values(result).forEach((stat) => {
+        sortedStats.forEach((stat) => {
           const row = document.createElement("tr");
   
-          // Add the tournament_name column first
-          const tournamentTd = document.createElement("td");
-          tournamentTd.textContent = stat["tournament_name"];
-          row.appendChild(tournamentTd);
-  
-          // Add the other values in the correct order (excluding tournament_name)
-          Object.keys(stat).forEach((key) => {
-            if (key !== "tournament_name") {
-              const td = document.createElement("td");
-              td.textContent = stat[key];
-              row.appendChild(td);
-            }
+          // For each stat, create a table cell (td) in the correct order: date, win, score, opponent
+          const cells = ['date', 'win', 'score', 'opponent'];
+          cells.forEach((key) => {
+            const td = document.createElement("td");
+            td.textContent = stat[key]; // Use the value of the field
+            row.appendChild(td);
           });
   
           table.appendChild(row);  // Append each row to the table
@@ -101,7 +97,6 @@ class ProfileView extends AbstractView {
         Alert.errorMessage("User Stats", `Something went wrong: ${error.message}`);
       });
   }
-  
   
 
   _attachEventHandlers() {

@@ -110,11 +110,11 @@ def Add_user_stats(request, user_id):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     logger.error(body)
-    if not body.get('tournament_id') or not body.get('tournament_name') or not body.get('date') or not body.get('opponent') or not body.get('score') or not body.get('win'):
+    if not body.get('tournament_id') or not body.get('date') or not body.get('opponent') or not body.get('score') or not body.get('win'):
         logger.error("Missing required fields")
         return Response('Missing required fields', status=400)
     try :
-        add_stat(user,body['tournament_id'], body['tournament_name'], body['date'], body['opponent'], body['score'], body['win'])
+        add_stat(user,body['tournament_id'], body['date'], body['opponent'], body['score'], body['win'])
     except ValueError as e:
         return Response(str(e), status=400)
     return Response(user.stats , status=201)

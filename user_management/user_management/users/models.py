@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
     twofa_enabled = models.BooleanField(default=False)
     stats = models.JSONField(default=dict)
 
-def add_stat(self, tournament_id, tournament_name, date, opponent, score, win):
+def add_stat(self, tournament_id, date, opponent, score, win):
         """Add or update a tournament stat."""
         logger.error("starting add_stat")
         if not self.stats:
@@ -19,7 +19,6 @@ def add_stat(self, tournament_id, tournament_name, date, opponent, score, win):
             logger.error("stats created")
         logger.error("stats exists")
         self.stats[tournament_id] = {
-            "tournament_name": tournament_name,
             "date": date,
             "opponent": opponent,
             "score": score,
