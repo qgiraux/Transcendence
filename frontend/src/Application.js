@@ -13,6 +13,7 @@ class Application {
   static #userInfos = {
     userId: null,
     userName: null,
+    nickname: null,
   };
   static mainSocket = null;
 
@@ -56,6 +57,7 @@ class Application {
         const token = Application.#_parseToken(Application.#token.access);
         Application.#userInfos.userId = token.payload.user_id;
         Application.#userInfos.userName = token.payload.username;
+        Application.#userInfos.nickname = token.payload.nickname;
       } catch (error) {
         console.error(`Application: Error during userInfos setting : ${error}`);
       }

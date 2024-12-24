@@ -18,8 +18,8 @@ class Chat {
       usernameLink.href = "#"; // Prevent default link behavior
       usernameLink.className = 'hover-tooltip'; // Add a class for the tooltip styling
       usernameLink.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent the anchor from navigating
-        Router.reroute(`/profile/${sender}`);
+      event.preventDefault(); // Prevent the anchor from navigating
+      Router.reroute(`/profile/${sender}`);
       });
 
       // Create the tooltip
