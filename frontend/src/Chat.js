@@ -1,6 +1,7 @@
 import Application from "./Application.js";
 import TRequest from "./TRequest.js"; // Assuming TRequest is defined in TRequest.js
 import Router from "./Router.js";
+import Avatar from "../Avatar.js";
 
 class Chat {
   constructor() {
@@ -27,7 +28,7 @@ class Chat {
 
       // Add the image to the tooltip
       const tooltipImage = document.createElement('img');
-      tooltipImage.src = `/img/avatar_placeholder.jpg`; // Replace with the actual path to your images
+      tooltipImage.src = Avatar.url(sender); // Replace with the actual path to your images
       tooltipImage.alt = `${nickname.nickname}'s profile picture`;
       tooltipImage.style.width = '50px'; // Set the desired width
       tooltipImage.style.height = '50px'; // Set the desired height

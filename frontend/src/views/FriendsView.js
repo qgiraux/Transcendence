@@ -211,7 +211,7 @@ class FriendsView extends AbstractView {
       )}" alt="Card image cap">
 				<div class="card-body">
 					<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
-					${friend.username}'s nickname
+					${friend.nickname}
 					</h5>
 					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${
             friend.username
