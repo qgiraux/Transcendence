@@ -49,7 +49,7 @@ def get_jwt_token(request):
     try:
         user = User.objects.get(username=body['username'])
     except User.DoesNotExist:
-        return Response({'error': 'Invalid username or password'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
     # Check if the password matches the one stored in the database
     password = body.get('password')
@@ -132,11 +132,11 @@ def Add_user_stats(request, user_id):
     logger.error(body)
     if not body.get('tournament_id') or not body.get('date') or not body.get('opponent') or not body.get('score') or not body.get('win'):
         logger.error("Missing required fields")
-        return Response('Missing required fields', status=400)
+        return Response({'Error':'Missing required fields'}, status=400)
     try :
         add_stat(user,body['tournament_id'], body['date'], body['opponent'], body['score'], body['win'])
     except ValueError as e:
-        return Response(str(e), status=400)
+        return Response({"error":str(e)}, status=500)
     return Response(user.stats , status=201)
 
 @api_view(['GET'])
@@ -157,7 +157,7 @@ def Enable_Twofa(request):
     user = request.user
     user.twofa_enabled = True
     user.save()
-    return Response('2fa enabled', status=200)
+    return Response({"success":'2fa enabled'}, status=200)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
@@ -173,7 +173,7 @@ def ChangeLogin(request):
         # Return updated user info
         serializer = UserSerializer(user)
         return Response(serializer.data, status=200)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
@@ -188,14 +188,15 @@ def ChangeNickname(request):
         # Return updated user info
         serializer = UserSerializer(user)
         return Response(serializer.data, status=200)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated]) 
 def DeleteUser(request):
     user = request.user
+    id = user.id
     user.delete()
-    return Response(status=200)
+    return Response({"deleted":id}, status=200)
 
 
 
@@ -209,7 +210,7 @@ def RegisterUser(request):
         user.set_password(serializer.validated_data['password'])
         user.save()
         return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -261,22 +262,21 @@ class TOTPCreateView(views.APIView):
         }
         totp_url = f"otpauth://totp/{label}?{urlencode(params)}"
         return generate_qr_code(totp_url)
-        # return Response(totp_url, status=status.HTTP_201_CREATED)
 
     
-class TOTPVerifyView(views.APIView):
-    """
-    Use this endpoint to verify/enable a TOTP device
-    """
-    permission_classes = [permissions.IsAuthenticated]    
+# class TOTPVerifyView(views.APIView):
+#     """
+#     Use this endpoint to verify/enable a TOTP device
+#     """
+#     permission_classes = [permissions.IsAuthenticated]    
     
-    def post(self, request, token, format=None):
-        user = request.user
-        logger.error(user)
-        device = get_user_totp_device(self, user)
-        if not device == None and device.verify_token(token):
-            if not device.confirmed:
-                device.confirmed = True
-                device.save()
-            return Response(True, status=status.HTTP_200_OK)
-        return Response(False, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request, token, format=None):
+#         user = request.user
+#         logger.error(user)
+#         device = get_user_totp_device(self, user)
+#         if not device == None and device.verify_token(token):
+#             if not device.confirmed:
+#                 device.confirmed = True
+#                 device.save()
+#             return Response(True, status=status.HTTP_200_OK)
+#         return Response(False, status=status.HTTP_400_BAD_REQUEST)

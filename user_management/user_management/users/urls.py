@@ -2,7 +2,7 @@ from django.urls import path, re_path
 from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_jwt_token, GetAllUsers, Enable_Twofa, Get_user_stats, Add_user_stats
 from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import TOTPCreateView, TOTPVerifyView
+from .views import TOTPCreateView
 
 
 
@@ -22,9 +22,8 @@ urlpatterns = [
     path('userlist/', GetAllUsers, name='user list'),
 
     path('totp/create/', TOTPCreateView.as_view(), name='totp-create'),
-    re_path(r'totp/login/(?P<token>[0-9]{6})/', TOTPVerifyView.as_view(), name='totp-login'),
+    # re_path(r'totp/login/(?P<token>[0-9]{6})/', TOTPVerifyView.as_view(), name='totp-login'),
     
-
 ]
 
 # Example of calling reverse with user_id=10
