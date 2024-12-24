@@ -28,12 +28,81 @@ class ProfileView extends AbstractView {
         Avatar.refreshAvatars().then(() => {
           this._setHtml();
           this._attachEventHandlers();
+          this._userStats();
         });
       })
       .catch((error) => {
         Alert.errorMessage("Something went wrong", error.message);
       });
   }
+  
+  _userStats() {
+    TRequest.request("GET", `/api/users/userstats/${this.id}`)
+      .then((result) => {
+        // Assuming result is an object like { "001": { ...stats } }
+        const statsContainer = document.createElement("div");
+        statsContainer.className = "user-stats";
+        let stats;
+  
+        // Create the table with headers and rows
+        const table = document.createElement("table");
+        table.className = "table table-dark table-striped";
+  
+        // Create the table header row with "tournament_name" first
+        const headerRow = document.createElement("tr");
+        if (result["001"]) {  // Check if there's at least one stat to get the keys
+          const tournamentHeader = document.createElement("th");
+          tournamentHeader.textContent = "Tournament Name";  // Always show tournament_name first
+          headerRow.appendChild(tournamentHeader);
+  
+          // Add other headers (keys) excluding tournament_name
+          Object.keys(result["001"]).forEach((key) => {
+            if (key !== "tournament_name") {
+              const th = document.createElement("th");
+              th.textContent = key;
+              headerRow.appendChild(th);
+            }
+          });
+          table.appendChild(headerRow);  // Append the header row
+        }
+  
+        // Create the table body, where each row corresponds to a stat (e.g., "001", "002")
+        Object.values(result).forEach((stat) => {
+          const row = document.createElement("tr");
+  
+          // Add the tournament_name column first
+          const tournamentTd = document.createElement("td");
+          tournamentTd.textContent = stat["tournament_name"];
+          row.appendChild(tournamentTd);
+  
+          // Add the other values in the correct order (excluding tournament_name)
+          Object.keys(stat).forEach((key) => {
+            if (key !== "tournament_name") {
+              const td = document.createElement("td");
+              td.textContent = stat[key];
+              row.appendChild(td);
+            }
+          });
+  
+          table.appendChild(row);  // Append each row to the table
+        });
+  
+        // Append the table to the container
+        statsContainer.appendChild(table);
+  
+        // Append the stats container to the main container (where it should appear in the DOM)
+        const container = document.querySelector("#stat-container");
+        if (container) {
+          container.appendChild(statsContainer);
+        }
+  
+      })
+      .catch((error) => {
+        Alert.errorMessage("User Stats", `Something went wrong: ${error.message}`);
+      });
+  }
+  
+  
 
   _attachEventHandlers() {
     const manageBtn = document.querySelector("#manage-btn");
@@ -292,6 +361,10 @@ class ProfileView extends AbstractView {
                   : ""
               }
             </div>
+            <div id="stat-container">
+            </div>
+            
+            
           </div>
         </div>
       `;
