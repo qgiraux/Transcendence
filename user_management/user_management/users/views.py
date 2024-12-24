@@ -2,23 +2,25 @@
 from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UsernameSerializer
 import json
 import logging
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import RegisterSerializer
-from rest_framework import status
+from rest_framework import status, views, permissions
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .utils import is_user_online, get_user_totp_device, generate_qr_code
 from django.views.decorators.csrf import ensure_csrf_cookie
-from rest_framework import views, permissions, status
 from .models import add_stat
 from urllib.parse import urlencode
 import base64
-from rest_framework_simplejwt.tokens import RefreshToken
+
+
+
 
 
 
@@ -36,34 +38,50 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
         
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_jwt_token(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    user = User.objects.get(username=body['username'])
-    if user.twofa_enabled == True:
+    
+    try:
+        user = User.objects.get(username=body['username'])
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the password matches the one stored in the database
+    password = body.get('password')
+    if not password:
+        return Response({'error': 'Password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=body['username'], password=password)
+    if user is None:
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # If 2FA is enabled, proceed with the two-factor authentication process
+    if user.twofa_enabled:
         try:
             token = body.get('twofa')
-            logger.error("1")
             if not token:
                 return Response({'error': '2FA token missing'}, status=status.HTTP_400_BAD_REQUEST)
-            logger.error("2")
+
             device = get_user_totp_device(user)
-            logger.error("3")
             if device and device.verify_token(token):
                 if not device.confirmed:
                     device.confirmed = True
                     device.save()
-                logger.error("4")
+
                 refresh = RefreshToken.for_user(user)
                 access = str(refresh.access_token)
+
                 # Add custom claims to the access token
                 access_token = refresh.access_token
                 access_token['username'] = user.username
                 access_token['nickname'] = user.nickname
                 access = str(access_token)
-                logger.error("5")
+
                 return Response({
                     'refresh': str(refresh),
                     'access': access
@@ -81,10 +99,12 @@ def get_jwt_token(request):
     access_token['username'] = user.username
     access_token['nickname'] = user.nickname
     access = str(access_token)
+
     return Response({
         'refresh': str(refresh),
         'access': access
     })
+
 
 
 @api_view(['GET'])
