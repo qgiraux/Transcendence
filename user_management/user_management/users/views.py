@@ -15,8 +15,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .utils import is_user_online, get_user_totp_device, generate_qr_code
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import views, permissions, status
-
-
+from .models import add_stat
 from urllib.parse import urlencode
 import base64
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -74,7 +73,7 @@ def get_jwt_token(request):
 
         except json.JSONDecodeError:
             return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
-    logger.error("test2")
+
     # 2FA not enabled: directly generate tokens
     refresh = RefreshToken.for_user(user)
     access = str(refresh.access_token)
@@ -82,7 +81,6 @@ def get_jwt_token(request):
     access_token['username'] = user.username
     access_token['nickname'] = user.nickname
     access = str(access_token)
-    logger.error("test3")
     return Response({
         'refresh': str(refresh),
         'access': access
@@ -96,6 +94,30 @@ def Get_my_infos(request):
     user = request.user
     serializer = UserSerializer(user)
     return Response(serializer.data, status=200)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) 
+def Get_user_stats(request, user_id):
+    # Use the authenticated user from request.user
+    user = get_object_or_404(User, id=user_id)    
+    return Response(user.stats , status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
+def Add_user_stats(request, user_id):
+    # Use the authenticated user from request.user
+    user = get_object_or_404(User, id=user_id) 
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    logger.error(body)
+    if not body.get('tournament_id') or not body.get('tournament_name') or not body.get('date') or not body.get('opponent') or not body.get('score') or not body.get('win'):
+        logger.error("Missing required fields")
+        return Response('Missing required fields', status=400)
+    try :
+        add_stat(user,body['tournament_id'], body['tournament_name'], body['date'], body['opponent'], body['score'], body['win'])
+    except ValueError as e:
+        return Response(str(e), status=400)
+    return Response(user.stats , status=201)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
