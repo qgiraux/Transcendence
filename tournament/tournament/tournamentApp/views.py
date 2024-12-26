@@ -7,6 +7,7 @@ from .models import Tournament
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 logger = logging.getLogger(__name__)
@@ -89,7 +90,6 @@ def Invite(request):
 
 @csrf_exempt
 def JoinTournament(request):
-    logger.error("Join tournament: %s", request)
     if request.method != 'POST':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
     auth_header = request.headers.get('Authorization').split()[1]
@@ -110,5 +110,36 @@ def JoinTournament(request):
     tournament.save()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
     
+@csrf_exempt
+def TournamentList(request):
+    if request.method != 'GET':
+        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
+    auth_header = request.headers.get('Authorization').split()[1]
+    decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    # Extract user ID from the decoded token
+    user_id = decoded.get('user_id')
+    if not user_id:
+        return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
+    tournaments = Tournament.objects.all()
+    tournament_list = []
+    for tournament in tournaments:
+        logger.error(tournament.tournament_name, tournament.player_list)
+        tournament_list.append(tournament.tournament_name)
+    return JsonResponse({'tournaments': tournament_list}, status=200)
 
-  
+@csrf_exempt
+def TournamentDetails(request, name):
+    if request.method != 'GET':
+        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
+    auth_header = request.headers.get('Authorization').split()[1]
+    decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    # Extract user ID from the decoded token
+    user_id = decoded.get('user_id')
+    if not user_id:
+        return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
+    logger.error(name)
+    try:
+        tournament = Tournament.objects.get(tournament_name=name)
+    except ObjectDoesNotExist:
+        return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
+    return JsonResponse({'tournament name': tournament.tournament_name, 'players': tournament.player_list, 'size': tournament.tournament_size}, status=200)

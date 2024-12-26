@@ -120,6 +120,7 @@ class TRequest {
       },
       form: JSON.stringify({ refresh: Application.getRefreshToken() }),
     });
+    console.log(form);
 
     if (!response.ok) {
       throw new Error("The server refused to refresh the token");
