@@ -23,7 +23,7 @@ closeChat.addEventListener('click', () => {
 });
 
 // if (sendBtn !== null) {
-    sendBtn.addEventListener('click', () => {
+    const sendMessage = () => {
         console.log('Send button clicked');
         const group = chatGroup.value || 'global_chat';
         const body = {
@@ -34,5 +34,13 @@ closeChat.addEventListener('click', () => {
         };
         Application.mainSocket.send(JSON.stringify(body));
         chatInput.value = '';
+    };
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    chatInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
     });
 // }

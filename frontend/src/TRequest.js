@@ -111,16 +111,14 @@ class TRequest {
   static async refreshToken() {
     const refresh = Application.getRefreshToken();
     if (refresh === null) throw new Error("No refresh token");
-
     const response = await fetch("/api/users/refresh/", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      form: JSON.stringify({ refresh: Application.getRefreshToken() }),
+      body: JSON.stringify({ refresh: Application.getRefreshToken() }),
     });
-    console.log(form);
 
     if (!response.ok) {
       throw new Error("The server refused to refresh the token");
