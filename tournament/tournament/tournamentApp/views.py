@@ -40,42 +40,56 @@ def Invite(request):
     try:
         if request.method != 'POST':
             return JsonResponse({"detail": "Method not allowed"}, status=405)
-        auth_header = request.headers.get('Authorization').split()[1]
-        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
-        data = json.loads(request.body)
-        # Extract user ID from the decoded token
-        user_id = decoded.get('user_id')
-        user_id = 'debug'
-        t_name = data.get('tournament_name')
         
-        if not Tournament.objects.filter(tournament_name=t_name).exists():
-            return JsonResponse({"detail": "tournament not found", 'code':'not_found'}, status=404)
-        if not user_id:
-            return JsonResponse({'detail': 'User not found', 'code': 'user_not_found'}, status=401)
+        # Authorization and payload decoding
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return JsonResponse({'detail': 'Authorization header missing'}, status=401)
+        
+        try:
+            auth_token = auth_header.split()[1]
+            decoded = jwt.decode(auth_token, settings.SECRET_KEY, algorithms=["HS256"])
+            user_id = decoded.get('user_id')
+            if not user_id:
+                raise ValueError("User ID missing in token")
+        except Exception as e:
+            logger.error(f"JWT decoding failed: {e}")
+            return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
+        
+        # Parse request data
         data = json.loads(request.body)
+        t_name = data.get('tournament_name')
         group = data.get('friend_id')
-        message = f'{decoded.get('nickname')} invited you to join tournament {data.get('tournament_name')}'
-        sender = 'system'
+        
+        if not t_name or not Tournament.objects.filter(tournament_name=t_name).exists():
+            return JsonResponse({"detail": "Tournament not found", 'code': 'not_found'}, status=404)
+        
+        if not group:
+            return JsonResponse({'detail': 'Friend ID is required', 'code': 'invalid_data'}, status=400)
+        
+        # Create the notification message
+        message = t_name
+        logger.error(f"Message: {message}")
         notification = {
-            'type': 'notification_message',
+            'type': 'invite_message',
             'group': f'user_{group}',
             'message': message,
-            'sender': sender
+            'sender': 'system'
         }
-    except Exception as e:
-            logger.error(f"Error sending notif: {e}")
-            return JsonResponse({"detail": e}, status=500)
-    # Publish the notification to Redis
-    try:
+        
+        # Publish the notification
         redis_client.publish('global_chat', json.dumps(notification))
+        
     except Exception as e:
-            logger.error(f"Error sending notif: {e}")
-            return JsonResponse({"detail": e}, status=500)
-
+        logger.error(f"Error processing invite: {e}")
+        return JsonResponse({"detail": "An unexpected error occurred."}, status=500)
+    
     return JsonResponse({"detail": "Message sent"}, status=200)
+
 
 @csrf_exempt
 def JoinTournament(request):
+    logger.error("Join tournament: %s", request)
     if request.method != 'POST':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
     auth_header = request.headers.get('Authorization').split()[1]

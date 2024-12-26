@@ -121,7 +121,7 @@ class Application {
     Application.mainSocket.onclose = () => {
       console.log("WebSocket connection closed.");
     };
-
+    console.log(Application.mainSocket);
     return Application.mainSocket;
   }
 
