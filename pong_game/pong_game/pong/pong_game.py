@@ -28,7 +28,7 @@ class Player:
 	
 	@staticmethod
 	def validate_paddle_y(instance, attribute, value):
-		if value is not int:
+		if not isinstance(value, int):
 			raise ValueError("Paddle y must be an int")
 		if value < 10 or value > 90:
 			raise ValueError("Paddle position out of bounds")
@@ -132,7 +132,7 @@ class PongEngine(threading.Thread):
 	MAX_SCORE = 5
 
 	def __init__(self, group_name, **kwargs):
-		log.info("Initializing Pong Engine")
+		log.error("Initializing Pong Engine")
 		super(PongEngine, self).__init__(daemon=True, name="PongEngine", **kwargs)
 		self.group_name = group_name
 		self.name = uuid.uuid4()
@@ -143,10 +143,15 @@ class PongEngine(threading.Thread):
 		self.game_on = False
 
 	def run(self):
-		log.info("Starting Pong Engine")
-		if self.state.player_left and self.state.player_right:
+		log.error("game Name:%s", self.group_name)
+		log.error("player Left: %s",type(self.state.player_left))
+		log.error("player Right: %s",type(self.state.player_right))
+		if not (self.state.player_left is None or self.state.player_right is None):
+			log.error("game is on!")
 			self.game_on = True
+		log.error("is game on? %s", self.game_on)
 		while self.game_on:
+			log.error("Game %s is on!!", self.name)
 			self.state = self.tick()
 			self.broadcast_state(self.state)
 			time.sleep(self.TICK_RATE)
@@ -172,31 +177,35 @@ class PongEngine(threading.Thread):
 		state = self.process_ball_movement(state)
 
 	def get_player_paddle_move(self, playerid, direction):
-		log.info("Player %s moved paddle %s", playerid, direction)
+		log.error("Player %s moved paddle %s", playerid, direction)
 		with self.key_lock:
 			self.paddle_y_change[playerid] = direction
 
 	def add_player(self, playerid):
-		log.info("Adding player %s to the game", playerid)
-		player = Player(playerid=playerid)
-		if player.playerid == self.state.player_left.playerid or player.playerid == self.state.player_right.playerid:
-			log.info("Player %s already in game", player.playerid)
+		log.error("Adding player %s to the game", playerid)
+
+		if (
+			(self.state.player_left and playerid == self.state.player_left.playerid) or
+			(self.state.player_right and playerid == self.state.player_right.playerid)
+		):
+			log.error("Player %s already in game", playerid)
 			return
-		
+
 		if self.state.player_left is None:
-			self.state.player_left = player
+			self.state.player_left = Player(playerid=playerid)
 			self.state.player_left.player_left = True
 		elif self.state.player_right is None:
-			self.state.player_right = player
+			self.state.player_right = Player(playerid=playerid)
 			self.state.player_right.player_left = False
 		else:
-			log.info("Game is full, player %s cannot join", player.playerid)
+			log.error("Game is full, player %s cannot join", playerid)
 			return
 
-		log.info("Player %s joined the game", player.playerid)
+		log.error("Player %s joined the game", playerid)
+
 
 	def process_paddle_movement(self, state, movements):
-		log.info("Processing paddle movements for game %s", self.name)
+		log.error("Processing paddle movements for game %s", self.name)
 
 		if state.player_left.playerid in movements:
 			state.player_left.move_paddle(movements[state.player_left.playerid])
@@ -207,7 +216,7 @@ class PongEngine(threading.Thread):
 		return state
 
 	def process_ball_movement(self, state):
-		log.info("Processing ball movements for game %s", self.name)
+		log.error("Processing ball movements for game %s", self.name)
 
 		ball = state.ball
 		ball.move()
@@ -216,7 +225,7 @@ class PongEngine(threading.Thread):
 		return state
 
 	def player_leave(self, playerid):
-		log.info("Player %s left the game", playerid)
+		log.error("Player %s left the game", playerid)
 		if self.state.player_left.playerid == playerid:
 			self.state.player_left = None
 			self.state.player_right.score = self.MAX_SCORE
@@ -224,11 +233,11 @@ class PongEngine(threading.Thread):
 			self.state.player_right = None
 			self.state.player_left.score = self.MAX_SCORE
 		else:
-			log.info("Player %s not in game", playerid)
+			log.error("Player %s not in game", playerid)
 			return
 
 		if self.state.player_left is None or self.state.player_right is None:
-			log.info("Game %s is over", self.name)
+			log.error("Game %s is over", self.name)
 			self.end_game()
 
 	def end_game(self):

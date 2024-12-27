@@ -6,7 +6,6 @@ from pong.views import pong_view, pong_test
 import logging
 
 logger = logging.getLogger(__name__)
-logger.error("url")
 
 def view500(request):
     logger.error(request)

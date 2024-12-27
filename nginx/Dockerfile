@@ -4,8 +4,7 @@ RUN apt -y update &&\
 	apt -y upgrade && \
 	apt -y install nginx &&\
 	apt -y install systemctl &&\
-	apt -y install openssl &&\
-	apt clean
+	apt -y install openssl
 
 WORKDIR /etc/nginx
 COPY	./nginx/conf/nginx.conf /etc/nginx/nginx.conf

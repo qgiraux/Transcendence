@@ -1,27 +1,20 @@
-"""
-ASGI config for pongAPI project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
-"""
-
 import os
-from channels.routing import ProtocolTypeRouter, URLRouter
-from django.urls import path
 from django.core.asgi import get_asgi_application
-from pong.routing import websocket_urlpatterns
+from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 from channels.auth import AuthMiddlewareStack
-from pong import routing
+from pong.routing import websocket_urlpatterns  # Import your routing.py
+from pong.pong_consumer import PongConsumer
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pongAPI.settings')
+# This is your Django app's ASGI configuration
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pongAPI.settings")
 
 application = ProtocolTypeRouter({
-	'http': get_asgi_application(),
-	"websocket" : AuthMiddlewareStack(
-            URLRouter(
-                routing.websocket_urlpatterns
-            )    
-        )
+    "http": get_asgi_application(),  # Handle HTTP requests
+    "websocket": AuthMiddlewareStack(
+        URLRouter(websocket_urlpatterns)  # Route WebSocket traffic to PlayerConsumer
+    ),
+    "channel": ChannelNameRouter({
+        "game_engine": PongConsumer.as_asgi(),  # Ensure PongConsumer listens to game_engine group
+    }),
+    
 })
