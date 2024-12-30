@@ -8,6 +8,8 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+from .tournament import Tournament_operation
+import re
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 logger = logging.getLogger(__name__)
@@ -23,12 +25,14 @@ def CreateTournament(request):
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'user_not_found'}, status=400)
     data = json.loads(request.body)
-    tournament_size = data.get('size')
+    tournament_size = int(data.get('size'))
     if tournament_size not in [2, 4, 8]:
-        return JsonResponse({'detail': 'invalid tournament size', 'code': 'error_occurred'}, status=400)
-    tournament_name = data.get('name')
+        return JsonResponse({'detail': 'invalid tournament size', 'code': 'error_occurred', 'size':tournament_size}, status=400)
+    tournament_name = data.get('name').strip()
     if not tournament_name:
         return JsonResponse({'detail': 'no tournament name', 'code': 'error_occurred'}, status=400)
+    if not tournament_name or not re.match(r'^[a-zA-Z0-9]{5,16}$', tournament_name):
+        return JsonResponse({'detail': 'invalid tournament name', 'code': 'error_occurred'}, status=400)
     if Tournament.objects.filter(tournament_name=tournament_name).exists():
         return JsonResponse({'detail': 'tournament name already in use', 'code': 'error_occurred'}, status=400)
     tournament = Tournament.objects.create(tournament_name=tournament_name, tournament_size = tournament_size)
@@ -70,7 +74,6 @@ def Invite(request):
         
         # Create the notification message
         message = t_name
-        logger.error(f"Message: {message}")
         notification = {
             'type': 'invite_message',
             'group': f'user_{group}',
@@ -108,6 +111,9 @@ def JoinTournament(request):
         
     tournament.player_list.append(user_id)  # Add player ID 1
     tournament.save()
+    if len(tournament.player_list) == tournament.tournament_size:
+        # Start the tournament
+        return Tournament_operation(tournament)
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
     
 @csrf_exempt

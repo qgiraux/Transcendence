@@ -31,6 +31,8 @@ class TournamentsView extends AbstractView {
       });
 
     this._setHtml();
+    this.createNewTournament();
+    this._newTournamentListener();
   }
 
 
@@ -62,6 +64,56 @@ class TournamentsView extends AbstractView {
       Alert.errorMessage("displayTournamentsList error", error.message);
     }
   }
+
+
+  async _newTournamentListener()
+  {
+    const form = document.querySelector("#create-tournament-form");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const tournamentName = document.querySelector("#tournament-name").value;
+      const tournamentSize = document.querySelector("#tournament-size").value;
+      const form = { name: tournamentName, size: tournamentSize };
+      if 
+      (!/^[a-zA-Z0-9]{5,16}$/.test(tournamentName)) {
+        Alert.errorMessage("Invalid tournament name", "Tournament name must be 3-30 characters long and can only contain letters and numbers.");
+        return;
+      }
+      TRequest.request("POST", "/api/tournament/create/", form)
+        .then((result) => {
+          this._refreshTournamentsList();
+        })
+        .catch ((error) => {
+        console.log(error.error);
+        Alert.errorMessage("New tournament", error);
+      })
+      
+    }
+  );
+  }
+
+  async createNewTournament() {
+    const tournamentsContainer = document.querySelector("#new-tournament-container");
+    tournamentsContainer.innerHTML = `
+      <h5 class="text-white">Create Tournament</h5>
+      <form id="create-tournament-form" class="d-flex align-items-center">
+      <div class="form-group mr-2">
+        <label for="tournament-name" class="text-white">Tournament Name</label>
+        <input type="text" class="form-control" id="tournament-name" placeholder="Enter tournament name" required>
+      </div>
+      <div class="form-group mr-2">
+        <label for="tournament-size" class="text-white">Tournament Size</label>
+        <select class="form-control" id="tournament-size" required>
+        <option value="2">2</option>
+        <option value="4">4</option>
+        <option value="8">8</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary mt-4">Create</button>
+      </form>
+    `;
+    // Alert.errorMessage("createNewournament", error.message);
+    }
 
   async addTournamentCard(tournament) {
     const tournamentsContainer = document.querySelector("#tournaments-container");
@@ -141,20 +193,19 @@ class TournamentsView extends AbstractView {
     const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `
-
-<div class="row">
-			<div class="col-12">
-				<h1 class="text-white display-1">Tournaments</h1>
-			</div>
-		</div>
-<div class="row">
-			<div class="col-12">
-				<h1 class="text-white display-1">Tournaments</h1>
-			</div>
-		</div>
-		<div class="row g-2  border border-secondary p-2 rounded" id="tournaments-container">
-		</div>
-					`;
+        <div class="row">
+          <div class="col-12">
+        <h1 class="text-white display-1">Tournaments</h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 border border-secondary p-2 rounded" id="new-tournament-container">
+          
+          </div>
+        </div>
+        <div class="row g-2 border border-secondary p-2 rounded" id="tournaments-container">
+        </div>
+      `;
     }
   }
 }
