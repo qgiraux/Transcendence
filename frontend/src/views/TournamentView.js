@@ -67,8 +67,21 @@ class TournamentsView extends AbstractView {
       const isPlayerInTournament = players.includes(userId);
   
       // Fetch the friend list
-      const friendList = await this._refreshFriendsList();
-  
+      const friendIdList = await this._refreshFriendsList();
+      const friendList = await Promise.all(
+        friendIdList.map(async (friendID) => {
+              try {
+                const user = await TRequest.request("GET", `/api/users/userinfo/${friendID}`);
+                return user.username; // Return the username for the friend
+              } catch (err) {
+                console.error("Failed to fetch user info:", err);
+                return null; // Return null for failed requests to avoid breaking Promise.all
+              }
+            })
+          );
+
+
+
       // Set the card content
       div.innerHTML = `
         <div class="card shadow border-secondary p-2 text-white" style="background-color: #303030;">
@@ -89,8 +102,15 @@ class TournamentsView extends AbstractView {
               Invite a friend
             </button>
             <ul class="dropdown-menu">
-              ${friendList
-                .map(friendId => `<li><a class="dropdown-item" href="#" data-friend-id="${friendId}">Friend ${friendId}</a></li>`)
+              ${friendIdList
+                .map((friendId, index) => {
+                  const friendName = friendList[index]; // Get the corresponding username
+                  if (friendName) { // Ensure the username is not null
+                    return `<li><a class="dropdown-item" href="#" data-friend-id="${friendId}">${friendName}</a></li>`;
+                  } else {
+                    return ''; // Skip if username is null
+                  }
+                })
                 .join('')}
             </ul>
           </div>
@@ -153,14 +173,28 @@ class TournamentsView extends AbstractView {
         console.error("Invalid friends list response:", response);
         throw new Error("Friends list is not in the expected format.");
       }
-  
-      // Extract the friends array and return it
       return response.friends;
+      // Fetch user info for each friend ID
+    //   const friendsInfo = await Promise.all(
+    //     response.friends.map(async (friendID) => {
+    //       try {
+    //         const user = await TRequest.request("GET", `/api/users/userinfo/${friendID}`);
+    //         return user.username; // Return the username for the friend
+    //       } catch (err) {
+    //         console.error("Failed to fetch user info:", err);
+    //         return null; // Return null for failed requests to avoid breaking Promise.all
+    //       }
+    //     })
+    //   );
+  
+    //   // Filter out any null values (failed requests)
+    //   return friendsInfo.filter(username => username !== null);
     } catch (error) {
       Alert.errorMessage("Error fetching friends list", error.message);
       return []; // Return an empty array if there's an error
     }
   }
+  
   
 
   createNewTournamentForm() {

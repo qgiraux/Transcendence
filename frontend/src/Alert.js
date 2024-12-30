@@ -1,4 +1,5 @@
 import TRequest from "../TRequest.js";
+import Router from "../Router.js";
 
 class Alert {
   static errorMessage(title, message) {
@@ -43,7 +44,8 @@ class Alert {
 		<div class="col-6 mx-auto">
 		  <div class="alert alert-primary alert-dismissible fade show" role="alert">
 			<strong>${title}</strong><p>${message}</p>
-			<a href="#" class="accept-invite">Click here to accept the invite</a>
+			<a href="#" class="accept-invite" style="display: inline-block; padding: 10px 15px; background-color: darkblue; color: white; text-decoration: none; border-radius: 5px;">accept</a>
+
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		  </div>
 		</div>
@@ -62,6 +64,8 @@ class Alert {
 		  try {
 			const ret = await TRequest.request("POST", "/api/tournament/join/", form);
 			console.log(ret);
+			this.clearAlerts();
+			Router.reroute("/tournaments");
 			Alert.successMessage("Success", `Invite accepted successfully for tournament: ${link}`);
 		  } catch (error) {
 			Alert.errorMessage("Error", "Failed to accept the invite.");
