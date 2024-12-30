@@ -62,7 +62,7 @@ class Alert {
 		  try {
 			const ret = await TRequest.request("POST", "/api/tournament/join/", form);
 			console.log(ret);
-			Alert.successMessage("Success", `Invite accepted successfully for tournament: ${ret.tournament_name}`);
+			Alert.successMessage("Success", `Invite accepted successfully for tournament: ${link}`);
 		  } catch (error) {
 			Alert.errorMessage("Error", "Failed to accept the invite.");
 		  }
