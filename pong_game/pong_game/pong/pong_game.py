@@ -56,10 +56,11 @@ class Player:
 			raise ValueError(f"Invalid direction: {direction}")
 
 class Ball:
-	def __init__(self):
+	def __init__(self, gameid):
 		self.position = [100, 50]
 		self.direction = [random.choice([-1, 1]), 0.2]
 		self.speed = 1
+		self.game = gameid
 
 	def move(self):
 		self.position[0] += self.speed * self.direction[0]
@@ -137,7 +138,7 @@ class PongEngine(threading.Thread):
 		self.group_name = group_name
 		self.name = uuid.uuid4()
 		self.channel_layer = get_channel_layer()
-		self.state = State(ball=Ball())
+		self.state = State(ball=Ball(self.name))
 		self.paddle_y_change: Mapping[str, Direction] = {}
 		self.key_lock = threading.Lock()
 		self.game_on = False

@@ -11,7 +11,7 @@
 
         ws.onopen = function () {
             console.log('WebSocket connection established');
-            ws.send(JSON.stringify({ type: 'join', data: { userid: 'player2' } }));
+            ws.send(JSON.stringify({ type: 'join', data: { userid: 'player2', name:'newgame' } }));
         };
 
         ws.onmessage = function (event) {

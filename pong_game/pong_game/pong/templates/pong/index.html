@@ -10,8 +10,9 @@
         const ws = new WebSocket('wss://localhost:5000/ws/pong/');
 
         ws.onopen = function () {
+            ws.send(JSON.stringify({ type: 'create', data: { name:'newgame' } }));
             console.log('WebSocket connection established');
-            ws.send(JSON.stringify({ type: 'join', data: { userid: 'player1' } }));
+            ws.send(JSON.stringify({ type: 'join', data: { userid: 'player1', name:'newgame' } }));
         };
 
         ws.onmessage = function (event) {

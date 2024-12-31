@@ -8,7 +8,7 @@ from .pong_game import Direction, PongEngine
 log = logging.getLogger(__name__)
 
 class PlayerConsumer(AsyncWebsocketConsumer):
-    pong = {}
+    pong = dict.fromkeys(['name','game'])
     async def connect(self):
         log.error("Connect")
         self.group_name = "pong_game"
@@ -36,7 +36,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             self.scope["session"]["userid"] = userid
             self.scope["session"].save()
         self.userid = self.scope["session"]["userid"]
-        self.pong[game].player_join({"userid": data.get("userid")})
+        self.pong[game].player_join({"userid": userid})
         await self.channel_layer.send(
             game,
             {"type": "player_join", "userid": self.userid, "channel": self.channel_name},
