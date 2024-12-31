@@ -196,3 +196,27 @@ def TournamentDetails(request, name):
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
     return JsonResponse({'tournament name': tournament.tournament_name, 'players': tournament.player_list, 'size': tournament.tournament_size}, status=200)
+
+
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def DeleteTournament(request):
+    logger.error(request.method)
+    if request.method != 'DELETE':
+        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
+    try:
+        auth_header = request.headers.get('Authorization').split()[1]
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    except InvalidTokenError:
+        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
+    # Extract user ID from the decoded token
+    data = json.loads(request.body)
+    if not data.get('name'):
+        return JsonResponse({'detail': 'missing tournament name in body', 'code': 'incomplete_body'}, status=400)
+    name = data.get('name')
+    try:
+        tournament = Tournament.objects.get(tournament_name=name)
+    except ObjectDoesNotExist:
+        return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
+    tournament.delete()
+    return JsonResponse({'detail': 'Tournament deleted', 'name' : name}, status=200)

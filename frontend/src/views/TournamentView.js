@@ -51,6 +51,16 @@ class TournamentsView extends AbstractView {
     }
   }
 
+  async _refresh_cards(tournament) {
+    const tournamentsContainer = document.querySelector("#tournaments-container");
+    tournamentsContainer.innerHTML = "";
+    try {
+      await this._fetchTournaments()
+    } catch (error) {
+      Alert.errorMessage("Error displaying tournaments", error.message);
+    }
+  }
+
   async addTournamentCard(tournament) {
     const tournamentsContainer = document.querySelector("#tournaments-container");
     const div = document.createElement("div");
@@ -97,7 +107,16 @@ class TournamentsView extends AbstractView {
               style="${isPlayerInTournament || isTournamentFull ? "background-color: grey; cursor: not-allowed;" : ""}">
               ${isPlayerInTournament ? "Already Joined" : isTournamentFull ? "Tournament Full" : "Join Tournament"}
             </button>
+            <button 
+              class="btn btn-secondary" 
+              id="delete-${tournament}" 
+              data-tournament="${tournament}"
+              ${!isPlayerInTournament ? "disabled" : ""}
+              style="${!isPlayerInTournament ? "background-color: grey; cursor: not-allowed;" : ""}">
+              "delete"
+            </button>
           </div>
+
           <div class="btn-group">
             <button class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
               Invite a friend
@@ -129,6 +148,24 @@ class TournamentsView extends AbstractView {
             joinButton.innerText = "Joined";
             joinButton.style.backgroundColor = "grey";
             joinButton.style.cursor = "not-allowed";
+          } catch (error) {
+            Alert.errorMessage("Error joining tournament", error.message);
+          }
+        });
+      }
+
+      // Add event listener for the "Join Tournament" button
+      const deleteButton = div.querySelector(`#delete-${tournament}`);
+      if (isPlayerInTournament) {
+        deleteButton.addEventListener("click", async () => {
+          try {
+            // Join the tournament
+            await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament });
+            await this._refresh_cards(tournament);
+            // joinButton.disabled = true;
+            // joinButton.innerText = "Joined";
+            // joinButton.style.backgroundColor = "grey";
+            // joinButton.style.cursor = "not-allowed";
           } catch (error) {
             Alert.errorMessage("Error joining tournament", error.message);
           }
