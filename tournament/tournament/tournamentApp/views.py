@@ -9,22 +9,31 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from .tournament import Tournament_operation
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+from jwt.exceptions import InvalidTokenError
 import re
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 logger = logging.getLogger(__name__)
 
 @csrf_exempt
+@permission_classes([IsAuthenticated])
 def CreateTournament(request):
     if request.method != 'POST':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
-    auth_header = request.headers.get('Authorization').split()[1]
-    decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
-    # Extract user ID from the decoded token
+    try:
+        auth_header = request.headers.get('Authorization').split()[1]
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    except InvalidTokenError:
+        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'user_not_found'}, status=400)
+
     data = json.loads(request.body)
+    if not data.get('name') or not data.get('size'):
+        return JsonResponse({'detail': 'incomplete body', 'code': 'incomplete_body'}, status=400)
     tournament_size = int(data.get('size'))
     if tournament_size not in [2, 4, 8]:
         return JsonResponse({'detail': 'invalid tournament size', 'code': 'error_occurred', 'size':tournament_size}, status=400)
@@ -34,13 +43,14 @@ def CreateTournament(request):
     if not tournament_name or not re.match(r'^[a-zA-Z0-9]{5,16}$', tournament_name):
         return JsonResponse({'detail': 'invalid tournament name', 'code': 'error_occurred'}, status=400)
     if Tournament.objects.filter(tournament_name=tournament_name).exists():
-        return JsonResponse({'detail': 'tournament name already in use', 'code': 'error_occurred'}, status=400)
+        return JsonResponse({'detail': 'tournament name already in use', 'code': 'error_occurred'}, status=409)
     tournament = Tournament.objects.create(tournament_name=tournament_name, tournament_size = tournament_size)
     tournament.player_list.append(user_id)
     tournament.save()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=201)
 
 @csrf_exempt
+@permission_classes([IsAuthenticated])
 def Invite(request):
     try:
         if request.method != 'POST':
@@ -92,31 +102,43 @@ def Invite(request):
 
 
 @csrf_exempt
+@permission_classes([IsAuthenticated])
 def JoinTournament(request):
     if request.method != 'POST':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
-    auth_header = request.headers.get('Authorization').split()[1]
-    decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
-
-    # Extract user ID from the decoded token
+    try:
+        auth_header = request.headers.get('Authorization').split()[1]
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    except InvalidTokenError:
+        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
     data = json.loads(request.body)
+    if not data.get('name'):
+        return JsonResponse({'detail': 'missing tournament name in body', 'code': 'incomplete_body'}, status=400)
     tournament_name = data.get('name')
-    tournament = Tournament.objects.get(tournament_name=tournament_name)
+    if not tournament_name or not re.match(r'^[a-zA-Z0-9]{5,16}$', tournament_name):
+        return JsonResponse({'detail': 'invalid tournament name', 'code': 'error_occurred'}, status=400)
+    try:
+        tournament = Tournament.objects.get(tournament_name=tournament_name)
+    except ObjectDoesNotExist:
+        return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
     # Add a player to the list
     if user_id in tournament.player_list:
-        return JsonResponse({'detail': 'User already subscribed', 'code': 'bad_request'}, status=400)
+        return JsonResponse({'detail': 'User already subscribed', 'code': 'conflict'}, status=409)
+    if len(tournament.player_list) == tournament.tournament_size:
+        return JsonResponse({'detail': 'Tournament full', 'code': 'conflict'}, status=409)
         
     tournament.player_list.append(user_id)  # Add player ID 1
     tournament.save()
-    if len(tournament.player_list) == tournament.tournament_size:
+    if len(tournament.player_list) >= tournament.tournament_size:
         # Start the tournament
         return Tournament_operation(tournament)
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
     
 @csrf_exempt
+@permission_classes([IsAuthenticated])
 def TournamentList(request):
     if request.method != 'GET':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
@@ -134,6 +156,7 @@ def TournamentList(request):
     return JsonResponse({'tournaments': tournament_list}, status=200)
 
 @csrf_exempt
+@permission_classes([IsAuthenticated])
 def TournamentDetails(request, name):
     if request.method != 'GET':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)

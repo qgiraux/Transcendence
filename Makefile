@@ -39,6 +39,11 @@ test-friends:
 	@docker exec -it friends_list python manage.py test
 	@echo
 
+test-tournament:
+	@echo "${Purple}UNIT TESTS : TOURNAMENT SERVICE${Off}"
+	@docker exec -it tournament python manage.py test
+	@echo
+
 test-avatar:
 	@echo "${Purple}UNIT TESTS : AVATAR SERVICE${Off}"
 	@docker exec -it avatar python manage.py test
