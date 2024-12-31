@@ -65,6 +65,7 @@ class TournamentsView extends AbstractView {
       // Check if the current user is part of the tournament
       const userId = Application.getUserInfos().userId;
       const isPlayerInTournament = players.includes(userId);
+      const isTournamentFull = players.length >= size;
   
       // Fetch the friend list
       const friendIdList = await this._refreshFriendsList();
@@ -92,9 +93,9 @@ class TournamentsView extends AbstractView {
               class="btn btn-primary" 
               id="join-${tournament}" 
               data-tournament="${tournament}"
-              ${isPlayerInTournament ? "disabled" : ""}
-              style="${isPlayerInTournament ? "background-color: grey; cursor: not-allowed;" : ""}">
-              ${isPlayerInTournament ? "Already Joined" : "Join Tournament"}
+              ${isPlayerInTournament || isTournamentFull ? "disabled" : ""}
+              style="${isPlayerInTournament || isTournamentFull ? "background-color: grey; cursor: not-allowed;" : ""}">
+              ${isPlayerInTournament ? "Already Joined" : isTournamentFull ? "Tournament Full" : "Join Tournament"}
             </button>
           </div>
           <div class="btn-group">
@@ -174,21 +175,6 @@ class TournamentsView extends AbstractView {
         throw new Error("Friends list is not in the expected format.");
       }
       return response.friends;
-      // Fetch user info for each friend ID
-    //   const friendsInfo = await Promise.all(
-    //     response.friends.map(async (friendID) => {
-    //       try {
-    //         const user = await TRequest.request("GET", `/api/users/userinfo/${friendID}`);
-    //         return user.username; // Return the username for the friend
-    //       } catch (err) {
-    //         console.error("Failed to fetch user info:", err);
-    //         return null; // Return null for failed requests to avoid breaking Promise.all
-    //       }
-    //     })
-    //   );
-  
-    //   // Filter out any null values (failed requests)
-    //   return friendsInfo.filter(username => username !== null);
     } catch (error) {
       Alert.errorMessage("Error fetching friends list", error.message);
       return []; // Return an empty array if there's an error
@@ -219,7 +205,7 @@ class TournamentsView extends AbstractView {
     `;
   }
 
-  _setupNewTournamentListener() {
+  async _setupNewTournamentListener() {
     const form = document.querySelector("#create-tournament-form");
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -230,7 +216,6 @@ class TournamentsView extends AbstractView {
         Alert.errorMessage("Invalid tournament name", "Tournament name must be 3-30 characters long and contain only letters and numbers.");
         return;
       }
-
       try {
         await TRequest.request("POST", "/api/tournament/create/", { name: tournamentName, size: tournamentSize });
         this._fetchTournaments();

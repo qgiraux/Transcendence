@@ -34,6 +34,7 @@ class HomeView extends AbstractView {
           console.log("WebSocket message received:", event.data);
           const data = JSON.parse(event.data);
           const sender = data.sender || 0; // Default if field missing
+          const group = data.group || "No group"; // Default if field missing
           const message = data.message || "No message content"; // Default if field missing
           const type = data.type || "chat"; // Default if field missing
           if (type === "chat")
@@ -53,7 +54,7 @@ class HomeView extends AbstractView {
           if (type === "invite")
           {
             // Display the invite
-            const textmessage = `${sender} has invited you to a game!`;
+            const textmessage = `${group} has invited you to a game!`;
             const link = message;
             console.log(`link: ${link} , textmessage: ${textmessage}`);
             Alert.inviteMessage(type, textmessage, link)

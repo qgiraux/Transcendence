@@ -21,15 +21,21 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def CreateTournament(request):
     if request.method != 'POST':
-        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
+            return JsonResponse({"detail": "Method not allowed"}, status=405)
+        
+    # Authorization and payload decoding
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return JsonResponse({'detail': 'Authorization header missing'}, status=401)
+    
     try:
-        auth_header = request.headers.get('Authorization').split()[1]
-        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
-    except InvalidTokenError:
-        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
-    user_id = decoded.get('user_id')
-    if not user_id:
-        return JsonResponse({'detail': 'User not found', 'code': 'user_not_found'}, status=400)
+        auth_token = auth_header.split()[1]
+        decoded = jwt.decode(auth_token, settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded.get('user_id')
+        if not user_id:
+            raise ValueError("User ID missing in token")
+    except Exception as e:
+        return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
 
     data = json.loads(request.body)
     if not data.get('name') or not data.get('size'):
@@ -68,7 +74,6 @@ def Invite(request):
             if not user_id:
                 raise ValueError("User ID missing in token")
         except Exception as e:
-            logger.error(f"JWT decoding failed: {e}")
             return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
         
         # Parse request data
@@ -88,7 +93,7 @@ def Invite(request):
             'type': 'invite_message',
             'group': f'user_{group}',
             'message': message,
-            'sender': 'system'
+            'sender': f'user_{user_id}',
         }
         
         # Publish the notification
@@ -107,7 +112,10 @@ def JoinTournament(request):
     if request.method != 'POST':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
     try:
-        auth_header = request.headers.get('Authorization').split()[1]
+        tmp = request.headers.get('Authorization')
+        if not tmp:
+            return JsonResponse({'detail': 'Authorization header missing', 'code': 'missing_header'}, status=401)
+        auth_header = tmp.split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
         return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
@@ -120,6 +128,8 @@ def JoinTournament(request):
     tournament_name = data.get('name')
     if not tournament_name or not re.match(r'^[a-zA-Z0-9]{5,16}$', tournament_name):
         return JsonResponse({'detail': 'invalid tournament name', 'code': 'error_occurred'}, status=400)
+    
+
     try:
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
@@ -132,18 +142,30 @@ def JoinTournament(request):
         
     tournament.player_list.append(user_id)  # Add player ID 1
     tournament.save()
-    if len(tournament.player_list) >= tournament.tournament_size:
+    # if len(tournament.player_list) >= tournament.tournament_size:
         # Start the tournament
-        return Tournament_operation(tournament)
+        # return Tournament_operation(tournament)
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
     
 @csrf_exempt
 @permission_classes([IsAuthenticated])
 def TournamentList(request):
     if request.method != 'GET':
-        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
-    auth_header = request.headers.get('Authorization').split()[1]
-    decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+            return JsonResponse({"detail": "Method not allowed"}, status=405)
+        
+    # Authorization and payload decoding
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return JsonResponse({'detail': 'Authorization header missing'}, status=401)
+    
+    try:
+        auth_token = auth_header.split()[1]
+        decoded = jwt.decode(auth_token, settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded.get('user_id')
+        if not user_id:
+            raise ValueError("User ID missing in token")
+    except Exception as e:
+        return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
     # Extract user ID from the decoded token
     user_id = decoded.get('user_id')
     if not user_id:
@@ -151,7 +173,6 @@ def TournamentList(request):
     tournaments = Tournament.objects.all()
     tournament_list = []
     for tournament in tournaments:
-        logger.error(tournament.tournament_name, tournament.player_list)
         tournament_list.append(tournament.tournament_name)
     return JsonResponse({'tournaments': tournament_list}, status=200)
 
@@ -160,8 +181,11 @@ def TournamentList(request):
 def TournamentDetails(request, name):
     if request.method != 'GET':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
-    auth_header = request.headers.get('Authorization').split()[1]
-    decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    try:
+        auth_header = request.headers.get('Authorization').split()[1]
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    except InvalidTokenError:
+        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
     # Extract user ID from the decoded token
     user_id = decoded.get('user_id')
     if not user_id:

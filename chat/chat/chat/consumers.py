@@ -61,6 +61,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             async for message in self.redis_pubsub.listen():
                 if message and isinstance(message['data'], bytes):
                     data = json.loads(message['data'])
+                    logger.error(data)
                     await self.channel_layer.group_send(
                         data['group'],
                         {
@@ -72,14 +73,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     )
         except Exception as e:
             logger.error(f"Error in Redis listener: {e}")
-
-    async def notification_message(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'notification',
-            'message': event['message'],
-            'group': event['group'],
-            'sender': event['sender'],
-        }))
 
     def decode_token(self, token):
         try:
@@ -101,7 +94,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 logger.error(f"Redis connection failed, {retries} retries left")
                 await asyncio.sleep(1)
         raise redis.ConnectionError("Failed to connect to Redis")
-
 
 
 
@@ -208,40 +200,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': event['sender'],
         }))
 
-    # async def listen_to_redis(self, channels):
-    #     """Listen for messages from Redis and forward to WebSocket."""
-    #     try:
-    #         logger.error(f"Attempting to subscribe to channel: global_chat")
-    #         await pubsub.subscribe('global_chat')
-    #         logger.error(f"Subscribed to channel: global_chat")
-    #         async for message in pubsub.listen():
-
-    #             try:
-                    
-    #                 # Send the message to the appropriate WebSocket group
-    #                 if not isinstance(message['data'], int):
-    #                     data = json.loads((message['data']))
-    #                     await self.channel_layer.group_send(
-    #                         data['group'],
-    #                         {
-    #                             'type': data['type'],
-    #                             'message': data['message'],
-    #                             'sender': data['sender'],
-    #                             'group': data['group'],
-    #                         }
-    #                     )
-    #             except json.JSONDecodeError as e:
-    #                 logger.error(f"Failed to decode JSON message: {e}")
-    #             except KeyError as e:
-    #                 logger.error(f"Missing key in message data: {e}")
-    #             except Exception as e:
-    #                 logger.error(f"Error sending message to WebSocket group: {e}")
-    #     except redis.ConnectionError as e:
-    #         logger.error(f"Redis connection error: {e}")
-    #     except Exception as e:
-    #         logger.error(f"Error subscribing to Redis channels: {e}")
-    #     finally:
-    #         await redis_client.close()
+    async def notification_message(self, event):
+        """Send the chat message to the WebSocket."""
+        await self.send(text_data=json.dumps({
+            'type': 'notification',
+            'message': event['message'],
+            'group': event['group'],
+            'sender': event['sender'],
+        }))
 
     async def add_channel(self, channel_name):
         """Dynamically add new Redis channels to listen to."""
