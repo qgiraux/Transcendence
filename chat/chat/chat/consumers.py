@@ -190,15 +190,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'group': event['group'],
             'sender': event['sender'],
         }))
-    
-    async def invite_message(self, event):
-        """Send the chat message to the WebSocket."""
-        await self.send(text_data=json.dumps({
-            'type': 'invite',
-            'message': event['message'],
-            'group': event['group'],
-            'sender': event['sender'],
-        }))
 
     async def notification_message(self, event):
         """Send the chat message to the WebSocket."""
