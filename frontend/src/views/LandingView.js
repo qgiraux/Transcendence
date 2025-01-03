@@ -90,9 +90,9 @@ class LandingView extends AbstractView {
     } else {
       Alert.errorMessage(
         "You must provide a valid username and password.",
-        `The login must contains only letters or digits and be at least 8 characters long <br>
+        `The login must contains only letters or digits and be at least 5 characters long <br>
 		 The password must be contains at least 8 characters and contains one digit,
-		 one uppercase letter and one special character !@#$%^&* `
+		 one uppercase letter and at least one special character : !@#$%^&* `
       );
     }
   }
