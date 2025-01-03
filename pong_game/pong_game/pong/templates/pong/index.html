@@ -16,6 +16,7 @@
         };
 
         ws.onmessage = function (event) {
+            console.log("message received");
             const data = JSON.parse(event.data);
             console.log('Game Update:', data);
         };

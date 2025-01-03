@@ -48,7 +48,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             log.error("Game name not provided")
             return  
         if gameName not in self.pong:
-            self.pong[gameName] = PongConsumer(gameName)
+            self.pong[gameName] = PongConsumer(self.group_name)
 
         
         
