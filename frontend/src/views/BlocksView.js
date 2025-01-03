@@ -3,6 +3,7 @@ import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
 import Application from "../Application.js";
 import Router from "../Router.js";
+import Avatar from "../Avatar.js";
 
 class BlocksView extends AbstractView {
   blockList = [];
@@ -20,7 +21,7 @@ class BlocksView extends AbstractView {
       }, 50);
       return;
     }
-
+    Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
         this.userList = result;
@@ -114,7 +115,9 @@ class BlocksView extends AbstractView {
           const modal = new bootstrap.Modal(
             document.getElementById("UserSelectModal")
           );
-
+          const modalImg = document.getElementById("modal-img");
+          modalImg.dataset.avatar = userId;
+          modalImg.src = Avatar.url(userId);
           modal.show();
         })
         .catch((error) => {
@@ -152,7 +155,9 @@ class BlocksView extends AbstractView {
       const li = document.createElement("li");
       li.dataset.id = user["id"];
       li.innerHTML = `<a class="dropdown-item" style="max-width: 500px;" >
-			<img src="img/avatar_placeholder.jpg" alt="hugenerd" width="40" height="40" class="rounded-circle">
+			<img data-avatar="${user["id"]}" src="${Avatar.url(
+        user["id"]
+      )}" alt="hugenerd" width="40" height="40" class="rounded-circle">
 			${user.username}</a>`;
       dropDownMenu.appendChild(li);
     });
@@ -176,7 +181,7 @@ class BlocksView extends AbstractView {
 
   async displayBlocksList(blocksList) {
     const blocksContainer = document.querySelector("#blocks-container");
-    blocksContainer.innerHTML = ""; // Vider le conteneur
+    blocksContainer.innerHTML = "";
 
     try {
       const blockPromises = blocksList.map((blockId) =>
@@ -196,18 +201,39 @@ class BlocksView extends AbstractView {
     const div = document.createElement("div");
     div.classList.add("col-md-4");
     div.classList.add("col-lg-3");
-    div.style.maxWidth = " 160px";
+    div.style.maxWidth = "160px";
     div.innerHTML = `
 	<div class="col-md-4 col-lg-3 " style="width: 150px;">
 		<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
 		style="background-color: #303030;">
-
+			<img class="card-img-top rounded" src="${Avatar.url(
+        block.id
+      )}" alt="Card image cap">
 				<div class="card-body">
 					<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
 					${block.nickname}
 					</h5>
+					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${
+            block.username
+          })</p>
+
 					<div class="btn-group">
-          <button style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);" class="dropdown-item" data-id=${block.id} data-action="unblock">Unblock</button>
+					<button  style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);"
+					class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+					aria-expanded="false">
+					Online
+					</button>
+					<ul class="dropdown-menu">
+					<li><button class="dropdown-item" data-id=${
+            block.id
+          } data-action="view-profile">View profile</button></li>
+                    <li><button class="dropdown-item" data-id=${
+                      block.id
+                    } data-action="invite-game">Invite to a game</button></li>
+                    <li><button class="dropdown-item" data-id=${
+                      block.id
+                    } data-action="unblock">Unblock</button></li>
+					</ul>
 					</div>
 				</div>
 			</div>
@@ -266,12 +292,12 @@ class BlocksView extends AbstractView {
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-		<img src="img/avatar_placeholder.jpg" alt="user" width="200" height="200" class="">
+		<img id="modal-img" src="" alt="user" width="200" height="200" class="">
         <p id="modal-nickname">placeholder</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="add-block-button"  data-bs-dismiss="modal">Add as a block</button>
+        <button type="button" class="btn btn-primary" id="add-block-button"  data-bs-dismiss="modal">Add to block list</button>
       </div>
     </div>
   </div>
@@ -288,7 +314,7 @@ class BlocksView extends AbstractView {
 
 		<div class="row">
 			<div class="col-12">
-				<h3 class="text-white display-5 mt-5 mb-0">Do you wish to add a user to your blocklist ?</h3>
+				<h3 class="text-white display-5 mt-5 mb-0">Still looking for users to block ?</h3>
 			</div>
 			<div class="row mt-0">
 				<div class="col-9 mx-auto">

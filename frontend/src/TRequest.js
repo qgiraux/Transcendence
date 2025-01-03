@@ -50,6 +50,7 @@ class TRequest {
       if (!response.ok) {
         if (response.status == 401) {
           // Token expired, try refreshing the token
+          console.log(response);
           await TRequest.refreshToken();
           return TRequest.request(method, route, body);
         } else {
