@@ -44,6 +44,7 @@ class Player:
 		}
 
 	def move_paddle(self, direction: Direction):
+		log.error("Moving paddle %s", direction)
 		if direction == Direction.UP and self.paddle_y > 10:
 			self.paddle_y -= 1
 		elif direction == Direction.DOWN and self.paddle_y < 90:
@@ -122,7 +123,7 @@ class State:
 		)
 	
 	def render(self) -> Mapping[str, Any]:
-		log.error("rendering")
+		# log.error("rendering")
 		return {
 			"ball": self.ball.render(),
 			"player_left": self.player_left.render(),
@@ -163,21 +164,25 @@ class PongEngine(threading.Thread):
 
 	async def game_loop(self):
 		while self.game_on:
-			log.error("Game %s is on!!", self.name)
+			# log.error("Game %s is on!!", self.name)
 			self.state = self.tick()
 			await self.broadcast_state()  # Directly await the async function
+			if self.state.player_left.score >= self.MAX_SCORE or self.state.player_right.score >= self.MAX_SCORE:
+				self.end_game()
+				log.error("Game %s is over", self.name)
+				break
 			await asyncio.sleep(self.TICK_RATE)
 
 	async def broadcast_state(self):
 		state_json = self.state.render()
-		log.error("Broadcasting state: %s", state_json)
+		# log.error("Broadcasting state: %s", state_json)
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_update", "state": state_json}
 		)
 	
-	def broadcast_game_over(self):
+	async def broadcast_game_over(self):
 		state_json = self.state.render()
-		async_to_sync(self.channel_layer.group_send)(
+		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
 		)
 
@@ -193,7 +198,10 @@ class PongEngine(threading.Thread):
 	def get_player_paddle_move(self, playerid, direction):
 		log.error("Player %s moved paddle %s", playerid, direction)
 		with self.key_lock:
-			self.paddle_y_change[playerid] = direction
+			if direction == 'up':
+				self.paddle_y_change[playerid] = Direction.UP
+			elif direction == 'down':
+				self.paddle_y_change[playerid] = Direction.DOWN
 
 	def add_player(self, playerid):
 		log.error("Adding player %s to the game", playerid)
@@ -255,6 +263,6 @@ class PongEngine(threading.Thread):
 			self.end_game()
 
 	def end_game(self):
-		self.game.game_on = False
+		self.game_on = False
 		self.broadcast_game_over()
 		async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)

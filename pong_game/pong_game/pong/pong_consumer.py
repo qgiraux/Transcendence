@@ -32,6 +32,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
     async def join(self, data):
         userid = data.get("userid")
         game = data.get("name")
+        self.gameName = game
         if "userid" not in self.scope["session"]:
             self.scope["session"]["userid"] = userid
             self.scope["session"].save()
@@ -47,6 +48,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         if not gameName:
             log.error("Game name not provided")
             return  
+        self.gameName = gameName
         if gameName not in self.pong:
             self.pong[gameName] = PongConsumer(self.group_name)
 
@@ -74,13 +76,14 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
         log.error("User %s moved paddle", self.userid)
         direction = data.get("direction")
-        await self.channel_layer.send(
-            "game_engine",
-            {"type": "move_paddle", "playerid": self.userid, "direction": direction},
-        )
+        self.pong[self.gameName].engine.get_player_paddle_move(self.userid, direction)
+        # await self.channel_layer.send(
+        #     "game_engine",
+        #     {"type": "move_paddle", "playerid": self.userid, "direction": direction},
+        # )
 
     async def game_update(self, event):
-        log.error("Game update: %s", event)
+        # log.error("Game update: %s", event)
         state = event["state"]
         await self.send(text_data=json.dumps(state))
 
@@ -121,7 +124,6 @@ class PongConsumer(SyncConsumer):
 	def player_move_paddle(self, event):
 		log.error("Move paddle: %s", event)
 		direction = event.get("direction")
-
 		try:
 			direction = Direction[direction]
 		except KeyError:

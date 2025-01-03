@@ -2,34 +2,94 @@
 <html>
 <head>
     <title>Pong Game</title>
+    <style>
+        canvas {
+            background: black;
+            display: block;
+            margin: 20px auto;
+            border: 2px solid white;
+        }
+    </style>
 </head>
 <body>
-    <h1>Pong Game</h1>
-    <div id="game-status"></div>
+    <h1 style="text-align: center; color: white;">Pong Game</h1>
+    <canvas id="gameCanvas" width="200" height="100"></canvas>
+    <div id="game-status" style="text-align: center; color: white;"></div>
+
     <script>
-        const ws = new WebSocket('wss://localhost:5000/ws/pong/');
+        // WebSocket Initialization
+        const ws = new WebSocket('wss://localhost:5000/ws/pong/'); // Use ws:// instead of wss:// for local development
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let paddle1y = 50, paddle2y = 50;
+        let ballx = 100, bally = 50;
+        const ballradius = 2;
+        const paddleheight = 20, paddlewidth = 2;
+        const paddle1x = 2, paddle2x = canvas.width - paddlewidth - 2;
 
         ws.onopen = function () {
             console.log('WebSocket connection established');
-            ws.send(JSON.stringify({ type: 'join', data: { userid: 'player2', name:'newgame' } }));
+            // ws.send(JSON.stringify({ type: 'create', data: { name: 'newgame' } }));
+            ws.send(JSON.stringify({ type: 'join', data: { userid: 'player2', name: 'newgame' } }));
         };
 
         ws.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            console.log('Game Update:', data);
+            paddle1y = data.player_left.paddle_y;
+            paddle2y = data.player_right.paddle_y;
+            ballx = data.ball.position[0];
+            bally = data.ball.position[1];
+            console.log('Game Update:', paddle1y, paddle2y, ballx, bally);
         };
 
         ws.onclose = function () {
             console.log('WebSocket connection closed');
+            document.getElementById('game-status').innerText = "Connection closed";
         };
 
+        ws.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+
+        // Paddle Control
         window.addEventListener('keydown', function (event) {
             if (event.key === 'ArrowUp') {
-                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'UP' } }));
+                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
             } else if (event.key === 'ArrowDown') {
-                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'DOWN' } }));
+                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
             }
         });
+
+        // Draw Paddle
+        function drawPaddle(x, y) {
+            ctx.fillStyle = "white";
+            ctx.fillRect(x, y, paddlewidth, paddleheight);
+        }
+
+        // Draw Ball
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ballx, bally, ballradius, 0, Math.PI * 2);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Game Loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+            // Draw paddles and ball
+            drawPaddle(paddle1x, paddle1y);
+            drawPaddle(paddle2x, paddle2y);
+            drawBall();
+
+            requestAnimationFrame(gameLoop); // Recursively call gameLoop
+        }
+
+        // Start Game Loop
+        gameLoop();
     </script>
 </body>
 </html>
