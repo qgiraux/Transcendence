@@ -45,18 +45,19 @@ class Player:
 
 	def move_paddle(self, direction: Direction):
 		log.error("Moving paddle %s", direction)
+		log.error("Paddle Y: %s", self.paddle_y)
 		if direction == Direction.UP and self.paddle_y > 10:
 			self.paddle_y -= 1
 		elif direction == Direction.DOWN and self.paddle_y < 90:
 			self.paddle_y += 1
-		else:
-			raise ValueError(f"Invalid direction: {direction}")
+		# else:
+		# 	raise ValueError(f"Invalid direction: {direction}")
 
 class Ball:
 	def __init__(self, gameid):
 		self.position = [100, 50]
 		self.direction = [random.choice([-1, 1]), 0.2]
-		self.speed = 1
+		self.speed = 2
 		self.game = gameid
 		self.game_width = 200  # Assuming game width is 200
 		self.position[0] += self.speed * self.direction[0]
@@ -68,27 +69,33 @@ class Ball:
 
 	def check_collisions(self, paddle_left, paddle_right):
 		# Wall collisions
-		if self.position[1] <= 0 or self.position[1] >= 100:
+		if (self.position[1] <= 0 + 2 and self.direction[1] < 0) or (self.position[1] >= 100 - 2 and self.direction[1] > 0):
 			self.direction[1] = -self.direction[1]
 		
 		# Paddle collisions
-		if (self.position[0] <= 10 and 
-			paddle_left - 10 <= self.position[1] <= paddle_left + 10):
+		if (self.position[0] <= 10 - 2 and 
+			paddle_left - 10 <= self.position[1] <= paddle_left + 10) and self.direction[0] < 0:
 			delta = self.position[1] - paddle_left
 			self.direction[0] = -self.direction[0]
-			if (delta == 0):
-				self.direction[1] = 0
+
+			# Normalize the delta to a more reasonable angle adjustment
+			if delta == 0:
+				self.direction[1] = 0  # Ball hits the center, no vertical change
 			else:
-				# adjust the *2 factor if you want to reduce the angle of the ball at extremes
-				self.direction[1] = 2 / delta
-		elif (self.position[0] >= 190 and
-				paddle_right - 10 <= self.position[1] <= paddle_right + 10):
+				# Adjust the *2 factor to control angle steepness
+				self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
+
+		elif (self.position[0] >= 190 + 2 and
+			paddle_right - 10 <= self.position[1] <= paddle_right + 10) and self.direction[0] > 0:
 			delta = self.position[1] - paddle_right
 			self.direction[0] = -self.direction[0]
-			if (delta == 0):
-				self.direction[1] = 0
+
+			# Normalize the delta to a more reasonable angle adjustment
+			if delta == 0:
+				self.direction[1] = 0  # Ball hits the center, no vertical change
 			else:
-				self.direction[1] = 2 / delta
+				# Adjust the *2 factor to control angle steepness
+				self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
 
 	def update_scoring(self, player1, player2):
 		if self.position[0] <= 0:
@@ -98,8 +105,12 @@ class Ball:
 			player1.score += 1
 			self.reset()
 	def reset(self):
+		if self.position[0] < 100:
+			self.direction = [1, random.uniform(0.1, 0.3)]
+		else:
+			self.direction = [-1, random.uniform(0.1, 0.3)]
 		self.position = [100, 50]
-		self.direction = [random.choice([-1, 1]), 0.2]
+		random.uniform(0.1, 0.3)
 
 	def render(self) -> Mapping[str, Any]:
 		return {
@@ -132,7 +143,7 @@ class State:
 
 class PongEngine(threading.Thread):
 	TICK_RATE = 0.033
-	MAX_SCORE = 5
+	MAX_SCORE = 3
 
 	def __init__(self, group_name, **kwargs):
 		log.error("Initializing Pong Engine")
@@ -168,7 +179,7 @@ class PongEngine(threading.Thread):
 			self.state = self.tick()
 			await self.broadcast_state()  # Directly await the async function
 			if self.state.player_left.score >= self.MAX_SCORE or self.state.player_right.score >= self.MAX_SCORE:
-				self.end_game()
+				await self.end_game()
 				log.error("Game %s is over", self.name)
 				break
 			await asyncio.sleep(self.TICK_RATE)
@@ -181,7 +192,9 @@ class PongEngine(threading.Thread):
 		)
 	
 	async def broadcast_game_over(self):
+		log.error("reached the game over broadcaster")
 		state_json = self.state.render()
+		state_json["winner"] = self.state.player_right.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_left.playerid
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
 		)
@@ -262,7 +275,8 @@ class PongEngine(threading.Thread):
 			log.error("Game %s is over", self.name)
 			self.end_game()
 
-	def end_game(self):
+	async def end_game(self):
 		self.game_on = False
-		self.broadcast_game_over()
-		async_to_sync(self.channel_layer.group_discard)(self.group_name, self.channel_name)
+		log.error("reached the end_game broadcaster")
+		await self.broadcast_game_over()
+		

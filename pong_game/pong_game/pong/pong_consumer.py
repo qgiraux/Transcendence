@@ -9,6 +9,8 @@ log = logging.getLogger(__name__)
 
 class PlayerConsumer(AsyncWebsocketConsumer):
     pong = dict.fromkeys(['name','game'])
+    for game in pong:
+        pong[game] = None
     async def connect(self):
         log.error("Connect")
         self.group_name = "pong_game"
@@ -86,6 +88,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         # log.error("Game update: %s", event)
         state = event["state"]
         await self.send(text_data=json.dumps(state))
+    
+    async def game_over(self, event):
+        # log.error("Game update: %s", event)
+        await self.send(text_data=json.dumps(event))
 
     async def game_final_scores(self, event):
         game_over = event["game_over"]

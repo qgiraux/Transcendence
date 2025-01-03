@@ -15,5 +15,6 @@ router.addRoute("/home", HomeView);
 router.addRoute("/profile", ProfileView);
 router.addRoute("/profile/:id", ProfileView);
 router.addRoute("/friends", FriendsView);
+
 router.setListeners();
 router.route();
