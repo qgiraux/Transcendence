@@ -72,6 +72,15 @@ services:
       - postgres_friends_list:/var/lib/postgresql/data
     networks:
       - transcendence
+  
+  pong_game:
+    image: pong_game
+    container_name: pong_game
+    build:
+      context: .
+      dockerfile: pong_game/Dockerfile
+    networks:
+      - transcendence
 
   redis:
     container_name: redis
