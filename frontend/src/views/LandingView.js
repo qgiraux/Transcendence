@@ -66,7 +66,7 @@ class LandingView extends AbstractView {
   }
 
   _validateLogin(loginValue) {
-    const validatExpr = new RegExp("^[a-zA-Z0-9]+$");
+    const validatExpr = new RegExp("^[a-zA-Z0-9]{5,20}$");
     return validatExpr.test(loginValue);
   }
 
@@ -90,7 +90,7 @@ class LandingView extends AbstractView {
     } else {
       Alert.errorMessage(
         "You must provide a valid username and password.",
-        `The login must contains only letters or digits and be at least 5 characters long <br>
+        `The login must contains only letters or digits and be between 5-20 characters long <br>
 		 The password must be contains at least 8 characters and contains one digit,
 		 one uppercase letter and at least one special character : !@#$%^&* `
       );
