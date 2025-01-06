@@ -18,6 +18,31 @@ class TRequest {
     }
   }
 
+  static containsToken(obj) {
+    const searchTerm = "token";
+
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+
+        if (
+          key.toLowerCase().includes(searchTerm) ||
+          (typeof value === "string" &&
+            value.toLowerCase().includes(searchTerm))
+        ) {
+          return true;
+        }
+
+        if (typeof value === "object" && value !== null) {
+          if (containsToken(value)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   /**
    * Make a request to the route by
    * @param {string} method - The HTTP method (GET, POST, etc.)
@@ -49,30 +74,46 @@ class TRequest {
       const response = await fetch(route, fetchobj);
       if (!response.ok) {
         if (response.status == 401) {
-          // Token expired, try refreshing the token
-          console.log(response);
-          await TRequest.refreshToken();
-          return TRequest.request(method, route, body);
+          const res = await response.json();
+          if (
+            TRequest.containsToken(res) // if it's a token related error
+          ) {
+            console.log("refresh case");
+            // Token expired, try refreshing the token
+            await TRequest.refreshToken();
+            return TRequest.request(method, route, body);
+          } else {
+            console.log("else case");
+            throw new Error(`Request failed with status: ${response.status}`);
+          }
         } else {
+          console.log("not ok for other reason case");
           throw new Error(`Request failed with status: ${response.status}`);
         }
       }
 
       const contentType = response.headers.get("Content-Type");
 
-      // If the response is JSON, parse and return it
-      if (contentType && contentType.includes("application/json")) {
-        const json = await response.json();
-        return json;
-      }
+      if (contentType) {
+        if (contentType.includes("application/json")) {
+          const json = await response.json();
+          return json;
+        }
 
-      // If the response is a PNG image or other binary data, handle it as a Blob
-      if (contentType && contentType.includes("image/png")) {
-        const imageBlob = await response.blob();
-        return imageBlob; // Return the Blob object
+        if (contentType.includes("image/jpeg")) {
+          const imageBlob = await response.blob();
+          return imageBlob;
+        }
+        if (contentType.includes("text/plain")) {
+          const text = await response.text();
+          return text;
+        }
+        if (contentType.includes("text/html")) {
+          const text = await response.text();
+          const parser = new DOMParser();
+          return parser.parseFromString(text, "text/html");
+        }
       }
-
-      // You can add other content types here if needed, for example, for PDF or other files
     } catch (error) {
       throw new Error(`TRequest: ${error}`);
     }

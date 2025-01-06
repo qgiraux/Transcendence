@@ -200,7 +200,7 @@ class AvatarUploadView(APIView):
         except ValidationError as e:
             logger.error(f"Validation error: {e}")
             return Response(
-                {"error": str(e)},
+                {"detail": "Invalid or expired token"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         except UnsupportedFormatError as e:
