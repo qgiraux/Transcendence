@@ -13,16 +13,16 @@ class LandingView extends AbstractView {
     this.messages.loginAlertTitle = "Login Error";
     this.messages.registerAlertTitle = "Register Error";
     this.messages.invalidCredentials = "Invalid username or password";
-    this.messages.wrongCredentialsFormat = [
-      "You must provide a valid username and password.",
-      `The login must contains only letters or digits and be between 5-20 characters long <br>
+    this.messages.wrongCredentialsFormat = `You must provide a valid username and password.
+      The login must contains only letters or digits and be between 5-20 characters long <br>
 	 The password must be contains at least 8 characters and contains one digit,
-	 one uppercase letter and at least one special character : !@#$%^&* `,
-    ];
+	 one uppercase letter and at least one special character : !@#$%^&* `;
     this.messages.serverError =
       "The server could not process your request. Please try again later";
     this.messages.userAlreadyExist =
       "A user with that username already exists.";
+    this.messages.PasswordsDontMatch =
+      "The two password fields must be identical";
     this.onStart();
   }
 
@@ -107,7 +107,7 @@ class LandingView extends AbstractView {
         twofa: twofa.value,
       });
     } else {
-      Alert.errorMessage(...this.messages.wrongCredentialsFormat);
+      Alert.errorMessage(this.messages.wrongCredentialsFormat);
     }
   }
 
@@ -145,12 +145,21 @@ class LandingView extends AbstractView {
     const passwordConfirm = document.querySelector("#RegisterPasswordConfirm");
     if (
       this._validateLogin(login.value) &&
-      password.value === passwordConfirm.value &&
       this._validatePass(password.value)
     ) {
+      if (password.value !== passwordConfirm.value) {
+        Alert.errorMessage(
+          this.messages.registerAlertTitle,
+          this.messages.PasswordsDontMatch
+        );
+        return;
+      }
       this.RegisterRequest({ username: login.value, password: password.value });
     } else {
-      Alert.errorMessage(...this.messages.wrongCredentialsFormat);
+      Alert.errorMessage(
+        this.messages.registerAlertTitle,
+        this.messages.wrongCredentialsFormat
+      );
     }
   }
 
@@ -183,9 +192,6 @@ class LandingView extends AbstractView {
   setHtml() {
     let pm = "";
     const container = document.querySelector("#view-container");
-    for (const key in this.params) {
-      pm += String(key) + " : " + this.params[key] + "<br>";
-    }
     if (container) {
       container.innerHTML = `
 			<div class="row text-white ">
