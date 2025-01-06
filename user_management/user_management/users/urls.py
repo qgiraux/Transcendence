@@ -1,24 +1,29 @@
-from django.urls import path
-from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_csrf_token, GetAllUsers
+from django.urls import path, re_path
+from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_jwt_token, GetAllUsers, Enable_Twofa, Get_user_stats, Add_user_stats
 from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import CustomTokenObtainPairView
+from .views import TOTPCreateView
+
 
 
 urlpatterns = [
     path('register/', RegisterUser, name='register'),
-    path('login/', CustomTokenObtainPairView.as_view(), name='login'),
+    path('login/', get_jwt_token, name='login'),
+    path('enable_twofa/', Enable_Twofa, name='enable twofa'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('userinfo/', Get_my_infos, name='myuserinfo'),
     path('userinfo/<int:user_id>', Get_user_infos, name='userinfo'),
+    path('userstats/<int:user_id>', Get_user_stats, name='get user stats'),
+    path('adduserstats/<int:user_id>', Add_user_stats, name='add user stats'),
     path('newlogin/', ChangeLogin, name='change login'),
     path('newnickname/', ChangeNickname, name='change nickname'),
     path('deleteuser/', DeleteUser, name='delete user'),
     path('userstatus/<int:user_id>', CheckUserStatus, name='check user status'),
-    path('csrf/', get_csrf_token, name='get csrf'),
     path('userlist/', GetAllUsers, name='user list'),
-    
 
+    path('totp/create/', TOTPCreateView.as_view(), name='totp-create'),
+    # re_path(r'totp/login/(?P<token>[0-9]{6})/', TOTPVerifyView.as_view(), name='totp-login'),
+    
 ]
 
 # Example of calling reverse with user_id=10
