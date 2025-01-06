@@ -6,7 +6,7 @@
 /*   By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/14 09:41:47 by jerperez          #+#    #+#             */
-/*   Updated: 2024/11/16 13:50:33 by jerperez         ###   ########.fr       */
+/*   Updated: 2024/11/28 15:20:49 by jerperez         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,8 @@
 # define CLI_PLAYER1DOWN	4
 # define CLI_PIXPERCHARSIZE		2
 # define CLI_DIPLAY_SCORE_ROW		2
+# define CLI_EMPTY_CHAR		' '
+# define CLI_ANSI_CURSOR_GOTO0	"\e[0;0H"
+# define CLI_NEWLINE_CHAR	'\n'
 
 #endif
