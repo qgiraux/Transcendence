@@ -5,8 +5,15 @@ class HttpsClient{
 		process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 	}
 
-	static get(url, callback){
-		return https.get(url, (res) => {
+	static get(url, callback, jwt){
+		const options = {};
+
+		options.headers = {
+			'Accept': "application/json",
+		};
+		if (jwt && jwt.access)
+			options.headers.Authorization = `Bearer ${jwt.access}`;
+		return https.get(url, options, (res) => {
 			const { statusCode } = res;
 			const contentType = res.headers['content-type'];
 			let error;
