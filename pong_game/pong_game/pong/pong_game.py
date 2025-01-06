@@ -170,7 +170,10 @@ class PongEngine(threading.Thread):
 		log.error("is game on? %s", self.game_on)
 
 		# Use asyncio.run to manage the event loop in this thread
-		loop = asyncio.get_event_loop()
+		try :
+			loop = asyncio.get_event_loop()
+		except RuntimeError:
+			loop = asyncio.new_event_loop()
 		loop.create_task(self.game_loop())
 
 	async def game_loop(self):
@@ -194,7 +197,7 @@ class PongEngine(threading.Thread):
 	async def broadcast_game_over(self):
 		log.error("reached the game over broadcaster")
 		state_json = self.state.render()
-		state_json["winner"] = self.state.player_right.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_left.playerid
+		state_json["winner"] = self.state.player_left.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_left.playerid
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
 		)

@@ -1,6 +1,6 @@
 import json
 import logging
-
+from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
 from .pong_game import Direction, PongEngine
@@ -11,9 +11,12 @@ class PlayerConsumer(AsyncWebsocketConsumer):
     pong = dict.fromkeys(['name','game'])
     for game in pong:
         pong[game] = None
+
     async def connect(self):
+        query_params = parse_qs(self.scope['query_string'].decode())
+        pong_game = str(query_params.get('name')[0])
         log.error("Connect")
-        self.group_name = "pong_game"
+        self.group_name = pong_game
         self.game = None
         log.error("Connected to game group")
 

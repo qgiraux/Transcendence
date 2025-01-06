@@ -13,14 +13,15 @@
 </head>
 <body>
     <h1 style="text-align: center; color: white;">Pong Game</h1>
-    <canvas id="scoreCanvas" width="400" height="50"></canvas>
+    player: index
+    <canvas id="scoreCanvas" width="400" height="70"></canvas>
     <canvas id="gameCanvas" width="400" height="200"></canvas>
     <div id="game-status" style="text-align: center; color: white;"></div>
 
     <script>
         let isGameOver = false; 
         // WebSocket Initialization
-        const ws = new WebSocket('wss://localhost:5000/ws/pong/'); // Use ws:// instead of wss:// for local development
+        const ws = new WebSocket('wss://localhost:5000/ws/pong/?name=pong_game');
         const canvas = document.getElementById('gameCanvas');
         const score_canvas = document.getElementById('scoreCanvas');
         const ctx = canvas.getContext('2d');
@@ -29,6 +30,7 @@
         let paddle1y = 100, paddle2y = 100;
         let ballx = 200, bally = 100;
         let score1 = 0, score2 = 0;
+        let p1name = "", p2name = "";
         const ballradius = 4;
         const paddleheight = 40, paddlewidth = 4;
         const paddle1x = 4, paddle2x = canvas.width - paddlewidth - 4;
@@ -42,33 +44,44 @@
         ws.onmessage = function (event) {
             console.log(event.data);
             const data = JSON.parse(event.data);
-            if (data.type == 'game_over')
-            {
+
+            if (data.type === 'game_over') {
+                // Update final scores
+                console.log(data);
+                score1 = data.state.player_left.score; 
+                score2 = data.state.player_right.score;
+                // Draw final scores
+                drawScore();
+
                 console.log('Game Over');
                 console.log(data);
+
+                // Clear the game canvas and display winner information
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = "blue";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = "white";
                 ctx.font = "40px Arial";
-                if (data.state && data.state.winner) {
-                    ctx.fillText("WINNER : ", 60, 70);
-                    ctx.fillText(data.state.winner, 50, 130);
-                } else {
-                    ctx.fillText("WINNER : Unknown", 50, 100);
-                }
-                isGameOver = true;
 
-                // document.getElementById('game-status').innerText = "Game Over";
-            }
-            else
-            {
+                if (data.state && data.state.winner) {
+                    ctx.textAlign = "center";
+                    ctx.fillText("WINNER :", canvas.width / 2, 70);
+                    ctx.fillText(data.state.winner, canvas.width / 2, 110);
+                } else {
+                    ctx.textAlign = "center";
+                    ctx.fillText("WINNER : Unknown", canvas.width / 2, 100);
+                }
+                isGameOver = true; // Stop game loop when the game ends
+            } else {
+                // Update game state for ongoing gameplay
                 paddle1y = data.player_left.paddle_y * 2;
                 paddle2y = data.player_right.paddle_y * 2;
                 ballx = data.ball.position[0] * 2;
                 bally = data.ball.position[1] * 2;
                 score1 = data.player_left.score;
                 score2 = data.player_right.score;
+                p1name = data.player_left.playerid;
+                p2name = data.player_right.playerid;
             }
             
         };
@@ -85,11 +98,14 @@
 
         function drawScore(){ 
             cts.fillStyle = "blue";
-            cts.fillRect(0, 0, 400, 50);
+            cts.fillRect(0, 0, 400, 70);
             cts.fillStyle = "white";
             cts.font = "30px Arial";
-            cts.fillText(score1, 15, 40);
-            cts.fillText(score2, 360, 40);
+            cts.fillText(p1name, 15, 30);
+            cts.fillText(score1, 15, 60);
+            cts.fillText(p2name, 360, 30);
+            cts.fillText(score2, 360, 60);
+
             
         }
         // Paddle Control
@@ -118,7 +134,8 @@
 
         // Game Loop
         function gameLoop() {
-            if (isGameOver) return;
+            if (isGameOver === true) return; // Stop the game loop if the game is over
+
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
             // Draw paddles and ball
@@ -126,8 +143,8 @@
             drawPaddle(paddle2x, paddle2y);
             drawBall();
 
-            requestAnimationFrame(gameLoop); // Recursively call gameLoop
-            drawScore();
+            requestAnimationFrame(gameLoop); // Recursively call gameLoop for updates
+            drawScore(); // Update score display during the game
         }
 
         // Start Game Loop
