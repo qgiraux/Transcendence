@@ -1,6 +1,6 @@
 import json
 import logging
-
+from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
 from .pong_game import Direction, PongEngine
@@ -9,9 +9,14 @@ log = logging.getLogger(__name__)
 
 class PlayerConsumer(AsyncWebsocketConsumer):
     pong = dict.fromkeys(['name','game'])
+    for game in pong:
+        pong[game] = None
+
     async def connect(self):
+        query_params = parse_qs(self.scope['query_string'].decode())
+        pong_game = str(query_params.get('name')[0])
         log.error("Connect")
-        self.group_name = "pong_game"
+        self.group_name = pong_game
         self.game = None
         log.error("Connected to game group")
 
@@ -32,6 +37,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
     async def join(self, data):
         userid = data.get("userid")
         game = data.get("name")
+        self.gameName = game
         if "userid" not in self.scope["session"]:
             self.scope["session"]["userid"] = userid
             self.scope["session"].save()
@@ -47,8 +53,9 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         if not gameName:
             log.error("Game name not provided")
             return  
+        self.gameName = gameName
         if gameName not in self.pong:
-            self.pong[gameName] = PongConsumer(gameName)
+            self.pong[gameName] = PongConsumer(self.group_name)
 
         
         
@@ -74,15 +81,20 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
         log.error("User %s moved paddle", self.userid)
         direction = data.get("direction")
-        await self.channel_layer.send(
-            "game_engine",
-            {"type": "move_paddle", "playerid": self.userid, "direction": direction},
-        )
+        self.pong[self.gameName].engine.get_player_paddle_move(self.userid, direction)
+        # await self.channel_layer.send(
+        #     "game_engine",
+        #     {"type": "move_paddle", "playerid": self.userid, "direction": direction},
+        # )
 
     async def game_update(self, event):
-        log.error("Game update: %s", event)
+        # log.error("Game update: %s", event)
         state = event["state"]
         await self.send(text_data=json.dumps(state))
+    
+    async def game_over(self, event):
+        # log.error("Game update: %s", event)
+        await self.send(text_data=json.dumps(event))
 
     async def game_final_scores(self, event):
         game_over = event["game_over"]
@@ -121,7 +133,6 @@ class PongConsumer(SyncConsumer):
 	def player_move_paddle(self, event):
 		log.error("Move paddle: %s", event)
 		direction = event.get("direction")
-
 		try:
 			direction = Direction[direction]
 		except KeyError:
