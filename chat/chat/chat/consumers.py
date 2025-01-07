@@ -1,5 +1,3 @@
-
-
 import json
 import logging
 import asyncio
@@ -16,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        logger.info("WebSocket connection attempt")
+        logger.error("WebSocket connection attempt")
         # Extract the token from the query string
         query_params = parse_qs(self.scope['query_string'].decode())
         token = query_params.get('token', [None])[0]
@@ -27,7 +25,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # Decode the token to get user_id and nickname
                 self.user_id = user_info['user_id']
                 self.nickname = user_info['nickname']
-                logger.info(f"User {self.nickname} connected")
+                logger.error(f"User {self.nickname} connected")
             else:
                 logger.error("Invalid token")
                 await self.close()
@@ -43,36 +41,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await redis_client.sadd('online_users', self.user_id)
 
         await self.accept()
-
         # Redis connection
         await self.connect_redis()
-        await self.redis_pubsub.subscribe(self.group_name, 'global_chat')
-        asyncio.create_task(self.listen_to_redis())
 
     async def disconnect(self, close_code):
         logger.info(f"User {self.nickname} disconnected")
         await redis_client.srem('online_users', self.user_id)
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
-        await self.redis_pubsub.unsubscribe(self.group_name, 'global_chat')
         await redis_client.close()
 
-    async def listen_to_redis(self):
-        try:
-            async for message in self.redis_pubsub.listen():
-                if message and isinstance(message['data'], bytes):
-                    data = json.loads(message['data'])
-                    logger.error(data)
-                    await self.channel_layer.group_send(
-                        data['group'],
-                        {
-                            'type': data['type'],
-                            'message': data['message'],
-                            'sender': data['sender'],
-                            'group': data['group'],
-                        }
-                    )
-        except Exception as e:
-            logger.error(f"Error in Redis listener: {e}")
 
     def decode_token(self, token):
         try:
@@ -94,12 +71,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 logger.error(f"Redis connection failed, {retries} retries left")
                 await asyncio.sleep(1)
         raise redis.ConnectionError("Failed to connect to Redis")
-
-
-
-
-
-
 
     async def receive(self, text_data):
         """Handles incoming messages from WebSocket clients."""
@@ -195,6 +166,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Send the chat message to the WebSocket."""
         await self.send(text_data=json.dumps({
             'type': 'notification',
+            'message': event['message'],
+            'group': event['group'],
+            'sender': event['sender'],
+        }))
+    
+    async def invite_message(self, event):
+        """Send the chat message to the WebSocket."""
+        await self.send(text_data=json.dumps({
+            'type': 'invite',
             'message': event['message'],
             'group': event['group'],
             'sender': event['sender'],

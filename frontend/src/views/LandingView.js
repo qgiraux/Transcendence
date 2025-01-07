@@ -8,6 +8,21 @@ class LandingView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("Login");
+    this.domText = {};
+    this.messages = {};
+    this.messages.loginAlertTitle = "Login Error";
+    this.messages.registerAlertTitle = "Register Error";
+    this.messages.invalidCredentials = "Invalid username or password";
+    this.messages.wrongCredentialsFormat = `You must provide a valid username and password.
+      The login must contains only letters or digits and be between 5-20 characters long <br>
+	 The password must be contains at least 8 characters and contains one digit,
+	 one uppercase letter and at least one special character : !@#$%^&* `;
+    this.messages.serverError =
+      "The server could not process your request. Please try again later";
+    this.messages.userAlreadyExist =
+      "A user with that username already exists.";
+    this.messages.PasswordsDontMatch =
+      "The two password fields must be identical";
     this.onStart();
   }
 
@@ -66,7 +81,7 @@ class LandingView extends AbstractView {
   }
 
   _validateLogin(loginValue) {
-    const validatExpr = new RegExp("^[a-zA-Z0-9]+$");
+    const validatExpr = new RegExp("^[a-zA-Z0-9]{5,20}$");
     return validatExpr.test(loginValue);
   }
 
@@ -86,14 +101,13 @@ class LandingView extends AbstractView {
       this._validateLogin(login.value) &&
       this._validatePass(password.value)
     ) {
-      this.loginRequest({ username: login.value, password: password.value, twofa: twofa.value });
+      this.loginRequest({
+        username: login.value,
+        password: password.value,
+        twofa: twofa.value,
+      });
     } else {
-      Alert.errorMessage(
-        "You must provide a valid username and password.",
-        `The login must contains only letters or digits and be at least 8 characters long <br>
-		 The password must be contains at least 8 characters and contains one digit,
-		 one uppercase letter and one special character !@#$%^&* `
-      );
+      Alert.errorMessage(this.messages.wrongCredentialsFormat);
     }
   }
 
@@ -107,11 +121,11 @@ class LandingView extends AbstractView {
         },
         body: JSON.stringify(credentials),
       });
-      const json = await response.json();
       if (!response.ok) {
-        Alert.errorMessage("Login error", "Invalid user or password");
-        return;
+        if (response.status === 500) throw new Error(this.messages.serverError);
+        throw new Error(this.messages.invalidCredentials);
       }
+      const json = await response.json();
       Application.setToken(json);
       Application.setUserInfos();
       Application.toggleSideBar();
@@ -119,7 +133,7 @@ class LandingView extends AbstractView {
       Application.openWebSocket("wss://localhost:5000/ws/chat/");
       Router.reroute("/home");
     } catch (error) {
-      Alert.errorMessage("Login error", error.message);
+      Alert.errorMessage(this.messages.loginAlertTitle, error.message);
     }
   }
 
@@ -131,14 +145,20 @@ class LandingView extends AbstractView {
     const passwordConfirm = document.querySelector("#RegisterPasswordConfirm");
     if (
       this._validateLogin(login.value) &&
-      password.value === passwordConfirm.value &&
       this._validatePass(password.value)
     ) {
+      if (password.value !== passwordConfirm.value) {
+        Alert.errorMessage(
+          this.messages.registerAlertTitle,
+          this.messages.PasswordsDontMatch
+        );
+        return;
+      }
       this.RegisterRequest({ username: login.value, password: password.value });
     } else {
       Alert.errorMessage(
-        "Error",
-        " You must provide a valid username and password"
+        this.messages.registerAlertTitle,
+        this.messages.wrongCredentialsFormat
       );
     }
   }
@@ -154,20 +174,24 @@ class LandingView extends AbstractView {
         body: JSON.stringify(credentials),
       });
       if (response.status !== 201) {
-        throw new Error(`Response status: ${response.status}`);
+        switch (response.status) {
+          case 400:
+            throw new Error(this.messages.userAlreadyExist);
+          case 500:
+            throw new Error(this.messages.serverError);
+          default:
+            throw new Error(this.messages.serverError);
+        }
       }
       this.loginRequest(credentials);
     } catch (error) {
-      Alert.errorMessage("register error", error.message);
+      Alert.errorMessage(this.messages.registerAlertTitle, error.message);
     }
   }
 
   setHtml() {
     let pm = "";
     const container = document.querySelector("#view-container");
-    for (const key in this.params) {
-      pm += String(key) + " : " + this.params[key] + "<br>";
-    }
     if (container) {
       container.innerHTML = `
 			<div class="row text-white ">
