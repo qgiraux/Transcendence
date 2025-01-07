@@ -41,24 +41,9 @@ services:
       dockerfile: chat/Dockerfile
     volumes:
       - ./chat:/workspace/chat
-    depends_on:
-      - user_management
-      - db_chat
     networks:
       - transcendence
-
-  db_chat:
-    container_name: db_chat
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: django
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
-      POSTGRES_DB: db_chat
-    volumes:
-      - postgres_chat:/var/lib/postgresql/data
-    networks:
-      - transcendence
+    init: true
 
   friends_list:
     image: friends_list
@@ -119,7 +104,65 @@ services:
     restart: unless-stopped
     init: true
 
+  tournament:
+    image: tournament
+    container_name: tournament
+    build:
+      context: .
+      dockerfile: tournament/Dockerfile
+    volumes:
+      - ./tournament:/workspace/tournament
+    depends_on:
+      - db_tournament
+    networks:
+      - transcendence
+    init: true
+
+  db_tournament:
+    image: postgres:15
+    restart: always
+    container_name: db_tournament
+    environment:
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
+      POSTGRES_DB: db_tournament
+    volumes:
+      - postgres_tournament:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
+  avatar:
+    image: avatar
+    container_name: avatar
+    build:
+      context: .
+      dockerfile: avatar/Dockerfile
+    volumes:
+      - avatar_images_volume:/avatar_images/images
+    depends_on:
+      - db_avatar
+    networks:
+      - transcendence
+    ports:
+      - 8000:8000
+    init: true
+
+  db_avatar:
+    image: postgres:15
+    restart: always
+    container_name: db_avatar
+    environment:
+      POSTGRES_USER: avatar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avatar}
+      POSTGRES_DB: db_avatar
+    volumes:
+      - postgres_avatar:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
 volumes:
   postgres_user_management:
-  postgres_chat:
   postgres_friends_list:
+  postgres_avatar:
+  avatar_images_volume:
+  postgres_tournament:

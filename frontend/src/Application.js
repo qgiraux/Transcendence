@@ -1,6 +1,8 @@
 /**
 
  */
+import Avatar from "./Avatar.js";
+
 class Application {
   /**
    * A placeholder class, I'm not really sure for what
@@ -11,7 +13,9 @@ class Application {
   static #userInfos = {
     userId: null,
     userName: null,
+    nickname: null,
   };
+  static mainSocket = null;
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -53,6 +57,7 @@ class Application {
         const token = Application.#_parseToken(Application.#token.access);
         Application.#userInfos.userId = token.payload.user_id;
         Application.#userInfos.userName = token.payload.username;
+        Application.#userInfos.nickname = token.payload.nickname;
       } catch (error) {
         console.error(`Application: Error during userInfos setting : ${error}`);
       }
@@ -91,9 +96,53 @@ class Application {
       payload: JSON.parse(jsonPayload),
     };
   }
+  static openWebSocket(url) {
+    if (Application.#token === null) {
+      // Correct the check
+      console.error(
+        `Application: Error opening WebSocket: user not identified`
+      );
+      return null;
+    }
+    if (!url) {
+      console.error("WebSocket URL must be provided.");
+      return null;
+    }
+    const fullpath = `${url}?token=${Application.getAccessToken()}`; // Fix token retrieval
+    Application.mainSocket = new WebSocket(fullpath);
+
+    // Add event listeners for debugging
+    Application.mainSocket.onopen = () => {
+      console.log("WebSocket connection opened:", fullpath);
+    };
+    Application.mainSocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    Application.mainSocket.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+    console.log(Application.mainSocket);
+    return Application.mainSocket;
+  }
+
   static toggleSideBar() {
-    const chatBox = document.querySelector("#sidebar");
+    const sideBar = document.querySelector("#sidebar");
+    const avatarImg = document.querySelector("#side-img");
+    console.log(avatarImg);
+    const userId = Application.getUserInfos().userId;
+    console.log(userId, "userId");
+    document.querySelector("#side-username").textContent =
+      Application.getUserInfos().userName;
+    avatarImg.setAttribute("data-avatar", userId);
+    Avatar.refreshAvatars().then(() => {
+      sideBar.classList.toggle("d-none");
+    });
+  }
+
+  static toggleChat() {
+    const chatBox = document.querySelector("#chat-btn");
     chatBox.classList.toggle("d-none");
   }
 }
+
 export default Application;

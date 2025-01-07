@@ -102,6 +102,7 @@ class Router {
 
   route() {
     if (this.#currentView !== null) this.#currentView.onDestroy();
+    this.#currentView = null;
     let newView = this._matchRoute(location.pathname);
     if (newView === null) {
       newView = new DefaultView({});

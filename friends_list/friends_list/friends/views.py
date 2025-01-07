@@ -110,6 +110,7 @@ def remove_friend(request):
         )
 
 
+@csrf_exempt
 @permission_classes([IsAuthenticated])
 @csrf_exempt
 def friends_list(request):
