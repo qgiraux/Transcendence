@@ -1,6 +1,4 @@
 class Canvas {
-	dy;
-
 	/**
 	 * @param {Number} dx 
 	 * @param {Number} dy 
@@ -13,13 +11,24 @@ class Canvas {
 		this.dy = dy;
 		this.x0 = x0;
 		this.y0 = y0;
-		this.x1 = this.x0 + dx;
-		this.y1 = this.y0 + dy;
-		this.cursorX = this.x0;
-		this.cursorY = this.y0;
 		this.x = 0;
 		this.y = 0;
-		//this.stdout = process.stdout;
+		this.initalizeXY();
+	}
+
+	initalizeXY() {
+		this.x1 = this.x0 + this.dx;
+		this.y1 = this.y0 + this.dy;
+		this.cursorX = this.x0;
+		this.cursorY = this.y0;
+	}
+
+	initalizeXYfromCanvas(canvas, dx, dy){
+		this.dx = dx;
+		this.dy = dy;
+		this.x0 = canvas.cursorX;
+		this.y0 = canvas.cursorY;
+		this.initalizeXY();
 	}
 
 	/**

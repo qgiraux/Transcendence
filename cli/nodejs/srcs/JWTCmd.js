@@ -24,9 +24,11 @@ const TLK_PROMPT_LOGIN = "cli.prompt.login";
 const TL_API_LOGIN = "/api/users/login/";
 
 class JWTCmd extends Command {
-	constructor(onLoggedin=(jwt)=>{console.log(JSON.stringify(jwt))}) {
-		super(l.t(TLK_CMD_DESC), l.t(TLK_CMD_SHELL));
-
+	constructor(onLoggedin = (jwt)=>{console.log(JSON.stringify(jwt))},
+		beforeLogin = () => {return 0},
+		usage = ""
+	) {
+		super(l.t(TLK_CMD_DESC), usage);
 		const opts = l.source.cli.signup.cmd["opts[]"];
 		const callbacks = [
 			()=>{this.parser.displayHelp = true;}, 
@@ -42,6 +44,7 @@ class JWTCmd extends Command {
 		this.password = "";
 		this.jwt = {refresh: "", access: ""};
 		this.onLoggedin = onLoggedin;
+		this.beforeLogin = beforeLogin;
 	}
 
 	_getValue(prompt="", callbackUpdate, callbackNext, hidden){
@@ -91,7 +94,7 @@ class JWTCmd extends Command {
 		HttpsClient.post(
 			{hostname: hostname, port:port, path: TL_API_LOGIN}, //
 			{username: this.login, password: this.password},
-			(ret) => {this.password = ""; this._stepJWT(ret);}
+			(ret) => {this._stepJWT(ret);}
 		);
 	}
 
@@ -116,6 +119,8 @@ class JWTCmd extends Command {
 	}
 
 	_stepLogin(){
+		if (0 != this.beforeLogin())
+			return ;
 		if (!this.jwt || !this.jwt.refresh || !this.jwt.access)
 			this._stepEnterLogin();
 		else

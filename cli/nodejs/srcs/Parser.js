@@ -59,7 +59,7 @@ class Parser {
 		return match[1];
 	}
 
-	_toRegexPatterns(pattern_){
+	#toRegexPatterns(pattern_){
 		let match = null;
 
 		match = /^\[([^=<>]+)\]$/.exec(pattern_);
@@ -77,17 +77,20 @@ class Parser {
 		this.regex_patterns.push(/$^/);
 	}
 
-	_setRegexPatterns(){
-		this.regex_patterns = [];
-		for (const pattern_ of this.patterns)
-			this._toRegexPatterns(pattern_)
+	addOptions(patterns, callbacks){
+		assert.equal(patterns.length, callbacks.length);
+		this.patterns.push(...patterns);
+		this.callbacks = this.callbacks.concat(callbacks);
+		for (const pattern_ of patterns)
+			this.#toRegexPatterns(pattern_);
 	}
 
 	setOptions(patterns, callbacks){
 		assert.equal(patterns.length, callbacks.length);
 		this.patterns = patterns;
 		this.callbacks = callbacks;
-		this._setRegexPatterns();
+		for (const pattern_ of patterns)
+			this.#toRegexPatterns(pattern_);
 	}
 
 	_evalOption(word)
