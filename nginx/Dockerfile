@@ -20,4 +20,4 @@ RUN	mkdir -p /var/run/nginx &&\
 COPY ../frontend/* /var/www/html
 
 EXPOSE 5000
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g daemon off; error_log /dev/stdout info;"]
