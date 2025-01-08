@@ -46,7 +46,8 @@ class RegisterCmd extends Command {
 	_getValue(prompt="", callbackUpdate, callbackNext, hidden){
 		process.stdout.write(prompt);
 		const echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
-		const t = new TextEditor((text) => {
+		let t = new TextEditor();
+		t.setOnKeys((text) => {
 			callbackUpdate(text); 
 			process.stdout.write("\n"); 
 			callbackNext();

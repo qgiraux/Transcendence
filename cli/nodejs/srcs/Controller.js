@@ -14,8 +14,9 @@ class Controller {
 
 	constructor(isStopKey=Controller._isStopKey) {
 		this.isStopKey = isStopKey;
-		this.stop = Controller.stop();
+		this.stop = () => {}; //make private
 		this.initalized = false;
+		this.onStopKey = () => {};
 	}
 
 	static getCharCode(buff){
@@ -44,6 +45,7 @@ class Controller {
 
 	_keys_callback(buf, keys=[], callbacks=[], callback, elseCallback){
 		if (this.isStopKey(buf)) {
+			this.onStopKey(); //
 			process.stdin.removeListener('data', callback);
 			this.stop();
 		}
@@ -73,8 +75,8 @@ class Controller {
 		const event_callback = (buf) => {
 			callback(buf);
 			if (this.isStopKey(buf)) {
+				this.onStopKey(); //
 				stdin.removeListener('data', event_callback);
-				//stdin.removeAllListeners('data');
 				this.stop();
 			}
 		}

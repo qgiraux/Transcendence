@@ -47,12 +47,12 @@ class JWTCmd extends Command {
 	_getValue(prompt="", callbackUpdate, callbackNext, hidden){
 		process.stdout.write(prompt);
 		const echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
-		const t = new TextEditor((text) => {
+		let t = new TextEditor();
+		t.setOnKeys((text) => {
 			callbackUpdate(text); 
 			process.stdout.write("\n"); 
 			callbackNext();
 		}, echo);
-
 	}
 
 	static _printError(text)
@@ -116,12 +116,10 @@ class JWTCmd extends Command {
 	}
 
 	_stepLogin(){
-		const nextStep = () => {this._stepJWT();};
-
 		if (!this.jwt || !this.jwt.refresh || !this.jwt.access)
 			this._stepEnterLogin();
 		else
-			nextStep();
+			this._stepJWT();
 	}
 }
 

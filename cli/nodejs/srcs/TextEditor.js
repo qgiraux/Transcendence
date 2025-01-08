@@ -4,9 +4,12 @@ class TextEditor extends Controller {
 
 	static buffPop = `${Controller.keyArrowLeft} ${Controller.keyArrowLeft}`;
 
-	constructor(callback=(text_)=>{}, echo=(buffout_)=>{}, keyEnter=Controller.keyEnter){
+	constructor(){
 		super();
 		this.text = "";
+	}
+
+	setOnKeys(callback=(text_)=>{}, echo=(buffout_)=>{}, keyEnter=Controller.keyEnter){
 		this.onKeys(
 			[Controller.keyBackspace, keyEnter], 
 			[() => {this._onBackSpaceCallback();}, () => {this.stop(); callback(this.text);}],
