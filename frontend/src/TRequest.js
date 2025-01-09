@@ -12,102 +12,11 @@ class TRequest {
   static canBeConvertedToJSON(value) {
     try {
       JSON.stringify(value);
-      return true; // Si pas d'erreur, la conversion est possible
+      return true;
     } catch (error) {
-      return false; // Si une erreur se produit, ce n'est pas convertible
+      return false;
     }
   }
-
-  /**
-   * Make a request to the route by
-   * @param {string} method - The HTTP method (GET, POST, etc.)
-   * @param {string} route - The API route
-   * @param {object} body - The request body (optional)
-   * @returns {object} request result
-   */
-  static async request(method, route, body) {
-    let access = Application.getAccessToken();
-    if (access === null) throw new Error("No access token");
-
-    let fetchobj = {
-      method: method,
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${access}`,
-      },
-    };
-    if (
-      body !== undefined &&
-      body !== null &&
-      TRequest.canBeConvertedToJSON(body)
-    ) {
-      fetchobj.body = JSON.stringify(body);
-      fetchobj.headers["Content-Type"] = "application/json";
-    }
-
-    try {
-      const response = await fetch(route, fetchobj);
-      if (!response.ok) {
-        if (response.status == 401) {
-          // Token expired, try refreshing the token
-          console.log(response);
-          await TRequest.refreshToken();
-          return TRequest.request(method, route, body);
-        } else {
-          throw new Error(`Request failed with status: ${response.status}`);
-        }
-      }
-
-      const contentType = response.headers.get("Content-Type");
-
-      // If the response is JSON, parse and return it
-      if (contentType && contentType.includes("application/json")) {
-        const json = await response.json();
-        return json;
-      }
-
-      // If the response is a PNG image or other binary data, handle it as a Blob
-      if (contentType && contentType.includes("image/png")) {
-        const imageBlob = await response.blob();
-        return imageBlob; // Return the Blob object
-      }
-
-      // You can add other content types here if needed, for example, for PDF or other files
-    } catch (error) {
-      throw new Error(`TRequest: ${error}`);
-    }
-  }
-
-  static async formRequest(method, route, form) {
-    let access = Application.getAccessToken();
-    if (access === null) throw new Error("No access token");
-    let fetchobj = {
-      method: method,
-      headers: {
-        Authorization: `Bearer ${access}`,
-      },
-      body: form,
-    };
-
-    try {
-      const response = await fetch(route, fetchobj);
-      if (!response.ok) {
-        if (response.status == 401) {
-          // let's try to refresh the token
-          await TRequest.refreshToken();
-          return TRequest.request(method, route, form);
-        }
-      }
-      const contentType = response.headers.get("Content-Type");
-      if (contentType && contentType.includes("application/json")) {
-        const json = await response.json();
-        return json;
-      }
-    } catch (error) {
-      throw new Error(`TRequest: ${error.message}`);
-    }
-  }
-
   static async refreshToken() {
     const refresh = Application.getRefreshToken();
     if (refresh === null) throw new Error("No refresh token");
@@ -131,6 +40,82 @@ class TRequest {
     }
 
     Application.setAccessToken(json.access);
+  }
+
+  /**
+   * Make a request to the route by
+   * @param {string} method - The HTTP method (GET, POST, etc.)
+   * @param {string} route - The API route
+   * @param {object} body - The request body (optional) : json or multipart form data
+   * @param {bool} refreshed - This param is hidden and must not be used
+   * @returns {object} request result
+   */
+  static async request(method, route, body, refreshed = false) {
+    let access = Application.getAccessToken();
+    if (access === null) throw new Error("No access token");
+    let fetchobj = {
+      method: method,
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${access}`,
+      },
+    };
+    if (body !== undefined && body !== null) {
+      /// let's determine the body type : FormData or Json
+      if (body instanceof FormData) {
+        fetchobj.body = body;
+      } else if (TRequest.canBeConvertedToJSON(body)) {
+        fetchobj.body = JSON.stringify(body);
+        fetchobj.headers["Content-Type"] = "application/json";
+      } else {
+        throw new Error(
+          "The provided body is not a stringify object or a form data"
+        );
+      }
+    }
+
+    try {
+      const response = await fetch(route, fetchobj);
+      const contentType = response.headers.get("Content-Type");
+      if (!response.ok) {
+        if (
+          response.status === 401 &&
+          !refreshed &&
+          contentType &&
+          contentType.includes("application/json")
+        ) {
+          const json = await response.json();
+          if (json["detail"] === "Given token not valid for any token type") {
+          } else {
+            throw new Error(`Request failed with status: ${response.status}`);
+          }
+          // let's try to refresh the token
+          await TRequest.refreshToken();
+          return TRequest.request(method, route, body, true);
+        } else {
+          throw new Error(`Request failed with status: ${response.status}`);
+        }
+      }
+
+      if (contentType && contentType.includes("application/json")) {
+        const json = await response.json();
+        return json;
+      }
+      if (contentType && contentType.includes("text/plain")) {
+        const text = await response.text();
+        return text;
+      }
+      if (contentType && contentType.includes("text/html")) {
+        const text = await response.text();
+        const parser = new DOMParser();
+        return parser.parseFromString(text, "text/html");
+      } else {
+        const blob = await response.blob();
+        return blob;
+      }
+    } catch (error) {
+      throw new Error(`TRequest: ${error.message}`);
+    }
   }
 }
 
