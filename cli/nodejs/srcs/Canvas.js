@@ -50,6 +50,7 @@ class Canvas {
 	 * @param {Number} y 
 	 */
 	static moveCursor(x, y){
+		//process.stdout.cursorTo(x, y);
 		process.stdout.write(`\x1b[${y};${x}H`)
 	}
 

@@ -10,6 +10,7 @@ class CvsPong extends Canvas {
 	static ansiDigitNextRow = "\x1b[1B\x1b[3D";
 	static ansiDigitNext = "\x1b[3A\x1b[8D";
 	static ballCells = "▘▝▖▗";
+	static ballEraseCells = "    ";
 
 	/** */
 	constructor(dx, dy, x0, y0) {
@@ -61,7 +62,10 @@ class CvsPong extends Canvas {
 		process.stdout.write(`${c}${CvsPong.ansiBackDown}`);
 	}
 
-	#drawPaddle(height, atTop, paddle) {
+	#drawPaddle(height, paddleX, paddleY, paddle) {
+		const atTop = (0 == paddleY % 2);
+
+		this.#moveCursorPix(paddleX, paddleY);
 		if (!atTop) {
 			CvsPong.#drawPaddleChar(paddle[2]);
 			height -= 1;
@@ -75,25 +79,42 @@ class CvsPong extends Canvas {
 			CvsPong.#drawPaddleChar(paddle[0]);
 	}
 
+	#drawPaddleInCanvas(height, paddleX, paddleY, paddle) {
+		if (0 >= height 
+			|| -height == paddleY 
+			|| paddleY > CvsPong.pixPerChar * this.dy
+		) {
+			return ;
+		} else if (0 > paddleY) {
+			height += paddleY;
+			paddleY = 0;
+		}
+		const diffMax = paddleY + height - CvsPong.pixPerChar * this.dy;
+
+		if (0 < diffMax)
+			height -=  diffMax;
+		this.#drawPaddle(height, paddleX, paddleY, paddle);
+	}
+
 	#moveCursorPix(x, y) {
 		this.moveCursor(Math.floor(x / CvsPong.pixPerChar),
 			Math.floor(y / CvsPong.pixPerChar));
 	}
 
 	drawPaddleL(paddleCells=CvsPong.paddleLCells){
-		this.#moveCursorPix(this.paddleLX, this.paddleLY);
-		this.#drawPaddle(
+		this.#drawPaddleInCanvas(
 			this.paddleLH,
-			0 == this.paddleLY % 2,
+			this.paddleLX,
+			this.paddleLY,
 			paddleCells
 		);
 	}
 
 	drawPaddleR(paddleCells=CvsPong.paddleRCells){
-		this.#moveCursorPix(this.paddleRX, this.paddleRY);
-		this.#drawPaddle(
+		this.#drawPaddleInCanvas(
 			this.paddleRH,
-			0 == this.paddleRY % 2,
+			this.paddleRX,
+			this.paddleRY,
 			paddleCells
 		);
 	}
@@ -265,24 +286,28 @@ class CvsPong extends Canvas {
 		this.scoreRX = 3 * x;
 	}
 
-	drawBall(){
-		this.#moveCursorPix(this.ballX, this.ballY);
-		const index = (this.ballX % 2) + 2 * (this.ballY % 2);
-
-		if (0 > index || 3 < index)
+	drawBall(ballCells = CvsPong.ballCells){
+		if (0 > this.ballX || 0 > this.ballY
+			|| CvsPong.pixPerChar * this.dx <= this.ballX
+			|| CvsPong.pixPerChar * this.dy <= this.ballY
+		)
 			return ;
-		process.stdout.write(CvsPong.ballCells[index]);
-	}
-
-	eraseBall(){
 		this.#moveCursorPix(this.ballX, this.ballY);
-		process.stdout.write(" ");
+		if (CvsPong.ballEraseCells == ballCells) {
+			process.stdout.write(" ");
+		} else {
+			const index = (this.ballX % 2) + 2 * (this.ballY % 2);
+
+			if (0 > index || 3 < index)
+				return ;
+			process.stdout.write(ballCells[index]);
+		}
 	}
 
 	update(callback = () => {}){
 		this.drawPaddleL(CvsPong.paddleEraseCells);
 		this.drawPaddleR(CvsPong.paddleEraseCells);
-		this.eraseBall();
+		this.drawBall(CvsPong.ballEraseCells);
 		callback();
 		this.drawPaddleL();
 		this.drawPaddleR();

@@ -95,7 +95,7 @@ class RegisterCmd extends Command {
 		HttpsClient.allowSelfSigned(); //
 		HttpsClient.post(
 			{hostname: hostname, port:port, path: l.source.api.signup},
-			{username: this.login, password: this.password},
+			JSON.stringify({username: this.login, password: this.password}),
 			RegisterCmd._printResult
 		);
 	}

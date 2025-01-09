@@ -93,7 +93,7 @@ class JWTCmd extends Command {
 		HttpsClient.allowSelfSigned(); //
 		HttpsClient.post(
 			{hostname: hostname, port:port, path: TL_API_LOGIN}, //
-			{username: this.login, password: this.password},
+			JSON.stringify({username: this.login, password: this.password}),
 			(ret) => {this._stepJWT(ret);}
 		);
 	}

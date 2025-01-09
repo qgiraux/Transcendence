@@ -25,13 +25,20 @@ class TextEditor extends Controller {
 	}
 
 	_onKeyCallback(buff, echo){
-		const code = Controller.getCharCode(buff);
+		const char = String(buff);
 
-		if (Controller.isPrintable(code))
+		if (Controller.isPrintableChar(char))
 		{
 			this.text += String(buff);
 			echo(buff);
 		}
+		// const code = Controller.getCharCode(buff);
+
+		// if (Controller.isPrintable(code))
+		// {
+		// 	this.text += String(buff);
+		// 	echo(buff);
+		// }
 	}
 
 	static echo(buff){

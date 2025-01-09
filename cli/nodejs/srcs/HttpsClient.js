@@ -5,6 +5,16 @@ class HttpsClient{
 		process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 	}
 
+	static setUrlInOptions(url, options) {
+		const data = url.split(":");
+
+		if (data[0])
+			options.host = data[0];
+		if (data[1])
+			options.port = Number(data[1]);
+		return options;
+	}
+
 	static get(url, callback, jwt){
 		const options = {};
 
@@ -40,7 +50,7 @@ class HttpsClient{
 
 					callback({"statusCode": statusCode, "message": parsedData});
 				} catch (e) {
-					callback({"statusCode": 500, "message": e.message});
+					callback({"statusCode": statusCode, "message": rawData});
 				}
 			});
 		}).on('error', (e) => {
@@ -51,20 +61,22 @@ class HttpsClient{
 	/**
 	 * 
 	 * @param {https.RequestOptions} options 
-	 * @param {*} jsonData 
+	 * @param {String} jsonData 
 	 * @param {Function} callback 
 	 * @param {Number} successCode 
 	 * @returns 
 	 */
-	static post(options={hostname:"localhost", port:443, path:"/"}, jsonData, callback) {
-		const postData = JSON.stringify(jsonData);
+	static post(options={hostname:"localhost", port:443, path:"/"}, jsonData, callback, jwt) {
+		//const postData = JSON.stringify(jsonData);
 
 		options.method = "POST";
 		options.headers = {
 			'Accept': "application/json",
 			'Content-Type': 'application/json',
-			'Content-Length': postData.length
+			'Content-Length': jsonData.length
 		}
+		if (jwt && jwt.access)
+			options.headers.Authorization = `Bearer ${jwt.access}`;
 		const req = https.request(options, (res) => {
 			const { statusCode } = res;
 
@@ -77,13 +89,13 @@ class HttpsClient{
 
 					callback({"statusCode": statusCode, "message": parsedData});
 				} catch (e) {
-					callback({"statusCode": 500, "message": e.message});
+					callback({"statusCode": statusCode, "message": rawData});
 				}
 			});
 		}).on('error', (e) => {
 			callback({"statusCode": 500, "message": e.message});
 		});
-		req.end(postData);
+		req.end(jsonData);
 	}
 }
 

@@ -15,15 +15,18 @@ class CmdPong extends JWTCmd {
 		super((jwt)=>{this.onLogin(jwt)}, () => {return this.checkCanvas()}, "node pong-cli pong");
 		this.width = 53; //Min 29
 		this.height = 33; // Min 8
+		this.dar = "1:1"; // * NOT IMPLEMENTED
 		this.boxCanvas = undefined;
 		this.pongCanvas = undefined;
 		this.description = "Play Pong."; //
 		this.parser.addOptions([
 			"[--width=<width>]", 
-			"[--height=<height>]"
+			"[--height=<height>]",
+			"[--display=<width:height>]"
 		],[
 			(match) => {this.width = Number(Parser.getOptionValue(match))}, 
-			(match) => {this.height = Number(Parser.getOptionValue(match))}
+			(match) => {this.height = Number(Parser.getOptionValue(match))},
+			(match) => {this.dar = Parser.getOptionValue(match)}
 		]);
 		this.controller = new Controller();
 	}
@@ -42,13 +45,25 @@ class CmdPong extends JWTCmd {
 	#initalizeController() {
 		this.controller.onStopKey = () => {CvsPong.showCursor()}; //Move at End
 		this.controller.onKeys([
-			Controller.keyEnter, 
 			Controller.keyArrowUp, 
-			Controller.keyArrowDown
+			Controller.keyArrowDown,
+			Controller.keyArrowLeft,
+			Controller.keyArrowRight,
+			"W", "S", "A", "D",
+			"8", "2", "4", "6",
 		], [
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreL += 1})}, //
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleLY -= 1})}, //
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleLY += 1})} //
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleRY -= 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleRY += 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreR -= 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreR += 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleLY -= 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleLY += 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreL -= 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreL += 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballY -= 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballY += 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballX -= 1})},
+			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballX += 1})},
 		]);
 	}
 

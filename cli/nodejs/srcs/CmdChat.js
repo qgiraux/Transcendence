@@ -96,6 +96,28 @@ class CmdChat extends JWTCmd {
 		CmdChat.writeSystem(CmdChat.#getHelp());
 	}
 
+	#api(words) {
+		if (!words || "api" != words[0]) {
+			return ;
+		} else if (!words[1] || !words[2]) {
+			CmdChat.writeSystem(`missing api method or path'\n`);
+			return ;
+		}
+		CmdChat.echoCommand(`!${words.join(" ")}`);
+		if ("get" == words[1]) {
+			HttpsClient.get(`https://${this.host}/${words[2]}`, (ret)=>{CmdChat.writeSystem(`${JSON.stringify(ret)}\n`)}, this.jwt);
+		} else if ("post" == words[1]) {
+			HttpsClient.post(
+				HttpsClient.setUrlInOptions(this.host, {path: words[2]}),
+				words.slice(3).join(" "),
+				(ret)=>{CmdChat.writeResponse(ret)},
+				this.jwt
+			);
+		} else {
+			CmdChat.writeSystem(`unknown command 'api ${words[1]}'\n`);
+		}
+	}
+
 	#direct(words) {
 		const user = words[1];
 
@@ -122,7 +144,7 @@ class CmdChat extends JWTCmd {
 			this.ws.send(ChatMessage.toJsonString("chat", text, "global_chat"));
 			return ;
 		}
-		let cmdId = 1 + ["help", "direct", "block", "unblock", "invite", "profile"
+		let cmdId = 1 + ["help", "direct", "block", "unblock", "invite", "profile", "api"
 			].indexOf(command);
 		const cmdFun = [
 			(w)=>{this.#unknown(w)},
@@ -132,6 +154,7 @@ class CmdChat extends JWTCmd {
 			(w)=>{this.#help(w)}, //#TODO
 			(w)=>{this.#help(w)}, //#TODO
 			(w)=>{this.#help(w)}, //#TODO
+			(w)=>{this.#api(w)}, //#TODO
 		];
 
 		cmdFun[cmdId](words);
@@ -162,14 +185,47 @@ class CmdChat extends JWTCmd {
 			+ "\x1b[1m" + "!unblock <userId>" + "\x1b[0m " + "Unblocks user\n"
 			+ "\x1b[1m" + "!invite <userId>" + "\x1b[0m " + "Invite user to a game\n"
 			+ "\x1b[1m" + "!profile <userId>" + "\x1b[0m " + "View user profile\n"
+			+ "\x1b[1m" + "!api get <path>" + "\x1b[0m " + "Send Get Http Request to Pong Endpoints\n"
+			+ "\x1b[1m" + "!api post <path> <json>" + "\x1b[0m " + "Send Post Http Request to Pong Endpoints\n"
 			+ "\x1b[1m" + "!!<message>" + "\x1b[0m " + "Sends !<message>\n"
 		;
+	}
+
+	static echoCommand(command) {
+		process.stdout.write(`command: '${command}'\n`);
 	}
 
 	static writeSystem(message) {
 		process.stdout.write(`info: ${message}`);
 	}
 
+	// static #jsonReplacer(key, value) {
+	// 	if (typeof value === "string") {
+	// 		return `\e[1m${value}\e[1m`;
+	// 	} else if (typeof value === "number") {
+	// 		return `\e[2m${value}\e[2m`;
+	// 	}
+	// 	return value;
+	// }
+
+	static writeResponse(jsonResponse) {
+		if (typeof jsonResponse != "object") {
+			process.stdout.write(String(jsonResponse));
+			return ;
+		}
+		let pretty = new String("Status code: ");
+
+		if (300 > jsonResponse.statusCode && 200 <= jsonResponse.statusCode)
+			pretty += `\x1b[32m`;
+		else
+			pretty += `\x1b[31m`;
+		pretty += `${jsonResponse.statusCode}\x1b[0m\n`
+		pretty += (typeof jsonResponse.message === "string") ?
+			jsonResponse.message : JSON.stringify(jsonResponse.message, null, " ");
+		if ("\n" != pretty.slice(-1))
+			pretty += "\n";
+		process.stdout.write(pretty);
+	}
 	static formatChat(nickname, message, nickQualifier, messageQualifier) {
 		if ("\n" != message.slice(-1))
 			message += "\n";
