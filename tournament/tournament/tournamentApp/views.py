@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .tournament import Tournament_operation
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 from jwt.exceptions import InvalidTokenError
 import re
 
@@ -22,12 +23,12 @@ logger = logging.getLogger(__name__)
 def CreateTournament(request):
     if request.method != 'POST':
             return JsonResponse({"detail": "Method not allowed"}, status=405)
-        
+
     # Authorization and payload decoding
     auth_header = request.headers.get('Authorization')
     if not auth_header:
         return JsonResponse({'detail': 'Authorization header missing'}, status=401)
-    
+
     try:
         auth_token = auth_header.split()[1]
         decoded = jwt.decode(auth_token, settings.SECRET_KEY, algorithms=["HS256"])
@@ -35,7 +36,20 @@ def CreateTournament(request):
         if not user_id:
             raise ValueError("User ID missing in token")
     except Exception as e:
-        return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
     data = json.loads(request.body)
     if not data.get('name') or not data.get('size'):
@@ -61,12 +75,12 @@ def Invite(request):
     try:
         if request.method != 'POST':
             return JsonResponse({"detail": "Method not allowed"}, status=405)
-        
+
         # Authorization and payload decoding
         auth_header = request.headers.get('Authorization')
         if not auth_header:
             return JsonResponse({'detail': 'Authorization header missing'}, status=401)
-        
+
         try:
             auth_token = auth_header.split()[1]
             decoded = jwt.decode(auth_token, settings.SECRET_KEY, algorithms=["HS256"])
@@ -74,19 +88,32 @@ def Invite(request):
             if not user_id:
                 raise ValueError("User ID missing in token")
         except Exception as e:
-            return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
-        
+            return JsonResponse(
+                {
+                    "detail": "Given token not valid for any token type",
+                    "code": "token_not_valid",
+                    "messages": [
+                        {
+                        "token_class": "AccessToken",
+                        "token_type": "access",
+                        "message": "Token is invalid or expired"
+                        }
+                    ]
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
         # Parse request data
         data = json.loads(request.body)
         t_name = data.get('tournament_name')
         group = data.get('friend_id')
-        
+
         if not t_name or not Tournament.objects.filter(tournament_name=t_name).exists():
             return JsonResponse({"detail": "Tournament not found", 'code': 'not_found'}, status=404)
-        
+
         if not group:
             return JsonResponse({'detail': 'Friend ID is required', 'code': 'invalid_data'}, status=400)
-        
+
         # Create the notification message
         message = t_name
         notification = {
@@ -95,14 +122,14 @@ def Invite(request):
             'message': message,
             'sender': f'user_{user_id}',
         }
-        
+
         # Publish the notification
         redis_client.publish('global_chat', json.dumps(notification))
-        
+
     except Exception as e:
         logger.error(f"Error processing invite: {e}")
         return JsonResponse({"detail": "An unexpected error occurred."}, status=500)
-    
+
     return JsonResponse({"detail": "Message sent"}, status=200)
 
 
@@ -118,7 +145,20 @@ def JoinTournament(request):
         auth_header = tmp.split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
@@ -128,7 +168,7 @@ def JoinTournament(request):
     tournament_name = data.get('name')
     if not tournament_name or not re.match(r'^[a-zA-Z0-9]{5,16}$', tournament_name):
         return JsonResponse({'detail': 'invalid tournament name', 'code': 'error_occurred'}, status=400)
-    
+
 
     try:
         tournament = Tournament.objects.get(tournament_name=tournament_name)
@@ -139,25 +179,25 @@ def JoinTournament(request):
         return JsonResponse({'detail': 'User already subscribed', 'code': 'conflict'}, status=409)
     if len(tournament.player_list) == tournament.tournament_size:
         return JsonResponse({'detail': 'Tournament full', 'code': 'conflict'}, status=409)
-        
+
     tournament.player_list.append(user_id)  # Add player ID 1
     tournament.save()
     # if len(tournament.player_list) >= tournament.tournament_size:
         # Start the tournament
         # return Tournament_operation(tournament)
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
-    
+
 @csrf_exempt
 @permission_classes([IsAuthenticated])
 def TournamentList(request):
     if request.method != 'GET':
             return JsonResponse({"detail": "Method not allowed"}, status=405)
-        
+
     # Authorization and payload decoding
     auth_header = request.headers.get('Authorization')
     if not auth_header:
         return JsonResponse({'detail': 'Authorization header missing'}, status=401)
-    
+
     try:
         auth_token = auth_header.split()[1]
         decoded = jwt.decode(auth_token, settings.SECRET_KEY, algorithms=["HS256"])
@@ -165,7 +205,20 @@ def TournamentList(request):
         if not user_id:
             raise ValueError("User ID missing in token")
     except Exception as e:
-        return JsonResponse({'detail': 'Invalid or expired token'}, status=401)
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
     # Extract user ID from the decoded token
     user_id = decoded.get('user_id')
     if not user_id:
@@ -185,7 +238,20 @@ def TournamentDetails(request, name):
         auth_header = request.headers.get('Authorization').split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
+        return JsonResponse(
+    {
+        "detail": "Given token not valid for any token type",
+        "code": "token_not_valid",
+        "messages": [
+            {
+            "token_class": "AccessToken",
+            "token_type": "access",
+            "message": "Token is invalid or expired"
+            }
+        ]
+    },
+    status=status.HTTP_401_UNAUTHORIZED
+)
     # Extract user ID from the decoded token
     user_id = decoded.get('user_id')
     if not user_id:
@@ -208,7 +274,20 @@ def DeleteTournament(request):
         auth_header = request.headers.get('Authorization').split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
     # Extract user ID from the decoded token
     data = json.loads(request.body)
     if not data.get('name'):
