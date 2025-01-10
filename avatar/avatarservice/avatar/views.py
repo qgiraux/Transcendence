@@ -15,7 +15,7 @@ import logging
 import uuid
 import jwt
 import os, io
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 
 MAX_SIZE = 5 # the maximum accepted image size in MB
@@ -209,6 +209,11 @@ class AvatarUploadView(APIView):
                 {"error":{"error":f"{e}"}},
                 status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
             )
+        except UnidentifiedImageError:
+            return Response(
+                {"error":{"error":f"Unsupported format. Allowed: JPEG', 'PNG'"}},
+                status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
+            )
         except ImageTooLargeError as e:
             logger.error(f"Image too large error: {e}")
             return Response(
@@ -222,10 +227,10 @@ class AvatarUploadView(APIView):
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
         except Exception as e:
-            logger.exception("Unexpected error during image validation.")
+            logger.exception(f"Unexpected error during image validation. {e}")
             return Response(
                 {"error":f"{e}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
             )
 
         try:
