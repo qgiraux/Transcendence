@@ -165,7 +165,7 @@ class ProfileView extends AbstractView {
 
       try {
         console.log("starting the request");
-        const r = await TRequest.formRequest(
+        const r = await TRequest.request(
           "POST",
           "/api/avatar/upload/",
           formData
