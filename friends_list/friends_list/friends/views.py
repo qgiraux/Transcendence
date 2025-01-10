@@ -8,6 +8,8 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework import status
 
 
 def get_csrf_token(request):
@@ -49,9 +51,37 @@ def add_friend(request):
         return JsonResponse({'message': 'Friend added successfully'}, status=200)
 
     except ExpiredSignatureError:
-        return JsonResponse({'detail': 'Token has expired', 'code': 'token_expired'}, status=401)
+        return JsonResponse(
+                    {
+                        "detail": "Given token not valid for any token type",
+                        "code": "token_not_valid",
+                        "messages": [
+                            {
+                            "token_class": "AccessToken",
+                            "token_type": "access",
+                            "message": "Token is invalid or expired"
+                            }
+                        ]
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED
+
+                )
     except InvalidTokenError:
-        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+
+        )
     except Exception as e:
         # logger.error(f"Unexpected error: {e}")
         return JsonResponse({'detail': f"An error occurred {e} ", 'code': 'error_occurred'}, status=500)
@@ -90,16 +120,36 @@ def remove_friend(request):
             return JsonResponse({'error': 'Friend not found'}, status=404)
 
     except jwt.ExpiredSignatureError:
-        return HttpResponse(
-            json.dumps({'detail': 'Token has expired', 'code': 'token_expired'}),
-            status=401,
-            content_type='application/json'
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+
         )
     except jwt.InvalidTokenError:
-        return HttpResponse(
-            json.dumps({'detail': 'Invalid token', 'code': 'invalid_token'}),
-            status=401,
-            content_type='application/json'
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+
         )
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
@@ -131,17 +181,37 @@ def friends_list(request):
         friend_ids = list(Friends.objects.filter(user_id=user_id).values_list('friend_id', flat=True))
         return HttpResponse(json.dumps({"friends": friend_ids}), status=200, content_type='application/json')
     except jwt.ExpiredSignatureError:
-        return HttpResponse(
-            json.dumps({'detail': 'Token has expired', 'code': 'token_expired'}),
-            status=401,
-            content_type='application/json'
+        return JsonResponse(
+            {
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid",
+                "messages": [
+                    {
+                    "token_class": "AccessToken",
+                    "token_type": "access",
+                    "message": "Token is invalid or expired"
+                    }
+                ]
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+
         )
     except jwt.InvalidTokenError:
-        return HttpResponse(
-            json.dumps({'detail': 'Invalid token', 'code': 'invalid_token'}),
-            status=401,
-            content_type='application/json'
-        )
+        return JsonResponse(
+                    {
+                        "detail": "Given token not valid for any token type",
+                        "code": "token_not_valid",
+                        "messages": [
+                            {
+                            "token_class": "AccessToken",
+                            "token_type": "access",
+                            "message": "Token is invalid or expired"
+                            }
+                        ]
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED
+
+                )
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return HttpResponse(

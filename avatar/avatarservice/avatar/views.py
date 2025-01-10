@@ -6,7 +6,6 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.response import Response
 from .serializers import  AvatarListSerializer
 from rest_framework import status
 from .models import Avatar
@@ -20,6 +19,7 @@ from PIL import Image, UnidentifiedImageError
 
 MAX_SIZE = 5 # the maximum accepted image size in MB
 SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q' # a remplacer dans .env
+logger = logging.getLogger(__name__)
 
 
 class ImageValidationError(ValueError):
@@ -169,7 +169,6 @@ def very_unique_uuid(new_uuid, avatar_list, max_recursion):
             max_recursion -= 1
             return very_unique_uuid(uuid.uuid4())
     return new_uuid
-logger = logging.getLogger(__name__)
 
 class AvatarUploadView(APIView):
     def post(self, request):
@@ -200,9 +199,20 @@ class AvatarUploadView(APIView):
         except ValidationError as e:
             logger.error(f"Validation error: {e}")
             return Response(
-                {"error": str(e)},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+                    {
+                        "detail": "Given token not valid for any token type",
+                        "code": "token_not_valid",
+                        "messages": [
+                            {
+                            "token_class": "AccessToken",
+                            "token_type": "access",
+                            "message": "Token is invalid or expired"
+                            }
+                        ]
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED
+
+                )
         except UnsupportedFormatError as e:
             logger.error(f"Unsupported format error: {e}")
             return Response(
@@ -314,10 +324,22 @@ class AvatarListView(APIView):
             serializer = AvatarListSerializer(users, many=True)
             return JsonResponse(serializer.data, safe=False)
         except ValidationError as e:
+            logger.error(f"Validation error: {e}")
             return Response(
-                {"error": str(e)},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+                    {
+                        "detail": "Given token not valid for any token type",
+                        "code": "token_not_valid",
+                        "messages": [
+                            {
+                            "token_class": "AccessToken",
+                            "token_type": "access",
+                            "message": "Token is invalid or expired"
+                            }
+                        ]
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED
+
+                )
         except Exception as e:
             return Response(
                 {"error": "Unexpected error occurred"},
@@ -348,11 +370,22 @@ class AvatarDeleteView(APIView):
             logger.info(f"Avatar successfully deleted for user_id: {user_id}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
-            logger.error(f"Token validation error: {e}")
+            logger.error(f"Validation error: {e}")
             return Response(
-                {"error":f"error {str(e)}"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+                    {
+                        "detail": "Given token not valid for any token type",
+                        "code": "token_not_valid",
+                        "messages": [
+                            {
+                            "token_class": "AccessToken",
+                            "token_type": "access",
+                            "message": "Token is invalid or expired"
+                            }
+                        ]
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED
+
+                )
         except Avatar.DoesNotExist:
             logger.warning(f"No avatar found for user_id: {user_id}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
