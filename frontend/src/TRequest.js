@@ -17,30 +17,6 @@ class TRequest {
       return false;
     }
   }
-  static async refreshToken() {
-    const refresh = Application.getRefreshToken();
-    if (refresh === null) throw new Error("No refresh token");
-
-    const response = await fetch("/api/users/refresh/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ refresh: Application.getRefreshToken() }),
-    });
-
-    if (!response.ok) {
-      throw new Error("The server refused to refresh the token");
-    }
-
-    const json = await response.json();
-    if (!json.access) {
-      throw new Error(`Invalid refresh token: ${JSON.stringify(json)}`);
-    }
-
-    Application.setAccessToken(json.access);
-  }
 
   /**
    * Make a request to the route by
@@ -51,6 +27,10 @@ class TRequest {
    * @returns {object} request result
    */
   static async request(method, route, body, refreshed = false) {
+    if (Application.checkAccessTokenValidity() === false) {
+      await Application.refreshToken();
+    }
+
     let access = Application.getAccessToken();
     if (access === null) throw new Error("No access token");
     let fetchobj = {
@@ -90,7 +70,7 @@ class TRequest {
             throw new Error(`Request failed with status: ${response.status}`);
           }
           // let's try to refresh the token
-          await TRequest.refreshToken();
+          await Application.refreshToken();
           return TRequest.request(method, route, body, true);
         } else {
           throw new Error(`Request failed with status: ${response.status}`);
