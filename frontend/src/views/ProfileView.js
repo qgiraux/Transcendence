@@ -35,7 +35,7 @@ class ProfileView extends AbstractView {
         Alert.errorMessage("Something went wrong", error.message);
       });
   }
-  
+
   _userStats() {
     TRequest.request("GET", `/api/users/userstats/${this.id}`)
       .then((result) => {
@@ -43,61 +43,62 @@ class ProfileView extends AbstractView {
         const statsContainer = document.createElement("div");
         statsContainer.className = "user-stats";
         let stats;
-  
+
         // Create the table with headers and rows
         const table = document.createElement("table");
         table.className = "table table-dark table-striped";
-  
+
         // Create the table header row with fixed order 'date', 'win', 'score', 'opponent'
         const headerRow = document.createElement("tr");
-  
+
         // Create the headers in the correct order
-        const headers = ['date', 'win', 'score', 'opponent'];
+        const headers = ["date", "win", "score", "opponent"];
         headers.forEach((header) => {
           const th = document.createElement("th");
           th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalize first letter
           headerRow.appendChild(th);
         });
-        
-        table.appendChild(headerRow);  // Append the header row
-  
+
+        table.appendChild(headerRow); // Append the header row
+
         // Sort the result based on the 'date' field in descending order (most recent first)
         const sortedStats = Object.values(result).sort((a, b) => {
           const dateA = new Date(a.date); // Convert 'date' string to Date object
           const dateB = new Date(b.date); // Convert 'date' string to Date object
           return dateB - dateA; // Sort in descending order (most recent first)
         });
-  
+
         // Create the table body, where each row corresponds to a stat (e.g., "001", "002")
         sortedStats.forEach((stat) => {
           const row = document.createElement("tr");
-  
+
           // For each stat, create a table cell (td) in the correct order: date, win, score, opponent
-          const cells = ['date', 'win', 'score', 'opponent'];
+          const cells = ["date", "win", "score", "opponent"];
           cells.forEach((key) => {
             const td = document.createElement("td");
             td.textContent = stat[key]; // Use the value of the field
             row.appendChild(td);
           });
-  
-          table.appendChild(row);  // Append each row to the table
+
+          table.appendChild(row); // Append each row to the table
         });
-  
+
         // Append the table to the container
         statsContainer.appendChild(table);
-  
+
         // Append the stats container to the main container (where it should appear in the DOM)
         const container = document.querySelector("#stat-container");
         if (container) {
           container.appendChild(statsContainer);
         }
-  
       })
       .catch((error) => {
-        Alert.errorMessage("User Stats", `Something went wrong: ${error.message}`);
+        Alert.errorMessage(
+          "User Stats",
+          `Something went wrong: ${error.message}`
+        );
       });
   }
-  
 
   _attachEventHandlers() {
     const manageBtn = document.querySelector("#manage-btn");
@@ -163,10 +164,25 @@ class ProfileView extends AbstractView {
       formData.append("image", fileInput.files[0]);
 
       try {
-        await TRequest.formRequest("POST", "/api/avatar/upload/", formData);
+        console.log("starting the request");
+        const r = await TRequest.formRequest(
+          "POST",
+          "/api/avatar/upload/",
+          formData
+        );
+        if (typeof r != "object") throw new Error("upload error");
+        if (r.hasOwnProperty("error")) {
+          console.log(r.error);
+          throw new Error("upload error");
+        }
         await Avatar.refreshAvatars();
       } catch (error) {
-        Alert.errorMessage("Avatar", error.message);
+        console.log("an error has occured");
+        Alert.errorMessage(
+          "Avatar",
+          `The picture could't be uploaded.
+			Please check that it is a valid jpeg or png file, less or equal than 5MB`
+        );
       }
     }
 
@@ -228,17 +244,16 @@ class ProfileView extends AbstractView {
     try {
       const form = { nickname: newAlias };
       await TRequest.request("POST", "/api/users/newnickname/", form);
-  
-  
-        // Update the displayed nickname dynamically
-        const nicknameElement = document.querySelector(".display-5");
-        if (nicknameElement) {
-          nicknameElement.textContent = newAlias;
-        }
+
+      // Update the displayed nickname dynamically
+      const nicknameElement = document.querySelector(".display-5");
+      if (nicknameElement) {
+        nicknameElement.textContent = newAlias;
+      }
     } catch (error) {
       Alert.errorMessage("Alias", `Failed to update alias: ${error.message}`);
     }
-  
+
     this._forceModalClose("#aliasModal");
   }
 
@@ -338,8 +353,12 @@ class ProfileView extends AbstractView {
       }" alt="user" class="rounded-circle">
             </div>
             <div class="col-md-6">
-              <h1 class="text-white display-1">${this.currentUserInfos.username}</h1>
-              <p class="text-white display-5" id=nickname>${this.currentUserInfos.nickname}</p>
+              <h1 class="text-white display-1">${
+                this.currentUserInfos.username
+              }</h1>
+              <p class="text-white display-5" id=nickname>${
+                this.currentUserInfos.nickname
+              }</p>
               ${
                 this.currentUserInfos.id === Application.getUserInfos().userId
                   ? profileEdit
@@ -358,8 +377,8 @@ class ProfileView extends AbstractView {
             </div>
             <div id="stat-container">
             </div>
-            
-            
+
+
           </div>
         </div>
       `;
