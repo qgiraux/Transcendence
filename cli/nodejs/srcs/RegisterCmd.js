@@ -41,18 +41,22 @@ class RegisterCmd extends Command {
 		this.login = "";
 		this.password = "";
 		this.passwordConfirm = "";
+		this.editor = undefined;
 	}
 
-	_getValue(prompt="", callbackUpdate, callbackNext, hidden){
+	_getValue(prompt = "", callbackUpdate, callbackNext, hidden){
 		process.stdout.write(prompt);
-		const echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
-		let t = new TextEditor();
-		t.setOnKeys((text) => {
-			callbackUpdate(text); 
-			process.stdout.write("\n"); 
+		if (!this.editor) {
+			this.editor = new TextEditor();
+			this.editor.setOnKeys();
+		};
+		this.editor.echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
+		this.editor.onEnter = () => {
+			callbackUpdate(this.editor.text);
+			this.editor.text = "";
+			process.stdout.write("\n");
 			callbackNext();
-		}, echo);
-
+		};
 	}
 
 	static _printSuccess(text)
@@ -75,6 +79,10 @@ class RegisterCmd extends Command {
 	}
 
 	_stepPost(){
+		if (this.editor) {
+			this.editor.stop();
+			this.editor = undefined;
+		}
 		if (this.password != this.passwordConfirm)
 		{
 			RegisterCmd._printError(l.t(TLK_ERR_PWD_MATCH));

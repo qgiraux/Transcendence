@@ -134,6 +134,12 @@ class CmdChat extends JWTCmd {
 			this.ws.send(ChatMessage.toJsonString("chat", message, `user_${user}`));
 	}
 
+	#exit() {
+		this.editor.stop();
+		this.ws.close();
+		CmdChat.writeSystem(`Left chat\n`);
+	}
+
 	#parseCommand(text) {
 		const words = text.split(" ");
 		const command = words[0];
@@ -144,7 +150,7 @@ class CmdChat extends JWTCmd {
 			this.ws.send(ChatMessage.toJsonString("chat", text, "global_chat"));
 			return ;
 		}
-		let cmdId = 1 + ["help", "direct", "block", "unblock", "invite", "profile", "api"
+		let cmdId = 1 + ["help", "direct", "block", "unblock", "invite", "profile", "api", "exit"
 			].indexOf(command);
 		const cmdFun = [
 			(w)=>{this.#unknown(w)},
@@ -154,7 +160,8 @@ class CmdChat extends JWTCmd {
 			(w)=>{this.#help(w)}, //#TODO
 			(w)=>{this.#help(w)}, //#TODO
 			(w)=>{this.#help(w)}, //#TODO
-			(w)=>{this.#api(w)}, //#TODO
+			(w)=>{this.#api(w)},
+			(w)=>{this.#exit()},
 		];
 
 		cmdFun[cmdId](words);
@@ -175,7 +182,8 @@ class CmdChat extends JWTCmd {
 	}
 
 	static #getHelp() {
-		return "You may only type printable ASCII characters.\n"
+		return "\n"
+			+ "_____________________________________________________________________________________________\n"
 			+ "Controls:\n"
 			+ "[↵] Post [⌫] Remove typed character [^C/^D] Exit\n"
 			+ "Commands:\n"
@@ -188,6 +196,8 @@ class CmdChat extends JWTCmd {
 			+ "\x1b[1m" + "!api get <path>" + "\x1b[0m " + "Send Get Http Request to Pong Endpoints\n"
 			+ "\x1b[1m" + "!api post <path> <json>" + "\x1b[0m " + "Send Post Http Request to Pong Endpoints\n"
 			+ "\x1b[1m" + "!!<message>" + "\x1b[0m " + "Sends !<message>\n"
+			+ "\x1b[1m" + "!exit" + "\x1b[0m " + "Leave Chat\n"
+			+ "_____________________________________________________________________________________________\n"
 		;
 	}
 
@@ -226,6 +236,7 @@ class CmdChat extends JWTCmd {
 			pretty += "\n";
 		process.stdout.write(pretty);
 	}
+
 	static formatChat(nickname, message, nickQualifier, messageQualifier) {
 		if ("\n" != message.slice(-1))
 			message += "\n";
@@ -235,14 +246,17 @@ class CmdChat extends JWTCmd {
 		if (nickQualifier)
 			out += `[${nickQualifier}]`;
 		out += `: `;
-		if (messageQualifier)
-			out += `(\x1b[3m${messageQualifier}\x1b[0m): `;
+		if (0 !== messageQualifier.length)
+			out += `(\x1b[3m${messageQualifier.join(" ")}\x1b[0m): `;
 		out += message;
 		process.stdout.write(out);
 	}
 
 	writeChat(data, userInput="") {
-		const messageQualifier = ("chat" == data.type) ? undefined : data.type;
+		let messageQualifier = ("chat" === data.type) ? [] : [data.type];
+
+		if ("global_chat" != data.group)
+			messageQualifier.push("direct");
 		const userId = data.sender;
 
 		if (this.me != -1 && this.me == userId) {
@@ -257,7 +271,7 @@ class CmdChat extends JWTCmd {
 						const nickname_ = ret.message.nickname;
 
 						this.nicknames[String(userId)] = nickname_;
-						CmdChat.formatChat(nickname_, data.message, userId);
+						CmdChat.formatChat(nickname_, data.message, userId, messageQualifier);
 				} else
 					CmdChat.formatChat(userId, data.message, "unknown", messageQualifier);
 				process.stdout.write(userInput);
@@ -285,17 +299,13 @@ class CmdChat extends JWTCmd {
 		if (this.editor)
 			return ;
 		this.editor = new TextEditor();
-		this.editor.onStopKey = () => {
-			this.ws.close();
-			CmdChat.writeSystem(`Left chat\n`);
+		this.editor.onStopKey = () => {this.#exit()};
+		this.editor.setOnKeys();
+		this.editor.onEnter = () => {
+			process.stdout.write(`\x1b[2K\r`);
+			this.#parseInput(this.editor.text);
+			this.editor.text = "";
 		};
-		this.editor.setOnKeys((text) => {
-			process.stdout.write(`\x1b[2K\r`); //
-			//this.ws.send(ChatMessage.toJsonString("chat", text, "global_chat")); //
-			this.#parseInput(text);
-			this.editor = undefined;
-			this.openEditor();
-		}, TextEditor.echo);
 	}
 
 	onOpen() {
@@ -308,7 +318,6 @@ class CmdChat extends JWTCmd {
 				this.nicknames[String(this.me)] = nickname_;
 				CmdChat.writeSystem(`Your nickname is ${nickname_}\n`);
 				CmdChat.writeSystem(CmdChat.#getHelp());
-				this.ws.send(ChatMessage.toJsonString("chat", "hello there", "global_chat")); //
 				this.openEditor();
 			}
 			else

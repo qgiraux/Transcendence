@@ -5,6 +5,7 @@ class Controller {
 
 	static keyCtrlD = '\u0003';
 	static keyCtrlC = '\u0004';
+	static keyKill = '\u001f';
 	static keyArrowUp = '\x1B[A';
 	static keyArrowDown = '\x1B[B';
 	static keyArrowRight = '\x1B[C';
@@ -20,12 +21,11 @@ class Controller {
 	}
 
 	static isPrintableChar(s){
-		if (1 == s.length) {
-			return (!!/[^\p{Zl}\p{Zp}\p{C}]/u.exec(s));
-		} else if (2 == s.length){
-			return (!!/^\p{Cs}{2}$/u.exec(s)); //utf-16
-		} else
-			return false;
+		if (1 == s.length)
+			return (!!/[^\p{Zl}\p{Zp}\p{C}\p{M}]/u.exec(s));
+		else if (2 == s.length)
+			return (!!/\p{Cs}/u.exec(s[0]) && !!/\p{Cs}/u.exec(s[1])); //utf-16
+		return false;
 	}
 
 	//remove
@@ -45,7 +45,7 @@ class Controller {
 	}
 
 	static _isStopKey(key){
-		return (Controller.keyCtrlD == key || Controller.keyCtrlC == key)
+		return (Controller.keyCtrlD == key || Controller.keyCtrlC == key);
 	}
 
 	static stop(){
@@ -54,6 +54,8 @@ class Controller {
 	}
 
 	#parseBuffer(buf, keys=[], callbacks=[], callback, elseCallback){
+		if (Controller.keyKill == buf)
+			process.exit();
 		if (this.isStopKey(buf)) {
 			this.onStopKey();
 			process.stdin.removeListener('data', callback);
@@ -131,9 +133,9 @@ module.exports = {
 // // //  * Testing purposes
 // // //  */
 // // // function main(){
-// 	function printLol(){
-// 		console.log("LOL");
-// 	}
+	// function printLol(){
+	// 	console.log("LOL");
+	// }
 
 // // // 	function printPatate(){
 // // // 		console.log("Patate");
