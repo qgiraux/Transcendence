@@ -96,7 +96,7 @@ def Invite(request):
             'type': 'invite_message',
             'group': f'user_{group}',
             'message': message,
-            'sender': f'user_{user_id}',
+            'sender': user_id,
         }
 
         # Publish the notification
@@ -107,7 +107,6 @@ def Invite(request):
         return JsonResponse({"detail": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"detail": "Message sent"}, status=200)
-
 
 @csrf_exempt
 @permission_classes([IsAuthenticated])
@@ -199,7 +198,6 @@ def TournamentDetails(request, name):
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
     return JsonResponse({'tournament name': tournament.tournament_name, 'players': tournament.player_list, 'size': tournament.tournament_size}, status=200)
-
 
 @csrf_exempt
 @permission_classes([IsAuthenticated])
