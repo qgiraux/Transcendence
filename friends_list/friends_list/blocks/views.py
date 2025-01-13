@@ -8,6 +8,8 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+from .mock_jwt_expired  import mock_jwt_expired
 
 
 def get_csrf_token(request):
@@ -49,9 +51,9 @@ def add_block(request):
         return JsonResponse({'message': 'Block added successfully'}, status=200)
 
     except ExpiredSignatureError:
-        return JsonResponse({'detail': 'Token has expired', 'code': 'token_expired'}, status=401)
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except InvalidTokenError:
-        return JsonResponse({'detail': 'Invalid token', 'code': 'invalid_token'}, status=401)
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return JsonResponse({'detail': 'An error occurred', 'code': 'error_occurred'}, status=500)
@@ -78,11 +80,11 @@ def remove_block(request):
         block_id = data.get('id')
         if not block_id:
             return JsonResponse({'detail': 'Block ID is required', 'code': 'block_id_required'}, status=400)
-        
+
         block_ids = list(Blocks.objects.filter(user_id=user_id, block_id=block_id).values_list('block_id', flat=True))
         if len(block_ids) == 0:
             return JsonResponse({'error': 'user not in block list', 'code': 'not found'}, status=404)
-        
+
         deleted, _ = Blocks.objects.filter(user_id=user_id, block_id=block_id).delete()
         if deleted:
             return JsonResponse({'message': 'Block removed successfully'}, status=200)
@@ -90,17 +92,9 @@ def remove_block(request):
             return JsonResponse({'error': 'Block not found'}, status=404)
 
     except jwt.ExpiredSignatureError:
-        return HttpResponse(
-            json.dumps({'detail': 'Token has expired', 'code': 'token_expired'}),
-            status=401,
-            content_type='application/json'
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except jwt.InvalidTokenError:
-        return HttpResponse(
-            json.dumps({'detail': 'Invalid token', 'code': 'invalid_token'}),
-            status=401,
-            content_type='application/json'
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return HttpResponse(
@@ -123,24 +117,16 @@ def blocks_list(request):
         logger = logging.getLogger(__name__)
         auth_header = request.headers.get('Authorization').split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
-        user_id = decoded['user_id']    
+        user_id = decoded['user_id']
         user_id = decoded.get('user_id')
         if not user_id:
             return JsonResponse({'detail': 'User ID not found in token', 'code': 'user_id_not_found'}, status=400)
         block_ids = list(Blocks.objects.filter(user_id=user_id).values_list('block_id', flat=True))
         return HttpResponse(json.dumps({"blocks": block_ids}), status=200, content_type='application/json')
     except jwt.ExpiredSignatureError:
-        return HttpResponse(
-            json.dumps({'detail': 'Token has expired', 'code': 'token_expired'}),
-            status=401,
-            content_type='application/json'
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except jwt.InvalidTokenError:
-        return HttpResponse(
-            json.dumps({'detail': 'Invalid token', 'code': 'invalid_token'}),
-            status=401,
-            content_type='application/json'
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return HttpResponse(

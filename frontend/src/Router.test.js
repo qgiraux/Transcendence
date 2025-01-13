@@ -1,4 +1,4 @@
-import Router from "./Router";
+import Router from "./Router.js";
 import DummyView from "./views/DummyView.js";
 
 const r = new Router();

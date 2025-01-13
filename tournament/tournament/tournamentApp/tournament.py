@@ -1,6 +1,9 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from concurrent.futures import ThreadPoolExecutor
+
+import datetime
+
 import json
 
 import logging
@@ -9,11 +12,13 @@ logger = logging.getLogger(__name__)
 game_counter = 0
 
 def Tournament_operation(data):
+
     try:
         lineup = data.get('player_list')
-        if not lineup or len(lineup) < 2 or len(lineup) & (len(lineup) - 1) != 0:
-            return JsonResponse({'error': 'Lineup must contain a power of 2 players.'}, status=400)
-
+        
+        size = len(lineup)
+        if size not in [2 ** i for i in range(1, 3)]:
+            return JsonResponse({'error': 'Lineup must contain 2, 4 or 8 players'}, status=400)
         winner = organize_tournament(lineup)
         return JsonResponse({'winner': winner})
     except Exception as e:

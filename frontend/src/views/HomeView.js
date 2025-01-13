@@ -4,6 +4,7 @@ import Router from "../Router.js";
 import chatBox from "../Chat.js";
 import Alert from "../Alert.js";
 import TRequest from "../TRequest.js";
+import PongGame from "../localpong.js";
 
 class HomeView extends AbstractView {
   constructor(params) {
@@ -54,10 +55,13 @@ class HomeView extends AbstractView {
           if (type === "invite")
           {
             // Display the invite
-            const textmessage = `${group} has invited you to a game!`;
-            const link = message;
-            console.log(`link: ${link} , textmessage: ${textmessage}`);
-            Alert.inviteMessage(type, textmessage, link)
+            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(username => {
+              console.log(username);
+              const textmessage = `${username.username} has invited you to a game!`;
+              const link = message;
+              console.log(`link: ${link} , textmessage: ${textmessage}`);
+              Alert.inviteMessage(type, textmessage, link)
+            }).catch(err => {console.error("Failed to fetch user info:", err);});
           }
           if (type === "GOTO")
           {
@@ -89,16 +93,34 @@ class HomeView extends AbstractView {
     const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `
+        <style>
+          #pongCanvas {
+        display: block; /* Ensures the canvas behaves like a block-level element */
+        margin: auto; /* Centers horizontally */
+          }
+          #view-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Full viewport height */
+          }
+        </style>
         <h1 class="text-white display-1">${
           Application.getUserInfos().userName
         } welcome to your home page!</h1>
+        <canvas id="pongCanvas" width="800" height="400"></canvas>
         <div id="message-container"></div>
       `;
+  
+      // Instantiate PongGame and start the game loop
+      const pongGame = new PongGame('pongCanvas');
+      pongGame.gameLoop();
     } else {
       console.error("#view-container not found in the DOM.");
     }
-    const container2 = document.querySelector("#view-container");
   }
+   
 }
 
 export default HomeView;

@@ -1,9 +1,9 @@
-import TRequest from "../TRequest.js";
-import Router from "../Router.js";
+import TRequest from "./TRequest.js";
 
 class Alert {
   static errorMessage(title, message) {
-    document.querySelector("#alert-container").innerHTML += `
+	const alertContainer = document.querySelector("#alert-container");
+    alertContainer.innerHTML += `
 	<div class="row">
 	<div class="col-6 mx-auto">
 	<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -11,10 +11,18 @@ class Alert {
 	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div></div></div>
 	`;
+
+	document.addEventListener("click", (event) => {
+		const alertElement = alertContainer.querySelector(".alert");
+		if (alertElement && !alertElement.contains(event.target)) {
+		  alertElement.remove();
+		}
+	  });
   }
 
   static successMessage(title, message) {
-    document.querySelector("#alert-container").innerHTML += `
+    const alertContainer = document.querySelector("#alert-container");
+	alertContainer.innerHTML += `
 	<div class="row">
 	<div class="col-6 mx-auto">
 	<div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -22,10 +30,18 @@ class Alert {
 	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div></div></div>
 	`;
+
+	document.addEventListener("click", (event) => {
+		const alertElement = alertContainer.querySelector(".alert");
+		if (alertElement && !alertElement.contains(event.target)) {
+		  alertElement.remove();
+		}
+	  });
   }
 
   static classicMessage(title, message) {
-    document.querySelector("#alert-container").innerHTML += `
+    const alertContainer = document.querySelector("#alert-container")
+	alertContainer.innerHTML += `
 	<div class="row">
 	<div class="col-6 mx-auto">
 	<div class="alert alert-primary alert-dismissible fade show" role="alert">
@@ -33,13 +49,20 @@ class Alert {
 	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div></div></div>
 	`;
+
+	document.addEventListener("click", (event) => {
+		const alertElement = alertContainer.querySelector(".alert");
+		if (alertElement && !alertElement.contains(event.target)) {
+		  alertElement.remove();
+		}
+	  });
   }
-  
+
   static inviteMessage(title, message, link) {
-	const alertContainer = document.querySelector("#alert-container");
-  
-	// Generate the alert HTML
-	const alertHTML = `
+    const alertContainer = document.querySelector("#alert-container");
+
+    // Generate the alert HTML
+    const alertHTML = `
 	  <div class="row">
 		<div class="col-6 mx-auto">
 		  <div class="alert alert-primary alert-dismissible fade show" role="alert">
@@ -50,7 +73,7 @@ class Alert {
 		  </div>
 		</div>
 	  </div>`;
-  
+ 
 	// Append the alert to the container
 	alertContainer.innerHTML += alertHTML;
   
@@ -74,9 +97,23 @@ class Alert {
 		console.error("Invite link not found in the DOM.");
 	  }
 	}, 0); // Allow the DOM to update
+
+	// Auto delete the alert after 5 seconds
+	setTimeout(() => {
+	  const alertElement = alertContainer.querySelector(".alert");
+	  if (alertElement) {
+		alertElement.remove();
+	  }
+	}, 15000);
+	// Close the alert when clicking outside the window
+	document.addEventListener("click", (event) => {
+	  const alertElement = alertContainer.querySelector(".alert");
+	  if (alertElement && !alertElement.contains(event.target)) {
+		alertElement.remove();
+	  }
+	});
   }
-  
-  
+
   static clearAlerts() {
     document.querySelector("#alert-container").innerHTML = "";
   }

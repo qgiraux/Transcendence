@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pong Game</title>
+</head>
+<body>
+    <h1>Pong Game</h1>
+    <div id="game-status"></div>
+    <script>
+        const ws = new WebSocket('https://localhost:5000/ws/pong/1/');
+
+        ws.onopen = function () {
+            console.log('WebSocket connection established');
+            ws.send(JSON.stringify({ type: 'join', data: { userid: 'player1' } }));
+        };
+
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log('Game Update:', data);
+        };
+
+        ws.onclose = function () {
+            console.log('WebSocket connection closed');
+        };
+
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowUp') {
+                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'UP' } }));
+            } else if (event.key === 'ArrowDown') {
+                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'DOWN' } }));
+            }
+        });
+    </script>
+</body>
+</html>
