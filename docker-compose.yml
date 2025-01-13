@@ -18,6 +18,8 @@ services:
       - db_user_management
     networks:
       - transcendence
+    ports:
+      - ":8000"
     init: true
 
   db_user_management:

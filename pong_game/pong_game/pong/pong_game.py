@@ -9,6 +9,8 @@ import asyncio
 import attr
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from datetime import datetime
+import httpx
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +59,7 @@ class Ball:
 	def __init__(self, gameid):
 		self.position = [100, 50]
 		self.direction = [random.choice([-1, 1]), 0.2]
-		self.speed = 2
+		self.speed = 10
 		self.game = gameid
 		self.game_width = 200  # Assuming game width is 200
 		self.position[0] += self.speed * self.direction[0]
@@ -104,6 +106,7 @@ class Ball:
 		elif self.position[0] >= 200:  # Assuming game width is 200
 			player1.score += 1
 			self.reset()
+	
 	def reset(self):
 		if self.position[0] < 100:
 			self.direction = [1, random.uniform(0.1, 0.3)]
@@ -195,12 +198,64 @@ class PongEngine(threading.Thread):
 		)
 	
 	async def broadcast_game_over(self):
-		log.error("reached the game over broadcaster")
+		log.error("Reached the game over broadcaster")
 		state_json = self.state.render()
-		state_json["winner"] = self.state.player_left.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_left.playerid
+		state_json["winner"] = (
+			self.state.player_left.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_right.playerid
+		)
+		state_json["tournament_id"] = self.group_name
+		state_json["date"] = datetime.now().strftime("%Y/%m/%d %H:%M")
+		state_json["p1"] = self.state.player_left.playerid
+		state_json["p1score"] = self.state.player_left.score
+		state_json["p2"] = self.state.player_right.playerid
+		state_json["p2score"] = self.state.player_right.score
+		state_json["score"] = f"{state_json['p1score']}/{state_json['p2score']}"
+
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
 		)
+
+		try:
+			p1_id = int(state_json["p1"])
+			p2_id = int(state_json["p2"])
+		except ValueError:
+			log.error(f"Invalid player IDs: p1={state_json['p1']}, p2={state_json['p2']}")
+			return
+		required_fields = ['tournament_id', 'date', 'opponent', 'score', 'win']
+		
+		url1 = f"http://user_management:8000/adduserstats/{p1_id}"
+		url2 = f"http://user_management:8000/adduserstats/{p2_id}"
+		header = {
+			"Content-Type": "application/json",
+			"Accept": "application/json"  # Optional but recommended
+		}
+
+		# Post stats for player 1
+		state_json["win"] = "yes" if self.state.player_left.score > self.state.player_right.score else "no"
+		state_json["opponent"] = state_json["p2"]
+		async with httpx.AsyncClient() as client:
+			response = await client.post(
+				f"https://localhost:5000/api/users/adduserstats/1",
+				json=state_json,
+				headers=header
+			)
+			log.error(response.status_code)
+		
+
+		# Post stats for player 2
+		state_json["win"] = "no" if self.state.player_left.score > self.state.player_right.score else "yes"
+		state_json["opponent"] = state_json["p1"]
+		async with httpx.AsyncClient() as client:
+			response = await client.post(
+				f"http://user_management:8000/adduserstats/{p2_id}",
+				json=state_json,
+				headers=header
+			)
+			log.error(response.status_code)
+
+		
+		
+		
 
 	def tick(self) -> State:
 		state = self.state

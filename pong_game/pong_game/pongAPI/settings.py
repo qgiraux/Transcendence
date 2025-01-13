@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m#ic+uw#oy_*&zu4n$!o#kb&vlo@==zt0^gzz_d8zz3k&6t_#-'
+SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q'
 
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'
 

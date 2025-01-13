@@ -13,7 +13,7 @@
 </head>
 <body>
     <h1 style="text-align: center; color: white;">Pong Game</h1>
-    player: index
+    player: 1
     <canvas id="scoreCanvas" width="400" height="70"></canvas>
     <canvas id="gameCanvas" width="400" height="200"></canvas>
     <div id="game-status" style="text-align: center; color: white;"></div>
@@ -38,7 +38,7 @@
         ws.onopen = function () {
             console.log('WebSocket connection established');
             ws.send(JSON.stringify({ type: 'create', data: { name: 'newgame' } }));
-            ws.send(JSON.stringify({ type: 'join', data: { userid: 'index', name: 'newgame' } }));
+            ws.send(JSON.stringify({ type: 'join', data: { userid: '1', name: 'newgame' } }));
         };
 
         ws.onmessage = function (event) {

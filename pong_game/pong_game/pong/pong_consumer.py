@@ -1,9 +1,11 @@
 import json
 import logging
+import jwt
 from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
 from .pong_game import Direction, PongEngine
+from django.conf import settings
 
 log = logging.getLogger(__name__)
 
@@ -14,11 +16,22 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         query_params = parse_qs(self.scope['query_string'].decode())
+        # token = query_params.get('token', [None])[0]
+        # if token:
+        #     user_info = self.decode_token(token)
+        #     if user_info:
+        #         # Decode the token to get user_id and nickname
+        #         self.user_id = user_info['user_id']
+        #         self.nickname = user_info['nickname']
+        #     else:
+        #         await self.close()
+        #         return HttpResponse("Invalid Token", status=HTTPStatus.UNAUTHORIZED) 
+        # else:
+        #     await self.close()
+        #     return HttpResponse("Token not provided", status=HTTPStatus.BAD_REQUEST)
         pong_game = str(query_params.get('name')[0])
-        log.error("Connect")
         self.group_name = pong_game
         self.game = None
-        log.error("Connected to game group")
 
         # Suscribe to the game group
         await self.channel_layer.group_add(self.group_name, self.channel_name)
@@ -26,7 +39,6 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
-        log.error("Disconnect: %s", close_code)
         if self.userid:
             await self.channel_layer.send(
                 "game_engine",
@@ -76,16 +88,12 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def move_paddle(self, data):
         if not self.userid:
-            log.error("User not joined")
+            log.error("User not correctly joined")
             return
-
         log.error("User %s moved paddle", self.userid)
         direction = data.get("direction")
         self.pong[self.gameName].engine.get_player_paddle_move(self.userid, direction)
-        # await self.channel_layer.send(
-        #     "game_engine",
-        #     {"type": "move_paddle", "playerid": self.userid, "direction": direction},
-        # )
+
 
     async def game_update(self, event):
         # log.error("Game update: %s", event)
@@ -95,10 +103,20 @@ class PlayerConsumer(AsyncWebsocketConsumer):
     async def game_over(self, event):
         # log.error("Game update: %s", event)
         await self.send(text_data=json.dumps(event))
+               
 
     async def game_final_scores(self, event):
         game_over = event["game_over"]
         await self.send(text_data=json.dumps(game_over))
+    
+    def decode_token(self, token):
+        try:
+            return jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            log.error("Token expired")
+        except jwt.InvalidTokenError:
+            log.error("Invalid token")
+        return None
 
 class PongConsumer(SyncConsumer):
 	def __init__(self, group, *args, **kwargs):

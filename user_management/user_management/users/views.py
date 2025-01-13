@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .utils import is_user_online, get_user_totp_device, generate_qr_code
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from .models import add_stat
 from urllib.parse import urlencode
 import base64
@@ -122,8 +122,9 @@ def Get_user_stats(request, user_id):
     user = get_object_or_404(User, id=user_id)    
     return Response(user.stats , status=200)
 
+@csrf_exempt
+@permission_classes([AllowAny])
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) 
 def Add_user_stats(request, user_id):
     # Use the authenticated user from request.user
     user = get_object_or_404(User, id=user_id) 
@@ -221,8 +222,9 @@ def CheckUserStatus(request, user_id):
 
 
 
-@api_view(['GET'])
+
 @permission_classes([IsAuthenticated])
+@api_view(['GET'])
 def GetAllUsers(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
@@ -264,19 +266,3 @@ class TOTPCreateView(views.APIView):
         return generate_qr_code(totp_url)
 
     
-# class TOTPVerifyView(views.APIView):
-#     """
-#     Use this endpoint to verify/enable a TOTP device
-#     """
-#     permission_classes = [permissions.IsAuthenticated]    
-    
-#     def post(self, request, token, format=None):
-#         user = request.user
-#         logger.error(user)
-#         device = get_user_totp_device(self, user)
-#         if not device == None and device.verify_token(token):
-#             if not device.confirmed:
-#                 device.confirmed = True
-#                 device.save()
-#             return Response(True, status=status.HTTP_200_OK)
-#         return Response(False, status=status.HTTP_400_BAD_REQUEST)
