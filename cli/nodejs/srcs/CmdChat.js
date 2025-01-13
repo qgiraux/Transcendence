@@ -337,6 +337,8 @@ class CmdChat extends JWTCmd {
 				this.nicknames[String(this.me)] = nickname_;
 				CmdChat.writeSystem(`Your nickname is ${nickname_}\n`);
 				CmdChat.writeSystem(CmdChat.#getHelp());
+				//1b 5b 41
+				this.ws.send(ChatMessage.toJsonString("chat", "hello \x1b[Athere", "global_chat")); //
 				this.openEditor();
 			}
 			else
