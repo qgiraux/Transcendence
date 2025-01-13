@@ -9,6 +9,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
+from .mock_jwt_expired  import mock_jwt_expired
 
 
 def get_csrf_token(request):
@@ -50,35 +51,9 @@ def add_block(request):
         return JsonResponse({'message': 'Block added successfully'}, status=200)
 
     except ExpiredSignatureError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except InvalidTokenError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return JsonResponse({'detail': 'An error occurred', 'code': 'error_occurred'}, status=500)
@@ -117,35 +92,9 @@ def remove_block(request):
             return JsonResponse({'error': 'Block not found'}, status=404)
 
     except jwt.ExpiredSignatureError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except jwt.InvalidTokenError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return HttpResponse(
@@ -175,35 +124,9 @@ def blocks_list(request):
         block_ids = list(Blocks.objects.filter(user_id=user_id).values_list('block_id', flat=True))
         return HttpResponse(json.dumps({"blocks": block_ids}), status=200, content_type='application/json')
     except jwt.ExpiredSignatureError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except jwt.InvalidTokenError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return HttpResponse(

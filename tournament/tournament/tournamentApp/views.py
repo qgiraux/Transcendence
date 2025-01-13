@@ -14,6 +14,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from jwt.exceptions import InvalidTokenError
 import re
+from .mock_jwt_expired  import mock_jwt_expired
+
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 logger = logging.getLogger(__name__)
@@ -36,20 +38,7 @@ def CreateTournament(request):
         if not user_id:
             raise ValueError("User ID missing in token")
     except Exception as e:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
 
     data = json.loads(request.body)
     if not data.get('name') or not data.get('size'):
@@ -88,20 +77,7 @@ def Invite(request):
             if not user_id:
                 raise ValueError("User ID missing in token")
         except Exception as e:
-            return JsonResponse(
-                {
-                    "detail": "Given token not valid for any token type",
-                    "code": "token_not_valid",
-                    "messages": [
-                        {
-                        "token_class": "AccessToken",
-                        "token_type": "access",
-                        "message": "Token is invalid or expired"
-                        }
-                    ]
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+            return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
 
         # Parse request data
         data = json.loads(request.body)
@@ -145,20 +121,7 @@ def JoinTournament(request):
         auth_header = tmp.split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
@@ -205,20 +168,7 @@ def TournamentList(request):
         if not user_id:
             raise ValueError("User ID missing in token")
     except Exception as e:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     # Extract user ID from the decoded token
     user_id = decoded.get('user_id')
     if not user_id:
@@ -238,20 +188,7 @@ def TournamentDetails(request, name):
         auth_header = request.headers.get('Authorization').split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        return JsonResponse(
-    {
-        "detail": "Given token not valid for any token type",
-        "code": "token_not_valid",
-        "messages": [
-            {
-            "token_class": "AccessToken",
-            "token_type": "access",
-            "message": "Token is invalid or expired"
-            }
-        ]
-    },
-    status=status.HTTP_401_UNAUTHORIZED
-)
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     # Extract user ID from the decoded token
     user_id = decoded.get('user_id')
     if not user_id:
@@ -274,20 +211,7 @@ def DeleteTournament(request):
         auth_header = request.headers.get('Authorization').split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        return JsonResponse(
-            {
-                "detail": "Given token not valid for any token type",
-                "code": "token_not_valid",
-                "messages": [
-                    {
-                    "token_class": "AccessToken",
-                    "token_type": "access",
-                    "message": "Token is invalid or expired"
-                    }
-                ]
-            },
-            status=status.HTTP_401_UNAUTHORIZED
-        )
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     # Extract user ID from the decoded token
     data = json.loads(request.body)
     if not data.get('name'):

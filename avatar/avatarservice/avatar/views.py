@@ -15,7 +15,7 @@ import uuid
 import jwt
 import os, io
 from PIL import Image, UnidentifiedImageError
-
+from .mock_jwt_expired  import mock_jwt_expired
 
 MAX_SIZE = 5 # the maximum accepted image size in MB
 SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q' # a remplacer dans .env
@@ -198,21 +198,7 @@ class AvatarUploadView(APIView):
             logger.info("Image validation successful.")
         except ValidationError as e:
             logger.error(f"Validation error: {e}")
-            return Response(
-                    {
-                        "detail": "Given token not valid for any token type",
-                        "code": "token_not_valid",
-                        "messages": [
-                            {
-                            "token_class": "AccessToken",
-                            "token_type": "access",
-                            "message": "Token is invalid or expired"
-                            }
-                        ]
-                    },
-                    status=status.HTTP_401_UNAUTHORIZED
-
-                )
+            return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
         except UnsupportedFormatError as e:
             logger.error(f"Unsupported format error: {e}")
             return Response(
@@ -325,21 +311,7 @@ class AvatarListView(APIView):
             return JsonResponse(serializer.data, safe=False)
         except ValidationError as e:
             logger.error(f"Validation error: {e}")
-            return Response(
-                    {
-                        "detail": "Given token not valid for any token type",
-                        "code": "token_not_valid",
-                        "messages": [
-                            {
-                            "token_class": "AccessToken",
-                            "token_type": "access",
-                            "message": "Token is invalid or expired"
-                            }
-                        ]
-                    },
-                    status=status.HTTP_401_UNAUTHORIZED
-
-                )
+            return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             return Response(
                 {"error": "Unexpected error occurred"},
@@ -371,21 +343,7 @@ class AvatarDeleteView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
             logger.error(f"Validation error: {e}")
-            return Response(
-                    {
-                        "detail": "Given token not valid for any token type",
-                        "code": "token_not_valid",
-                        "messages": [
-                            {
-                            "token_class": "AccessToken",
-                            "token_type": "access",
-                            "message": "Token is invalid or expired"
-                            }
-                        ]
-                    },
-                    status=status.HTTP_401_UNAUTHORIZED
-
-                )
+            return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
         except Avatar.DoesNotExist:
             logger.warning(f"No avatar found for user_id: {user_id}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
