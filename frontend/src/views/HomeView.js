@@ -54,10 +54,13 @@ class HomeView extends AbstractView {
           if (type === "invite")
           {
             // Display the invite
-            const textmessage = `${group} has invited you to a game!`;
-            const link = message;
-            console.log(`link: ${link} , textmessage: ${textmessage}`);
-            Alert.inviteMessage(type, textmessage, link)
+            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(username => {
+              console.log(username);
+              const textmessage = `${username.username} has invited you to a game!`;
+              const link = message;
+              console.log(`link: ${link} , textmessage: ${textmessage}`);
+              Alert.inviteMessage(type, textmessage, link)
+            }).catch(err => {console.error("Failed to fetch user info:", err);});
           }
           if (type === "GOTO")
           {

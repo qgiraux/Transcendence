@@ -96,7 +96,7 @@ def Invite(request):
             'type': 'invite_message',
             'group': f'user_{group}',
             'message': message,
-            'sender': f'user_{user_id}',
+            'sender': user_id,
         }
 
         # Publish the notification
