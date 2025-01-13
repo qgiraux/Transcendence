@@ -12,10 +12,11 @@ class PongGame {
         this.score1 = 0;
         this.score2 = 0;
         this.commands = { up: 0, down: 0, w: 0, s: 0 };
-        this.paused = false;
+        this.reset = false;
 
         document.addEventListener('keydown', (event) => this.handleKeyDown(event));
         document.addEventListener('keyup', (event) => this.handleKeyUp(event));
+        document.addEventListener('keydown', (event) => this.resumeGame(event, this.reset));
     }
 
     handleKeyDown(event) {
@@ -125,52 +126,74 @@ class PongGame {
         this.ctx.fillText("press space for new game", (this.canvas.width * 1 / 3) - 33, (this.canvas.height / 2) + 30);
     }
 
+    setup()
+    {
+        this.paddle1 = { x: this.canvas.width / 80, y: this.canvas.height / 2 - this.canvas.height / 8, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
+        this.paddle2 = { x: this.canvas.width - this.canvas.width / 40, y: this.canvas.height / 2 - this.canvas.height / 8, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
+        this.ball = { x: this.canvas.width / 2, y: this.canvas.height / 2, radius: 10, dx: 4, dy: 4 };
+    }
     gameLoop() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.font = "30px Arial";
-        this.ctx.fillStyle = "white";
-        this.drawScore();
-        this.movePaddles();
-        this.drawPaddle(this.paddle1);
-        this.drawPaddle(this.paddle2);
-        this.drawBall();
-        this.ball.x += this.ball.dx;
-        this.ball.y += this.ball.dy;
-        this.pingPong();
-        if (this.ball.x + this.ball.radius > this.canvas.width || this.ball.x - this.ball.radius < 0) {
-            let winner;
-            this.ball.dx > 0 ? (this.score1 += 1, winner = 1) : (this.score2 += 1, winner = 2);
-            this.ball.x = this.canvas.width / 2;
-            this.ball.y = this.canvas.height / 2;
-            this.ball.dx = this.ball.dx > 0 ? -4 : 4;
-            this.ball.dy = 4;
-            this.paused = true;
-            this.ctx.fillText(`PLAYER ${winner} SCORED!!`, (this.canvas.width * 1 / 3), (this.canvas.height / 2));
-            this.ctx.fillText("press space for next game", (this.canvas.width * 1 / 3) - 33, (this.canvas.height / 2) + 30);
-            document.addEventListener('keydown', (event) => this.resumeGame(event));
-            if (this.paused) return;
-        }
-        if (this.score1 == this.endScore || this.score2 == this.endScore) {
-            this.gameEnd();
-            this.ball.x = this.canvas.width / 2;
-            this.ball.y = this.canvas.height / 2;
-            this.ball.dx = this.ball.dx > 0 ? -4 : 4;
-            this.ball.dy = 4;
-            this.paused = true;
-            document.addEventListener('keydown', (event) => this.resumeGame(event, true));
-            if (this.paused) return;
-        }
-        requestAnimationFrame(() => this.gameLoop());
+        setTimeout(() => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.font = "30px Arial";
+            this.ctx.fillStyle = "white";
+            this.drawScore();
+            this.movePaddles();
+            this.drawPaddle(this.paddle1);
+            this.drawPaddle(this.paddle2);
+            this.drawBall();
+            this.ball.x += this.ball.dx;
+            this.ball.y += this.ball.dy;
+            this.pingPong();
+            if (this.ball.x + this.ball.radius > this.canvas.width || this.ball.x - this.ball.radius < 0) {
+                let winner;
+                // this.ball.dx > 0 ? (this.score1 += 1, winner = 1) : (this.score2 += 1, winner = 2);
+                if (this.ball.dx > 0){
+                    this.score1 += 1;
+                    winner = 1;
+                    console.log("Player 1 scored");
+                }
+                else{
+                    this.score2 += 1;
+                    winner = 2;
+                    console.log("Player 2 scored");
+                }
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.setup();
+                this.drawScore();
+                this.drawPaddle(this.paddle1);
+                this.drawPaddle(this.paddle2);
+                this.drawBall();
+                this.ball.x = this.canvas.width / 2;
+                this.ball.y = this.canvas.height / 2;
+                this.ball.dx = this.ball.dx > 0 ? -4 : 4;
+                this.ball.dy = 4;
+                console.log(this.score1, this.score2);
+                if (this.score1 === this.endScore || this.score2 === this.endScore) {
+                    this.reset = true;
+                    this.gameEnd();
+                }
+                else {
+                    this.ctx.fillText(`PLAYER ${winner} SCORED!!`, (this.canvas.width * 1 / 3), (this.canvas.height / 2));
+                    this.ctx.fillText("press space for next game", (this.canvas.width * 1 / 3) - 33, (this.canvas.height / 2) + 30);
+                }
+                
+                return;
+            }
+            
+
+            requestAnimationFrame(() => this.gameLoop());
+        }, 1000 / 60);
     }
 
     resumeGame(event, reset = false) {
         if (event.code === 'Space') {
-            if (reset) {
+            if (reset === true) {
                 this.score1 = 0;
                 this.score2 = 0;
             }
-            this.paused = false;
-            document.removeEventListener('keydown', this.resumeGame);
+            this.reset = false;
+
             requestAnimationFrame(() => this.gameLoop());
         }
     }
