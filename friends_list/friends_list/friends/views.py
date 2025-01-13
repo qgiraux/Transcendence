@@ -53,7 +53,7 @@ def add_friend(request):
     except ExpiredSignatureError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except InvalidTokenError:
-        return JsonResponse(mock_jwt_expired,status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         # logger.error(f"Unexpected error: {e}")
         return JsonResponse({'detail': f"An error occurred {e} ", 'code': 'error_occurred'}, status=500)
