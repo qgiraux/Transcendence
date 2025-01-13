@@ -16,7 +16,7 @@ Green=\033[0;32m       # Green
 all: build up
 
 #regle re : wipe les volumes et reconstruit tout
-re: prune build up
+re: down build up
 
 
 build:
