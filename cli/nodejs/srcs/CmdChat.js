@@ -87,13 +87,29 @@ class CmdChat extends JWTCmd {
 	// 		+ (String(userName).charCodeAt(0) + Number(userId)) % (max - min);
 	// }
 
+	#block(words) {
+		; //#TODO
+	}
+
+	#unblock(words) {
+		; //#TODO
+	}
+
+	#invite(words) {
+		; //#TODO
+	}
+
+	#profile(words) {
+		; //#TODO
+	}
+
 	#unknown(words) {
 		CmdChat.writeSystem(`unknown command '${words[0]}'\n`);
 		this.#help();
 	}
 
 	#help() {
-		CmdChat.writeSystem(CmdChat.#getHelp());
+		process.stdout.write(CmdChat.#getHelp());
 	}
 
 	#api(words) {
@@ -103,7 +119,6 @@ class CmdChat extends JWTCmd {
 			CmdChat.writeSystem(`missing api method or path'\n`);
 			return ;
 		}
-		CmdChat.echoCommand(`!${words.join(" ")}`);
 		if ("get" == words[1]) {
 			HttpsClient.get(`https://${this.host}/${words[2]}`, (ret)=>{CmdChat.writeSystem(`${JSON.stringify(ret)}\n`)}, this.jwt);
 		} else if ("post" == words[1]) {
@@ -127,9 +142,9 @@ class CmdChat extends JWTCmd {
 		const dest = this.nicknames[user];
 
 		if (!!dest)
-			CmdChat.formatChat(this.nicknames[this.me], message, "me", `to ${dest}[${user}]`);
+			CmdChat.formatChat(this.nicknames[this.me], message, "me", [`to ${dest}[${user}]`]);
 		else
-			CmdChat.formatChat(this.nicknames[this.me], message, "me", `to [${user}]`);
+			CmdChat.formatChat(this.nicknames[this.me], message, "me", [`to [${user}]`]);
 		if (user != this.me)
 			this.ws.send(ChatMessage.toJsonString("chat", message, `user_${user}`));
 	}
@@ -138,6 +153,10 @@ class CmdChat extends JWTCmd {
 		this.editor.stop();
 		this.ws.close();
 		CmdChat.writeSystem(`Left chat\n`);
+	}
+
+	static #echoCommand(text) {
+		process.stdout.write(`\x1b[3;33m!${text}\x1b[0m\n`); //
 	}
 
 	#parseCommand(text) {
@@ -150,16 +169,17 @@ class CmdChat extends JWTCmd {
 			this.ws.send(ChatMessage.toJsonString("chat", text, "global_chat"));
 			return ;
 		}
+		CmdChat.#echoCommand(text);
 		let cmdId = 1 + ["help", "direct", "block", "unblock", "invite", "profile", "api", "exit"
 			].indexOf(command);
 		const cmdFun = [
 			(w)=>{this.#unknown(w)},
 			(w)=>{this.#help()},
 			(w)=>{this.#direct(w)},
-			(w)=>{this.#help(w)}, //#TODO
-			(w)=>{this.#help(w)}, //#TODO
-			(w)=>{this.#help(w)}, //#TODO
-			(w)=>{this.#help(w)}, //#TODO
+			(w)=>{this.#block(w)}, //#TODO
+			(w)=>{this.#unblock(w)}, //#TODO
+			(w)=>{this.#invite(w)}, //#TODO
+			(w)=>{this.#profile(w)}, //#TODO
 			(w)=>{this.#api(w)},
 			(w)=>{this.#exit()},
 		];
@@ -182,8 +202,7 @@ class CmdChat extends JWTCmd {
 	}
 
 	static #getHelp() {
-		return "\n"
-			+ "_____________________________________________________________________________________________\n"
+		return ""
 			+ "Controls:\n"
 			+ "[↵] Post [⌫] Remove typed character [^C/^D] Exit\n"
 			+ "Commands:\n"
@@ -201,9 +220,9 @@ class CmdChat extends JWTCmd {
 		;
 	}
 
-	static echoCommand(command) {
-		process.stdout.write(`command: '${command}'\n`);
-	}
+	// static echoCommand(command) {
+	// 	process.stdout.write(`command: '${command}'\n`);
+	// }
 
 	static writeSystem(message) {
 		process.stdout.write(`info: ${message}`);
