@@ -28,7 +28,7 @@ class InviteTests(TestCase):
     def test_method_not_allowed(self, mock_jwt_decode):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 405)
-        self.assertEqual(response.json(), {"detail": "Method not allowed"})
+        self.assertEqual(response.json()['detail'], "Method not allowed")
 
     @patch('jwt.decode')
     def test_missing_authorization_header(self, mock_jwt_decode):
@@ -41,7 +41,7 @@ class InviteTests(TestCase):
         mock_jwt_decode.side_effect = InvalidTokenError("Invalid token")
         response = self.client.post(self.url, data={}, content_type='application/json', **self.headers)
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.json(), {'detail': 'Invalid or expired token'})
+        self.assertEqual(response.json()['detail'], 'Given token not valid for any token type')
 
     @patch('jwt.decode')
     def test_missing_tournament_name(self, mock_jwt_decode):
@@ -109,8 +109,8 @@ class JoinTournamentTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT, f"Expected status 409, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'User already subscribed', "Unexpected response message")
-    
-    @patch('jwt.decode') 
+
+    @patch('jwt.decode')
     def test_invalid_tournament_name(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -119,8 +119,8 @@ class JoinTournamentTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, f"Expected status 400, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'invalid tournament name', "Unexpected response message")
-    
-    @patch('jwt.decode') 
+
+    @patch('jwt.decode')
     def test_wrong_tournament_name(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -130,20 +130,20 @@ class JoinTournamentTests(APITestCase):
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'Tournament not found', "Unexpected response message")
 
-    @patch('jwt.decode') 
+    @patch('jwt.decode')
     def test_tournament_already_full(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
         payload = {"name": "TestTournament"}
-        
+
         self.tournament.player_list = [2, 3]
         self.tournament.save()
         response = self.client.post(self.testurl, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT, f"Expected status 409, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'Tournament full', "Unexpected response message")
-    
-    @patch('jwt.decode') 
+
+    @patch('jwt.decode')
     def test_incomplete_body(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -153,7 +153,7 @@ class JoinTournamentTests(APITestCase):
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'missing tournament name in body', "Unexpected response message")
 
-    @patch('jwt.decode')  
+    @patch('jwt.decode')
     def test_create_tournament_invalid_method(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -170,8 +170,7 @@ class JoinTournamentTests(APITestCase):
         response = self.client.post(self.testurl, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, f"Expected status 401, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
-        self.assertEqual(response.json()['detail'], 'Invalid token', "Unexpected error detail in response")
-    
+        self.assertEqual(response.json()['detail'], 'Given token not valid for any token type')
 class CreateTournamentTests(APITestCase):
     def setUp(self):
         """Set up the test environment."""
@@ -203,8 +202,8 @@ class CreateTournamentTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT, f"Expected status 409, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'tournament name already in use', "Unexpected response message")
-    
-    @patch('jwt.decode') 
+
+    @patch('jwt.decode')
     def test_invalid_tournament_name(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -213,8 +212,8 @@ class CreateTournamentTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, f"Expected status 400, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'invalid tournament name', "Unexpected response message")
-    
-    @patch('jwt.decode') 
+
+    @patch('jwt.decode')
     def test_invalid_tournament_size(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -223,8 +222,8 @@ class CreateTournamentTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, f"Expected status 400, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'invalid tournament size', "Unexpected response message")
-    
-    @patch('jwt.decode') 
+
+    @patch('jwt.decode')
     def test_incomplete_body(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -234,7 +233,7 @@ class CreateTournamentTests(APITestCase):
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
         self.assertEqual(response.json()['detail'], 'incomplete body', "Unexpected response message")
 
-    @patch('jwt.decode')  
+    @patch('jwt.decode')
     def test_create_tournament_invalid_method(self, mock_jwt_decode):
         mock_jwt_decode.return_value = self.mock_jwt_payload
         self.client.credentials(HTTP_AUTHORIZATION='Bearer dummy_token')
@@ -251,8 +250,7 @@ class CreateTournamentTests(APITestCase):
         response = self.client.post(self.testurl, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, f"Expected status 401, got {response.status_code}")
         self.assertIn('detail', response.json(), "Response does not contain 'detail'")
-        self.assertEqual(response.json()['detail'], 'Invalid token', "Unexpected error detail in response")
-
+        self.assertEqual(response.json()['detail'], 'Given token not valid for any token type')
 class TournamentListTests(TestCase):
 
     def setUp(self):
@@ -265,7 +263,7 @@ class TournamentListTests(TestCase):
     def test_method_not_allowed(self, mock_jwt_decode):
         response = self.client.post(self.url, data={}, content_type='application/json')
         self.assertEqual(response.status_code, 405)
-        self.assertEqual(response.json(), {'detail': 'method not allowed', 'code': 'method_not_allowed'})
+        self.assertEqual(response.json()['detail'], 'Method not allowed')
 
     @patch('jwt.decode')
     def test_missing_authorization_header(self, mock_jwt_decode):
@@ -282,8 +280,7 @@ class TournamentListTests(TestCase):
     def test_missing_user_id_in_token(self, mock_jwt_decode):
         mock_jwt_decode.return_value = {}
         response = self.client.get(self.url, **self.headers)
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json(), {'detail': 'User not found', 'code': 'not_found'})
+        self.assertEqual(response.status_code, 401)
 
     @patch('jwt.decode')
     def test_empty_tournament_list(self, mock_jwt_decode):

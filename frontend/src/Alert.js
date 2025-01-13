@@ -1,5 +1,4 @@
-import TRequest from "../TRequest.js";
-import Router from "../Router.js";
+import TRequest from "./TRequest.js";
 
 class Alert {
   static errorMessage(title, message) {
@@ -58,12 +57,12 @@ class Alert {
 		}
 	  });
   }
-  
+
   static inviteMessage(title, message, link) {
-	const alertContainer = document.querySelector("#alert-container");
-  
-	// Generate the alert HTML
-	const alertHTML = `
+    const alertContainer = document.querySelector("#alert-container");
+
+    // Generate the alert HTML
+    const alertHTML = `
 	  <div class="row">
 		<div class="col-6 mx-auto">
 		  <div class="alert alert-primary alert-dismissible fade show" role="alert">
@@ -74,7 +73,7 @@ class Alert {
 		  </div>
 		</div>
 	  </div>`;
-  
+ 
 	// Append the alert to the container
 	alertContainer.innerHTML += alertHTML;
   
@@ -114,8 +113,7 @@ class Alert {
 	  }
 	});
   }
-  
-  
+
   static clearAlerts() {
     document.querySelector("#alert-container").innerHTML = "";
   }
