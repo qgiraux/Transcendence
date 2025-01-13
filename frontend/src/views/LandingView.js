@@ -196,7 +196,7 @@ class LandingView extends AbstractView {
       container.innerHTML = `
 			<div class="row text-white ">
 			<div class="col-10 mx-auto justify-content-center mb-5">
-				<img src="/img/transcendence.webp" class="img-fluid" alt="Responsive image">
+        <img src="/img/transcendence.webp" class="img-fluid" alt="Responsive image" style="max-height: 50vh; width: auto; display: block; margin: 0 auto;">
 			</div>
 
 		</div>
