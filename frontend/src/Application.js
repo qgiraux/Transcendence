@@ -96,6 +96,43 @@ class Application {
       payload: JSON.parse(jsonPayload),
     };
   }
+  //Check if the access token stored in the Application class has not expired.
+  // return Bool
+  static checkAccessTokenValidity() {
+    if (Application.#token.access === null) return false;
+    try {
+      const access = Application.#_parseToken(Application.#token.access);
+      if (access.payload.exp <= Math.floor(Date.now() / 1000)) return false;
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+  //try to refresh the JWT token. Throw an Error() if the refreshing did not succeed
+  static async refreshToken() {
+    const refresh = Application.getRefreshToken();
+    if (refresh === null) throw new Error("No refresh token");
+
+    const response = await fetch("/api/users/refresh/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh: Application.getRefreshToken() }),
+    });
+
+    if (!response.ok) {
+      throw new Error("The server refused to refresh the token");
+    }
+
+    const json = await response.json();
+    if (!json.access) {
+      throw new Error(`Invalid refresh token: ${JSON.stringify(json)}`);
+    }
+    Application.setAccessToken(json.access);
+  }
+
   static openWebSocket(url) {
     if (Application.#token === null) {
       // Correct the check
@@ -128,9 +165,7 @@ class Application {
   static toggleSideBar() {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
-    console.log(avatarImg);
     const userId = Application.getUserInfos().userId;
-    console.log(userId, "userId");
     document.querySelector("#side-username").textContent =
       Application.getUserInfos().userName;
     avatarImg.setAttribute("data-avatar", userId);

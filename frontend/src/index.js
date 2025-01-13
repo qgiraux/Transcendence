@@ -18,6 +18,7 @@ router.addRoute("/home", HomeView);
 router.addRoute("/profile", ProfileView);
 router.addRoute("/profile/:id", ProfileView);
 router.addRoute("/friends", FriendsView);
+
 router.addRoute("/blocks", BlocksView);
 router.addRoute("/twofa", TwofaView);
 router.addRoute("/tournaments", TournamentView);
