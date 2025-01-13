@@ -184,7 +184,7 @@ class TournamentsView extends AbstractView {
               friend_id: friendId,
               tournament_name: tournament,
             });
-            Alert.successMessage("Friend Invited", `Successfully invited friend ${friendId}`);
+            Alert.successMessage("Friend Invited", `Successfully invited friend ${friendName}`);
           } catch (error) {
             Alert.errorMessage("Error inviting friend", error.message);
           }

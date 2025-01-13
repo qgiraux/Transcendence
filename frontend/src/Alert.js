@@ -105,7 +105,7 @@ class Alert {
 	  if (alertElement) {
 		alertElement.remove();
 	  }
-	}, 5000);
+	}, 15000);
 	// Close the alert when clicking outside the window
 	document.addEventListener("click", (event) => {
 	  const alertElement = alertContainer.querySelector(".alert");
