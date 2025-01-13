@@ -184,7 +184,9 @@ class TournamentsView extends AbstractView {
               friend_id: friendId,
               tournament_name: tournament,
             });
-            Alert.successMessage("Friend Invited", `Successfully invited friend ${friendName}`);
+            const username = await TRequest.request("GET", `/api/users/userinfo/${friendId}`);
+            console.log(friendList[friendId])
+            Alert.successMessage("Friend Invited", `Successfully invited friend ${username.username}`);
           } catch (error) {
             Alert.errorMessage("Error inviting friend", error.message);
           }

@@ -55,7 +55,8 @@ class HomeView extends AbstractView {
           {
             // Display the invite
             TRequest.request("GET", `/api/users/userinfo/${sender}`).then(username => {
-              const textmessage = `${username} has invited you to a game!`;
+              console.log(username);
+              const textmessage = `${username.username} has invited you to a game!`;
               const link = message;
               console.log(`link: ${link} , textmessage: ${textmessage}`);
               Alert.inviteMessage(type, textmessage, link)
