@@ -10,6 +10,23 @@ class BlocksView extends AbstractView {
   userList = [];
   constructor(params) {
     super(params);
+    //AV
+    this.domText = {};
+    this.messages = {};
+    this.messages.error = "Error";
+    this.messages.wentWrong = "Something went wrong";
+    this.messages.getBlockErr = "Error getting blocklist";
+    this.messages.displayBlocksList = "Error displaying blocklist";
+    this.messages.modalNotFound = "Error : modal not found";
+    this.messages.idAttributeNotFound = "Error : data-id attribute not found on modal";
+    this.messages.addBlockSuccess = "Block added successfully";
+    this.messages.addBlockFailure = "The user couldn't be added to the blocklist";
+    this.messages.removeBlockFailure = "The user couldn't be removed from blocklist";
+
+
+
+
+    //
     this.onStart();
   }
 
@@ -28,7 +45,8 @@ class BlocksView extends AbstractView {
         this._refreshBlocksList();
       })
       .catch((error) => {
-        Alert.errorMessage("Error", error.message);
+        // Alert.errorMessage("Error", error.message); //HERE
+        Alert.errorMessage(this.message.error, error.message);
       });
 
     this._setHtml();
@@ -121,7 +139,7 @@ class BlocksView extends AbstractView {
           modal.show();
         })
         .catch((error) => {
-          Alert.errorMessage("something went wrong", error.message);
+          Alert.errorMessage(this.messages.wentWrong, error.message);//
         });
     }
   }
@@ -173,7 +191,8 @@ class BlocksView extends AbstractView {
       this.displayBlocksList(this.blockList);
     } catch (error) {
       Alert.errorMessage(
-        "get Blocks list : something went wrong",
+        // "get Blocks list : something went wrong", //
+        this.messages.getBlockErr,
         error.message
       );
     }
@@ -192,7 +211,8 @@ class BlocksView extends AbstractView {
         this.addBlockCard(block);
       });
     } catch (error) {
-      Alert.errorMessage("displayBlocksList error", error.message);
+      // Alert.errorMessage("displayBlocksList error", error.message); //
+      Alert.errorMessage(this.messages.displayBlocksList, error.message);
     }
   }
 
@@ -246,11 +266,14 @@ class BlocksView extends AbstractView {
       const button = event.target;
       const modal = button.closest(".modal");
       if (!modal) {
-        throw new Error("Modal not found");
+        // throw new Error("Modal not found"); //
+        throw new Error(this.messages.modalNotFound); 
       }
       const blockId = modal.getAttribute("data-id");
       if (!blockId) {
-        throw new Error("data-id attribute not found on modal");
+        // throw new Error("data-id attribute not found on modal"); //
+        throw new Error(this.messages.idAttributeNotFound);
+
       }
       const request = await TRequest.request(
         "POST",
@@ -259,11 +282,15 @@ class BlocksView extends AbstractView {
           id: blockId,
         }
       );
-      if (request.message !== "Block added successfully")
-        throw new Error("The user couldn't be added as a block");
+      // if (request.message !== "Block added successfully") //
+      //   throw new Error("The user couldn't be added as a block"); //
+      if (request.message !== this.messages.addBlockSuccess) //
+        throw new Error(this.messages.addBlockFailure); //
       await this._refreshBlocksList();
     } catch (error) {
-      Alert.errorMessage("something went wrong", error.message);
+      // Alert.errorMessage("something went wrong", error.message); //
+      Alert.errorMessage(this.messages.wentWrong, error.message); //
+
     }
   }
 
@@ -274,7 +301,9 @@ class BlocksView extends AbstractView {
       });
       this._refreshBlocksList();
     } catch (error) {
-      Alert.errorMessage("remove block error", error.message);
+      // Alert.errorMessage("remove block error", error.message);//
+      Alert.errorMessage(this.messages.removeBlockFailure, error.message);//
+
     }
   }
 

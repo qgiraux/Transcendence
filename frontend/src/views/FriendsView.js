@@ -10,6 +10,18 @@ class FriendsView extends AbstractView {
   userList = [];
   constructor(params) {
     super(params);
+    this.domText = {};
+    this.messages = {};
+    this.messages.error = "Error";
+    this.messages.wentWrong = "Something went wrong";
+    this.messages.getFriendsErr = "Error getting friends list";
+    this.messages.displayFriendsErr = "Error displaying friends list";
+    this.messages.modalNotFound = "Error : modal not found";
+    this.messages.idAttributeNotFound = "Error : data-id attribute not found on modal";
+    this.messages.addFriendSuccess = "Friend added successfully";
+    this.messages.addFriendFailure = "The user couldn't be added as a friend";
+    this.messages.removeFriendFailure = "The user couldn't be removed from friends list";
+    //Faudrait-il traduire les titres des pages?
     this.onStart();
   }
 
@@ -28,7 +40,8 @@ class FriendsView extends AbstractView {
         this._refreshFriendsList();
       })
       .catch((error) => {
-        Alert.errorMessage("Error", error.message);
+        // Alert.errorMessage("Error", error.message);
+        Alert.errorMessage(this.messages.error, error.message); // AV
       });
 
     this._setHtml();
@@ -121,7 +134,8 @@ class FriendsView extends AbstractView {
           modal.show();
         })
         .catch((error) => {
-          Alert.errorMessage("something went wrong", error.message);
+          // Alert.errorMessage("something went wrong", error.message);
+          Alert.errorMessage(this.messages.wentWrong, error.message); //AV
         });
     }
   }
@@ -173,9 +187,8 @@ class FriendsView extends AbstractView {
       this.displayFriendsList(this.friendList);
     } catch (error) {
       Alert.errorMessage(
-        "get Friends list : something went wrong",
-        error.message
-      );
+        // "get Friends list : something went wrong",
+        this.messages.getFriends,error.message);
     }
   }
 
@@ -192,7 +205,9 @@ class FriendsView extends AbstractView {
         this.addFriendCard(friend);
       });
     } catch (error) {
-      Alert.errorMessage("displayFriendsList error", error.message);
+      // Alert.errorMessage("displayFriendsList error", error.message);
+      Alert.errorMessage(this.messages.displayFriendsErr, error.message); //AV
+
     }
   }
 
@@ -246,11 +261,14 @@ class FriendsView extends AbstractView {
       const button = event.target;
       const modal = button.closest(".modal");
       if (!modal) {
-        throw new Error("Modal not found");
+        // throw new Error("Modal not found");
+        throw new Error(this.messages.modalNotFound); // AV
       }
       const friendId = modal.getAttribute("data-id");
       if (!friendId) {
-        throw new Error("data-id attribute not found on modal");
+        // throw new Error("data-id attribute not found on modal");
+        throw new Error(this.messages.idAttributeNotFound); //AV
+
       }
       const request = await TRequest.request(
         "POST",
@@ -259,11 +277,15 @@ class FriendsView extends AbstractView {
           id: friendId,
         }
       );
-      if (request.message !== "Friend added successfully")
-        throw new Error("The user couldn't be added as a friend");
+      //if (request.message !== "Friend added successfully")
+        //throw new Error(this.messages.addFriendFailure);
+      if (request.message !== this.messages.addFriendSuccess)
+        throw new Error(this.messages.addFriendFailure);
       await this._refreshFriendsList();
     } catch (error) {
-      Alert.errorMessage("something went wrong", error.message);
+      // Alert.errorMessage("something went wrong", error.message);
+      Alert.errorMessage(this.messages.wentWrong, error.message);
+
     }
   }
 
@@ -274,7 +296,9 @@ class FriendsView extends AbstractView {
       });
       this._refreshFriendsList();
     } catch (error) {
-      Alert.errorMessage("remove friend error", error.message);
+      // Alert.errorMessage("remove friend error", error.message);
+      Alert.errorMessage(this.messages.removeFriendFailure, error.message);
+
     }
   }
 

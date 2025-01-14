@@ -9,6 +9,18 @@ class ProfileView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("DefaultView");
+    this.domText = {};
+    this.messages = {};
+    this.messages.error = "Error";
+    this.messages.wentWrong = "Something went wrong";
+    this.messages.userStatsErr = "Error getting user stats";
+    this.messages.avatarResetErr = "Error resetting avatar";
+    this.messages.avatarUpdateErr = "Error updating avatar";
+    this.messages.avatarRefreshErr = "Error refreshing avatar";
+    this.messages.fileSelectFalse = "You must select a file";
+    this.messages.aliasUpdateErr = "Error updating alias"
+
+    this.messages.aliasEmptyErr = "Alias cannot be empty."
     this.onStart();
   }
 
@@ -32,7 +44,9 @@ class ProfileView extends AbstractView {
         });
       })
       .catch((error) => {
-        Alert.errorMessage("Something went wrong", error.message);
+        // Alert.errorMessage("Something went wrong", error.message);
+        Alert.errorMessage(this.messages.wentWrong, error.message);
+
       });
   }
 
@@ -93,11 +107,15 @@ class ProfileView extends AbstractView {
         }
       })
       .catch((error) => {
-        Alert.errorMessage(
-          "User Stats",
-          `Something went wrong: ${error.message}`
-        );
+        Alert.errorMessage(this.messages.userStatsErr, error.message); // AV
       });
+      // .catch((error) => {
+      //   Alert.errorMessage(
+      //     "User Stats",
+      //     `Something went wrong: ${error.message}`
+      //   );
+      // })
+      ;
   }
 
   _attachEventHandlers() {
@@ -150,13 +168,17 @@ class ProfileView extends AbstractView {
         .then(() => {
           Avatar.refreshAvatars();
         })
+        // .catch((error) => {
+        //   Alert.errorMessage("Avatar reset", `Something went wrong: ${error}`);
+        // });
         .catch((error) => {
-          Alert.errorMessage("Avatar reset", `Something went wrong: ${error}`);
+          Alert.errorMessage(this.messages.avatarResetErr, error.message); // AV
         });
     } else if (this.avatarChoice === "update") {
       const fileInput = document.getElementById("fileInput");
       if (!fileInput || fileInput.files.length === 0) {
-        Alert.errorMessage("Avatar", "You must select a file");
+        // Alert.errorMessage("Avatar", "You must select a file");
+        Alert.errorMessage(this.messages.avatarUpdateErr, this.messages.fileSelectFalse);
         return;
       }
 
@@ -167,7 +189,8 @@ class ProfileView extends AbstractView {
         await TRequest.request("POST", "/api/avatar/upload/", formData);
         await Avatar.refreshAvatars();
       } catch (error) {
-        Alert.errorMessage("Avatar", error.message);
+        // Alert.errorMessage("Avatar", error.message);
+        Alert.errorMessage(this.messages.avatarRefreshErr, error.message);
       }
     }
 
@@ -222,7 +245,8 @@ class ProfileView extends AbstractView {
 
     const newAlias = aliasInput.value.trim();
     if (!newAlias) {
-      Alert.errorMessage("Alias", "Alias cannot be empty.");
+      // Alert.errorMessage("Alias", "Alias cannot be empty.");
+      Alert.errorMessage(this.messages.aliasUpdateErr, this.messages.aliasEmptyErr);
       return;
     }
 
@@ -236,9 +260,8 @@ class ProfileView extends AbstractView {
         nicknameElement.textContent = newAlias;
       }
     } catch (error) {
-      Alert.errorMessage("Alias", `Failed to update alias: ${error.message}`);
+      Alert.errorMessage(this.messages.wentWrong, error.message);
     }
-
     this._forceModalClose("#aliasModal");
   }
 
