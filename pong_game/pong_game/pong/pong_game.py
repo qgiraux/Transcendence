@@ -25,7 +25,7 @@ class Player:
 	playerid = attr.ib()
 	score = attr.ib(default=0, validator=attr.validators.instance_of(int))
 	player_left = attr.ib(default = True, validator=attr.validators.instance_of(bool))
-	
+
 	@staticmethod
 	def validate_paddle_y(_, __, value):
 		if value < 10 or value > 90:
@@ -36,7 +36,7 @@ class Player:
 	@staticmethod
 	def from_playerid(playerid):
 		return Player(playerid=playerid, paddle_y=50, score=0)
-	
+
 	def render(self) -> Mapping[str, Any]:
 		return {
 			"playerid": self.playerid,
@@ -73,9 +73,9 @@ class Ball:
 		# Wall collisions
 		if (self.position[1] <= 0 + 2 and self.direction[1] < 0) or (self.position[1] >= 100 - 2 and self.direction[1] > 0):
 			self.direction[1] = -self.direction[1]
-		
+
 		# Paddle collisions
-		if (self.position[0] <= 10 - 2 and 
+		if (self.position[0] <= 10 - 2 and
 			paddle_left - 10 <= self.position[1] <= paddle_left + 10) and self.direction[0] < 0:
 			delta = self.position[1] - paddle_left
 			self.direction[0] = -self.direction[0]
@@ -106,7 +106,7 @@ class Ball:
 		elif self.position[0] >= 200:  # Assuming game width is 200
 			player1.score += 1
 			self.reset()
-	
+
 	def reset(self):
 		if self.position[0] < 100:
 			self.direction = [1, random.uniform(0.1, 0.3)]
@@ -135,7 +135,7 @@ class State:
 			player_left=Player.from_dict(state_dict["player_left"]),
 			player_right=Player.from_dict(state_dict["player_right"]) if state_dict.get("player_right") else None,
 		)
-	
+
 	def render(self) -> Mapping[str, Any]:
 		# log.error("rendering")
 		return {
@@ -196,7 +196,7 @@ class PongEngine(threading.Thread):
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_update", "state": state_json}
 		)
-	
+
 	async def broadcast_game_over(self):
 		log.error("Reached the game over broadcaster")
 		state_json = self.state.render()
@@ -204,7 +204,7 @@ class PongEngine(threading.Thread):
 			self.state.player_left.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_right.playerid
 		)
 		state_json["tournament_id"] = self.group_name
-		state_json["date"] = datetime.now().strftime("%Y/%m/%d %H:%M")
+		state_json["date"] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 		state_json["p1"] = self.state.player_left.playerid
 		state_json["p1score"] = self.state.player_left.score
 		state_json["p2"] = self.state.player_right.playerid
@@ -222,7 +222,7 @@ class PongEngine(threading.Thread):
 			log.error(f"Invalid player IDs: p1={state_json['p1']}, p2={state_json['p2']}")
 			return
 		required_fields = ['tournament_id', 'date', 'opponent', 'score', 'win']
-		
+
 		url1 = f"http://user_management:8000/adduserstats/{p1_id}"
 		url2 = f"http://user_management:8000/adduserstats/{p2_id}"
 		header = {
@@ -235,27 +235,27 @@ class PongEngine(threading.Thread):
 		state_json["opponent"] = state_json["p2"]
 		async with httpx.AsyncClient() as client:
 			response = await client.post(
-				f"https://localhost:5000/api/users/adduserstats/1",
+				url1,
 				json=state_json,
 				headers=header
 			)
 			log.error(response.status_code)
-		
+
 
 		# Post stats for player 2
 		state_json["win"] = "no" if self.state.player_left.score > self.state.player_right.score else "yes"
 		state_json["opponent"] = state_json["p1"]
 		async with httpx.AsyncClient() as client:
 			response = await client.post(
-				f"http://user_management:8000/adduserstats/{p2_id}",
+				url2,
 				json=state_json,
 				headers=header
 			)
 			log.error(response.status_code)
 
-		
-		
-		
+
+
+
 
 	def tick(self) -> State:
 		state = self.state
@@ -302,7 +302,7 @@ class PongEngine(threading.Thread):
 
 		if state.player_left.playerid in movements:
 			state.player_left.move_paddle(movements[state.player_left.playerid])
-		
+
 		if state.player_right.playerid in movements:
 			state.player_right.move_paddle(movements[state.player_right.playerid])
 
@@ -337,4 +337,3 @@ class PongEngine(threading.Thread):
 		self.game_on = False
 		log.error("reached the end_game broadcaster")
 		await self.broadcast_game_over()
-		
