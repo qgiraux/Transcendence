@@ -1,0 +1,28 @@
+{
+	"sys": {
+		"host": "localhost:5000",
+		"err": "Error"
+	},
+	"api": {
+		"signup": "/api/users/register/"
+	},
+	"cli": {
+		"prompt" : {
+			"pwd:re": "Confirm password:",
+			"pwd": "Enter password:",
+			"login": "Enter login:"
+		},
+		"signup": {
+			"cmd": {
+ 				"shell": "node pong-cli signup",
+				"desc": "Register to Pong",
+				"opts[]": ["[--help]", "[--host=<hostname:port>]", "[--login=<login>]", "[--password=<password>]"]
+			},
+			"ok": "Registration success!",
+			"err": {
+				"pwd:match": "Passwords do not match.",
+				"bad?host": "Invalid host {{host}}."
+			}			
+		}
+	}
+}
