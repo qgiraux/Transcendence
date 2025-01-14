@@ -164,10 +164,25 @@ class ProfileView extends AbstractView {
       formData.append("image", fileInput.files[0]);
 
       try {
-        await TRequest.request("POST", "/api/avatar/upload/", formData);
+        console.log("starting the request");
+        const r = await TRequest.request(
+          "POST",
+          "/api/avatar/upload/",
+          formData
+        );
+        if (typeof r != "object") throw new Error("upload error");
+        if (r.hasOwnProperty("error")) {
+          console.log(r.error);
+          throw new Error("upload error");
+        }
         await Avatar.refreshAvatars();
       } catch (error) {
-        Alert.errorMessage("Avatar", error.message);
+        console.log("an error has occured");
+        Alert.errorMessage(
+          "Avatar",
+          `The picture could't be uploaded.
+			Please check that it is a valid jpeg or png file, less or equal than 5MB`
+        );
       }
     }
 
