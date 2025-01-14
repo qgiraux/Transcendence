@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from jwt.exceptions import InvalidTokenError
 import re
+from .tournament import Tournament_operation
 from .mock_jwt_expired  import mock_jwt_expired
 
 
@@ -131,7 +132,6 @@ def JoinTournament(request):
     if not tournament_name or not re.match(r'^[a-zA-Z0-9]{5,16}$', tournament_name):
         return JsonResponse({'detail': 'invalid tournament name', 'code': 'error_occurred'}, status=400)
 
-
     try:
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
@@ -144,9 +144,13 @@ def JoinTournament(request):
 
     tournament.player_list.append(user_id)  # Add player ID 1
     tournament.save()
+    try :
+        Tournament_operation(tournament)
+    except Exception as e:
+        return JsonResponse({'detail': 'Error starting tournament', 'code': 'error_occurred'}, status=500)
     # if len(tournament.player_list) >= tournament.tournament_size:
-        # Start the tournament
-        # return Tournament_operation(tournament)
+    #     # Start the tournament
+    #     return Tournament_operation(tournament)
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
 
 @csrf_exempt
@@ -192,7 +196,6 @@ def TournamentDetails(request, name):
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
-    logger.error(name)
     try:
         tournament = Tournament.objects.get(tournament_name=name)
     except ObjectDoesNotExist:
@@ -202,7 +205,6 @@ def TournamentDetails(request, name):
 @csrf_exempt
 @permission_classes([IsAuthenticated])
 def DeleteTournament(request):
-    logger.error(request.method)
     if request.method != 'DELETE':
         return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
     try:

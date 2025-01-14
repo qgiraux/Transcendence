@@ -50,7 +50,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         await redis_client.close()
 
-
     def decode_token(self, token):
         try:
             return jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])

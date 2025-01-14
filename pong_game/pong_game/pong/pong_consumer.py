@@ -5,6 +5,8 @@ from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
 from .pong_game import Direction, PongEngine
+from django.http import HttpResponse
+from http import HTTPStatus
 from django.conf import settings
 
 log = logging.getLogger(__name__)
@@ -16,20 +18,21 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         query_params = parse_qs(self.scope['query_string'].decode())
-        # token = query_params.get('token', [None])[0]
-        # if token:
-        #     user_info = self.decode_token(token)
-        #     if user_info:
-        #         # Decode the token to get user_id and nickname
-        #         self.user_id = user_info['user_id']
-        #         self.nickname = user_info['nickname']
-        #     else:
-        #         await self.close()
-        #         return HttpResponse("Invalid Token", status=HTTPStatus.UNAUTHORIZED) 
-        # else:
-        #     await self.close()
-        #     return HttpResponse("Token not provided", status=HTTPStatus.BAD_REQUEST)
-        pong_game = str(query_params.get('name')[0])
+        token = query_params.get('token', [None])[0]
+        log.error(token)
+        if token:
+            user_info = self.decode_token(token)
+            if user_info:
+                # Decode the token to get user_id and nickname
+                self.user_id = user_info['user_id']
+                self.nickname = user_info['nickname']
+            else:
+                await self.close()
+                return HttpResponse("Invalid Token", status=HTTPStatus.UNAUTHORIZED) 
+        else:
+            await self.close()
+            return HttpResponse("Token not provided", status=HTTPStatus.BAD_REQUEST)
+        pong_game = 'pong_game'
         self.group_name = pong_game
         self.game = None
 
@@ -53,12 +56,12 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         if "userid" not in self.scope["session"]:
             self.scope["session"]["userid"] = userid
             self.scope["session"].save()
-        self.userid = self.scope["session"]["userid"]
         self.pong[game].player_join({"userid": userid})
         await self.channel_layer.send(
             game,
-            {"type": "player_join", "userid": self.userid, "channel": self.channel_name},
+            {"type": "player_join", "userid": userid, "channel": self.channel_name},
         )
+
     async def create(self, data):
         log.error("Create game")
         gameName = data.get("name")
@@ -82,6 +85,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             case "move_paddle":
                 await self.move_paddle(msg_data)
             case "create":
+                log.error("Create game")
                 await self.create(msg_data)
             case _:
                 log.warning("Unknown message type: %s", msg_type)
@@ -156,5 +160,4 @@ class PongConsumer(SyncConsumer):
 		except KeyError:
 			log.error("Invalid direction")
 			return
-
 		self.engine.get_player_paddle_move(event["userid"], direction)

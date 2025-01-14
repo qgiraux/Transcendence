@@ -57,11 +57,13 @@ class Player:
 
 class Ball:
 	def __init__(self, gameid):
-		self.position = [100, 50]
+		
 		self.direction = [random.choice([-1, 1]), 0.2]
-		self.speed = 10
+		self.speed = 3
 		self.game = gameid
 		self.game_width = 200  # Assuming game width is 200
+		self.game_height = 100  # Assuming game height is 100
+		self.position = [self.game_width / 2, self.game_height / 2]
 		self.position[0] += self.speed * self.direction[0]
 		self.position[1] += self.speed * self.direction[1]
 
@@ -71,49 +73,40 @@ class Ball:
 
 	def check_collisions(self, paddle_left, paddle_right):
 		# Wall collisions
-		if (self.position[1] <= 0 + 2 and self.direction[1] < 0) or (self.position[1] >= 100 - 2 and self.direction[1] > 0):
+		if (self.position[1] <= 0 and self.direction[1] < 0) or (self.position[1] > self.game_height and self.direction[1] > 0):
 			self.direction[1] = -self.direction[1]
 		
 		# Paddle collisions
-		if (self.position[0] <= 10 - 2 and 
+		if (self.position[0] <= 10 and 
 			paddle_left - 10 <= self.position[1] <= paddle_left + 10) and self.direction[0] < 0:
 			delta = self.position[1] - paddle_left
 			self.direction[0] = -self.direction[0]
 
 			# Normalize the delta to a more reasonable angle adjustment
-			if delta == 0:
-				self.direction[1] = 0  # Ball hits the center, no vertical change
-			else:
-				# Adjust the *2 factor to control angle steepness
-				self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
+			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
 
-		elif (self.position[0] >= 190 + 2 and
+		elif (self.position[0] >= 190 and
 			paddle_right - 10 <= self.position[1] <= paddle_right + 10) and self.direction[0] > 0:
 			delta = self.position[1] - paddle_right
 			self.direction[0] = -self.direction[0]
 
 			# Normalize the delta to a more reasonable angle adjustment
-			if delta == 0:
-				self.direction[1] = 0  # Ball hits the center, no vertical change
-			else:
-				# Adjust the *2 factor to control angle steepness
-				self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
+			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
 
 	def update_scoring(self, player1, player2):
 		if self.position[0] <= 0:
 			player2.score += 1
 			self.reset()
-		elif self.position[0] >= 200:  # Assuming game width is 200
+		elif self.position[0] >= self.game_width:
 			player1.score += 1
 			self.reset()
 	
 	def reset(self):
-		if self.position[0] < 100:
+		if self.position[0] < self.game_height:
 			self.direction = [1, random.uniform(0.1, 0.3)]
 		else:
 			self.direction = [-1, random.uniform(0.1, 0.3)]
-		self.position = [100, 50]
-		random.uniform(0.1, 0.3)
+		self.position = [self.game_width / 2, self.game_height / 2]
 
 	def render(self) -> Mapping[str, Any]:
 		return {
@@ -169,6 +162,7 @@ class PongEngine(threading.Thread):
 		if not (self.state.player_left is None or self.state.player_right is None):
 			log.error("game is on!")
 			self.game_on = True
+			#wait for "space" press on both players, and start a countdown before truly starting the game
 
 		log.error("is game on? %s", self.game_on)
 
