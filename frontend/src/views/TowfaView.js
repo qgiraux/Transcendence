@@ -8,6 +8,10 @@ class TwofaView extends AbstractView {
     constructor(params) {
         super(params);
         this._setTitle("DefaultView");
+        this.domText = {};
+        this.domText.scanQR = "Scan this QRcode with your authentificator app";
+        this.messages = {};
+        this.messages.wentWrong = "Something went wrong";
         this.onStart();
     }
 
@@ -27,7 +31,7 @@ class TwofaView extends AbstractView {
                 this._setHtml();
             })
             .catch((error) => {
-                Alert.errorMessage("something went wrong", error.message);
+                Alert.errorMessage(this.messages.wentWrong, error.message);
             });
     }
 
@@ -39,7 +43,7 @@ class TwofaView extends AbstractView {
             const imageUrl = URL.createObjectURL(this.imageBlob);
 
             container.innerHTML = `
-                <h1 class="text-white display-4">scan this qrcode with your authentificator app</h1>
+                <h1 class="text-white display-4">${this.domText.scanQR}</h1>
                 <div class="row p-2 mb-0">
                     <div class="col-3 mx-1">
 						

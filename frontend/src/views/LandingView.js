@@ -9,6 +9,16 @@ class LandingView extends AbstractView {
     super(params);
     this._setTitle("Login");
     this.domText = {};
+    this.domText.loginLabel = "Login";
+    this.domText.enterLoginField = "Enter login";
+    this.domText.passwordLabel = "Password";
+    this.domText.passwordField = "Password required";
+    this.domText.twofaLabel = "2FA code (if activated)";
+    this.domText.twofaField = "2FA if required";
+    this.domText.loginSubmit = "Log in";
+    this.domText.chooseLogin = "Choose your login";
+    this.domText.choosePassword = "Choose your password";
+    this.domText.signInSubmit = "Create your account";
     this.messages = {};
     this.messages.loginAlertTitle = "Login Error";
     this.messages.registerAlertTitle = "Register Error";
@@ -217,20 +227,20 @@ class LandingView extends AbstractView {
 			<div class="col-6 mx-auto mt-5">
 				<form>
 					<div class="form-group text-white ">
-						<label for="InputLogin">Login</label>
+						<label for="InputLogin">${this.domText.loginLabel}</label>
 						<input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
-							placeholder="Enter login" required>
+							placeholder=${this.domText.enterLoginField} required>
 
 					</div>
 					<div class="form-group text-white ">
-						<label for="InputPassword">Password</label>
-						<input type="password" class="form-control" id="InputPassword" placeholder="Password required">
+						<label for="InputPassword">${this.domText.passwordLabel}</label>
+						<input type="password" class="form-control" id="InputPassword" placeholder=${this.domText.passwordField}>
 					</div>
           <div class="form-group text-white ">
-						<label for="InputPassword">2FA code (if activated)</label>
-						<input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
+						<label for="InputPassword">${this.domText.twofaLabel}</label>
+						<input type="twofa" class="form-control" id="InputTwofa" placeholder="${this.domText.twofaField}">
 					</div>
-					<button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
+					<button id="login-btn" type="submit" class="btn btn-primary mt-3">${this.domText.loginSubmit}</button>
 				</form>
 
 			</div>
@@ -243,18 +253,18 @@ class LandingView extends AbstractView {
 					<div class="form-group text-white  ">
 						<label for="RegisterLogin">Choose your Login</label>
 						<input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
-							placeholder="Choose a login" required>
+							placeholder="${this.domText.chooseLogin}" required>
 
 					</div>
 					<div class="form-group text-white mt-2 ">
-						<label for="RegisterPassword">Choose your Password</label>
-						<input type="password" class="form-control" id="RegisterPassword" placeholder="Password" required>
+						<label for="RegisterPassword">${this.domText.choosePassword}</label>
+						<input type="password" class="form-control" id="RegisterPassword" placeholder=${this.domText.passwordLabel} required>
 					</div>
 					<div class="form-group text-white mt-2 ">
 						<label for="RegisterPasswordConfirm">Confirm your Password</label>
-						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
+						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder=${this.domText.passwordLabel} required>
 					</div>
-					<button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
+					<button id="register-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signInSubmit}</button>
 				</form>
 
 			</div>
@@ -262,5 +272,83 @@ class LandingView extends AbstractView {
     }
   }
 }
+
+//Old version
+
+
+// setHtml() {
+//   let pm = "";
+//   const container = document.querySelector("#view-container");
+//   if (container) {
+//     container.innerHTML = `
+//     <div class="row text-white ">
+//     <div class="col-10 mx-auto justify-content-center mb-5">
+//       <img src="/img/transcendence.webp" class="img-fluid" alt="Responsive image" style="max-height: 50vh; width: auto; display: block; margin: 0 auto;">
+//     </div>
+
+//   </div>
+//   <div class="row text-white ">
+//     <div class="col-6 mx-auto">
+//       <div class="btn-group d-flex text-center" role="group" aria-label="toggle login register">
+//         <input type="radio" class="btn-check" name="btnradio" id="loginradio" autocomplete="off" checked>
+//         <label class="btn btn-outline-primary btn-custom" for="loginradio"> Login</label>
+
+//         <input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
+//         <label class="btn btn-outline-primary btn-custom" for="registerradio">Create an account</label>
+//       </div>
+//     </div>
+
+//   </div>
+
+//   <div class="row " id="login-form">
+//     <div class="col-6 mx-auto mt-5">
+//       <form>
+//         <div class="form-group text-white ">
+//           <label for="InputLogin">Login</label>
+//           <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
+//             placeholder="Enter login" required>
+
+//         </div>
+//         <div class="form-group text-white ">
+//           <label for="InputPassword">Password</label>
+//           <input type="password" class="form-control" id="InputPassword" placeholder="Password required">
+//         </div>
+//         <div class="form-group text-white ">
+//           <label for="InputPassword">2FA code (if activated)</label>
+//           <input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
+//         </div>
+//         <button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
+//       </form>
+
+//     </div>
+
+//   </div>
+
+//   <div class="row " id="register-form">
+//     <div class="col-6 mx-auto mt-5 ">
+//       <form>
+//         <div class="form-group text-white  ">
+//           <label for="RegisterLogin">Choose your Login</label>
+//           <input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
+//             placeholder="Choose a login" required>
+
+//         </div>
+//         <div class="form-group text-white mt-2 ">
+//           <label for="RegisterPassword">Choose your Password</label>
+//           <input type="password" class="form-control" id="RegisterPassword" placeholder="Password" required>
+//         </div>
+//         <div class="form-group text-white mt-2 ">
+//           <label for="RegisterPasswordConfirm">Confirm your Password</label>
+//           <input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
+//         </div>
+//         <button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
+//       </form>
+
+//     </div>
+// `;
+//   }
+// }
+// }
+
 
 export default LandingView;

@@ -10,6 +10,18 @@ class TournamentsView extends AbstractView {
 
   constructor(params) {
     super(params);
+    this.domText = {};
+    this.messages = {};
+    this.messages.fetchTournamentsErr = "Error fetching tournaments";
+    this.messages.displayTournamentsErr = "Error displaying tournaments";
+    this.messages.joinTournamentErr = "Error joining tournament";
+    this.messages.createTournamentErr = "Error creating tournament";
+    this.messages.inviteFriendTitle = "Friend Invited";
+    this.messages.inviteFriendSuccess = "Successfully invited friend";
+    this.messages.inviteFriendFailure = "Error inviting friend";
+    this.messages.invalidName = "Invalid tournament name";
+    this.messages.tourNameRequirements = "Tournament name must be 3-30 characters long and contain only letters and numbers.";
+
     this.onStart();
   }
 
@@ -35,7 +47,9 @@ class TournamentsView extends AbstractView {
       this.tournamentsList = response.tournaments || [];
       this.displayTournamentsList(this.tournamentsList);
     } catch (error) {
-      Alert.errorMessage("Error fetching tournaments", error.message);
+      // Alert.errorMessage("Error fetching tournaments", error.message);
+      Alert.errorMessage(this.messages.fetchTournamentsErr, error.message);
+
     }
   }
 
@@ -47,7 +61,9 @@ class TournamentsView extends AbstractView {
         await this.addTournamentCard(tournament);
       }
     } catch (error) {
-      Alert.errorMessage("Error displaying tournaments", error.message);
+      // Alert.errorMessage("Error displaying tournaments", error.message);
+      Alert.errorMessage(this.messages.displayTournamentsErr, error.message);
+
     }
   }
 
@@ -57,7 +73,9 @@ class TournamentsView extends AbstractView {
     try {
       await this._fetchTournaments()
     } catch (error) {
-      Alert.errorMessage("Error displaying tournaments", error.message);
+      // Alert.errorMessage("Error displaying tournaments", error.message);
+      Alert.errorMessage(this.messages.displayTournamentsErr, error.message);
+
     }
   }
 
@@ -149,7 +167,9 @@ class TournamentsView extends AbstractView {
             joinButton.style.backgroundColor = "grey";
             joinButton.style.cursor = "not-allowed";
           } catch (error) {
-            Alert.errorMessage("Error joining tournament", error.message);
+            // Alert.errorMessage("Error joining tournament", error.message);
+            Alert.errorMessage(this.messages.joinTournamentErr, error.message);
+
           }
         });
       }
@@ -167,7 +187,8 @@ class TournamentsView extends AbstractView {
             // joinButton.style.backgroundColor = "grey";
             // joinButton.style.cursor = "not-allowed";
           } catch (error) {
-            Alert.errorMessage("Error joining tournament", error.message);
+            // Alert.errorMessage("Error joining tournament", error.message);
+            Alert.errorMessage(this.messages.joinTournamentErr, error.message);
           }
         });
       }
@@ -186,9 +207,11 @@ class TournamentsView extends AbstractView {
             });
             const username = await TRequest.request("GET", `/api/users/userinfo/${friendId}`);
             console.log(friendList[friendId])
-            Alert.successMessage("Friend Invited", `Successfully invited friend ${username.username}`);
+            // Alert.successMessage("Friend Invited", `Successfully invited friend ${username.username}`);
+            Alert.successMessage(this.messages.inviteFriendTitle, `${this.messages.inviteFriendSuccess} ${username.username}`);
           } catch (error) {
-            Alert.errorMessage("Error inviting friend", error.message);
+            Alert.errorMessage(this.messages.inviteFriendFailure, error.message);
+            // Alert.errorMessage("Error inviting friend", error.message);
           }
         });
       });
@@ -211,11 +234,12 @@ class TournamentsView extends AbstractView {
       // Ensure the response contains a "friends" array
       if (!response || !Array.isArray(response.friends)) {
         console.error("Invalid friends list response:", response);
-        throw new Error("Friends list is not in the expected format.");
+        throw new Error("Friends list is not in the expected format."); //BACK ?>
       }
       return response.friends;
     } catch (error) {
-      Alert.errorMessage("Error fetching friends list", error.message);
+      // Alert.errorMessage("Error fetching tournament", error.message);
+      Alert.errorMessage(this.messages.fetchTournamentsErr, error.message);
       return []; // Return an empty array if there's an error
     }
   }
@@ -252,14 +276,16 @@ class TournamentsView extends AbstractView {
       const tournamentSize = document.querySelector("#tournament-size").value;
 
       if (!/^[a-zA-Z0-9]{3,30}$/.test(tournamentName)) {
-        Alert.errorMessage("Invalid tournament name", "Tournament name must be 3-30 characters long and contain only letters and numbers.");
+        // Alert.errorMessage("Invalid tournament name", "Tournament name must be 3-30 characters long and contain only letters and numbers.");
+        Alert.errorMessage(this.messages.invalidName, this.messages.tourNameRequirements);
+
         return;
       }
       try {
         await TRequest.request("POST", "/api/tournament/create/", { name: tournamentName, size: tournamentSize });
         this._fetchTournaments();
       } catch (error) {
-        Alert.errorMessage("Error creating tournament", error.message);
+        Alert.errorMessage(this.messages.createTournamentErr, error.message);
       }
     });
   }

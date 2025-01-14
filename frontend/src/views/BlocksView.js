@@ -22,10 +22,6 @@ class BlocksView extends AbstractView {
     this.messages.addBlockSuccess = "Block added successfully";
     this.messages.addBlockFailure = "The user couldn't be added to the blocklist";
     this.messages.removeBlockFailure = "The user couldn't be removed from blocklist";
-
-
-
-
     //
     this.onStart();
   }
