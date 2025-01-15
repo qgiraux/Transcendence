@@ -1,0 +1,35 @@
+{
+    "landing": {
+      "login": {
+        "label": "Login",
+        "enterField": "Enter login",
+        "choose": "Choose your login"
+      },
+      "password": {
+        "label": "Password",
+        "field": "Password required",
+        "choose": "Choose your password",
+        "confirm": "Confirm your password"
+      },
+      "twofa": {
+        "label": "2FA code (if activated)",
+        "field": "2FA if required"
+      },
+      "signup": {
+        "submit": "Create your account"
+      },
+      "signin": {
+        "submit": "Log in"
+      },
+      "messages": {
+        "loginErrorTitle": "Login Error",
+        "registerErrorTitle": "Register Error",
+        "invalidCredentials": "Invalid username or password",
+        "wrongCredentialsFormat": "You must provide a valid username and password.\nThe login must contains only letters or digits and be between 5-20 characters long <br> The password must be contains at least 8 characters and contains one digit,\none uppercase letter and at least one special character : !@#$%^&* ",
+        "serverError": "The server could not process your request. Please try again later",
+        "userAlreadyExist": "A user with that username already exists.",
+        "passwordsDontMatch": "The two password fields must be identical"
+      }
+    }
+  }
+  

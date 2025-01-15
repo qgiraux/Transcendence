@@ -1,0 +1,12 @@
+<!-- users/home1.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome, {{ user }}!</h1>
+    <p><a href="{% url 'user-list' %}">View all users</a></p>
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+</body>
+</html>
