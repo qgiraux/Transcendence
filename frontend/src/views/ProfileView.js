@@ -24,80 +24,89 @@ class ProfileView extends AbstractView {
     TRequest.request("GET", `/api/users/userinfo/${this.id}`)
       .then((result) => {
         this.currentUserInfos = result;
-
-        Avatar.refreshAvatars().then(() => {
-          this._setHtml();
-          this._attachEventHandlers();
-          this._userStats();
-        });
+        return this._getUserStats();
+      })
+      .then(() => {
+        return TRequest.request("GET", "/api/users/userlist/");
+      })
+      .then((result) => {
+        this.userList = result;
+        this._setHtml();
+        this._displayHistory();
+        Avatar.refreshAvatars();
+        this._attachEventHandlers();
+        setTimeout(() => {
+          const bar = document.getElementById("progress-bar");
+          bar.style.width = `${(5 - this.playerVictoryRemain) * 20}%`;
+        }, 300);
       })
       .catch((error) => {
         Alert.errorMessage("Something went wrong", error.message);
       });
   }
 
-  _userStats() {
-    TRequest.request("GET", `/api/users/userstats/${this.id}`)
-      .then((result) => {
-        // Assuming result is an object like { "001": { ...stats } }
-        const statsContainer = document.createElement("div");
-        statsContainer.className = "user-stats";
-        let stats;
+  async _getUserStats() {
+    try {
+      const stats = await TRequest.request(
+        "GET",
+        `/api/users/userstats/${this.id}`
+      );
 
-        // Create the table with headers and rows
-        const table = document.createElement("table");
-        table.className = "table table-dark table-striped";
-
-        // Create the table header row with fixed order 'date', 'win', 'score', 'opponent'
-        const headerRow = document.createElement("tr");
-
-        // Create the headers in the correct order
-        const headers = ["date", "win", "score", "opponent"];
-        headers.forEach((header) => {
-          const th = document.createElement("th");
-          th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalize first letter
-          headerRow.appendChild(th);
-        });
-
-        table.appendChild(headerRow); // Append the header row
-
-        // Sort the result based on the 'date' field in descending order (most recent first)
-        const sortedStats = Object.values(result).sort((a, b) => {
-          const dateA = new Date(a.date); // Convert 'date' string to Date object
-          const dateB = new Date(b.date); // Convert 'date' string to Date object
-          return dateB - dateA; // Sort in descending order (most recent first)
-        });
-
-        // Create the table body, where each row corresponds to a stat (e.g., "001", "002")
-        sortedStats.forEach((stat) => {
-          const row = document.createElement("tr");
-
-          // For each stat, create a table cell (td) in the correct order: date, win, score, opponent
-          const cells = ["date", "win", "score", "opponent"];
-          cells.forEach((key) => {
-            const td = document.createElement("td");
-            td.textContent = stat[key]; // Use the value of the field
-            row.appendChild(td);
-          });
-
-          table.appendChild(row); // Append each row to the table
-        });
-
-        // Append the table to the container
-        statsContainer.appendChild(table);
-
-        // Append the stats container to the main container (where it should appear in the DOM)
-        const container = document.querySelector("#stat-container");
-        if (container) {
-          container.appendChild(statsContainer);
-        }
-      })
-      .catch((error) => {
-        Alert.errorMessage(
-          "User Stats",
-          `Something went wrong: ${error.message}`
-        );
+      const entries = Object.entries(stats);
+      this.playerHistory = entries.map(([k, v]) => ({
+        match_id: k,
+        ...v,
+      }));
+      this.playerHistory = this.playerHistory.map((match) => ({
+        ...match,
+        date: new Date(match.date),
+      }));
+      this.playerHistory = this.playerHistory.sort((a, b) => {
+        return a.date - b.date;
       });
+      this.playerMatchPlayed = this.playerHistory.length;
+      this.playerMatchWon = this.playerHistory.reduce((victories, current) => {
+        return current.win == "yes" ? victories + 1 : victories;
+      }, 0);
+      this.playerLevel = Math.floor(this.playerMatchWon / 5);
+      this.playerVictoryRemain = 5 - (this.playerMatchWon % 5);
+    } catch (error) {
+      Alert.errorMessage(
+        "User Stats",
+        `Something went wrong: ${error.message}`
+      );
+    }
+  }
+  _displayHistory() {
+    const table = document.getElementById("table-history");
+    this.playerHistory.forEach((match) => {
+      const tr = document.createElement("tr");
+      const nickname = this.userList.filter((user) => {
+        return user.id === Number(match.opponent);
+      })[0].nickname;
+
+      tr.innerHTML = `
+      <th class="d-flex justify-content-center align-items-center"> ${
+        match.win === "yes"
+          ? '<img src="/img/winning-cup.png" width="40" height="40" alt="winner"  style="padding: 0;margin: 0; background-color: transparent;">'
+          : '<img src="/img/loser.png" width="40" height="40" alt="loser"  style="padding: 0;margin: 0; background-color: transparent;">'
+      }</th>
+            <td class="text-center">${match.date.toLocaleDateString(
+              "fr-FR"
+            )}</td>
+          <td class="text-center">${match.score}</td>
+          <td class="text-center"><img src="${Avatar.url(
+            match.opponent
+          )}" class="rounded-circle border-0" width="40" height="40" alt="${
+        match.opponent
+      }" style="padding: 0;margin: 0;" data-avatar="${
+        match.opponent
+      }"> <a href="/profile/${
+        match.opponent
+      }"  class="text-decoration-none" data-link style="padding: 0;margin: 0;background-color: transparent;" >${nickname}</a></td>`;
+
+      table.appendChild(tr);
+    });
   }
 
   _attachEventHandlers() {
@@ -164,7 +173,6 @@ class ProfileView extends AbstractView {
       formData.append("image", fileInput.files[0]);
 
       try {
-        console.log("starting the request");
         const r = await TRequest.request(
           "POST",
           "/api/avatar/upload/",
@@ -172,16 +180,14 @@ class ProfileView extends AbstractView {
         );
         if (typeof r != "object") throw new Error("upload error");
         if (r.hasOwnProperty("error")) {
-          console.log(r.error);
           throw new Error("upload error");
         }
         await Avatar.refreshAvatars();
       } catch (error) {
-        console.log("an error has occured");
         Alert.errorMessage(
           "Avatar",
           `The picture could't be uploaded.
-			Please check that it is a valid jpeg or png file, less or equal than 5MB`
+            Please check that it is a valid jpeg or png file, less or equal than 5MB`
         );
       }
     }
@@ -343,44 +349,70 @@ class ProfileView extends AbstractView {
         </div>
         <!-- END Avatar Modal -->
 
-        <div class="row p-3">
-          <div class="row align-items-center">
-            <div class="col-md-6">
+        <div class="row p-1 mb-4 ">
+            <div class="row align-items-center">
+                <div class="col-md-6">
               <img id="profile-img" src="${Avatar.url(
                 this.currentUserInfos.id
               )}" width="300" height="300" data-avatar="${
         this.currentUserInfos.id
       }" alt="user" class="rounded-circle">
             </div>
-            <div class="col-md-6">
-              <h1 class="text-white display-1">${
-                this.currentUserInfos.username
-              }</h1>
-              <p class="text-white display-5" id=nickname>${
-                this.currentUserInfos.nickname
-              }</p>
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileEdit
-                  : ""
-              }
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileAlias
-                  : ""
-              }
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileTwofa
-                  : ""
-              }
-            </div>
-            <div id="stat-container">
+                <div class="col-6 mb-3 p-2 border border-secondary rounded ">
+                    <h1 class="text-primary display-6 fw-bold" id="nickname">${
+                      this.currentUserInfos.nickname
+                    }</h1>
+                    <p class="text-secondary " id="username">@${
+                      this.currentUserInfos.username
+                    }</p>
+                    <div class="card bg-dark text-white p-4 rounded shadow">
+                        <h2 class="text-center text-white mb-4">Level <strong>${
+                          this.playerLevel
+                        }</strong></h2>
+                        <div class="row mb-3 d-flex justify-content-center align-items-center">
+                            <div class="col-6 text-primary">Games played</div>
+                            <div class="col-6 text-end text-white fw-bold fs-3">${
+                              this.playerMatchPlayed
+                            }</div>
+                        </div>
+                        <div class="row mb-3 d-flex justify-content-center align-items-center">
+                            <div class="col-6 text-primary">Victories</div>
+                            <div class="col-6 text-end text-white fw-bold fs-4">${
+                              this.playerMatchWon
+                            }</div>
+                        </div>
+                        <div class="progress " style="height: 10px; border-radius: 5px;">
+                            <div id="progress-bar" class="progress-bar" role="progressbar"
+                                style="width: 0%; background-color: #76c7c0;" aria-valuenow="50" aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="text-white" id="victories-left-text">Win ${
+                          this.playerVictoryRemain
+                        } more games to reach next level!
+                        </div>
+                    </div>
+                </div>
+                <br>
             </div>
 
-
-          </div>
-        </div>
+            ${
+              this.currentUserInfos.id === Application.getUserInfos().userId
+                ? profileEdit
+                : ""
+            }
+            <div id="history-container" class="row">
+                <div class="user-stats">
+                    <table class="table table-dark  table-striped" id="table-history">
+                        <tr class="text-center">
+                            <th>Result</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Opponent</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
       `;
     }
   }
