@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .mock_jwt_expired  import mock_jwt_expired
 
+logger = logging.getLogger(__name__)
+
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})
 

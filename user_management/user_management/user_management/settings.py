@@ -23,17 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = [
-    'redis',
-    'nginx',
-    'localhost',
-    ]
+ALLOWED_HOSTS = ['user_management', 'localhost', '127.0.0.1']
 
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'
 
 # Application definition
+
+
+
+# Use the overridden class in your middleware settings or as a patch.
+
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 INSTALLED_APPS = [
     'daphne',

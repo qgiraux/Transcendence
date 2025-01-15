@@ -19,7 +19,6 @@ class PlayerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         query_params = parse_qs(self.scope['query_string'].decode())
         token = query_params.get('token', [None])[0]
-        log.error(token)
         if token:
             user_info = self.decode_token(token)
             if user_info:
@@ -64,6 +63,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def create(self, data):
         log.error("Create game")
+        log.error(data)
+        data = data.get("data")
         gameName = data.get("name")
         if not gameName:
             log.error("Game name not provided")
@@ -71,6 +72,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         self.gameName = gameName
         if gameName not in self.pong:
             self.pong[gameName] = PongConsumer(self.group_name)
+        log.error(f"Game created :{gameName}")
 
         
         

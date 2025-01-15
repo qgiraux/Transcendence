@@ -109,6 +109,7 @@ def Invite(request):
 
     return JsonResponse({"detail": "Message sent"}, status=200)
 
+import threading
 @csrf_exempt
 @permission_classes([IsAuthenticated])
 def JoinTournament(request):
@@ -121,7 +122,7 @@ def JoinTournament(request):
         auth_header = tmp.split()[1]
         decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
     except InvalidTokenError:
-        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
@@ -136,22 +137,28 @@ def JoinTournament(request):
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
+    
     # Add a player to the list
     if user_id in tournament.player_list:
         return JsonResponse({'detail': 'User already subscribed', 'code': 'conflict'}, status=409)
     if len(tournament.player_list) == tournament.tournament_size:
         return JsonResponse({'detail': 'Tournament full', 'code': 'conflict'}, status=409)
 
-    tournament.player_list.append(user_id)  # Add player ID 1
+    tournament.player_list.append(user_id)  # Add player ID
     tournament.save()
-    try :
-        Tournament_operation(tournament)
-    except Exception as e:
-        return JsonResponse({'detail': 'Error starting tournament', 'code': 'error_occurred'}, status=500)
-    # if len(tournament.player_list) >= tournament.tournament_size:
-    #     # Start the tournament
-    #     return Tournament_operation(tournament)
+
+    # Run Tournament_operation in a separate thread
+    def run_tournament_operation():
+        try:
+            Tournament_operation(tournament)
+        except Exception as e:
+            # Handle exceptions in the thread as needed
+            print(f"Error in Tournament_operation: {e}")
+
+    threading.Thread(target=run_tournament_operation, daemon=True).start()
+
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
+
 
 @csrf_exempt
 @permission_classes([IsAuthenticated])

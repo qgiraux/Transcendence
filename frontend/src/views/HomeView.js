@@ -24,12 +24,13 @@ class HomeView extends AbstractView {
       try {
         Application.mainSocket.onmessage = (event) => {
           // Parse the incoming JSON
-          console.log("WebSocket message received:", event.data);
-          const data = JSON.parse(event.data);
+          console.log("WebSocket message received---:", event);
+          let data = JSON.parse(event.data);
           const sender = data.sender || 0; // Default if field missing
           const group = data.group || "No group"; // Default if field missing
           const message = data.message || "No message content"; // Default if field missing
-          const type = data.type || "chat"; // Default if field missing
+          const type = data.type || "none"; // Default if field missing
+          
           if (type === "chat")
           {
             TRequest.request("GET", "/api/friends/blocks/blockslist/").then(blocklist => {
@@ -54,6 +55,21 @@ class HomeView extends AbstractView {
               console.log(`link: ${link} , textmessage: ${textmessage}`);
               Alert.inviteMessage(type, textmessage, link)
             }).catch(err => {console.error("Failed to fetch user info:", err);});
+          }
+          console.log("checkpoint 2");
+          if (type === "game")
+          {
+            console.log("game invite received");
+            // Display the invite
+            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(username => {
+              console.log(username);
+              const textmessage = `your game is starting!`;
+              const link = message;
+              console.log(`link: ${link} , textmessage: ${textmessage}`);
+              Alert.inviteMessage(type, textmessage, link)
+              Application.gameSocket.send(JSON.stringify({ type: 'join', data: { userid: Application.getUserInfos().userId, name: link } }));
+            }).catch(err => {console.error("Failed to fetch user info:", err);});
+            
           }
           if (type === "GOTO")
           {
@@ -85,7 +101,7 @@ class HomeView extends AbstractView {
       try {
         Application.gameSocket.onmessage = (event) => {
           // Parse the incoming JSON
-          console.log("WebSocket message received:", event.data);
+          console.log("gameSocket message received----:", event.data);
           const data = JSON.parse(event.data);
           const sender = data.sender || 0; // Default if field missing
           const group = data.group || "No group"; // Default if field missing
@@ -139,7 +155,7 @@ class HomeView extends AbstractView {
       };
     } 
     else {
-      console.error("WebSocket connection not established.");
+      console.error("gameSocket connection not established.");
     }
 }
 
