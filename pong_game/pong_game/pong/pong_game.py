@@ -208,7 +208,7 @@ class PongEngine(threading.Thread):
 			self.state.player_left.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_right.playerid
 		)
 		state_json["tournament_id"] = self.group_name
-		state_json["date"] = datetime.now().strftime("%Y/%m/%d %H:%M")
+		state_json["date"] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 		state_json["p1"] = self.state.player_left.playerid
 		state_json["p1score"] = self.state.player_left.score
 		state_json["p2"] = self.state.player_right.playerid
@@ -236,7 +236,7 @@ class PongEngine(threading.Thread):
 		}
 		endJson = {
 			"tournament_id": self.group_name,
-			"date": datetime.now().strftime("%Y/%m/%d %H:%M"),
+			"date": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
 			"opponent": self.state.player_right.playerid,
 			"score": f"{state_json['p1score']}/{state_json['p2score']}",
 			"win": "yes" if self.state.player_left.score > self.state.player_right.score else "no"
