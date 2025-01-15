@@ -1,16 +1,12 @@
 const {Parser} = require("./Parser")
 
 class Command {
-	/**@type {String} */
-	description;
-	/**@type {String} */
-	usage;
-	//**@type {Parser} */
-	parser;
-
 	constructor(description="Pong CLI", usage="node pong-cli") {
+		/**@type {String} */
 		this.description = description;
+		/**@type {String} */
 		this.usage = usage;
+		/**@type {Parser} */
 		this.parser = new Parser(`usage: ${usage} `);
 	}
 }
@@ -20,6 +16,6 @@ module.exports = {
 }
 
 // console.log(Parser);
-// const c = new Command();
-// c.argParser.eval();
+//const c = new Command();
+//c.parser.eval();
 

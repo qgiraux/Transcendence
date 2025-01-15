@@ -5,6 +5,7 @@ class Controller {
 
 	static keyCtrlD = '\u0003';
 	static keyCtrlC = '\u0004';
+	static keyKill = '\u001f';
 	static keyArrowUp = '\x1B[A';
 	static keyArrowDown = '\x1B[B';
 	static keyArrowRight = '\x1B[C';
@@ -14,10 +15,20 @@ class Controller {
 
 	constructor(isStopKey=Controller._isStopKey) {
 		this.isStopKey = isStopKey;
-		this.stop = Controller.stop();
+		this.stop = () => {}; //make private
 		this.initalized = false;
+		this.onStopKey = () => {};
 	}
 
+	static isPrintableChar(s){
+		if (1 == s.length)
+			return (!!/[^\p{Zl}\p{Zp}\p{C}\p{M}]/u.exec(s));
+		else if (2 == s.length)
+			return (!!/\p{Cs}/u.exec(s[0]) && !!/\p{Cs}/u.exec(s[1])); //utf-16
+		return false;
+	}
+
+	//remove
 	static getCharCode(buff){
 		const key = String(buff);
 
@@ -34,7 +45,7 @@ class Controller {
 	}
 
 	static _isStopKey(key){
-		return (Controller.keyCtrlD == key || Controller.keyCtrlC == key)
+		return (Controller.keyCtrlD == key || Controller.keyCtrlC == key);
 	}
 
 	static stop(){
@@ -42,27 +53,42 @@ class Controller {
 		process.stdin.pause();
 	}
 
-	_keys_callback(buf, keys=[], callbacks=[], callback, elseCallback){
+	#parseBuffer(buf, keys=[], callbacks=[], callback, elseCallback){
+		if (Controller.keyKill == buf)
+			process.exit();
 		if (this.isStopKey(buf)) {
+			this.onStopKey();
 			process.stdin.removeListener('data', callback);
 			this.stop();
 		}
-		const index = keys.indexOf(String(buf).toUpperCase());
+		const s = String(buf);
+		let start = 0;
 
-		if (-1 != index)
-			callbacks[index]();
-		else
-			elseCallback(buf);
+		while (start < s.length) {
+			let end = start + 1;
+			if ('\x1B' == s[start])
+				end += ('[' == s[end]) ? 2 : 1;
+			else if (/^\p{Cs}/u.exec(s[start]))
+				end += 1;
+			const key = s.substring(start, end);
+			const index = keys.indexOf(key.toUpperCase());
+
+			if (-1 != index)
+				callbacks[index]();
+			else
+				elseCallback(Buffer.from(key));
+			start = end;
+		}
 	}
 
-	initalize(stdin, event_callback){
+	initalize(stdin, eventCallback){
 		assert.equal(false, this.initalized);
 		stdin.setRawMode(true);
 		stdin.resume();
-		//console.log(process.stdin.rawListeners('data')); //
-		stdin.on('data', event_callback);
+		//stdin.setEncoding("utf8"); //
+		stdin.on('data', eventCallback);
 		this.stop = () => {
-			stdin.removeListener('data', event_callback);
+			stdin.removeListener('data', eventCallback);
 			Controller.stop();
 		};
 		this.initalized = true;
@@ -70,16 +96,16 @@ class Controller {
 
 	onAnyKey(callback){
 		const stdin = process.stdin;
-		const event_callback = (buf) => {
+		const eventCallback = (buf) => {
 			callback(buf);
 			if (this.isStopKey(buf)) {
-				stdin.removeListener('data', event_callback);
-				//stdin.removeAllListeners('data');
+				this.onStopKey(); //
+				stdin.removeListener('data', eventCallback);
 				this.stop();
 			}
 		}
 
-		this.initalize(stdin, event_callback);
+		this.initalize(stdin, eventCallback);
 	}
 
 	/**
@@ -89,13 +115,13 @@ class Controller {
 	onKeys(keys=[], callbacks=[], elseCallback=(buff)=>{}){
 		assert.equal(keys.length, callbacks.length);
 		const stdin = process.stdin;
-		const event_callback = (buf) => {
-			this._keys_callback(
-				buf, keys, callbacks, event_callback, elseCallback
+		const eventCallback = (buf) => {
+			this.#parseBuffer(
+				buf, keys, callbacks, eventCallback, elseCallback
 			);
 		}
 
-		this.initalize(stdin, event_callback);
+		this.initalize(stdin, eventCallback);
 	}
 }
 
@@ -103,29 +129,35 @@ module.exports = {
 	"Controller": Controller
 }
 
-// /**
-//  * Testing purposes
-//  */
-// function main(){
-// 	function printLol(){
-// 		console.log("LOL");
-// 	}
+// // // /**
+// // //  * Testing purposes
+// // //  */
+// // // function main(){
+	// function printLol(){
+	// 	console.log("LOL");
+	// }
 
-// 	function printPatate(){
-// 		console.log("Patate");
-// 	}
+// // // 	function printPatate(){
+// // // 		console.log("Patate");
+// // // 	}
 
-// 	const encore = () =>{
-// 		Controller.stop();
-// 		const cc = new Controller();
-// 		//cc.onAnyKey(console.log);
-// 		cc.onKeys([Controller.keyEnter], [printPatate], console.log);
-// 		cc.stop = Controller.stop;
-// 	}
+// // // 	const encore = () =>{
+// // // 		Controller.stop();
+// // // 		const cc = new Controller();
+// // // 		//cc.onAnyKey(console.log);
+// // // 		cc.onKeys([Controller.keyEnter], [printPatate], console.log);
+// // // 		cc.stop = Controller.stop;
+// // // 	}
 
-// 	const c = new Controller();
-// 	c.onKeys([Controller.keyEnter], [printLol], console.log);
-// 	c.stop = encore;
-// }
+// const c = new Controller();
+// c.onKeys([], [], console.log);
+// // //	c.stop = encore;
+// // // }
 
-// main();
+// // // main();
+
+// // const c0 = new Controller();
+// // c0.onKeys(["A"], [()=>{console.log(0)}]);
+
+// // const c1 = new Controller();
+// // c1.onKeys(["B"], [()=>{console.log(1)}]);

@@ -4,31 +4,72 @@ class TextEditor extends Controller {
 
 	static buffPop = `${Controller.keyArrowLeft} ${Controller.keyArrowLeft}`;
 
-	constructor(callback=(text_)=>{}, echo=(buffout_)=>{}, keyEnter=Controller.keyEnter){
+	constructor(){
 		super();
 		this.text = "";
+		this.echo = TextEditor.echo;
+		this.onEnter = () => {this.stop()};
+		this.onAltEnter = () => {};
+		this.refresh = () => {this.#refresh()};
+	}
+
+	setOnKeys(keyEnter=Controller.keyEnter){
 		this.onKeys(
-			[Controller.keyBackspace, keyEnter], 
-			[() => {this._onBackSpaceCallback();}, () => {this.stop(); callback(this.text);}],
-			(buff) => {this._onKeyCallback(buff, (buff_)=>{echo(buff_)});}
+			[Controller.keyBackspace, keyEnter, `\x1b${keyEnter}`], 
+			[() => {this.#onBackSpaceCallback()}, 
+				() => {this.#onEnterCallback()}, 
+				() => {this.#onAltEnterCallback()}
+			],
+			(buff) => {this.#onKeyCallback(buff, (buff_)=>{this.echo(buff_)});}
 		);
 	}
 
-	_onBackSpaceCallback(){
-		if (0 == this.text.length)
-			return ;
-		this.text = this.text.slice(0, -1);
-		process.stdout.write(TextEditor.buffPop);
+	#refresh() {
+		process.stdout.write(`\r\x1b[2K${this.text}`);
 	}
 
-	_onKeyCallback(buff, echo){
-		const code = Controller.getCharCode(buff);
+	#onEnterCallback() {
+		this.onEnter();
+	}
 
-		if (Controller.isPrintable(code))
-		{
+	#onAltEnterCallback() {
+		this.onAltEnter();
+	}
+
+	#onBackSpaceCallback(){
+		if (0 == this.text.length)
+			return ;
+		let c = this.text.slice(-1);
+
+		if (!!/\p{Cs}/u.exec(c)) {
+			this.text = this.text.slice(0, -1);
+			c = this.text.slice(-1);
+			if (!!/\p{Cs}/u.exec(c))
+				this.text = this.text.slice(0, -1);
+		} else {
+			this.text = this.text.slice(0, -1);
+			while (!!/[\p{C}\p{M}]/u.exec(c) && 0 != this.text.length) {
+				this.text = this.text.slice(0, -1);
+				c = this.text.slice(-1);
+			}
+		}
+		this.refresh();
+	}
+
+	#onKeyCallback(buff, echo){
+		const char = String(buff);
+
+		if (Controller.isPrintableChar(char)) {
 			this.text += String(buff);
 			echo(buff);
 		}
+		// const code = Controller.getCharCode(buff);
+
+		// if (Controller.isPrintable(code))
+		// {
+		// 	this.text += String(buff);
+		// 	echo(buff);
+		// }
 	}
 
 	static echo(buff){

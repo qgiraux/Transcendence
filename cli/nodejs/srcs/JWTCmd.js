@@ -24,9 +24,11 @@ const TLK_PROMPT_LOGIN = "cli.prompt.login";
 const TL_API_LOGIN = "/api/users/login/";
 
 class JWTCmd extends Command {
-	constructor(onLoggedin=(jwt)=>{console.log(JSON.stringify(jwt))}) {
-		super(l.t(TLK_CMD_DESC), l.t(TLK_CMD_SHELL));
-
+	constructor(onLoggedin = (jwt)=>{console.log(JSON.stringify(jwt))},
+		beforeLogin = () => {return 0},
+		usage = ""
+	) {
+		super(l.t(TLK_CMD_DESC), usage);
 		const opts = l.source.cli.signup.cmd["opts[]"];
 		const callbacks = [
 			()=>{this.parser.displayHelp = true;}, 
@@ -35,32 +37,38 @@ class JWTCmd extends Command {
 			(match)=>{this.password = Parser.getOptionValue(match);}
 		];
 		this.parser.setOptions(opts, callbacks);
-		this.parser.defaultCallback = () => {this._stepLogin()};
+		this.parser.defaultCallback = () => {this.#stepLogin()};
 		this.host = "";
 		this.hostDefault = l.source.sys.host;
 		this.login = "";
 		this.password = "";
 		this.jwt = {refresh: "", access: ""};
 		this.onLoggedin = onLoggedin;
+		this.beforeLogin = beforeLogin;
+		this.editor = undefined;
 	}
 
-	_getValue(prompt="", callbackUpdate, callbackNext, hidden){
+	#getValue(prompt = "", callbackUpdate, callbackNext, hidden) {
 		process.stdout.write(prompt);
-		const echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
-		const t = new TextEditor((text) => {
-			callbackUpdate(text); 
-			process.stdout.write("\n"); 
+		if (!this.editor) {
+			this.editor = new TextEditor();
+			this.editor.setOnKeys();
+		};
+		this.editor.echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
+		this.editor.onEnter = () => {
+			callbackUpdate(this.editor.text);
+			this.editor.text = "";
+			process.stdout.write("\n");
 			callbackNext();
-		}, echo);
-
+		};
 	}
 
-	static _printError(text)
+	static #printError(text)
 	{
 		process.stderr.write(`\x1b[31m${l.t(TLK_SYS_ERR)}: ${text}\x1b[0m\n`);
 	}
 
-	_stepJWT(ret){
+	#stepJWT(ret){
 		const statusCode = Number(ret.statusCode);
 
 		if (200 <= statusCode && 300 > statusCode)
@@ -69,17 +77,19 @@ class JWTCmd extends Command {
 			this.onLoggedin(this.jwt); //
 		}
 		else
-			JWTCmd._printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
+			JWTCmd.#printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
 	}
 
-	_stepAPILogin(){	
+	#stepAPILogin(){	
 		if (!this.host)
 			this.host = this.hostDefault;
 		const hostInfo = this.host.split(":");
 
-		if (2 != hostInfo.length)
-		{
-			JWTCmd._printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
+		if (this.editor) {
+			this.editor.stop();
+			this.editor = undefined;
+		} else if (2 != hostInfo.length) {
+			JWTCmd.#printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
 			this.password = "";
 			return ;
 		}	
@@ -90,38 +100,38 @@ class JWTCmd extends Command {
 		HttpsClient.allowSelfSigned(); //
 		HttpsClient.post(
 			{hostname: hostname, port:port, path: TL_API_LOGIN}, //
-			{username: this.login, password: this.password},
-			(ret) => {this.password = ""; this._stepJWT(ret);}
+			JSON.stringify({username: this.login, password: this.password}),
+			(ret) => {this.#stepJWT(ret);}
 		);
 	}
 
-	_stepEnterPassword(){
+	#stepEnterPassword(){
 		const update = (line) => {this.password = line};
-		const nextStep = () => {this._stepAPILogin();};
+		const nextStep = () => {this.#stepAPILogin();};
 
 		if (!this.password)
-			this._getValue(l.t(TLK_PROMPT_PWD), update, nextStep, true);
+			this.#getValue(l.t(TLK_PROMPT_PWD), update, nextStep, true);
 		else
 			nextStep();
 	}
 
-	_stepEnterLogin(){
+	#stepEnterLogin(){
 		const update = (line) => {this.login = line};
-		const nextStep = () => {this._stepEnterPassword();};
+		const nextStep = () => {this.#stepEnterPassword();};
 
 		if (!this.login)
-			this._getValue(l.t(TLK_PROMPT_LOGIN), update, nextStep, false);
+			this.#getValue(l.t(TLK_PROMPT_LOGIN), update, nextStep, false);
 		else
 			nextStep();
 	}
 
-	_stepLogin(){
-		const nextStep = () => {this._stepJWT();};
-
+	#stepLogin(){
+		if (0 != this.beforeLogin())
+			return ;
 		if (!this.jwt || !this.jwt.refresh || !this.jwt.access)
-			this._stepEnterLogin();
+			this.#stepEnterLogin();
 		else
-			nextStep();
+			this.#stepJWT();
 	}
 }
 
