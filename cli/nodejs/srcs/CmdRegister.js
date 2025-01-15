@@ -22,7 +22,7 @@ const TLK_PROMPT_PWD = "cli.prompt.pwd";
 const TLK_PROMPT_LOGIN = "cli.prompt.login";
 //const TLK_API_SIGNUP = "api.signup";
 
-class RegisterCmd extends Command {
+class CmdRegister extends Command {
 	constructor() {
 		
 		super(l.t(TLK_CMD_DESC), l.t(TLK_CMD_SHELL));
@@ -34,6 +34,7 @@ class RegisterCmd extends Command {
 			(match)=>{this.login = Parser.getOptionValue(match);}, 
 			(match)=>{this.password = Parser.getOptionValue(match);}
 		];
+		this.name = "signup";
 		this.parser.setOptions(opts, callbacks);
 		this.parser.defaultCallback = () => {this._stepEnterLogin()};
 		this.host = "";
@@ -51,6 +52,9 @@ class RegisterCmd extends Command {
 			this.editor.setOnKeys();
 		};
 		this.editor.echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
+		this.editor.refresh = () => {
+			process.stdout.write(`\r\x1b[2K${prompt}${this.editor.text}`)
+		};
 		this.editor.onEnter = () => {
 			callbackUpdate(this.editor.text);
 			this.editor.text = "";
@@ -73,9 +77,9 @@ class RegisterCmd extends Command {
 		const statusCode = Number(ret.statusCode);
 
 		if (200 <= statusCode && 300 > statusCode)
-			RegisterCmd._printSuccess(l.t(TLK_OK));
+			CmdRegister._printSuccess(l.t(TLK_OK));
 		else
-			RegisterCmd._printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
+			CmdRegister._printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
 	}
 
 	_stepPost(){
@@ -85,7 +89,7 @@ class RegisterCmd extends Command {
 		}
 		if (this.password != this.passwordConfirm)
 		{
-			RegisterCmd._printError(l.t(TLK_ERR_PWD_MATCH));
+			CmdRegister._printError(l.t(TLK_ERR_PWD_MATCH));
 			return ;
 		}		
 		if (!this.host)
@@ -93,7 +97,7 @@ class RegisterCmd extends Command {
 		const hostInfo = this.host.split(":");
 		if (2 != hostInfo.length)
 		{
-			RegisterCmd._printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
+			CmdRegister._printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
 			return ;
 		}	
 		const hostname = hostInfo[0];
@@ -104,7 +108,7 @@ class RegisterCmd extends Command {
 		HttpsClient.post(
 			{hostname: hostname, port:port, path: l.source.api.signup},
 			JSON.stringify({username: this.login, password: this.password}),
-			RegisterCmd._printResult
+			CmdRegister._printResult
 		);
 	}
 
@@ -136,5 +140,9 @@ class RegisterCmd extends Command {
 	}
 }
 
-const r = new RegisterCmd();
-r.parser.eval();
+module.exports = {
+	"CmdRegister": CmdRegister
+}
+
+// const r = new CmdRegister();
+// r.parser.eval();

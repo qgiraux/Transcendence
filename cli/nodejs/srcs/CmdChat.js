@@ -59,6 +59,24 @@ class ChatMessage {
 		});
 	}
 
+	static isValid(obj) {
+		if (!obj.type || !obj.message || !obj.group || !obj.sender)
+			return false;
+		try {
+			ChatMessage.normalize(obj);
+		} catch (e) {
+			return false;
+		}
+		return true;
+	}
+
+	static normalize(obj) {
+		obj.type = String(obj.type);
+		obj.message = String(obj.message);
+		obj.group = String(obj.group);
+		obj.sender = Number(obj.sender);
+	}
+
 	toJsonString() {
 		return JSON.stringify({
 			type: this.type,
@@ -74,19 +92,39 @@ class ChatMessage {
 class CmdChat extends JWTCmd {
 	constructor() {
 		super((jwt)=>{this.onLogin(jwt);});
+		this.name = "chat";
+		this.description = "Enter chat, get easy access to the API and WS endpoints.";
+		this.setUsage("pong-cli chat"); //
 		this.nicknames = {};
 		this.me = -1;
 		this.editor = undefined;
 		this.ws = undefined;
 	}
 
-	// static #colorUser(userName, userId){
-	// 	const min = 17;
-	// 	const max = 231;
+	static #getHelp() {
+		return ""
+			+ "Controls:\n"
+			+ "[↵] Post [⌫] Remove typed character [^C/^D] Exit\n"
+			+ "Commands:\n"
+			+ "\x1b[1m" + "!help" + "\x1b[0m " + "Prints this message\n"
+			+ "\x1b[1m" + "!direct <userId> <message>" + "\x1b[0m " + "Sends a direct message\n"
+			+ "\x1b[1m" + "!block <userId>" + "\x1b[0m " + "Blocks user\n"
+			+ "\x1b[1m" + "!unblock <userId>" + "\x1b[0m " + "Unblocks user\n"
+			+ "\x1b[1m" + "!invite <userId> <game>" + "\x1b[0m " + "Invite user to a game\n"
+			+ "\x1b[1m" + "!profile <userId>" + "\x1b[0m " + "View user profile\n"
+			+ "\x1b[1m" + "!api get <path>" + "\x1b[0m " + "Send Get Http Request to Pong Endpoints\n"
+			+ "\x1b[1m" + "!api post <path> <json>" + "\x1b[0m " + "Send Post Http Request to Pong Endpoints\n"
+			+ "\x1b[1m" + "!ws [chat | invite | <type>] [user_<userId> | global_chat | <group>] <message>" + "\x1b[0m " + "Send WS message\n"
+			+ "\x1b[1m" + "!!<message>" + "\x1b[0m " + "Sends !<message>\n"
+			+ "\x1b[1m" + "!exit" + "\x1b[0m " + "Leave Chat\n"
+			+ "_____________________________________________________________________________________________\n"
+		;
+	}
 
-	// 	return min
-	// 		+ (String(userName).charCodeAt(0) + Number(userId)) % (max - min);
-	// }
+	//CMDS
+	#help() {
+		process.stdout.write(CmdChat.#getHelp());
+	}
 
 	#block(words) {
 		; //#TODO
@@ -97,7 +135,14 @@ class CmdChat extends JWTCmd {
 	}
 
 	#invite(words) {
-		; //#TODO
+		if (!words[0] || "invite" !== words[0]
+			|| !words[1] || words[1] == this.me 
+			|| !words[2]
+		){
+			CmdChat.writeSystem(`missing or incorrect <userId> or <game>\n`);
+			return ;
+		}
+		this.ws.send(ChatMessage.toJsonString("invite", words[2], `user_${words[1]}`, -1));
 	}
 
 	#profile(words) {
@@ -107,10 +152,6 @@ class CmdChat extends JWTCmd {
 	#unknown(words) {
 		CmdChat.writeSystem(`unknown command '${words[0]}'\n`);
 		this.#help();
-	}
-
-	#help() {
-		process.stdout.write(CmdChat.#getHelp());
 	}
 
 	#api(words) {
@@ -132,6 +173,18 @@ class CmdChat extends JWTCmd {
 		} else {
 			CmdChat.writeSystem(`unknown command 'api ${words[1]}'\n`);
 		}
+	}
+
+	#ws(words) {
+		if (!words || "ws" != words[0]) {
+			return ;
+		} else if (!words[1] || !words[2] || words[2] == `user_${this.me}`) {
+			CmdChat.writeSystem(`missing or incorrect <type> or <group>\n`);
+			return ;
+		}
+		const message = (!!words[3]) ? words[3] : "";
+
+		this.ws.send(ChatMessage.toJsonString(words[1], message, words[2], -1));
 	}
 
 	#direct(words) {
@@ -156,6 +209,7 @@ class CmdChat extends JWTCmd {
 		CmdChat.writeSystem(`Left chat\n`);
 	}
 
+	//
 	static #echoCommand(text) {
 		process.stdout.write(`\x1b[3;33m!${text}\x1b[0m\n`); //
 	}
@@ -171,7 +225,7 @@ class CmdChat extends JWTCmd {
 			return ;
 		}
 		CmdChat.#echoCommand(text);
-		let cmdId = 1 + ["help", "direct", "block", "unblock", "invite", "profile", "api", "exit"
+		let cmdId = 1 + ["help", "direct", "block", "unblock", "invite", "profile", "api", "ws", "exit"
 			].indexOf(command);
 		const cmdFun = [
 			(w)=>{this.#unknown(w)},
@@ -182,6 +236,7 @@ class CmdChat extends JWTCmd {
 			(w)=>{this.#invite(w)}, //#TODO
 			(w)=>{this.#profile(w)}, //#TODO
 			(w)=>{this.#api(w)},
+			(w)=>{this.#ws(w)},
 			(w)=>{this.#exit()},
 		];
 
@@ -202,41 +257,9 @@ class CmdChat extends JWTCmd {
 		}
 	}
 
-	static #getHelp() {
-		return ""
-			+ "Controls:\n"
-			+ "[↵] Post [⌫] Remove typed character [^C/^D] Exit\n"
-			+ "Commands:\n"
-			+ "\x1b[1m" + "!help" + "\x1b[0m " + "Prints this message\n"
-			+ "\x1b[1m" + "!direct <userId> <message>" + "\x1b[0m " + "Sends a direct message\n"
-			+ "\x1b[1m" + "!block <userId>" + "\x1b[0m " + "Blocks user\n"
-			+ "\x1b[1m" + "!unblock <userId>" + "\x1b[0m " + "Unblocks user\n"
-			+ "\x1b[1m" + "!invite <userId>" + "\x1b[0m " + "Invite user to a game\n"
-			+ "\x1b[1m" + "!profile <userId>" + "\x1b[0m " + "View user profile\n"
-			+ "\x1b[1m" + "!api get <path>" + "\x1b[0m " + "Send Get Http Request to Pong Endpoints\n"
-			+ "\x1b[1m" + "!api post <path> <json>" + "\x1b[0m " + "Send Post Http Request to Pong Endpoints\n"
-			+ "\x1b[1m" + "!!<message>" + "\x1b[0m " + "Sends !<message>\n"
-			+ "\x1b[1m" + "!exit" + "\x1b[0m " + "Leave Chat\n"
-			+ "_____________________________________________________________________________________________\n"
-		;
-	}
-
-	// static echoCommand(command) {
-	// 	process.stdout.write(`command: '${command}'\n`);
-	// }
-
 	static writeSystem(message) {
 		process.stdout.write(`info: ${message}`);
 	}
-
-	// static #jsonReplacer(key, value) {
-	// 	if (typeof value === "string") {
-	// 		return `\e[1m${value}\e[1m`;
-	// 	} else if (typeof value === "number") {
-	// 		return `\e[2m${value}\e[2m`;
-	// 	}
-	// 	return value;
-	// }
 
 	static writeResponse(jsonResponse) {
 		if (typeof jsonResponse != "object") {
@@ -307,9 +330,11 @@ class CmdChat extends JWTCmd {
 		HttpsClient.get(`https://${this.host}/api/users/userinfo/${user}`, callback, this.jwt);
 	}
 
+	//
+
 	onLogin(jwt) {
 		CmdChat.writeSystem(`Connecting to host...\n`);
-		this.ws = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access); //wss://{{host}}/ws/chat/?token={{access}};
+		this.ws = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
 		this.ws.on('error', console.error);
 		this.ws.on('open', () => {this.onOpen()});
 		this.ws.on('message', (data) => {this.onMessage(data);});
@@ -334,8 +359,7 @@ class CmdChat extends JWTCmd {
 
 	onOpen() {
 		HttpsClient.get(`https://${this.host}/api/users/userinfo/`, (ret)=>{
-			if (200 == ret.statusCode)
-			{
+			if (200 == ret.statusCode) {
 				const nickname_ = ret.message.nickname;
 
 				this.me = ret.message.id;
@@ -343,9 +367,9 @@ class CmdChat extends JWTCmd {
 				CmdChat.writeSystem(`Your nickname is ${nickname_}\n`);
 				CmdChat.writeSystem(CmdChat.#getHelp());
 				this.openEditor();
+			} else {
+				process.stderr.log(JSON.stringify(ret));
 			}
-			else
-				process.stderr.log(JSON.stringify(ret)); //
 		}, this.jwt);
 	}
 
@@ -355,10 +379,16 @@ class CmdChat extends JWTCmd {
 	}
 
 	onMessage(data) {
-		const data_ = JSON.parse(data);
+		let data_;
 
-		if (!this.editor || "" == this.editor.text)
-		{
+		try {
+			data_ = JSON.parse(data);
+		} catch(e) {
+			return ;
+		}
+		if (false === ChatMessage.isValid(data_)) {
+			return ;
+		} else if (!this.editor || "" == this.editor.text) {
 			this.writeChat(data_);
 			return ;
 		}
@@ -367,5 +397,9 @@ class CmdChat extends JWTCmd {
 	}
 }
 
-const r = new CmdChat();
-r.parser.eval();
+module.exports = {
+	"CmdChat": CmdChat
+}
+
+// const r = new CmdChat();
+// r.parser.eval();

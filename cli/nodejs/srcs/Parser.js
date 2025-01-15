@@ -2,39 +2,27 @@ const process = require('node:process');
 const assert = require('node:assert');
 
 class Parser {
-	/**@type {String[]} */
-	commandNames;
-	/**@type {Functions[]} */
-	commandCallbacks;
-	/**@type {String[]} */
-	words;
-	/**@type {Functions[]} */
-	callbacks;
-	/**@type {String[]} */
-	patterns;
-	/**@type {RegExp[]} */
-	regex_patterns;
-	/**@type {} */
-	defaults;
-	/**@type {String} */
-	help;
-	/**@type {Bool} */
-	displayHelp;
-	/**@type {Functions} */
-	defaultAction;
-
 	/**
 	 * 
 	 * @param {String} help 
 	 */
 	constructor(help="usage: node pong-cli "){
+		/**@type {String} */
+		help;
 		this.help = help;
+		/**@type {String[]} */
 		this.words = Parser.getWords();
+		/**@type {String[]} */
 		this.patterns = [];
+		/**@type {RegExp[]} */
 		this.regex_patterns = []; //
+		/**@type {Functions[]} */
 		this.callbacks = [];
+		/**@type {Object[]} */
+		this.commands = [];
+		/**@type {String[]} */
 		this.commandNames = [];
-		this.commandCallbacks = [];
+		/**@type {Bool} */
 		this.displayHelp = false;
 		this.defaultCallback = () => {this.displayHelp = true;};
 	}
@@ -43,15 +31,14 @@ class Parser {
 		process.stdout.write(this.help);
 		for (const pattern_ of this.patterns)
 			process.stdout.write(`${pattern_} `);
-		if (0 != this.commandNames.length)
-		{
+		if (0 != this.commands.length) {
 			process.stdout.write("<command> [<args>]\n");
 			process.stdout.write("commands:\n");
-			for (const command_ of this.commandNames)
-				process.stdout.write(`${command_}\n`);
-		}
-		else
+			for (const command_ of this.commands)
+				process.stdout.write(`    ${command_.name}\t${command_.description}\n`);
+		} else {
 			process.stdout.write("\n");
+		}
 		this.displayHelp = false;
 	}
 
@@ -63,14 +50,12 @@ class Parser {
 		let match = null;
 
 		match = /^\[([^=<>]+)\]$/.exec(pattern_);
-		if (null != match)
-		{
+		if (null != match) {
 			this.regex_patterns.push(new RegExp(`^${match[1]}$`));
 			return ;
 		}
 		match = /^\[(.+)=<(.+)>\]$/.exec(pattern_);
-		if (null != match)
-		{
+		if (null != match) {
 			this.regex_patterns.push(new RegExp(`^${match[1]}=(.*)$`));
 			return ;
 		}
@@ -93,14 +78,11 @@ class Parser {
 			this.#toRegexPatterns(pattern_);
 	}
 
-	_evalOption(word)
-	{
-		for (let i = 0; i != this.regex_patterns.length; ++i)
-		{
+	_evalOption(word) {
+		for (let i = 0; i != this.regex_patterns.length; ++i) {
 			const match = this.regex_patterns[i].exec(word);
 
-			if (null != match)
-			{
+			if (null != match) {
 				this.callbacks[i](match);
 				return i;
 			}
@@ -111,34 +93,37 @@ class Parser {
 	_evalCommand(word)
 	{
 		const i = this.commandNames.indexOf(word);
-
 		return i;
 	}
 
 	eval(){
 		this.displayHelp = false;
-		let didSomething = 0 == this.commandNames.length;
+		let didSomething = 0 == this.commands.length;
 		let isError = false;
-	
-		for (const word_ of this.words)
-		{
-			if ("-" == word_[1])
-			{
-				if (-1 == this._evalOption(word_))
-				{
+
+		this.commandNames = this.commands.map(value_ => value_.name);
+		for (let i = 0; this.words.length != i; ++i) {
+			let word_ = this.words[i];
+
+			//console.log(this);
+			if ("-" == word_[1]) {
+				if (-1 == this._evalOption(word_)) {
 					process.stdout.write(`unknown option: ${word_}\n`);
 					isError = true;
 					break;
 				}
-			}
-			else
-			{
+			} else {
 				didSomething = true;
-				if (-1 == this._evalCommand(word_))
-				{
+				const cmd = this._evalCommand(word_);
+
+				if (-1 == this._evalCommand(word_)) {
 					process.stdout.write(`not a valid command: ${word_}\n`);
 					isError = true;
 					break;
+				} else {
+					this.commands[cmd].parser.words = this.words.slice(i + 1);
+					this.commands[cmd].parser.eval();
+					return ;
 				}
 			}
 		}
