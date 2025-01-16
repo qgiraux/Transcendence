@@ -11,18 +11,52 @@ class FriendsView extends AbstractView {
   constructor(params) {
     super(params);
     this.domText = {};
-    this.messages = {};
-    this.messages.error = "Error";
-    this.messages.wentWrong = "Something went wrong";
-    this.messages.getFriendsErr = "Error getting friends list";
-    this.messages.displayFriendsErr = "Error displaying friends list";
-    this.messages.modalNotFound = "Error : modal not found";
-    this.messages.idAttributeNotFound = "Error : data-id attribute not found on modal";
-    this.messages.addFriendSuccess = "Friend added successfully";
-    this.messages.addFriendFailure = "The user couldn't be added as a friend";
-    this.messages.removeFriendFailure = "The user couldn't be removed from friends list";
-    //Faudrait-il traduire les titres des pages?
+    this.messages = {}
+
+    // this.domText.viewProfile = "View friend profile";
+    // this.domText.inviteGame = "Invite to a game";
+    // this.domText.unfriend = "Unfriend";
+    // this.domText.lookingForTxt = "Still looking for a friend ?";
+    // this.domText.lookingForField = "Look for a friend";
+    // this.messages = {};
+    // this.messages.error = "Error";
+    // this.messages.wentWrong = "Something went wrong";
+    // this.messages.getFriendsErr = "Error getting friends list";
+    // this.messages.displayFriendsErr = "Error displaying friends list";
+    // this.messages.modalNotFound = "Error : modal not found";
+    // this.messages.idAttributeNotFound = "Error : data-id attribute not found on modal";
+    // this.messages.addFriendSuccess = "Friend added successfully";
+    // this.messages.addFriendFailure = "The user couldn't be added as a friend";
+    // this.messages.removeFriendFailure = "The user couldn't be removed from friends list";
+    this.init();
+  }
+
+  async init() {
+    await this.loadMessages();
     this.onStart();
+  }
+
+  async loadMessages() {
+    // await Application.loadLocalization();
+    // await Application.setLanguage("fr-fr"); // for testing purposes
+    // console.log("OK");
+    this.domText.Title = await Application.localization.t("titles.friends");
+    this.domText.viewProfile = await Application.localization.t("friends.card.viewProfile");
+    this.domText.inviteGame = await Application.localization.t("friends.card.inviteGame");
+    this.domText.unfriend = await Application.localization.t("friends.card.unfriend");
+    this.domText.lookingForTxt = await Application.localization.t("friends.looking:for.text");
+    this.domText.lookingForField = await Application.localization.t("friends.looking:for.field");
+    this.domText.addFriendAction = await Application.localization.t("friends.add.action");
+    this.domText.close = await Application.localization.t("friends.close");
+    this.messages.error = await Application.localization.t("friends.errors.general");
+    this.messages.wentWrong = await Application.localization.t("friends.errors.unexpected");
+    this.messages.getFriendsErr = await Application.localization.t("friends.errors.list.get");
+    this.messages.displayFriendsErr = await Application.localization.t("friends.errors.list.display");
+    this.messages.modalNotFound = await Application.localization.t("friends.errors.modal.notFound");
+    this.messages.idAttributeNotFound = await Application.localization.t("friends.errors.modal.idAttributeMissing");
+    this.messages.addFriendSuccess = await Application.localization.t("friends.add.success");
+    this.messages.addFriendFailure = await Application.localization.t("friends.add.failure");
+    this.messages.removeFriendFailure = await Application.localization.t("friends.remove.failure");
   }
 
   onStart() {
@@ -33,6 +67,7 @@ class FriendsView extends AbstractView {
       }, 50);
       return;
     }
+    
     Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
@@ -241,13 +276,13 @@ class FriendsView extends AbstractView {
 					<ul class="dropdown-menu">
 					<li><button class="dropdown-item" data-id=${
             friend.id
-          } data-action="view-profile">View profile</button></li>
+          } data-action="view-profile">${this.domText.viewProfile}</button></li>
                     <li><button class="dropdown-item" data-id=${
                       friend.id
-                    } data-action="invite-game">Invite to a game</button></li>
+                    } data-action="invite-game">${this.domText.inviteGame}</button></li>
                     <li><button class="dropdown-item" data-id=${
                       friend.id
-                    } data-action="unfriend">Unfriend</button></li>
+                    } data-action="unfriend">${this.domText.unfriend}</button></li>
 					</ul>
 					</div>
 				</div>
@@ -279,7 +314,7 @@ class FriendsView extends AbstractView {
       );
       //if (request.message !== "Friend added successfully")
         //throw new Error(this.messages.addFriendFailure);
-      if (request.message !== this.messages.addFriendSuccess)
+      if (request.message !== "Friend added successfully")
         throw new Error(this.messages.addFriendFailure);
       await this._refreshFriendsList();
     } catch (error) {
@@ -320,8 +355,8 @@ class FriendsView extends AbstractView {
         <p id="modal-nickname">placeholder</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="add-friend-button"  data-bs-dismiss="modal">Add as a friend</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+        <button type="button" class="btn btn-primary" id="add-friend-button"  data-bs-dismiss="modal">${this.domText.addFriendAction}</button>
       </div>
     </div>
   </div>
@@ -330,7 +365,7 @@ class FriendsView extends AbstractView {
 
 <div class="row">
 			<div class="col-12">
-				<h1 class="text-white display-1">Friends</h1>
+				<h1 class="text-white display-1">${this.domText.Title}</h1>
 			</div>
 		</div>
 		<div class="row g-2  border border-secondary p-2 rounded" id="friends-container">
@@ -338,14 +373,14 @@ class FriendsView extends AbstractView {
 
 		<div class="row">
 			<div class="col-12">
-				<h3 class="text-white display-5 mt-5 mb-0">Still looking for a friend ?</h3>
+				<h3 class="text-white display-5 mt-5 mb-0">${this.domText.lookingForTxt}</h3>
 			</div>
 			<div class="row mt-0">
 				<div class="col-9 mx-auto">
 					<div class="container mt-5">
 						<div class="dropdown" mx-auto>
 							<input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
-								placeholder="Search a friend" data-bs-toggle="dropdown" aria-expanded="false" />
+								placeholder="${this.domText.lookingForField}" data-bs-toggle="dropdown" aria-expanded="false" />
 							<ul class="dropdown-menu w-100" id="dropdownMenu">
 								<!-- Les options seront ajoutées ici dynamiquement -->
 							</ul>

@@ -5,6 +5,7 @@ import Router from "../Router.js";
 import Avatar from "../Avatar.js";
 
 
+
 class LandingView extends AbstractView {
   constructor(params) {
     super(params);

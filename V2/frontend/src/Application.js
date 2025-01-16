@@ -2,6 +2,7 @@
 
  */
 import Avatar from "./Avatar.js";
+import Localization from "./Localization.js";
 
 class Application {
   /**
@@ -16,6 +17,9 @@ class Application {
     nickname: null,
   };
   static mainSocket = null;
+  static lang = "en-us";
+  static localization = new Localization(Application.lang);
+  static translationsCache = {};
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -178,6 +182,17 @@ class Application {
     const chatBox = document.querySelector("#chat-btn");
     chatBox.classList.toggle("d-none");
   }
+
+  //Methods to centralize the localization management
+
+  static setLanguage(lang) {
+    Application.lang = lang;
+    Application.localization.setLanguage(lang);
+  }
+  static async loadLocalization() {
+      await Application.localization.loadTranslations();
+  }
+
 }
 
 export default Application;

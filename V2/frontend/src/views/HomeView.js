@@ -10,17 +10,38 @@ class HomeView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("Home");
+    this.domText = {};
+    this.messages = {};
+    this.init();
+  }
+
+  async init() {
+    await this.getMessages();
     this.onStart();
   }
 
-  onStart() {
-    if (Application.getAccessToken() === null) {
-      Router.reroute("/landing");
-    } else {
-      this._setHtml();
-      // this.renderSendMessageForm();
-    }
+  async getMessages() {
+    // await Application.loadLocalization();
+    // await Application.setLanguage("fr-fr");
+    //  console.log("Translation is loaded ");
+    this.domText.Title = await Application.localization.t("titles.home");
+    this.domText.welcomeMessage = await Application.localization.t("home.welcome");
   }
+
+
+  // async onStart() {
+  //   if (Application.getAccessToken() === null) {
+  //     Router.reroute("/landing");
+  //   } else {
+  //     await Application.loadLocalization();
+  //     await Application.setLanguage("fr-fr");
+  //     console.log("Translation is loaded ");
+  //     this.domText.welcomeMessage = await Application.localization.t("home.welcome");
+  //     this._setHtml();
+  //     // this.renderSendMessageForm();
+  //   }
+  // }
+
   onStart() {
     if (Application.getAccessToken() === null) {
       Router.reroute("/landing");
@@ -108,7 +129,7 @@ class HomeView extends AbstractView {
         </style>
         <h1 class="text-white display-1">${
           Application.getUserInfos().userName
-        } welcome to your home page!</h1>
+        } ${this.domText.welcomeMessage}</h1>
         <canvas id="pongCanvas" width="800" height="400"></canvas>
         <div id="message-container"></div>
       `;

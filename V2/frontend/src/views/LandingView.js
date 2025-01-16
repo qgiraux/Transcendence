@@ -5,45 +5,52 @@ import Localization from "../../Localization.js";
 import Router from "../Router.js";
 import Avatar from "../Avatar.js";
 
+
 class LandingView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("Login");
 
     // AV test
-    this.l = new Localization('fr-fr');
     this.domText = {};
     this.messages = {};
 
+    this.init();
+  }
+
+  async init() {
+    await this.loadMessages();
     this.onStart();
   }
 
-  async onStart() {
-    await this.l.loadTranslations();
+  async loadMessages() {
+    await Application.loadLocalization();
+    await Application.setLanguage("fr-fr"); // for testing purposes
     console.log("OK");
 
-    this.domText.loginLabel = await this.l.t("landing.login.label");
-    console.log("La traduction est = ", this.domText.loginLabel);
-
-    this.domText.enterLoginField = await this.l.t("landing.login.enterField");
-    this.domText.passwordLabel = await this.l.t("landing.password.label");
-    this.domText.passwordField = await this.l.t("landing.password.field");
-    this.domText.twofaLabel = await this.l.t("landing.twofa.label");
-    this.domText.twofaField = await this.l.t("landing.twofa.field");
-    this.domText.signInSubmit = await this.l.t("landing.signin.submit");
-    this.domText.chooseLogin = await this.l.t("landing.login.choose");
-    this.domText.choosePassword = await this.l.t("landing.password.choose");
-    this.domText.confirmPassword = await this.l.t("landing.password.confirm");
-    this.domText.signUpSubmit = await this.l.t("landing.signup.submit");
-    this.messages.loginAlertTitle = await this.l.t("landing.messages.loginErrorTitle");
-    this.messages.registerAlertTitle = await this.l.t("landing.messages.registerErrorTitle");
-    this.messages.invalidCredentials = await this.l.t("landing.messages.invalidCredentials");
-    this.messages.wrongCredentialsFormat = await this.l.t("landing.messages.wrongCredentialsFormat");
-    this.messages.serverError = await this.l.t("landing.messages.serverError");
-    this.messages.userAlreadyExist = await this.l.t("landing.messages.userAlreadyExist");
-    this.messages.PasswordsDontMatch = await this.l.t("landing.messages.passwordsDontMatch");
-
+    //ATTENTION = pas le bon message d'erreur quand on veut se connecter avec un id qui n'est pas dans la base - a modifier 
     
+    this.domText.loginLabel = await Application.localization.t("landing.login.label");
+    this.domText.enterLoginField = await Application.localization.t("landing.login.enterField");
+    this.domText.passwordLabel = await Application.localization.t("landing.password.label");
+    this.domText.passwordField = await Application.localization.t("landing.password.field");
+    this.domText.twofaLabel = await Application.localization.t("landing.twofa.label");
+    this.domText.twofaField = await Application.localization.t("landing.twofa.field");
+    this.domText.signInSubmit = await Application.localization.t("landing.signin.submit");
+    this.domText.chooseLogin = await Application.localization.t("landing.login.choose");
+    this.domText.choosePassword = await Application.localization.t("landing.password.choose");
+    this.domText.confirmPassword = await Application.localization.t("landing.password.confirm");
+    this.domText.signUpSubmit = await Application.localization.t("landing.signup.submit");
+    this.messages.loginAlertTitle = await Application.localization.t("landing.messages.loginErrorTitle");
+    this.messages.registerAlertTitle = await Application.localization.t("landing.messages.registerErrorTitle");
+    this.messages.invalidCredentials = await Application.localization.t("landing.messages.invalidCredentials");
+    this.messages.wrongCredentialsFormat = await Application.localization.t("landing.messages.wrongCredentialsFormat");
+    this.messages.serverError = await Application.localization.t("landing.messages.serverError");
+    this.messages.userAlreadyExist = await Application.localization.t("landing.messages.userAlreadyExist");
+    this.messages.PasswordsDontMatch = await Application.localization.t("landing.messages.passwordsDontMatch");
+  }
+
+  onStart() {
     this.setHtml();
     const loginRadio = document.getElementById("loginradio");
     const createAccountRadio = document.getElementById("registerradio");
@@ -124,7 +131,7 @@ class LandingView extends AbstractView {
         twofa: twofa.value,
       });
     } else {
-      Alert.errorMessage(this.messages.wrongCredentialsFormat);
+      Alert.errorMessage(this.messages.loginAlertTitle, this.messages.invalidCredentials);
     }
   }
 
@@ -264,12 +271,12 @@ class LandingView extends AbstractView {
 
 					</div>
 					<div class="form-group text-white mt-2 ">
-						<label for="RegisterPassword">$${this.domText.passwordLabel}</label>
-						<input type="password" class="form-control" id="RegisterPassword" placeholder=${this.domText.choosePassword} required>
+						<label for="RegisterPassword">${this.domText.passwordLabel}</label>
+						<input type="password" class="form-control" id="RegisterPassword" placeholder="${this.domText.choosePassword}" required>
 					</div>
 					<div class="form-group text-white mt-2 ">
-						<label for="RegisterPasswordConfirm">${this.domText.passwordLabel} </label>
-						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder=${this.domText.confirmPassword} required>
+						<label for="RegisterPasswordConfirm">${this.domText.passwordLabel}</label>
+						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="${this.domText.confirmPassword}" required>
 					</div>
 					<button id="register-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signUpSubmit}</button>
 				</form>

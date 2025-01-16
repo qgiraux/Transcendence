@@ -12,17 +12,62 @@ class TournamentsView extends AbstractView {
     super(params);
     this.domText = {};
     this.messages = {};
-    this.messages.fetchTournamentsErr = "Error fetching tournaments";
-    this.messages.displayTournamentsErr = "Error displaying tournaments";
-    this.messages.joinTournamentErr = "Error joining tournament";
-    this.messages.createTournamentErr = "Error creating tournament";
-    this.messages.inviteFriendTitle = "Friend Invited";
-    this.messages.inviteFriendSuccess = "Successfully invited friend";
-    this.messages.inviteFriendFailure = "Error inviting friend";
-    this.messages.invalidName = "Invalid tournament name";
-    this.messages.tourNameRequirements = "Tournament name must be 3-30 characters long and contain only letters and numbers.";
+    this.init();
+  }
 
+  async init() {
+    await this.loadMessages();
     this.onStart();
+  }
+
+  async loadMessages() {
+    await Application.loadLocalization();
+    await Application.setLanguage("fr-fr"); // for testing purposes
+    // console.log("OK");
+
+    // Textes pour la création du tournoi
+    this.domText.Title = await Application.localization.t("tournament.create.txt");
+    this.domText.createTournamentTxt = await Application.localization.t("tournament.create.txt");
+    this.domText.tournamentNameTxt = await Application.localization.t("tournament.create.name.txt");
+    this.domText.tournamentNameEnter = await Application.localization.t("tournament.create.name.enter");
+    this.domText.tournamentSizeTxt = await Application.localization.t("tournament.create.size.txt");
+    this.domText.createTournamentAction = await Application.localization.t("tournament.create.action.txt");
+
+    // Messages d'erreur pour la création du tournoi
+    this.messages.fetchTournamentsErr = await Application.localization.t("tournament.create.errors.fetchTournaments");
+    this.messages.displayTournamentsErr = await Application.localization.t("tournament.create.errors.displayTournaments");
+    this.messages.joinTournamentErr = await Application.localization.t("tournament.create.errors.joinTournament");
+    this.messages.createTournamentErr = await Application.localization.t("tournament.create.errors.createTournament");
+    this.messages.invalidName = await Application.localization.t("tournament.create.errors.invalidName");
+    this.messages.tourNameRequirements = await Application.localization.t("tournament.create.errors.tourNameRequirements");
+
+    // Messages d'invitation
+    this.messages.inviteFriendTitle = await Application.localization.t("tournament.invite.title");
+    this.messages.inviteFriendSuccess = await Application.localization.t("tournament.invite.success");
+    this.messages.inviteFriendFailure = await Application.localization.t("tournament.invite.failure");
+
+    //card
+    this.messages.alreadyJoined = await Application.localization.t("tournament.card.alreadyJoined");
+    this.messages.tournamentFull = await Application.localization.t("tournament.card.tournamentFull");
+    this.messages.joinTournament = await Application.localization.t("tournament.card.joinTournament");
+    this.messages.deleteTournament = await Application.localization.t("tournament.card.deleteTournament");
+
+
+    // this.domText.Title = await Application.localization.t("titles.tournament");
+    // this.domText.createTournamentTxt = "Create tournament";
+    // this.domText.tournamentNameTxt = "Tournament name";
+    // this.domText.tournamentNameEnter = "Enter tournament name";
+    // this.domText.tournamentSizeTxt = "Number of players";
+    // this.domText.createTournamentAction = "Create";
+    // this.messages.fetchTournamentsErr = "Error fetching tournaments";
+    // this.messages.displayTournamentsErr = "Error displaying tournaments";
+    // this.messages.joinTournamentErr = "Error joining tournament";
+    // this.messages.createTournamentErr = "Error creating tournament";
+    // this.messages.inviteFriendTitle = "Friend Invited";
+    // this.messages.inviteFriendSuccess = "Successfully invited friend";
+    // this.messages.inviteFriendFailure = "Error inviting friend";
+    // this.messages.invalidName = "Invalid tournament name";
+    // this.messages.tourNameRequirements = "Tournament name must be 3-30 characters long and contain only letters and numbers.";
   }
 
   onStart() {
@@ -91,6 +136,8 @@ class TournamentsView extends AbstractView {
       const { "tournament name": name, players, size } = details;
   
       // Check if the current user is part of the tournament
+      await this.loadMessages();
+      
       const userId = Application.getUserInfos().userId;
       const isPlayerInTournament = players.includes(userId);
       const isTournamentFull = players.length >= size;
@@ -123,7 +170,7 @@ class TournamentsView extends AbstractView {
               data-tournament="${tournament}"
               ${isPlayerInTournament || isTournamentFull ? "disabled" : ""}
               style="${isPlayerInTournament || isTournamentFull ? "background-color: grey; cursor: not-allowed;" : ""}">
-              ${isPlayerInTournament ? "Already Joined" : isTournamentFull ? "Tournament Full" : "Join Tournament"}
+              ${isPlayerInTournament ? this.messages.alreadyJoined : isTournamentFull ? this.messages.tournamentFull : this.messages.joinTournament}
             </button>
             <button 
               class="btn btn-secondary" 
@@ -131,7 +178,7 @@ class TournamentsView extends AbstractView {
               data-tournament="${tournament}"
               ${!isPlayerInTournament ? "disabled" : ""}
               style="${!isPlayerInTournament ? "background-color: grey; cursor: not-allowed;" : ""}">
-              "delete"
+              ${this.messages.deleteTournament}
             </button>
           </div>
 
@@ -249,21 +296,21 @@ class TournamentsView extends AbstractView {
   createNewTournamentForm() {
     const tournamentsContainer = document.querySelector("#new-tournament-container");
     tournamentsContainer.innerHTML = `
-      <h5 class="text-white">Create Tournament</h5>
+      <h5 class="text-white">${this.domText.createTournamentTxt}</h5>
       <form id="create-tournament-form" class="d-flex align-items-center">
         <div class="form-group mr-2">
-          <label for="tournament-name" class="text-white">Tournament Name</label>
-          <input type="text" class="form-control" id="tournament-name" placeholder="Enter tournament name" required>
+          <label for="tournament-name" class="text-white">${this.domText.tournamentNameTxt}</label>
+          <input type="text" class="form-control" id="tournament-name" placeholder="${this.domText.tournamentNameEnter}" required>
         </div>
         <div class="form-group mr-2">
-          <label for="tournament-size" class="text-white">Tournament Size</label>
+          <label for="tournament-size" class="text-white">${this.domText.tournamentSizeTxt}</label>
           <select class="form-control" id="tournament-size" required>
             <option value="2">2</option>
             <option value="4">4</option>
             <option value="8">8</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-primary mt-4">Create</button>
+        <button type="submit" class="btn btn-primary mt-4">${this.domText.createTournamentAction}</button>
       </form>
     `;
   }
@@ -296,7 +343,7 @@ class TournamentsView extends AbstractView {
       container.innerHTML = `
         <div class="row">
           <div class="col-12">
-            <h1 class="text-white display-1">Tournaments</h1>
+            <h1 class="text-white display-1">${this.domText.Title}</h1>
           </div>
         </div>
         <div class="row">
