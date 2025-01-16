@@ -1,31 +1,22 @@
 const {Canvas} = require("./Canvas")
 
 class TextBox {
-	/**@type {String} */
-	text;
-	/**@type {Number} */
-	textCursor;
-	/**@type {String[]} */
-	displayedText;
-	/**@type {Number} */
-	displayedTextX;
-	/**@type {Number} */
-	displayedTextY;
-	/**@type {Number} */
-	xScroll;
-	/**@type {Number} */
-	yScroll;
-	///**@type {Canvas} */
-	canvas = new Canvas(0,0);
-
 	constructor(canvas){
+		/**@type {Canvas} */
 		this.canvas = canvas;
+		/**@type {String} */
 		this.text = "";
+		/**@type {Number} */
 		this.textCursor = 0;
+		/**@type {String[]} */
 		this.displayedText = [""];
+		/**@type {Number} */
 		this.displayedTextX = 0;
+		/**@type {Number} */
 		this.displayedTextY = 0;
+		/**@type {Number} */
 		this.xScroll = 0;
+		/**@type {Number} */
 		this.yScroll = 0;
 	}
 
@@ -97,19 +88,31 @@ class TextBox {
 			this.yScroll = 0;
 		this.yScroll = y;
 	}
+
+	resetText(text) {
+		this.text = text;
+		this.textCursor = 0;
+		this.displayedTextX = 0;
+		this.displayedTextY = 0;
+	}
 }
 
 // const c = new Canvas(5,5,1,1);
 // c.clearLines();
 // const t = new TextBox(c);
 // t.text = "sal\tut\nles amis\n01234567890123456789\nlol\nlol\nlol\nlol\nlol"
+// t.displayText();
+// t.resetText("patate");
+// t.displayText();
+// t.scrollRight();
+// t.displayText();
+// t.scrollRight();
+// t.displayText();
+// t.scrollRight();
+// t.displayText();
+// t.scrollRight();
+// t.displayText();
 
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
+module.exports = {
+	"TextBox": TextBox
+}

@@ -39,9 +39,6 @@ class ChatMessage {
 		this.group = data.group;
 		/** @type {Number} */
 		this.sender = data.sender;
-
-		/** @type {String}*/
-		this.senderHuman = "";
 	}
 
 	/**
@@ -397,3 +394,7 @@ class CmdChat extends JWTCmd {
 
 // const r = new CmdChat();
 // r.parser.eval();
+
+module.exports = {
+	"CmdChat": CmdChat
+}

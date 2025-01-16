@@ -8,6 +8,7 @@ const {CvsPong} = require("./CvsPong")
 const {Canvas} = require("./Canvas")
 const {Parser} = require("./Parser")
 const {WSIPong} = require("./WSIPong")
+const {TextBox} = require("./TextBox")
 
 let l = new Localization(); //
 
@@ -20,6 +21,7 @@ class CmdGame extends JWTCmd {
 		this.height = 33; // Min 8
 		this.dar = "1:1"; // * NOT IMPLEMENTED
 		this.boxCanvas = undefined;
+		this.dialogCanvas = undefined;
 		this.pongCanvas = undefined;
 		this.tournament = String(Date.now()); //
 		this.newTournament = false;
@@ -56,9 +58,10 @@ class CmdGame extends JWTCmd {
 
 	#initalizeController() {
 		this.controller.onStopKey = () => {CvsPong.showCursor(); this.ws.close()}; //Move at End
-		this.controller.onKeys([Controller.keyArrowUp, Controller.keyArrowDown], [
-			() => {this.pongCanvas.update(()=>{this.#movePaddle("up")})},
-			() => {this.pongCanvas.update(()=>{this.#movePaddle("down")})},
+		this.controller.onKeys([Controller.keyArrowUp, Controller.keyArrowDown, " "], [
+			() => {this.#movePaddle("up")},
+			() => {this.#movePaddle("down")},
+			() => {this.#sayReady()},
 		]);
 	}
 
@@ -70,9 +73,12 @@ class CmdGame extends JWTCmd {
 	#parseGameUpdate(obj) {
 		if (this.mirror)
 			this.#mirorGame(obj);
-		this.#updateGame(obj);
+		this.#onGameUpdate(()=>{this.#updateGame(obj)})
 	}
 
+	#parseCountdown(obj) {
+		this.#dialog(String(obj));
+	}
 
 	//WSI
 	#toCanvasX(xEngine){
@@ -93,6 +99,13 @@ class CmdGame extends JWTCmd {
 	}
 
 	//WS
+	#sayReady() {
+		this.ws.send(JSON.stringify({
+			type: "ready",
+			data: {direction: "ready"}
+		}));
+	}
+
 	#movePaddle(d) {
 		this.ws.send(JSON.stringify({
 			type: "move_paddle",
@@ -107,24 +120,44 @@ class CmdGame extends JWTCmd {
 	#onMessage(data) {
 		const obj = JSON.parse(data);
 
-		if ("game_update" == obj.type)
+		if ("game_update" == obj.type) {
 			this.#parseGameUpdate(obj.data);
+		} else if ("countdown" == obj.type) {
+			this.#parseCountdown(obj.time_to_game);
+		}
 	}
 
 	#onLogin(jwt) {
-		process.stdout.write(`Connecting to host...\n`); //
+		this.#iniCanvas();
+		this.pongCanvas.update();
+		this.#dialog(`Connecting to host...`); //
+		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
 		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access); //wss://{{host}}/ws/chat/?token={{access}};
 		this.ws = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
-		this.ws.on('error', console.error);
+		this.ws.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
 		this.ws.on('open', () => {this.#onOpen()});
 		this.ws.on('message', (data) => {this.#onMessage(data)});
 	}
 
 
+	#onStop() {
+		this.ws.close();
+		this.boxCanvas.moveCursor(this.boxCanvas.dx - 1, this.boxCanvas.dy - 1);
+		process.stdout.write("\n");
+		CvsPong.showCursor(); 
+	}
+
+	#onGameUpdate(fun = () => {}) {
+		if ("" !== this.dialogCanvas.text) {
+			this.#dialog("");
+			this.boxCanvas.drawBox();
+		}
+		this.pongCanvas.update(fun);
+	}
 
 	// Controller
 	#initalizeControllerDebug() {
-		this.controller.onStopKey = () => {CvsPong.showCursor(); this.ws.close()}; //Move at End
+		this.controller.onStopKey = () => {this.#onStop()};
 		this.controller.onKeys([
 			Controller.keyArrowUp, 
 			Controller.keyArrowDown,
@@ -133,23 +166,28 @@ class CmdGame extends JWTCmd {
 			"W", "S", "A", "D",
 			"8", "2", "4", "6",
 		], [
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleRY -= 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleRY += 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreR -= 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreR += 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleLY -= 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.paddleLY += 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreL -= 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.scoreL += 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballY -= 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballY += 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballX -= 1})},
-			() => {this.pongCanvas.update(()=>{this.pongCanvas.ballX += 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.paddleRY -= 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.paddleRY += 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.scoreR -= 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.scoreR += 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.paddleLY -= 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.paddleLY += 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.scoreL -= 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.scoreL += 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.ballY -= 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.ballY += 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.ballX -= 1})},
+			() => {this.#onGameUpdate(()=>{this.pongCanvas.ballX += 1})},
 		]);
 	}
 
 
-	#startGame() {
+	#dialog(msg) {
+		this.dialogCanvas.resetText(msg);
+		this.dialogCanvas.displayText();
+	}
+
+	#iniCanvas() {
 		CvsPong.hideCursor();
 		this.boxCanvas = new Canvas(this.width, this.height, 1, 1);
 		this.boxCanvas.dx = this.width;
@@ -158,24 +196,25 @@ class CmdGame extends JWTCmd {
 		this.boxCanvas.moveCursor(1, 1);
 		this.boxCanvas.drawBox();
 		this.boxCanvas.moveCursor(1, 1);
-		//
 		this.pongCanvas = new CvsPong(this.width - 2, this.height - 2, 2, 2);
-		//
-		this.pongCanvas.paddleRY = 0; //
-		this.pongCanvas.paddleLY = 0; //
+		this.pongCanvas.paddleRY = 0;
+		this.pongCanvas.paddleLY = 0;
 		this.pongCanvas.paddleRH = this.#toCanvasY(WSIPong.paddleRH);
 		this.pongCanvas.paddleLH = this.#toCanvasY(WSIPong.paddleLH);
 		this.pongCanvas.scoreL = 0;
 		this.pongCanvas.scoreR = 0;
 		this.pongCanvas.ballX = this.#toCanvasX(WSIPong.ballX0);
 		this.pongCanvas.ballY = this.#toCanvasY(WSIPong.ballY0);
-		//
 		this.pongCanvas.initalize();
 		//
-		this.pongCanvas.update();
-		//
-		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
-		
+		const c = new Canvas(this.width, 1, 1, 1);
+
+		this.dialogCanvas = new TextBox(c);
+	}
+
+	#startGame() {
+		this.#iniCanvas();
+		this.#dialog("Waiting for players");
 		//this.#initalizeController();
 		this.#initalizeControllerDebug();
 	}
