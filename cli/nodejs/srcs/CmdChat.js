@@ -142,7 +142,7 @@ class CmdChat extends JWTCmd {
 			CmdChat.writeSystem(`missing or incorrect <userId> or <game>\n`);
 			return ;
 		}
-		this.ws.send(ChatMessage.toJsonString("invite", words[2], `user_${words[1]}`, -1));
+		this.ws.send(ChatMessage.toJsonString("invite", words[2], `user_${words[1]}`, -1));n
 	}
 
 	#profile(words) {
@@ -153,7 +153,7 @@ class CmdChat extends JWTCmd {
 		CmdChat.writeSystem(`unknown command '${words[0]}'\n`);
 		this.#help();
 	}
-
+  
 	#api(words) {
 		if (!words || "api" != words[0]) {
 			return ;
@@ -209,7 +209,6 @@ class CmdChat extends JWTCmd {
 		CmdChat.writeSystem(`Left chat\n`);
 	}
 
-	//
 	static #echoCommand(text) {
 		process.stdout.write(`\x1b[3;33m!${text}\x1b[0m\n`); //
 	}
@@ -260,6 +259,7 @@ class CmdChat extends JWTCmd {
 	static writeSystem(message) {
 		process.stdout.write(`info: ${message}`);
 	}
+
 
 	static writeResponse(jsonResponse) {
 		if (typeof jsonResponse != "object") {
@@ -330,8 +330,6 @@ class CmdChat extends JWTCmd {
 		HttpsClient.get(`https://${this.host}/api/users/userinfo/${user}`, callback, this.jwt);
 	}
 
-	//
-
 	onLogin(jwt) {
 		CmdChat.writeSystem(`Connecting to host...\n`);
 		this.ws = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
@@ -395,10 +393,6 @@ class CmdChat extends JWTCmd {
 		process.stdout.write(`\r\x1b[2K`);
 		this.writeChat(data_, this.editor.text);
 	}
-}
-
-module.exports = {
-	"CmdChat": CmdChat
 }
 
 // const r = new CmdChat();

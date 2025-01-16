@@ -90,9 +90,9 @@ class Parser {
 		return -1;
 	}
 
-	_evalCommand(word)
-	{
+	_evalCommand(word) {
 		const i = this.commandNames.indexOf(word);
+ 
 		return i;
 	}
 
