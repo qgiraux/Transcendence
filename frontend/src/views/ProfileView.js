@@ -303,6 +303,7 @@ class ProfileView extends AbstractView {
   _setHtml() {
     const profileEdit = `
       <button class="btn btn-primary" id="manage-btn">Manage Avatar</button>
+
     `;
     const profileAlias = `
       <button class="btn btn-primary" id="alias-btn">Change Alias</button>
@@ -439,6 +440,7 @@ class ProfileView extends AbstractView {
                     </table>
                 </div>
             </div>
+
       `;
     }
   }

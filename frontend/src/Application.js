@@ -51,7 +51,7 @@ class Application {
     return null;
   }
 
-  static setUserInfos() {
+  static setUserInfosFromToken() {
     if (Application.#token !== null) {
       try {
         const token = Application.#_parseToken(Application.#token.access);
@@ -62,6 +62,12 @@ class Application {
         console.error(`Application: Error during userInfos setting : ${error}`);
       }
     }
+  }
+
+  static setUserInfos(infos) {
+    Application.#userInfos.userId = infos.id;
+    Application.#userInfos.userName = infos.username;
+    Application.#userInfos.nickname = infos.nickname;
   }
 
   static getUserInfos() {
