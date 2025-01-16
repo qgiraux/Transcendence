@@ -95,7 +95,7 @@ class ProfileView extends AbstractView {
               "fr-FR"
             )}</td>
           <td class="text-center">${match.score}</td>
-          <td class="text-center"><img src="${Avatar.url(
+          <td class="text-center d-flex align-items-start justify-content-start gap-2"><img src="${Avatar.url(
             match.opponent
           )}" class="rounded-circle border-0" width="40" height="40" alt="${
         match.opponent
