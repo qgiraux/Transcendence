@@ -21,6 +21,24 @@ class ProfileView extends AbstractView {
       return;
     }
     this.id = this.params["id"] || Application.getUserInfos().userId;
+    /*
+        Localization placeholders
+    */
+    this.domText = {};
+    this.domText.level = "Level";
+    this.domText.gamePlayedNumber = "Games played";
+    this.domText.victoryNumber = "Victories";
+    this.domText.winRemain = "more games to reach next level!";
+    this.domText.table = {};
+    this.domText.table.result = "Result";
+    this.domText.table.date = "Date";
+    this.domText.table.score = "Score";
+
+    this.messages = {};
+    this.messages.errorInitTitle = "Something went wrong";
+    this.messages.errorInitBody =
+      "We have issue communicating to the server. Please try again later.";
+
     TRequest.request("GET", `/api/users/userinfo/${this.id}`)
       .then((result) => {
         this.currentUserInfos = result;
@@ -41,7 +59,10 @@ class ProfileView extends AbstractView {
         }, 300);
       })
       .catch((error) => {
-        Alert.errorMessage("Something went wrong", error.message);
+        Alert.errorMessage(
+          this.messages.errorInitTitle,
+          this.messages.errorInitBody
+        );
       });
   }
 
@@ -366,17 +387,21 @@ class ProfileView extends AbstractView {
                       this.currentUserInfos.username
                     }</p>
                     <div class="card bg-dark text-white p-4 rounded shadow">
-                        <h2 class="text-center text-white mb-4">Level <strong>${
-                          this.playerLevel
-                        }</strong></h2>
+                        <h2 class="text-center text-white mb-4">${
+                          this.domText.level
+                        } <strong>${this.playerLevel}</strong></h2>
                         <div class="row mb-3 d-flex justify-content-center align-items-center">
-                            <div class="col-6 text-primary">Games played</div>
+                            <div class="col-6 text-primary">${
+                              this.domText.gamePlayedNumber
+                            }</div>
                             <div class="col-6 text-end text-white fw-bold fs-3">${
                               this.playerMatchPlayed
                             }</div>
                         </div>
                         <div class="row mb-3 d-flex justify-content-center align-items-center">
-                            <div class="col-6 text-primary">Victories</div>
+                            <div class="col-6 text-primary">${
+                              this.domText.victoryNumber
+                            }</div>
                             <div class="col-6 text-end text-white fw-bold fs-4">${
                               this.playerMatchWon
                             }</div>
@@ -389,7 +414,7 @@ class ProfileView extends AbstractView {
                         </div>
                         <div class="text-white" id="victories-left-text">Win ${
                           this.playerVictoryRemain
-                        } more games to reach next level!
+                        } ${this.domText.winRemain}
                         </div>
                     </div>
                 </div>
@@ -405,10 +430,11 @@ class ProfileView extends AbstractView {
                 <div class="user-stats">
                     <table class="table table-dark  table-striped" id="table-history">
                         <tr class="text-center">
-                            <th>Result</th>
-                            <th>Date</th>
-                            <th>Score</th>
-                            <th>Opponent</th>
+                            <th>${this.domText.table.result}</th>
+                            <th>${this.domText.table.date}</th>
+                            <th>${this.domText.table.score}</th>
+                            <th></th>
+
                         </tr>
                     </table>
                 </div>
