@@ -20,10 +20,8 @@ import cbor2
 import Utils
 import Compile
 
-SOURCE_FILE = "/TournamentScores.sol"
 SOLC_OUTPUT_JSON = "/solc_output.json"
 SOLC_INPUT_JSON = "/solc_input.json"
-JSON_FILE = "/tournament.json"
 ORIGIN = "daemon"
 WS_URL='ws://hardhat-network:8545'
 BASE58="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -52,18 +50,18 @@ def _decode_cbor(eth_code_bin, cbor_nhex=4):
 	return cbor_human
 
 # Verify
-def _get_metadata(ipfs):
+def _get_metadata(ipfs): #JSON
 	logger.info(f"metadata IPFS (from node bytecode): {ipfs}")
 	if (True):
 		logger.warning(f"using metadata local copy instead of IPFS")
-	bytecode, metadata = Compile.get_solc_output_from_json(SOLC_OUTPUT_JSON)
+	bytecode, metadata = Compile.get_solc_output_from_json(SOLC_OUTPUT_JSON) #JSON
 	return metadata
 
-def _get_source(ipfs):
+def _get_source(ipfs): #JSON
 	logger.info(f"source IPFS (from metadata): {ipfs}")
 	if (True):
 		logger.warning(f"using source local copy instead of IPFS")
-	source = json.loads(Utils.readfile(SOLC_INPUT_JSON))["sources"]["TournamentScores"]["content"]
+	source = json.loads(Utils.readfile(SOLC_INPUT_JSON))["sources"]["TournamentScores"]["content"] #JSON
 	return source
 
 def _verify_bytecode(bytecode, source, metadata, version):
@@ -94,7 +92,7 @@ async def verify_transact(
 		address : str, 
 		web3_ : any, 
 		contractName = "TournamentScores"
-	):
+	): #JSON
 	""" Verifies that `address` is 'contractName' address"""
 	try:
 		logger.info(f"Verifying code at {address} from Node...")

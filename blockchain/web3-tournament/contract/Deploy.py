@@ -24,9 +24,9 @@ JSON_FILE = "/tournament.json"
 logger = logging.getLogger(__name__)
 
 #contract
-async def _transact_contract(solc_output_json : str, web3_ : any):
+async def _transact_contract(solc_output_json : str, web3_ : any): #JSON
 	""" Transact Contract"""
-	bytecode, metadata = Compile.get_solc_output_from_json(solc_output_json)
+	bytecode, metadata = Compile.get_solc_output_from_json(solc_output_json) #JSON
 	abi = Utils.get_abi_from_metadata(metadata)
 	contract = web3_.eth.contract(abi=abi, bytecode=bytecode)
 	_balance0 = await web3_.eth.get_balance(web3_.eth.default_account)
@@ -45,9 +45,10 @@ def get_contract_from_json(web3_ : any, jsonFile=JSON_FILE) -> any:
 		abi=Utils.get_abi_from_metadata(metadata)
 	)
 
-async def _deploy_contract(web3_ : any, solc_json=SOLC_OUTPUT_JSON, save_json=JSON_FILE):
+async def _deploy_contract(web3_ : any, solc_json=SOLC_OUTPUT_JSON, save_json=JSON_FILE): #JSON
 	"""Gets contract from JSON"""
-	address, metadata = await _transact_contract(solc_json, web3_)
+	address, metadata = await _transact_contract(solc_json, web3_) #JSON
+	print(address, metadata) #
 	if ("" != save_json):
 		Utils.save_contract(address, metadata, save_json)
 	logger.info(f"contract address: {address}")
@@ -56,13 +57,14 @@ async def _deploy_contract(web3_ : any, solc_json=SOLC_OUTPUT_JSON, save_json=JS
 		abi=Utils.get_abi_from_metadata(metadata)
 	)
 
-async def get_contract(web3_ : any, jsonFile = JSON_FILE) -> any:
+async def get_contract(web3_ : any, jsonFile = JSON_FILE) -> any: #JSON
 	"""Deploys contract or gets it from `jsonFile`, returns contract"""
-	if ("" != jsonFile and True == os.path.isfile(jsonFile)):
-		return get_contract_from_json(web3_, jsonFile)
-	return await _deploy_contract(web3_, SOLC_OUTPUT_JSON, jsonFile)
+	print(jsonFile, True == os.path.isfile(jsonFile)) #JSON
+	if ("" != jsonFile and True == os.path.isfile(jsonFile)): #JSON
+		return get_contract_from_json(web3_, jsonFile) #JSON
+	return await _deploy_contract(web3_, SOLC_OUTPUT_JSON, jsonFile) #JSON
 
-def forget_contract(jsonFile = JSON_FILE):
+def forget_contract(jsonFile = JSON_FILE): #JSON
 	"""Removes contract info"""
 	if (True == os.path.isfile(jsonFile)):
 		os.remove(jsonFile) 

@@ -32,22 +32,19 @@ ALLOWED_HOSTS = ['tournament', '.localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    # 'django.contrib.admin',
 	"daphne",
-	'adrf',
+	#'adrf',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    # 'django.contrib.sessions',
-    # 'django.contrib.messages',
-    # 'django.contrib.staticfiles',
 	'rest_framework',
+    'w3App',
 ]
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.AllowAny',
     ]
 }
 
@@ -63,10 +60,21 @@ ASGI_APPLICATION = 'score.asgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-	"default": {
-		"ENGINE": "django.db.backends.sqlite3",
-	}
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', ''),
+        'USER': os.environ.get('POSTGRES_USER', ''),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+        'HOST': 'db-ipfs',  # Or your PostgreSQL server IP
+        'PORT': '5432',       # Default PostgreSQL port
+    }
 }
+
+# DATABASES = {
+# 	"default": {
+# 		"ENGINE": "django.db.backends.sqlite3",
+# 	}
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -79,7 +87,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTEurope/ParisC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 

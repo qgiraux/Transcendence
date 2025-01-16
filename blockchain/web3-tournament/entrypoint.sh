@@ -7,4 +7,8 @@ rm /tmp/solc_input.json
 ##solc
 solc --standard-json solc_input.json > solc_output.json
 
+#Database
+python3 /django/manage.py makemigrations w3App
+python3 /django/manage.py migrate w3App
+
 exec "$@"

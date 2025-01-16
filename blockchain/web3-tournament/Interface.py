@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/11 12:27:58 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/15 14:41:16 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/16 11:51:20 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,8 @@ import AsyncWeb3
 import Deploy
 import Tournament
 import Verify
+sys.path.insert(0, "/django") #ugly
+#import models as ipfsApp.models
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,12 @@ class ContractInterface:
 	print(await interface.getScore("MyCup"))
 	```
 	"""
+
+	# class Ipfs:
+	# 	def save(cid, content):
+	# 		ipfs = ipfsApp.models.Ipfs.objects.create(cid=cid, content=content)
+	# 		ipfs.save()
+
 	class Tournament:
 		""" Tournament Class
 		```Python
@@ -90,12 +98,16 @@ class ContractInterface:
 
 	def __init__(self):
 		self.initialized = False
-		self.save_json = True
+		self.save_json = False #
 		self.contract_address = ""
 		self._contract = None
 		self._w3 = None
 
-	async def _deploy_contract(self):
+	async def connect(self):
+		if (self._w3 is None):
+			self._w3 = await AsyncWeb3.initialize_web3()
+
+	async def deploy_contract(self):
 		if (True == self.save_json):
 			self._contract = await Deploy.get_contract(self._w3)
 		else:
@@ -106,7 +118,12 @@ class ContractInterface:
 		if (False == self.initialized):
 			await self.initialize()
 		if (None == self._contract):
-			await self._deploy_contract()
+			await self.deploy_contract()
+
+	async def ado(self, afun):
+		await self.connect()
+		await afun()
+		await self.disconnect()
 
 	async def initialize(self):
 		""" Connects to Blockchain
@@ -122,7 +139,7 @@ class ContractInterface:
 		if (True == self.initialized):
 			return
 		self._w3 = await AsyncWeb3.initialize_web3()
-		await self._deploy_contract()
+		await self.deploy_contract()
 		self.initialized = True
 
 	def removeContract(self):
@@ -159,7 +176,12 @@ class ContractInterface:
 		await self._fix()
 		receipt = await Tournament.store_tournament_async(name, result, self._contract, self._w3, True)
 		return json.dumps(receipt, cls=HexJsonEncoder)
-	
+
+	async def disconnect(self):
+		if (self._w3 is not None):
+			await AsyncWeb3.disconnect(self._w3)
+			self._w3 = None
+
 	async def destroy(self):
 		if (self._w3 is not None):
 			await AsyncWeb3.disconnect(self._w3)

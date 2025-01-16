@@ -32,15 +32,17 @@ RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 #Checking install
 RUN django-admin --version
 
-COPY ./entrypoint.sh /.
+COPY . .
+# COPY ./entrypoint.sh /.
 
-COPY ./TournamentScores.sol ./
-COPY ./solc_input.json /.
-COPY ./contract /contract
-COPY ./Interface.py /.
-COPY ./django /django
+# COPY ./TournamentScores.sol ./
+# COPY ./solc_input.json /.
+# COPY ./contract /contract
+# COPY ./Interface.py /.
+# COPY ./django /django
 
 ENTRYPOINT		[ "bash", "/entrypoint.sh" ]
 # TODO: django daemon
 #CMD				[ "python3", "./daemon.py"]
-CMD				[ "sleep", "infinity"]
+CMD ["python3", "/django/manage.py", "runserver"]
+#CMD				[ "sleep", "infinity"]

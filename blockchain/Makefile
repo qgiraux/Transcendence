@@ -54,6 +54,9 @@ exec-web3-tournament:
 # exec-testnet:
 # 	docker exec -it ethereum-testnet /bin/sh
 
+exec-db-ipfs:
+	docker exec -it db-ipfs /bin/bash
+
 exec-hardhat-network:
 	docker exec -it hardhat-network /bin/sh
 
@@ -74,8 +77,7 @@ test:
 # $(VOLUME_AMR_DEVICE):
 # 	mkdir -p $(VOLUME_AMR_DEVICE)
 
-.phony: all status clean fclean re exec-web3-tournament exec-hardhat-network runserver
-
+.phony: all status clean fclean re exec-web3-tournament exec-hardhat-network exec-db-ipfs runserver
 
 # sudo apt-get update
 # sudo apt-get install -y ca-certificates curl

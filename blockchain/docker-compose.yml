@@ -1,4 +1,17 @@
 services:
+  db-ipfs:
+    build: ./db-ipfs
+    container_name: db-ipfs
+    restart: always
+    env_file: ./.env
+    environment:
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: patate
+      POSTGRES_DB: db-ipfs
+    # volumes:
+    #   - test_postgres_user_management:/var/lib/postgresql/data
+    networks:
+      - docker-network
   web3-tournament:
     build: ./web3-tournament
     container_name: web3-tournament
@@ -8,6 +21,7 @@ services:
       - docker-network
     depends_on:
       - hardhat-network
+      - db-ipfs
     ports:
       - 8000:8000
     # volumes:

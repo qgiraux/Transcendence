@@ -8,4 +8,4 @@ daphne
 adrf
 py-solc-x
 cbor2
-
+psycopg2-binary
