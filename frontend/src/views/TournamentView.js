@@ -95,7 +95,7 @@ class TournamentsView extends AbstractView {
 
       // Set the card content
       div.innerHTML = `
-        <div class="card shadow border-secondary p-2 text-white" style="background-color: #303030;">
+        <div class="card shadow border-secondary p-2 text-white">
           <div class="card-body">
             <h7 class="card-title">${name.length > 14 ? name.substring(0, 11) + '...' : name}</h7>
             <p class="card-text">${players.length} / ${size}</p>

@@ -275,15 +275,14 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-      <button class="btn btn-primary" id="manage-btn">Manage Avatar</button>
+      <button class="btn btn-primary better-btn" id="manage-btn">Manage Avatar</button>
     `;
     const profileAlias = `
-      <button class="btn btn-primary" id="alias-btn">Change Alias</button>
+      <button class="btn btn-primary better-btn" id="alias-btn">Change Alias</button>
     `;
     const profileTwofa = `
-      <label class="btn btn-primary">
-        Activate 2FA
-        <a href="/twofa" data-link class="nav-link px-0 align-middle">profile</a>
+      <label class="btn btn-primary better-btn" id="twofa-better-btn">
+        Activate 2FA <a href="/twofa" data-link class="nav-link px-0 align-middle">Profile</a>
       </label>
     `;
     const container = document.querySelector("#view-container");
@@ -318,7 +317,7 @@ class ProfileView extends AbstractView {
             <div class="modal-content bg-dark">
               <div class="modal-header">
                 <h2>Avatar Settings</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-autobs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="mt-3">
                 <div class="form-check">
@@ -343,37 +342,45 @@ class ProfileView extends AbstractView {
         </div>
         <!-- END Avatar Modal -->
 
-        <div class="row p-3">
-          <div class="row align-items-center">
+        <div class="row p-3 justify-content-center">
+          <div class="row">
             <div class="col-md-6">
-              <img id="profile-img" src="${Avatar.url(
-                this.currentUserInfos.id
-              )}" width="300" height="300" data-avatar="${
-        this.currentUserInfos.id
-      }" alt="user" class="rounded-circle">
+              <img 
+                id="profile-img" 
+                src="${Avatar.url(this.currentUserInfos.id)}"
+                data-avatar="${this.currentUserInfos.id}"
+                alt="user"
+                class="rounded-circle">
             </div>
             <div class="col-md-6">
               <h1 class="text-white display-1">${
                 this.currentUserInfos.username
               }</h1>
-              <p class="text-white display-5" id=nickname>${
-                this.currentUserInfos.nickname
-              }</p>
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileEdit
-                  : ""
-              }
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileAlias
-                  : ""
-              }
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileTwofa
-                  : ""
-              }
+              ${this.currentUserInfos.nickname !== this.currentUserInfos.username ? 
+              `<p class="text-white display-5" id="nickname">aka ${this.currentUserInfos.nickname}</p>` : ''}
+              <div class="row justify-content-center">
+                <div class="col-12 col-md-auto d-flex align-items-stretch">
+                  ${
+                    this.currentUserInfos.id === Application.getUserInfos().userId
+                      ? profileEdit
+                      : ""
+                  }
+                </div>
+                <div class="col-12 col-md-auto d-flex align-items-stretch">
+                  ${
+                    this.currentUserInfos.id === Application.getUserInfos().userId
+                      ? profileAlias
+                      : ""
+                  }
+                </div>
+                <div class="col-12 col-md-auto d-flex align-items-stretch">
+                  ${
+                    this.currentUserInfos.id === Application.getUserInfos().userId
+                      ? profileTwofa
+                      : ""
+                  }
+                </div>
+              </div>
             </div>
             <div id="stat-container">
             </div>

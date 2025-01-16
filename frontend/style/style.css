@@ -1,4 +1,4 @@
-/* Global Reset */
+/* Global Settings */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -9,24 +9,96 @@ body {
   margin: 0;
   display: flex;
   min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  background-color: black;
 }
 
+h1 {
+  text-align: center;
+  padding: auto;
+}
+
+/* SIDEBAR SETTINGS */
 #sidebar {
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  background-color: #1f1f1f;
+  max-width: 180px;
+}
+
+#sidebar ul li a {
+  color: white;
+  text-decoration: none; /* Remove underline */
+  font-weight: bold; /* Make the text bold */
+  padding: 10px; /* Add some padding */
+  display: block; /* Make the link a block element */
+  text-transform: capitalize;
+}
+
+#sidebar ul li a:hover {
+  color: black; /* Ensure text stays white */
+  background-color: #adfe04;
+  border-radius: 0;
+  width: 100%;
+}
+
+#login-side-info #side-username {
+  padding: 10px;
+}
+
+#alert-container {
+  z-index: 1050;
 }
 
 #view-container {
   flex-grow: 1;
   padding: 20px;
   overflow-y: auto;
-  background-color: #333232;
+  background-color: #000000;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.btn-primary.better-btn {
+  background-color: #adfe04;
+  color: rgb(0, 0, 0);
+  border-radius: 0px;
+  border-width: 0;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 5px;
+  margin-top: 5px;
+}
+
+.btn-primary.better-btn:hover {
+  background-color: #000000;
+  color: #adfe04;
+  border-color: #adfe04;
+  border-width: 4px;
 }
 
 .btn-custom {
   width: 150px;
+}
+
+#profile-img {
+  max-width: 300px;
+  max-height: 300px;
+}
+
+/* LANDING VIEW STYLING */
+.btn-check {
+  background-color: #adfe04;
+  color: rgb(0, 0, 0);
+  border-radius: 0px;
+  border-width: 0;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 5px;
+  margin-top: 5px;
 
 }
 
@@ -144,16 +216,6 @@ display: block;
 border: 2px solid white; /* Optional: Add a border around the image */
 }
 
-/* Body Styling */
-body {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: auto 0.95fr;
-  font-family: "Arial", sans-serif;
-  background-color: #f5f7fa;
-  color: #333;
-}
-
 /* Navigation Bar */
 nav {
   background: #363f47;
@@ -192,8 +254,18 @@ nav a:hover {
 
 /* Paragraph Styling */
 p {
+  text-align: center;
   margin: 0;
   line-height: 1.6;
-  font-size: 1.5rem;
+  font-size: 1rem;
   color: #555;
+}
+
+.accept-invite {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: rgb(40, 40, 83);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
 }

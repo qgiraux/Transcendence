@@ -157,7 +157,8 @@ class HomeView extends AbstractView {
         </style>
         <h1 class="text-white display-1">${
           Application.getUserInfos().userName
-        } welcome to your home page!</h1>
+        }</h1>
+        <h2><small>Welcome to your home page!</small></h2>
         <canvas id="pongCanvas" width="800" height="400"></canvas>
         <div id="message-container"></div>
       `;
