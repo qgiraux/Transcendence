@@ -214,7 +214,7 @@ class PongEngine(threading.Thread):
 		state_json["p2"] = self.state.player_right.playerid
 		state_json["p2score"] = self.state.player_right.score
 		state_json["score"] = f"{state_json['p1score']}/{state_json['p2score']}"
-
+		log.error(f"sending game over to group {self.group_name}")
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
 		)
@@ -330,13 +330,13 @@ class PongEngine(threading.Thread):
 
 	async def end_game(self):
 		self.game_on = False
+		await self.broadcast_game_over()
 		if self.game_task:
 			self.game_task.cancel()
 			try:
 				await self.game_task
 			except asyncio.CancelledError:
 				log.error("Game loop task cancelled")
-		await self.broadcast_game_over()
 	# async def end_game(self):
 	# 	self.game_on = False
 	# 	log.error("reached the end_game broadcaster")

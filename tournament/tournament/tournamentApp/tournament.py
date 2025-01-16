@@ -27,10 +27,7 @@ def Tournament_operation(tournament):
         logger.error("starting tournament...")
         winner = organize_tournament(lineup)
         logger.error(f"[Tournament_operation] Winner: {winner}")
-        channel_layer = get_channel_layer()
-        asyncio.run(channel_layer.group_send(
-            "pong_game", json.dumps({ 'type': 'tournament_end', 'data': { 'winner': winner } })
-        ))
+        tournament.delete()
         return 
     except Exception as e:
         return e
@@ -54,30 +51,48 @@ def organize_tournament(lineup):
 
     return organize_tournament(next_lineup)
 
+from asgiref.sync import async_to_sync
+
 async def match(player1, player2, gamename):
     logger.error(f"Match {gamename} between {player1} and {player2}")
     channel_layer = get_channel_layer()
 
+    # Simulate a channel name for this task
+    channel_name = f"channel_{gamename}_{player1}_{player2}"
+
+    # Add the simulated channel to the group
+    await channel_layer.group_add(
+        f"game_{gamename}",
+        channel_name
+    )
+
+    # Notification logic
     notification = {
-            'type': 'game_message',
-            'group': f'user_{player1}',
-            'message': gamename,
-            'sender': "0",
-        }
+        'type': 'game_message',
+        'group': f'user_{player1}',
+        'message': gamename,
+        'sender': "0",
+    }
     try:
         redis_client.publish("global_chat", json.dumps(notification))
         notification['group'] = f'user_{player2}'
         redis_client.publish("global_chat", json.dumps(notification))
     except Exception as e:
-        logger.error(f"Error sending gameon message: {e}")
+        logger.error(f"Error sending game-on message: {e}")
 
-    message = { 'type': 'create', 'data': { 'name': gamename } }
+    # Send an initial message to the group
+    message = {'type': 'create', 'data': {'name': gamename}}
     await channel_layer.group_send(
-            "pong_game", message
-        )
+        f"game_{gamename}",
+        message
+    )
+
+    # Wait for messages from the group
     while True:
-        message = await channel_layer.receive("pong_game")
-        logger.error(f"Received message: {message}")
+        logger.error(f"Waiting for message from: game_{gamename}")
+        message = await channel_layer.receive(channel_name)  # Use `receive` for the specific channel
+
+        # Check for game over condition
         if message.get("type") == "game_over":
             logger.error(f"Game over: {message}")
-            return message.get("winner")
+            return message.get("state").get("winner")
