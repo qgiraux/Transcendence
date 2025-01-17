@@ -8,7 +8,6 @@ class Parser {
 	 */
 	constructor(help="usage: node pong-cli "){
 		/**@type {String} */
-		help;
 		this.help = help;
 		/**@type {String[]} */
 		this.words = Parser.getWords();
