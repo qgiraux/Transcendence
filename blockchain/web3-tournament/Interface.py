@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/11 12:27:58 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/16 11:51:20 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/17 10:47:39 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -120,10 +120,10 @@ class ContractInterface:
 		if (None == self._contract):
 			await self.deploy_contract()
 
-	async def ado(self, afun):
-		await self.connect()
-		await afun()
-		await self.disconnect()
+	# async def ado(self, afun):
+	# 	await self.connect()
+	# 	await afun()
+	# 	await self.disconnect()
 
 	async def initialize(self):
 		""" Connects to Blockchain
