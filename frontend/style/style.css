@@ -15,7 +15,17 @@ body {
 
 h1 {
   text-align: center;
-  padding: auto;
+  padding: 25px;
+  font-family: "Audiowide", sans-serif;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 42px #f037a5,
+    0 0 82px #f037a5,
+    0 0 92px #f037a5,
+    0 0 102px #f037a5,
+    0 0 151px #f037a5;
 }
 
 /* SIDEBAR SETTINGS */
@@ -34,14 +44,17 @@ h1 {
   font-weight: bold; /* Make the text bold */
   padding: 10px; /* Add some padding */
   display: block; /* Make the link a block element */
-  text-transform: capitalize;
+  text-transform: uppercase;
 }
 
-#sidebar ul li a:hover {
-  color: black; /* Ensure text stays white */
+#sidebar ul li:hover {
   background-color: #adfe04;
   border-radius: 0;
   width: 100%;
+}
+
+#sidebar ul li a:hover {
+  color: black;
 }
 
 #login-side-info #side-username {
@@ -62,18 +75,21 @@ h1 {
   padding: 20px;
 }
 
-.btn-primary.better-btn {
+
+/* BUTTONS */
+.btn-primary {
   background-color: #adfe04;
   color: rgb(0, 0, 0);
   border-radius: 0px;
-  border-width: 0;
+  border-width: 4px;
+  border-color: #adfe04;
   padding: 0.5rem 1rem;
   transition: background-color 0.3s ease, color 0.3s ease;
   margin: 5px;
   margin-top: 5px;
 }
 
-.btn-primary.better-btn:hover {
+.btn-primary:hover {
   background-color: #000000;
   color: #adfe04;
   border-color: #adfe04;
@@ -90,16 +106,76 @@ h1 {
 }
 
 /* LANDING VIEW STYLING */
-.btn-check {
-  background-color: #adfe04;
-  color: rgb(0, 0, 0);
-  border-radius: 0px;
-  border-width: 0;
-  padding: 0.5rem 1rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  margin: 5px;
-  margin-top: 5px;
+/* Default state: Not selected, not hovered */
+.btn-custom {
+  background-color: black !important; /* Override Bootstrap default */
+  color: white !important; /* Override Bootstrap default */
+  border: 4px solid #adfe04 !important; /* Add the green border */
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 0;
+  cursor: pointer;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
 
+/* Hover state: Not selected but hovered */
+.btn-custom:hover {
+  color: #adfe04 !important; /* Text turns green */
+  background-color: black !important; /* Keep black background */
+  border-radius: 0;
+  box-shadow: 0 0 10px #adfe04, 0 0 20px #adfe04; /* Neon glow effect */
+}
+
+/* Selected state: When clicked or focused */
+input[type="radio"]:checked + .btn-custom {
+  background-color: #adfe04 !important; /* Green background */
+  color: black !important; /* Black text */
+  outline: none !important; /* Remove any focus outline */
+  box-shadow: 0 0 10px #adfe04, 0 0 20px #adfe04; /* Neon glow effect */
+}
+
+.form-group label {
+  margin: 10px; /* Adds spacing below the label */
+  display: block; /* Ensures labels are on their own line */
+}
+
+/* Default state: Black background, white text, pink border */
+.form-control {
+  background-color: black !important; /* Black background */
+  color: white !important; /* White text */
+  border: 2px solid #f037a5 !important; /* Pink border */
+  border-radius: 4px; /* Optional: Rounded corners */
+  padding: 10px;
+  font-size: 16px;
+  outline: none; /* Remove default outline */
+  transition: box-shadow 0.3s ease, border-color 0.3s ease; /* Smooth transitions */
+}
+
+/* Placeholder text */
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7); /* Light white for placeholder */
+}
+
+/* Focused state: Neon effect */
+.form-control:focus {
+  border-color: #f037a5 !important; /* Pink border remains */
+  box-shadow: 0 0 10px #f037a5, 0 0 20px #f037a5; /* Neon glow effect */
+}
+
+/* Style autofill background */
+input:-webkit-autofill {
+  background-color: black !important; /* Match the input background */
+  -webkit-text-fill-color: white !important;
+  border: 2px solid #f037a5 !important; /* Match the input border color */
+  -webkit-box-shadow: 0 0 0 1000px black inset !important; /* Force black background */
+  transition: background-color 5000s ease-in-out 0s; /* Prevent default autofill animation */
+}
+
+/* Autofill on focus with neon effect */
+input:-webkit-autofill:focus {
+  box-shadow: 0 0 10px #f037a5, 0 0 20px #f037a5; /* Neon glow effect */
+  border-color: #f037a5 !important; /* Ensure the pink border remains */
+  -webkit-text-fill-color: white !important;
 }
 
 /* Chat button */
@@ -217,7 +293,7 @@ border: 2px solid white; /* Optional: Add a border around the image */
 }
 
 /* Navigation Bar */
-nav {
+/* nav {
   background: #363f47;
   display: grid;
   grid-template-rows: repeat(10, 1fr);
@@ -239,14 +315,13 @@ nav a {
 nav a:hover {
   background-color: hsl(208deg 13.22% 32.13%);
   color: #e6f7ff;
-}
+} */
 
 /* Main Container */
 .container {
-  width: 100%;
+  max-width: 1200px;
   border: 1px solid #ddd;
   padding: 1.5rem;
-  background: hsl(0 0% 95% / 1);
   display: flex;
   flex-direction: column;
   gap: 1rem;

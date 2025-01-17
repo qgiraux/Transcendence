@@ -205,7 +205,7 @@ class LandingView extends AbstractView {
 			<div class="col-6 mx-auto">
 				<div class="btn-group d-flex text-center" role="group" aria-label="toggle login register">
 					<input type="radio" class="btn-check" name="btnradio" id="loginradio" autocomplete="off" checked>
-					<label class="btn btn-outline-primary btn-custom" for="loginradio"> Login</label>
+					<label class="btn btn-outline-primary btn-custom" for="loginradio">Login</label>
 
 					<input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
 					<label class="btn btn-outline-primary btn-custom" for="registerradio">Create an account</label>
@@ -231,8 +231,10 @@ class LandingView extends AbstractView {
 						<label for="InputPassword">2FA code (if activated)</label>
 						<input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
 					</div>
-					<button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
-				</form>
+          <div class="d-flex justify-content-center mt-3">
+					  <button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
+          </div>
+        </form>
 
 			</div>
 
@@ -255,8 +257,10 @@ class LandingView extends AbstractView {
 						<label for="RegisterPasswordConfirm">Confirm your Password</label>
 						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
 					</div>
-					<button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
-				</form>
+          <div class="d-flex justify-content-center mt-3">
+					  <button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
+          </div>
+        </form>
 
 			</div>
 `;
