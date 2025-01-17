@@ -163,6 +163,40 @@ def Get_user_infos(request, user_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
+def Get_user_id(request):
+    if not request.body:
+        logger.error("Missing body")
+        return Response({"error":'Missing username'}, status=400)
+    
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    if 'username' not in body:
+        logger.error("Missing username")
+        return Response({"error": 'Missing username'}, status=400)
+    
+    username = body['username']
+    logger.error(username)
+    if username == 'system':
+        user_info = {
+        "id": 0,
+        "username": "system",
+        "nickname": "system",
+        "2fa": "false",
+        }
+        logger.error(user_info)
+        return JsonResponse(user_info) 
+    user = get_object_or_404(User, username=username)
+    user_info = {
+        "id": user.id,
+        "username": user.username,
+        "nickname": user.nickname,
+        "2fa": user.twofa_enabled,
+    }
+    return JsonResponse(user_info)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
 def Enable_Twofa(request):
     user = request.user
     user.twofa_enabled = True

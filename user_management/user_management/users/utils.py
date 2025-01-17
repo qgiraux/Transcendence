@@ -20,6 +20,10 @@ def get_user_totp_device(user, confirmed=None):
         if isinstance(device, TOTPDevice):
             return device
 
+def is_user_using_totp(user):
+    device = get_user_totp_device(user)
+    return device is not None
+
 def generate_qr_code(request):
     # Data for the QR code (it could be a URL, string, or anything you want to encode)
     data = request

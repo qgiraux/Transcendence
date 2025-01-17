@@ -90,7 +90,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'group': group,
                 }
             )
-        elif message_type == 'notification':
+        elif message_type == 'notification' and sender_name == 'system':
             # Send the message directly to the specified user
             await self.channel_layer.group_send(
                 group,
@@ -101,7 +101,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'group': group,
                 }
             )
-        elif message_type == 'GOTO':
+        elif message_type == 'GOTO' and sender_name == 'system':
             # Send the message directly to the specified user
             await self.channel_layer.group_send(
                 group,
@@ -124,7 +124,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-        elif message_type == 'subscribe':
+        elif message_type == 'subscribe' and sender_name == 'system':
             # Handle subscription to additional channels (e.g., tournament channels)
             channel_name = data.get('channel')
             if channel_name:
