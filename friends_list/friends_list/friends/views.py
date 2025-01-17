@@ -50,7 +50,7 @@ def add_friend(request):
 
         # Prepare response body
         body = json.dumps({'message': 'Friend added successfully'})
-        return JsonResponse({'message': 'Friend added successfully'}, status=200)
+        return JsonResponse({'message': 'Friend added successfully'}, status=201)
 
     except ExpiredSignatureError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)

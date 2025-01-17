@@ -29,6 +29,8 @@ ALLOWED_HOSTS = [
     'redis',
     'nginx',
     'localhost',
+    '127.0.0.1',
+    '0.0.0.0',
     ]
 
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'

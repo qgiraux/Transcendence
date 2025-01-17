@@ -168,8 +168,8 @@ class PongEngine(threading.Thread):
 			self.loop = asyncio.new_event_loop()
 		try:
             # Block until both players are ready
-			while len(self.ready_players) < 2:
-				sleep(1)
+			# while len(self.ready_players) < 1:
+			# 	sleep(1)
 			self.loop.run_until_complete(self.broadcast_countdown())
 			self.game_task = self.loop.create_task(self.game_loop())
 		except Exception as e:
@@ -367,8 +367,3 @@ class PongEngine(threading.Thread):
 				await self.game_task
 			except asyncio.CancelledError:
 				log.error("Game loop task cancelled")
-	# async def end_game(self):
-	# 	self.game_on = False
-	# 	log.error("reached the end_game broadcaster")
-	# 	await self.broadcast_game_over()
-		

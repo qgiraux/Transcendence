@@ -113,11 +113,13 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             return
         log.error("User %s is ready", self.userid)
         self.pong[self.gameName].engine.player_ready(self.userid)
+        # await self.send(text_data=json.dumps({"type": "received"}))
         
     async def game_update(self, event):
         # log.error("Game update: %s", event)
         state = event["state"]
         await self.send(text_data=json.dumps(state))
+
     
     async def countdown(self, event):
         # log.error("Game update: %s", event)
