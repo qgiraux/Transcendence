@@ -10,6 +10,7 @@ import attr
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from datetime import datetime
+from time import sleep
 import httpx
 
 log = logging.getLogger(__name__)
@@ -151,8 +152,7 @@ class PongEngine(threading.Thread):
 		self.paddle_y_change: Mapping[str, Direction] = {}
 		self.key_lock = threading.Lock()
 		self.game_on = False
-
-
+		self.ready_players = set()
 
 	def run(self):
 		if not (self.state.player_left is None or self.state.player_right is None):
@@ -166,7 +166,15 @@ class PongEngine(threading.Thread):
 			self.loop = asyncio.get_event_loop()
 		except RuntimeError:
 			self.loop = asyncio.new_event_loop()
-		self.game_task = self.loop.create_task(self.game_loop())
+		try:
+            # Block until both players are ready
+			while len(self.ready_players) < 2:
+				sleep(1)
+			self.loop.run_until_complete(self.broadcast_countdown())
+			self.game_task = self.loop.create_task(self.game_loop())
+		except Exception as e:
+			log.error(f"Error during readiness check: {e}")
+
 
 	async def game_loop(self):
 		try:
@@ -190,6 +198,24 @@ class PongEngine(threading.Thread):
 			self.group_name, {"type": "game_update", "state": state_json}
 		)
 	
+	async def broadcast_countdown(self):
+		log.error(f"Broadcasting countdown on group {self.group_name}")
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": "3"}
+		)
+		log.info("Countdown: 3")
+		await asyncio.sleep(0.5)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": "3"}
+		)
+		log.info("Countdown: 2")
+		await asyncio.sleep(0.5)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": "3"}
+		)
+		log.info("Countdown: 1")
+		await asyncio.sleep(0.5)
+
 
 	async def post_stats(self, url, data, headers):
 		try:
@@ -268,6 +294,10 @@ class PongEngine(threading.Thread):
 				self.paddle_y_change[playerid] = Direction.UP
 			elif direction == 'down':
 				self.paddle_y_change[playerid] = Direction.DOWN
+
+	def player_ready(self, userid):
+		log.error("Player %s is ready", userid)
+		self.ready_players.add(userid)
 
 	def add_player(self, playerid):
 		log.error("Adding player %s to the game", playerid)

@@ -94,6 +94,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
                 await self.move_paddle(msg_data) 
             case "create":
                 await self.create(msg_data)
+            case "ready":
+                await self.ready(msg_data)
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
@@ -105,10 +107,21 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         direction = data.get("direction")
         self.pong[self.gameName].engine.get_player_paddle_move(self.userid, direction)
 
+    async def ready(self, data):
+        if not self.userid:
+            log.error("User not correctly joined")
+            return
+        log.error("User %s is ready", self.userid)
+        self.pong[self.gameName].engine.player_ready(self.userid)
+        
     async def game_update(self, event):
         # log.error("Game update: %s", event)
         state = event["state"]
         await self.send(text_data=json.dumps(state))
+    
+    async def countdown(self, event):
+        # log.error("Game update: %s", event)
+        await self.send(text_data=json.dumps(event))
     
     async def game_over(self, event):
         # log.error("Game update: %s", event)
@@ -154,11 +167,6 @@ class PongConsumer(SyncConsumer):
             log.error("Starting game")
             self.engine.run()
 
-    def player_leave(self, event):
-        userid = event.get("userid")
-        if not userid:
-            log.error("Invalid event: missing 'userid'")
-            return
 
     def player_leave(self, event):
         player = event.get("userid")

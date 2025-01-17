@@ -28,7 +28,10 @@ class HomeView extends AbstractView {
           let data = JSON.parse(event.data);
           const sender = data.sender || 0; // Default if field missing
           const group = data.group || "No group"; // Default if field missing
-          const message = data.message || "No message content"; // Default if field missing
+          let message = data.message || "No message content"; // Default if field missing
+          console.log("quoted message: ", message);
+          message = message.slice(1, -1); // Remove the first and last characters
+          console.log("dequoted message: ", message);
           const type = data.type || "none"; // Default if field missing
           
           if (type === "chat")
@@ -106,32 +109,7 @@ class HomeView extends AbstractView {
           const sender = data.sender || 0; // Default if field missing
           const group = data.group || "No group"; // Default if field missing
           const message = data.message || "No message content"; // Default if field missing
-          const type = data.type || "chat"; // Default if field missing
-          if (type === "chat")
-          {
-            TRequest.request("GET", "/api/friends/blocks/blockslist/").then(blocklist => {
-              if (!blocklist.blocks.includes(sender)) 
-              {
-                chatBox.DisplayNewMessage(message, sender);
-              }
-            }).catch(err => {console.error("Failed to fetch blocklist:", err);});
-          }
-          if (type === "notification")
-          {
-            // Display the notification
-            Alert.classicMessage(type, message)
-          }
-          if (type === "invite")
-          {
-            // Display the invite
-            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(username => {
-              console.log(username);
-              const textmessage = `${username.username} has invited you to a game!`;
-              const link = message;
-              console.log(`link: ${link} , textmessage: ${textmessage}`);
-              Alert.inviteMessage(type, textmessage, link)
-            }).catch(err => {console.error("Failed to fetch user info:", err);});
-          }
+          const type = data.type || "none"; // Default if field missing
           if (type === "GOTO")
           {
             // Display the alert

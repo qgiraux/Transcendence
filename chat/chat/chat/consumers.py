@@ -85,7 +85,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 group,
                 {
                     'type': 'chat_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
@@ -96,7 +96,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 group,
                 {
                     'type': 'notification_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
@@ -107,7 +107,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 group,
                 {
                     'type': 'redirection_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
@@ -118,7 +118,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 group,
                 {
                     'type': 'invite_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
