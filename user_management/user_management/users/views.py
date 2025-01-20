@@ -37,8 +37,43 @@ class UserListView(generics.ListAPIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-        
 
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def get_jwt_token(request):
+#     body_unicode = request.body.decode('utf-8')
+#     body = json.loads(body_unicode)
+    
+#     try:
+#         user = User.objects.get(username=body['username'])
+#     except User.DoesNotExist:
+#         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+
+#     # Check if the password matches the one stored in the database
+#     password = body.get('password')
+#     if not password:
+#         return Response({'error': 'Password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+#     user = authenticate(username=body['username'], password=password)
+#     if user is None:
+#         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+#     # If 2FA is enabled, proceed with the two-factor authentication process
+#     if user.twofa_enabled:
+#         return Response({'2FA': '2FA token required'}, status=status.HTTP_401_UNAUTHORIZED)
+
+#     # 2FA not enabled: directly generate tokens
+#     refresh = RefreshToken.for_user(user)
+#     access = str(refresh.access_token)
+#     access_token = refresh.access_token
+#     access_token['username'] = user.username
+#     access_token['nickname'] = user.nickname
+#     access = str(access_token)
+
+#     return Response({
+#         'refresh': str(refresh),
+#         'access': access
+#     })
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -65,7 +100,7 @@ def get_jwt_token(request):
         try:
             token = body.get('twofa')
             if not token:
-                return Response({'error': '2FA token missing'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'2FA': '2FA token required'}, status=status.HTTP_401_UNAUTHORIZED)
 
             device = get_user_totp_device(user)
             if device and device.verify_token(token):
@@ -199,9 +234,25 @@ def Get_user_id(request):
 @permission_classes([IsAuthenticated]) 
 def Enable_Twofa(request):
     user = request.user
-    user.twofa_enabled = True
-    user.save()
-    return Response({"success":'2fa enabled'}, status=200)
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    try:
+        token = body.get('twofa')
+        if not token:
+            return Response({'error': '2FA token missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+        device = get_user_totp_device(user)
+        if device and device.verify_token(token):
+            if not device.confirmed:
+                device.confirmed = True
+                device.save()
+
+            user.twofa_enabled = True
+            user.save()
+            return Response({"success":'2fa enabled'}, status=200)
+        return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
+    except json.JSONDecodeError:
+        return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
@@ -254,6 +305,28 @@ def RegisterUser(request):
         return Response(serializer.data, status=201)
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
+def ChangePassword(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    user = request.user
+    username = user.username
+    # Check if the password matches the one stored in the database
+    oldpassword = body.get('oldpassword')
+    newpassword = body.get('newpassword')
+    if not oldpassword:
+        return Response({'error': 'old Password is required'}, status=status.HTTP_400_BAD_REQUEST)
+    if not newpassword:
+        return Response({'error': 'new Password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=username, password=oldpassword)
+    if user is None:
+        return Response({'error': 'Invalid old password'}, status=status.HTTP_401_UNAUTHORIZED)
+    user.set_password(newpassword)
+    user.save()
+    return Response({"success": "Password changed successfully"}, status=200)
+
 @csrf_exempt
 @permission_classes([AllowAny])
 @api_view(['GET'])
@@ -276,8 +349,6 @@ class TOTPCreateView(views.APIView):
     
     def get(self, request, format=None):
         user = request.user
-        user.twofa_enabled = True
-        user.save()
         # Check if the user already has a TOTP device
         device = get_user_totp_device(user)
         if not device:
