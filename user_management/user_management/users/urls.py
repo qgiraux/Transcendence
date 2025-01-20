@@ -1,5 +1,5 @@
 from django.urls import path, re_path
-from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_jwt_token, GetAllUsers, Enable_Twofa, Get_user_stats, Add_user_stats, Get_user_id
+from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin, DeleteUser, RegisterUser, ChangeNickname, CheckUserStatus, get_jwt_token, GetAllUsers, Enable_Twofa, Get_user_stats, Add_user_stats, Get_user_id, get_jwt_token_2fa, ChangePassword
 from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import TOTPCreateView
@@ -9,6 +9,7 @@ from .views import TOTPCreateView
 urlpatterns = [
     path('register/', RegisterUser, name='register'),
     path('login/', get_jwt_token, name='login'),
+    path('login_twofa/', get_jwt_token_2fa, name='login'),
     path('enable_twofa/', Enable_Twofa, name='enable twofa'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('userinfo/', Get_my_infos, name='myuserinfo'),
@@ -18,6 +19,7 @@ urlpatterns = [
     path('adduserstats/<int:user_id>', Add_user_stats, name='add user stats'),
     path('newlogin/', ChangeLogin, name='change login'),
     path('newnickname/', ChangeNickname, name='change nickname'),
+    path('newpassword/', ChangePassword, name='change password'),
     path('deleteuser/', DeleteUser, name='delete user'),
     path('userstatus/<int:user_id>', CheckUserStatus, name='check user status'),
     path('userlist/', GetAllUsers, name='user list'),
