@@ -8,6 +8,7 @@
 body {
   margin: 0;
   display: flex;
+  flex-direction: column;
   font-family: 'Montserrat', sans-serif;
   background-color: black;
   margin: 0; /* Remove default margins */
@@ -33,31 +34,20 @@ h1 {
 }
 
 /* SIDEBAR SETTINGS */
-#sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  background-color: #1f1f1f;
-  max-width: 180px;
-}
-
-#sidebar ul li a {
-  color: white;
-  text-decoration: none; /* Remove underline */
+.navebar {
+  text-decoration: white;
   font-weight: bold; /* Make the text bold */
   padding: 10px; /* Add some padding */
   display: block; /* Make the link a block element */
   text-transform: uppercase;
 }
 
-#sidebar ul li:hover {
+.navbar li:hover {
   background-color: #adfe04;
   border-radius: 0;
-  width: 100%;
 }
 
-#sidebar ul li a:hover {
+.navbar li a:hover {
   color: black;
 }
 
