@@ -8,9 +8,13 @@
 body {
   margin: 0;
   display: flex;
-  min-height: 100vh;
   font-family: 'Montserrat', sans-serif;
   background-color: black;
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default paddings */
+  /* overflow-x: hidden; Prevent horizontal scrolling */
+  width: 100%;
+  height: 100vh;
 }
 
 h1 {
@@ -66,13 +70,15 @@ h1 {
 }
 
 #view-container {
-  flex-grow: 1;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
   padding: 20px;
-  overflow-y: auto;
+  overflow-y: hidden;
   background-color: #000000;
   max-width: 1200px;
+  height: 100vh;
   margin: 0 auto;
-  padding: 20px;
 }
 
 
@@ -106,11 +112,16 @@ h1 {
 }
 
 /* LANDING VIEW STYLING */
+
+#landing-page-form {
+  max-height: 50vh;
+}
+
 /* Default state: Not selected, not hovered */
 .btn-custom {
   background-color: black !important; /* Override Bootstrap default */
   color: white !important; /* Override Bootstrap default */
-  border: 4px solid #adfe04 !important; /* Add the green border */
+  border: 4px solid #ff4632 !important; /* Add the green border */
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 0;
@@ -120,18 +131,18 @@ h1 {
 
 /* Hover state: Not selected but hovered */
 .btn-custom:hover {
-  color: #adfe04 !important; /* Text turns green */
+  color: #ff4632 !important; /* Text turns green */
   background-color: black !important; /* Keep black background */
   border-radius: 0;
-  box-shadow: 0 0 10px #adfe04, 0 0 20px #adfe04; /* Neon glow effect */
+  box-shadow: 0 0 10px #ff4632, 0 0 20px #ff4632; /* Neon glow effect */
 }
 
 /* Selected state: When clicked or focused */
 input[type="radio"]:checked + .btn-custom {
-  background-color: #adfe04 !important; /* Green background */
+  background-color: #ff4632 !important; /* Green background */
   color: black !important; /* Black text */
   outline: none !important; /* Remove any focus outline */
-  box-shadow: 0 0 10px #adfe04, 0 0 20px #adfe04; /* Neon glow effect */
+  box-shadow: 0 0 10px #ff4632, 0 0 20px #ff4632; /* Neon glow effect */
 }
 
 .form-group label {
@@ -176,6 +187,16 @@ input:-webkit-autofill:focus {
   box-shadow: 0 0 10px #f037a5, 0 0 20px #f037a5; /* Neon glow effect */
   border-color: #f037a5 !important; /* Ensure the pink border remains */
   -webkit-text-fill-color: white !important;
+}
+
+/* Landing image */
+#landing-image {
+  max-height: 33vh;
+  display: block;
+  margin: 0 auto;
+  border: 4px;
+  border-color: #90fce1;
+  box-shadow: 0 0 10px #90fce1, 0 0 20px #90fce1;
 }
 
 /* Chat button */
