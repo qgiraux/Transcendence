@@ -131,14 +131,14 @@ class ProfileView extends AbstractView {
   }
 
   _attachEventHandlers() {
-    const manageBtn = document.querySelector("#manage-btn");
-    if (manageBtn) {
-      this.addEventListener(
-        manageBtn,
-        "click",
-        this._manageProfileClickHandler.bind(this)
-      );
-    }
+    // const manageBtn = document.querySelector("#manage-btn");
+    // if (manageBtn) {
+    //   this.addEventListener(
+    //     manageBtn,
+    //     "click",
+    //     this._manageProfileClickHandler.bind(this)
+    //   );
+    // }
 
     const aliasBtn = document.querySelector("#alias-btn");
     if (aliasBtn) {
@@ -302,17 +302,7 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-      <button class="btn btn-primary" id="manage-btn">Manage Avatar</button>
-
-    `;
-    const profileAlias = `
-      <button class="btn btn-primary" id="alias-btn">Change Alias</button>
-    `;
-    const profileTwofa = `
-      <label class="btn btn-primary">
-        Activate 2FA
-        <a href="/twofa" data-link class="nav-link px-0 align-middle">profile</a>
-      </label>
+		<p><a class="link-offset-2 link-underline link-underline-opacity-0" data-link href="/account">Manage Account</a></p>
     `;
     const container = document.querySelector("#view-container");
 
@@ -372,7 +362,7 @@ class ProfileView extends AbstractView {
         <!-- END Avatar Modal -->
 
         <div class="row p-1 mb-4 ">
-            <div class="row align-items-center">
+            <div class="row d-flex flex-row p-2">
                 <div class="col-md-6">
               <img id="profile-img" src="${Avatar.url(
                 this.currentUserInfos.id
