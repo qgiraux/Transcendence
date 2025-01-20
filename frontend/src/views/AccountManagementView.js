@@ -194,10 +194,9 @@ Set HTML
     const viewContainer = document.getElementById("view-container");
 
     viewContainer.innerHTML = `
-
-		<div class="mx-auto align-item-center ">
+<div style="width: 700px; class="mx-auto w-75 mw-75 align-item-center ">
 			<div class="row p-1 mb-4 ">
-			<div class="row align-items-center">
+			<div class="row align-items-start">
 				<div class="col-md-6">
 					 <img id="profile-img" src="${Avatar.url(this.id)}"
 					  width="300" height="300" data-avatar="${
@@ -217,11 +216,10 @@ Set HTML
 			<br>
 		</div>
 
-		<div class="row align-items-center mx-auto">
+		<div class="row p-1 mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md  account-container" style="max-width: 600px;">
+		<div class="row align-items-start mx-auto">
 			<h2 class="display-6 text-white fw-bold ">Avatar</h2>
 		</div>
-		<div class="row p-1 mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md  account-container" style="max-width: 600px;">
-			<div class="">
 				<div class="mt-3" id="avatar-radio">
 					<div class="form-check">
 						<input class="form-check-input" type="radio" name="avatarOption" id="resetDefault" value="reset"
@@ -241,14 +239,14 @@ Set HTML
 							Avatar</button>
 					</div>
 				</div>
-			</div>
 		</div>
 
-		<div class="row align-items-start">
-			<h2 class="display-6 text-white ">Alias</h2>
+
+		<div class="row  mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3" style="max-width: 600px;">
+			<div class="row align-items-start">
+			<h2 class="display-6 text-white fw-bold ">Alias</h2>
 		</div>
-		<div class="row p-1 mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3" style="max-width: 600px;">
-		  	<div class="row mb-3">
+		<div class="row mb-3">
 			  <input type="text" class="form-control w-75" id="newAliasInput" minlength="1" maxlength="20"   placeholder="Enter new alias">
 			  </div>
 		  	<div class="row ">
@@ -256,35 +254,36 @@ Set HTML
 			 </div>
 		</div>
 
-		<div class="row align-items-start">
-			<h2 class="display-6 text-white ">Authentification</h2>
+
+		<div class="row  mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3" style="max-width: 600px;">
+			<div class="row align-items-start">
+			<h2 class="display-6 text-white fw-bold ">Authentification</h2>
 		</div>
-		<div class="row p-1 mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3" style="max-width: 600px;">
-		  	<div class="row mb-3">
-			  <input type="password" class="form-control w-75" id="newPasswordInput1" minlength="1" maxlength="20"   placeholder="Enter new password">
-			  </div>
 			<div class="row mb-3">
-			  <input type="password" class="form-control w-75" id="newPasswordInput2" minlength="1" maxlength="20"   placeholder="Enter new password">
-			  </div>
+				<input type="password" class="form-control w-75" id="oldpasswordinput" minlength="1" maxlength="20"   placeholder="Enter old password">
+			</div>
+			<div class="row mb-3">
+				<input type="password" class="form-control w-75" id="newPasswordInput1" minlength="1" maxlength="20"   placeholder="Enter new password">
+			</div>
+			<div class="row mb-3">
+			<input type="password" class="form-control w-75" id="newPasswordInput2" minlength="1" maxlength="20"   placeholder="Enter new password">
+			</div>
 		  	<div class="row ">
-			  <button type="button" class="btn btn-primary fs-5 w-25" id="password-update-button">Update Password</button>
+			  <button type="button" class="btn btn-primary fs-5 w-50" id="password-update-button">Update Password</button>
 			 </div>
 		</div>
 
-
-		<div class="row align-items-start">
-			<h2 class="display-6 text-danger ">Delete acount</h2>
+		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3" style="max-width: 600px;">
+				<div class="row align-items-start">
+			<h2 class="display-6 text-danger fw-bold">Delete acount</h2>
 		</div>
-		<div class="row p-1 mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3" style="max-width: 600px;">
-		  	<div class="mx-auto content-justify-center">
+		<div class="mx-auto content-justify-center">
 		  		<p class="text-danger">❗ This action is irreversible</p>
 			</div>
 		  	<div class="row mb-3">
 			  <button type="button" class="btn btn-danger fs-5 w-75" id="alias-update-button">Delete account</button>
 		</div>
-
 </div>
-
 
 
 	`;
