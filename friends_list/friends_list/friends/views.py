@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .mock_jwt_expired  import mock_jwt_expired
 
+logger = logging.getLogger(__name__)
+
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})
 
@@ -48,7 +50,7 @@ def add_friend(request):
 
         # Prepare response body
         body = json.dumps({'message': 'Friend added successfully'})
-        return JsonResponse({'message': 'Friend added successfully'}, status=200)
+        return JsonResponse({'message': 'Friend added successfully'}, status=201)
 
     except ExpiredSignatureError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
