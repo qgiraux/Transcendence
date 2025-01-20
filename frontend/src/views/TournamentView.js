@@ -162,10 +162,6 @@ class TournamentsView extends AbstractView {
             // Join the tournament
             await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament });
             await this._refresh_cards(tournament);
-            // joinButton.disabled = true;
-            // joinButton.innerText = "Joined";
-            // joinButton.style.backgroundColor = "grey";
-            // joinButton.style.cursor = "not-allowed";
           } catch (error) {
             Alert.errorMessage("Error joining tournament", error.message);
           }

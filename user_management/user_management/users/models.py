@@ -17,8 +17,9 @@ def add_stat(self, tournament_id, date, opponent, score, win):
         if not self.stats:
             self.stats = {}
             logger.error("stats created")
-        logger.error("stats exists")
-        self.stats[tournament_id] = {
+        else:
+            logger.error("stats exists")
+        self.stats[date] = {
             "date": date,
             "opponent": opponent,
             "score": score,

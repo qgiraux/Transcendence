@@ -14,24 +14,26 @@
 <body>
     <h1 style="text-align: center; color: white;">Pong Game</h1>
     <canvas id="scoreCanvas" width="400" height="50"></canvas>
-    <canvas id="gameCanvas" width="400" height="200"></canvas>
+    <canvas id="gameCanvas" width="408" height="208"></canvas>
     <div id="game-status" style="text-align: center; color: white;"></div>
 
     <script>
+        const ballradius = 4;
         let isGameOver = false; 
         // WebSocket Initialization
-        const ws = new WebSocket('wss://localhost:5000/ws/pong/?name=pong_game'); // Use ws:// instead of wss:// for local development
+        const ws = new WebSocket('wss://localhost:5000/ws/pong/'); // Use ws:// instead of wss:// for local development
         const canvas = document.getElementById('gameCanvas');
         const score_canvas = document.getElementById('scoreCanvas');
         const ctx = canvas.getContext('2d');
         const cts = score_canvas.getContext('2d');
 
-        let paddle1y = 100, paddle2y = 100;
-        let ballx = 200, bally = 100;
+        let paddle1y = 100 + ballradius, paddle2y = 100 + ballradius;
+        let ballx = 200 + ballradius, bally = 100 + ballradius;
         let score1 = 0, score2 = 0;
-        const ballradius = 4;
+        
         const paddleheight = 40, paddlewidth = 4;
-        const paddle1x = 4, paddle2x = canvas.width - paddlewidth - 4;
+        const paddle1x = 10 ;
+        const paddle2x = canvas.width - paddlewidth - 10 - ballradius;
 
         ws.onopen = function () {
             console.log('WebSocket connection established');
@@ -69,8 +71,8 @@
             {
                 paddle1y = data.player_left.paddle_y * 2;
                 paddle2y = data.player_right.paddle_y * 2;
-                ballx = data.ball.position[0] * 2;
-                bally = data.ball.position[1] * 2;
+                ballx = data.ball.position[0] * 2 + ballradius;
+                bally = data.ball.position[1] * 2 + ballradius;
                 score1 = data.player_left.score;
                 score2 = data.player_right.score;
             }
