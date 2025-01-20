@@ -114,6 +114,11 @@ class CmdGame extends JWTCmd {
 	}
 
 	#onOpen() {
+		if (true == this.newTournament) {
+			;
+		} else {
+			;
+		}
 		this.#startGame();
 	}
 
