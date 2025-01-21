@@ -10,6 +10,7 @@ import FriendsView from "./views/FriendsView.js";
 import BlocksView from "./views/BlocksView.js";
 import TwofaView from "./views/TowfaView.js";
 import TournamentView from "./views/TournamentView.js";
+import LogoutView from "./views/LogoutView.js";
 
 const router = new Router();
 router.addRoute("/", RootView);
@@ -18,6 +19,7 @@ router.addRoute("/home", HomeView);
 router.addRoute("/profile", ProfileView);
 router.addRoute("/profile/:id", ProfileView);
 router.addRoute("/friends", FriendsView);
+router.addRoute("/logout", LogoutView);
 
 router.addRoute("/blocks", BlocksView);
 router.addRoute("/twofa", TwofaView);

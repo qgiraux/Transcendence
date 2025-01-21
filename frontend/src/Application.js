@@ -42,6 +42,14 @@ class Application {
     Application.#token.access = newAccesstoken;
   }
 
+  static deleteAccessToken() {
+    Application.#token = null;
+  }
+
+  static deleteRefreshToken() {
+    Application.#token = null;
+  }
+
   static getAccessToken() {
     if (Application.#token !== null) return Application.#token.access;
     return null;
