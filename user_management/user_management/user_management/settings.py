@@ -26,14 +26,23 @@ SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'redis',
-    'nginx',
+    'user_management',
     'localhost',
-    ]
+    '127.0.0.1',
+    '0.0.0.0',
+]
 
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'
 
 # Application definition
+
+
+
+# Use the overridden class in your middleware settings or as a patch.
+
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 INSTALLED_APPS = [
     'daphne',

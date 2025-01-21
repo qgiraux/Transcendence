@@ -14,10 +14,11 @@ class PongGame {
         this.score1 = 0;
         this.score2 = 0;
         this.commands = { up: 0, down: 0, w: 0, s: 0 };
-        this.paused = false;
+        this.reset = false;
 
         document.addEventListener('keydown', (event) => this.handleKeyDown(event));
         document.addEventListener('keyup', (event) => this.handleKeyUp(event));
+        document.addEventListener('keydown', (event) => this.resumeGame(event, this.reset));
     }
 
     handleKeyDown(event) {
@@ -84,6 +85,12 @@ class PongGame {
         this.renderer.drawGameOverMessage(this.score1 > this.score2 ? 1 : 2);
     }
 
+    setup()
+    {
+        this.paddle1 = { x: this.canvas.width / 80, y: this.canvas.height / 2 - this.canvas.height / 8, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
+        this.paddle2 = { x: this.canvas.width - this.canvas.width / 40, y: this.canvas.height / 2 - this.canvas.height / 8, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
+        this.ball = { x: this.canvas.width / 2, y: this.canvas.height / 2, radius: 10, dx: 4, dy: 4 };
+    }
     gameLoop() {
         console.log("La game loop se lance");
         this.renderer.clearCanvas();
@@ -120,7 +127,7 @@ class PongGame {
 
     resumeGame(event, reset = false) {
         if (event.code === 'Space') {
-            if (reset) {
+            if (reset === true) {
                 this.score1 = 0;
                 this.score2 = 0;
                 this.paddle1 = { x: this.canvas.width / 80, y: this.canvas.height / 2 - this.canvas.height / 8, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
@@ -128,8 +135,8 @@ class PongGame {
                 this.ball = { x: this.canvas.width / 2, y: this.canvas.height / 2, radius: 10, dx: 4, dy: 4 };
                 this.endScore = 3;
             }
-            this.paused = false;
-            document.removeEventListener('keydown', this.resumeGame);
+            this.reset = false;
+
             requestAnimationFrame(() => this.gameLoop());
         }
     }

@@ -15,13 +15,15 @@
     <h1 style="text-align: center; color: white;">Pong Game</h1>
     player: 1
     <canvas id="scoreCanvas" width="400" height="70"></canvas>
-    <canvas id="gameCanvas" width="400" height="200"></canvas>
+
+    <canvas id="gameCanvas" width="410" height="210"></canvas>
     <div id="game-status" style="text-align: center; color: white;"></div>
 
     <script>
+        const ballradius = 5;
         let isGameOver = false; 
         // WebSocket Initialization
-        const ws = new WebSocket('wss://localhost:5000/ws/pong/?name=pong_game');
+        const ws = new WebSocket('wss://localhost:5000/ws/pong/'); // Use ws:// instead of wss:// for local development
         const canvas = document.getElementById('gameCanvas');
         const score_canvas = document.getElementById('scoreCanvas');
         const ctx = canvas.getContext('2d');
@@ -30,11 +32,11 @@
         let paddle1y = 100, paddle2y = 100;
         let ballx = 200, bally = 100;
         let score1 = 0, score2 = 0;
-        let p1name = "", p2name = "";
-        const ballradius = 4;
-        const paddleheight = 40, paddlewidth = 4;
-        const paddle1x = 4, paddle2x = canvas.width - paddlewidth - 4;
-
+        
+        const paddleheight = 40; 
+        const paddlewidth = 6;
+        const paddle1x = 10 - paddlewidth;
+        const paddle2x = canvas.width - (10) - (2 * ballradius);
         ws.onopen = function () {
             console.log('WebSocket connection established');
             ws.send(JSON.stringify({ type: 'create', data: { name: 'newgame' } }));
@@ -72,7 +74,8 @@
                     ctx.fillText("WINNER : Unknown", canvas.width / 2, 100);
                 }
                 isGameOver = true; // Stop game loop when the game ends
-            } else {
+            } 
+            else {
                 // Update game state for ongoing gameplay
                 paddle1y = data.player_left.paddle_y * 2;
                 paddle2y = data.player_right.paddle_y * 2;
@@ -119,14 +122,14 @@
 
         // Draw Paddle
         function drawPaddle(x, y) {
-            ctx.fillStyle = "white";
-            ctx.fillRect(x, y - (paddleheight/2), paddlewidth, paddleheight);
+            ctx.fillStyle = "blue";
+            ctx.fillRect(x + ballradius, y - (paddleheight/2) + ballradius, paddlewidth, paddleheight);
         }
 
         // Draw Ball
         function drawBall() {
             ctx.beginPath();
-            ctx.arc(ballx, bally, ballradius, 0, Math.PI * 2);
+            ctx.arc(ballx + ballradius, bally + ballradius, ballradius, 0, Math.PI * 2);
             ctx.fillStyle = "white";
             ctx.fill();
             ctx.closePath();

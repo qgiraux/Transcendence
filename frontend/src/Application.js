@@ -16,6 +16,7 @@ class Application {
     nickname: null,
   };
   static mainSocket = null;
+  static gameSocket = null;
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -39,6 +40,14 @@ class Application {
 
   static setAccessToken(newAccesstoken) {
     Application.#token.access = newAccesstoken;
+  }
+
+  static deleteAccessToken() {
+    Application.#token = null;
+  }
+
+  static deleteRefreshToken() {
+    Application.#token = null;
   }
 
   static getAccessToken() {
@@ -160,6 +169,35 @@ class Application {
     };
     console.log(Application.mainSocket);
     return Application.mainSocket;
+  }
+
+  static openGameSocket(url) {
+    if (Application.#token === null) {
+      // Correct the check
+      console.error(
+        `Application: Error opening WebSocket: user not identified`
+      );
+      return null;
+    }
+    if (!url) {
+      console.error("WebSocket URL must be provided.");
+      return null;
+    }
+    const fullpath = `${url}?token=${Application.getAccessToken()}`; // Fix token retrieval
+    Application.gameSocket = new WebSocket(fullpath);
+
+    // Add event listeners for debugging
+    Application.gameSocket.onopen = () => {
+      console.log("WebSocket connection opened:", fullpath);
+    };
+    Application.gameSocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    Application.gameSocket.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+    console.log(Application.gameSocket);
+    return Application.gameSocket;
   }
 
   static toggleSideBar() {

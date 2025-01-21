@@ -18,6 +18,7 @@ class Command(BaseCommand):
         logger.error("listen to redis intit ok")
         try:
             async for message in pubsub.listen():
+                logger.error(f"Message: {message}")
                 if message and isinstance(message['data'], bytes):
                     data = json.loads(message['data'])
                     logger.error(f"Dispatching message: {data}")
