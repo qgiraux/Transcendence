@@ -114,19 +114,19 @@ class CmdGame extends JWTCmd {
 	}
 
 	#onOpen() {
-		if (true == this.newTournament) {
-			HttpsClient.post(
-				HttpsClient.setUrlInOptions(this.host, {path: "/create/"}),
-				JSON.stringify({name: this.tournament, size: 2}),
-				(ret) => {this.#startGame(ret);}
-			);
-		} else {
-			HttpsClient.post(
-				HttpsClient.setUrlInOptions(this.host, {path: "/join/"}),
-				JSON.stringify({name: this.tournament}),
-				(ret) => {this.#startGame(ret);}
-			);
-		}
+		// if (true == this.newTournament) {
+		// 	HttpsClient.post(
+		// 		HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/create/"}),
+		// 		JSON.stringify({name: this.tournament, size: 2}),
+		// 		(ret) => {this.#startGame(ret);}
+		// 	);
+		// } else {
+		// 	HttpsClient.post(
+		// 		HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/join/"}),
+		// 		JSON.stringify({name: this.tournament}),
+		// 		(ret) => {this.#startGame(ret);}
+		// 	);
+		// }
 		this.#startGame();
 	}
 
@@ -146,7 +146,10 @@ class CmdGame extends JWTCmd {
 		this.#dialog(`Connecting to host...`); //
 		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
 		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access); //wss://{{host}}/ws/chat/?token={{access}};
-		this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
+		this.ws = new WebSocket('wss://' + this.host + '/ws/pong/');
+		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
+		//console.log('\nwss://' + this.host + '/ws/pong/')
+		//process.exit()
 		this.ws.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
 		this.ws.on('open', () => {this.#onOpen()});
 		this.ws.on('message', (data) => {this.#onMessage(data)});
