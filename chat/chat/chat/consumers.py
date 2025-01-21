@@ -50,7 +50,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         await redis_client.close()
 
-
     def decode_token(self, token):
         try:
             return jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
@@ -86,29 +85,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 group,
                 {
                     'type': 'chat_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
             )
-        elif message_type == 'notification':
+        elif message_type == 'notification' and sender_name == 'system':
             # Send the message directly to the specified user
             await self.channel_layer.group_send(
                 group,
                 {
                     'type': 'notification_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
             )
-        elif message_type == 'GOTO':
+        elif message_type == 'GOTO' and sender_name == 'system':
             # Send the message directly to the specified user
             await self.channel_layer.group_send(
                 group,
                 {
                     'type': 'redirection_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
@@ -119,13 +118,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 group,
                 {
                     'type': 'invite_message',
-                    'message': data['message'],
+                    'message': f"'{data['message']}'",
                     'sender': sender_name,
                     'group': group,
                 }
             )
 
-        elif message_type == 'subscribe':
+        elif message_type == 'subscribe' and sender_name == 'system':
             # Handle subscription to additional channels (e.g., tournament channels)
             channel_name = data.get('channel')
             if channel_name:
@@ -175,6 +174,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Send the chat message to the WebSocket."""
         await self.send(text_data=json.dumps({
             'type': 'invite',
+            'message': event['message'],
+            'group': event['group'],
+            'sender': event['sender'],
+        }))
+
+    async def game_message(self, event):
+        """Send the game message to the WebSocket."""
+        await self.send(text_data=json.dumps({
+            'type': 'game',
             'message': event['message'],
             'group': event['group'],
             'sender': event['sender'],

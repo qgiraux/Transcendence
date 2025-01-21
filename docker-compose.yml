@@ -19,7 +19,7 @@ services:
     networks:
       - transcendence
     ports:
-      - ":8000"
+      - "8001:8000"
     init: true
 
   db_user_management:
@@ -83,6 +83,8 @@ services:
       dockerfile: pong_game/Dockerfile
     networks:
       - transcendence
+    ports:
+      - "8002:8000"
 
   redis:
     container_name: redis
