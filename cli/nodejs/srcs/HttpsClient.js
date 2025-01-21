@@ -77,6 +77,7 @@ class HttpsClient{
 		}
 		if (jwt && jwt.access)
 			options.headers.Authorization = `Bearer ${jwt.access}`;
+		//console.error(options) //
 		const req = https.request(options, (res) => {
 			const { statusCode } = res;
 
