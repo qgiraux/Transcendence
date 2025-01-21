@@ -1,20 +1,32 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    app.py                                             :+:      :+:    :+:    #
+#    deploytournament.py                                :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/01/16 10:02:43 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/17 10:47:34 by jerperez         ###   ########.fr        #
+#    Created: 2025/01/17 10:50:15 by jerperez          #+#    #+#              #
+#    Updated: 2025/01/20 11:03:14 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-# import django.apps
+#
+import asyncio
+import logging
+import sys
+#import json
+#
+sys.path.insert(0, "/contract") #ugly
+import AsyncWeb3
+import Deploy
 
-# class w3AppConfig(AppConfig):
-# 	def ready(self):
-# 		from .models import File
-# 		solcin = Tournament.objects.create(path="lol", content="salut")
-# 		solcin.save()
-# 		#File = self.get_model("File")
+JSON_FILE = "/tournament.json"
+
+async def main():
+	w3 = await AsyncWeb3.initialize_web3()
+	contract = await Deploy.get_contract(w3, JSON_FILE)
+	await AsyncWeb3.disconnect(w3)
+
+if __name__ == '__main__':
+	logger = logging.getLogger(__name__)
+	asyncio.run(main())

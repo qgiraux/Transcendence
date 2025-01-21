@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/15 14:30:19 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/20 11:04:20 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,27 +16,27 @@ import Utils
 
 SOLC_OUTPUT_JSON = "/solc_output.json"
 
-def get_solc_output_from_read(read_fun) -> tuple[str, str]:
-	"""Gets compiled contract `bytecode` and `metadata`"""
-	data = json.loads(read_fun())
-	contract_data=data['contracts']['TournamentScores']['TournamentScores']
-	bytecode = contract_data['evm']['bytecode']['object']
-	metadata = contract_data['metadata']
-	return bytecode, metadata
-
-def get_solc_output_from_json(jsonFile=SOLC_OUTPUT_JSON) -> tuple[str, str]:
-	"""Gets compiled contract `bytecode` and `metadata`"""
-	def read_fun():
-		return Utils.readfile(jsonFile)
-	return get_solc_output_from_read(read_fun)
-
-# def get_solc_output_from_json(jsonFile=SOLC_OUTPUT_JSON) -> tuple[str, str]:
+# def get_solc_output_from_read(read_fun) -> tuple[str, str]:
 # 	"""Gets compiled contract `bytecode` and `metadata`"""
-# 	data = json.loads(Utils.readfile(jsonFile))
+# 	data = json.loads(read_fun())
 # 	contract_data=data['contracts']['TournamentScores']['TournamentScores']
 # 	bytecode = contract_data['evm']['bytecode']['object']
 # 	metadata = contract_data['metadata']
 # 	return bytecode, metadata
+
+# def get_solc_output_from_json(jsonFile=SOLC_OUTPUT_JSON) -> tuple[str, str]:
+# 	"""Gets compiled contract `bytecode` and `metadata`"""
+# 	def read_fun():
+# 		return Utils.readfile(jsonFile)
+# 	return get_solc_output_from_read(read_fun)
+
+def get_solc_output_from_json(jsonFile=SOLC_OUTPUT_JSON) -> tuple[str, str]:
+	"""Gets compiled contract `bytecode` and `metadata`"""
+	data = json.loads(Utils.readfile(jsonFile))
+	contract_data=data['contracts']['TournamentScores']['TournamentScores']
+	bytecode = contract_data['evm']['bytecode']['object']
+	metadata = contract_data['metadata']
+	return bytecode, metadata
 
 def main():
 	"""Uploads contract"""

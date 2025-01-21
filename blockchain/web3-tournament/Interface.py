@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/11 12:27:58 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/17 10:47:39 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/21 08:21:49 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ import AsyncWeb3
 import Deploy
 import Tournament
 import Verify
+import Utils
 sys.path.insert(0, "/django") #ugly
 #import models as ipfsApp.models
 
@@ -107,23 +108,30 @@ class ContractInterface:
 		if (self._w3 is None):
 			self._w3 = await AsyncWeb3.initialize_web3()
 
-	async def deploy_contract(self):
+	async def initialize_from_contract_info(self, address: str, abi: dict):
+		if (True == self.initialized):
+			return
+		self._w3 = await AsyncWeb3.initialize_web3()
+		self._contract = self._w3.eth.contract(address=address, abi=abi)
+		self.initialized = True
+
+	async def deploy_contract(self): #DEPRECIATED
 		if (True == self.save_json):
 			self._contract = await Deploy.get_contract(self._w3)
 		else:
 			self._contract = await Deploy.get_contract(self._w3, "")
 		self.contract_address = str(self._contract.address)
 
-	async def _fix(self):
+	async def _fix(self): #DEPRECIATED
 		if (False == self.initialized):
 			await self.initialize()
 		if (None == self._contract):
 			await self.deploy_contract()
 
-	# async def ado(self, afun):
-	# 	await self.connect()
-	# 	await afun()
-	# 	await self.disconnect()
+	async def ado(self, afun): #DEPRECIATED
+		await self.connect()
+		await afun()
+		await self.disconnect()
 
 	async def initialize(self):
 		""" Connects to Blockchain
@@ -159,7 +167,7 @@ class ContractInterface:
 		"""
 		logger.info(f"getScore['{name}']")
 		self._check_name(name)
-		await self._fix()
+		#await self._fix() #
 		result = await Tournament.get_score(name, self._contract, True)
 		if ("" == result):
 			raise self.UnknownName(name)
@@ -173,11 +181,11 @@ class ContractInterface:
 		logger.info(f"setScore['{name}']='{result}'")
 		self._check_name(name)
 		self._check_result(result)
-		await self._fix()
+		#await self._fix() #
 		receipt = await Tournament.store_tournament_async(name, result, self._contract, self._w3, True)
 		return json.dumps(receipt, cls=HexJsonEncoder)
 
-	async def disconnect(self):
+	async def disconnect(self): #
 		if (self._w3 is not None):
 			await AsyncWeb3.disconnect(self._w3)
 			self._w3 = None
@@ -196,6 +204,10 @@ class ContractInterface:
 		if (self._w3 is not None):
 			#logger.warning(f"interface was not destroyed properly, use `await interface.destroy()`")
 			raise self.Leak(f"interface was not destroyed properly, use `await interface.destroy()`") #TODO
+
+	def get_contract_info():
+		address, metadata = Utils.load_contract()
+		return address, Utils.get_abi_from_metadata(metadata)
 
 async def main():
 	""" Sets score['Cup']='Patate' then gets score['Cup'] """

@@ -33,11 +33,11 @@ ALLOWED_HOSTS = ['tournament', '.localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
 	"daphne",
-	#'adrf',
+	'adrf',
     'django.contrib.auth',
     'django.contrib.contenttypes',
 	'rest_framework',
-    'w3App',
+    'ipfsApp',
 ]
 
 REST_FRAMEWORK = {

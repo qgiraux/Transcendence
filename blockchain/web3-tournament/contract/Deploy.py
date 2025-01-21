@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/15 12:05:46 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/20 10:59:12 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,7 +48,7 @@ def get_contract_from_json(web3_ : any, jsonFile=JSON_FILE) -> any:
 async def _deploy_contract(web3_ : any, solc_json=SOLC_OUTPUT_JSON, save_json=JSON_FILE): #JSON
 	"""Gets contract from JSON"""
 	address, metadata = await _transact_contract(solc_json, web3_) #JSON
-	print(address, metadata) #
+	#print(address, metadata) #
 	if ("" != save_json):
 		Utils.save_contract(address, metadata, save_json)
 	logger.info(f"contract address: {address}")
@@ -59,7 +59,7 @@ async def _deploy_contract(web3_ : any, solc_json=SOLC_OUTPUT_JSON, save_json=JS
 
 async def get_contract(web3_ : any, jsonFile = JSON_FILE) -> any: #JSON
 	"""Deploys contract or gets it from `jsonFile`, returns contract"""
-	print(jsonFile, True == os.path.isfile(jsonFile)) #JSON
+	#print(jsonFile, True == os.path.isfile(jsonFile)) #JSON
 	if ("" != jsonFile and True == os.path.isfile(jsonFile)): #JSON
 		return get_contract_from_json(web3_, jsonFile) #JSON
 	return await _deploy_contract(web3_, SOLC_OUTPUT_JSON, jsonFile) #JSON
