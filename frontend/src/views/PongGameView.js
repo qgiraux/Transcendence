@@ -3,128 +3,183 @@ import AbstractView from "./AbstractView.js";
 import Router from "../Router.js";
 import PongRenderer from "../pongrenderer.js";
 
-
-
-
 class PongGameView extends AbstractView {
-    canvas = null;
-    renderer = null;
-
-    // let player1 = "";
-    // let player2 = "";
-    // round = "";
     constructor(params) {
         super(params);
         this._setTitle("Pong Game Tournament");
+
+        this.canvas = null;
+        this.renderer = null;
+
+        this.paddle1 = null;
+        this.paddle2 = null;
+        this.ball = { x: 0, y: 0, radius: 10, dx: 4, dy: 4 };
+        this.score1 = 0;
+        this.score2 = 0;
+        this.p1name = "";
+        this.p2name = "";
+
+        this.isGameOver = false;
+
         this.onStart();
     }
-    
+
     onStart() {
         if (Application.getAccessToken() == null) {
             setTimeout(() => {
                 Router.reroute("/landing");
             }, 50);
-                return;
+            return;
         }
+
         this._setHTML();
-        this.isGameOver = false;
-        if(Application.gameSocket) 
-        {
-          console.log("WebSocket connection already established.");
-          this.canvas = document.getElementById('pongCanvas');
-          this.renderer = new PongRenderer(this.canvas);
 
-          let score1 = 0, score2 = 0;
-          let p1name = "", p2name = "";
+        this.canvas = document.getElementById("pongCanvas");
+        // document.addEventListener('keydown', (event) => this.handleKeyDown(event));
 
-        Application.gameSocket.onopen = function () {
-            console.log('WebSocket connection established');
-            Application.gameSocket.send(JSON.stringify({ type: 'create', data: { name: 'newgame' } }));
-            Application.gameSocket.send(JSON.stringify({ type: 'join', data: { userid: '1', name: 'newgame' } }));
-        };
-
-        Application.gameSocket.onmessage = function (event) {
-            console.log(event.data);
-            const data = JSON.parse(event.data);
-
-            if (data.type === 'game_over') {
-                // Update final scores
-                console.log(data);
-                score1 = data.state.player_left.score; 
-                score2 = data.state.player_right.score;
-                // Draw final scores
-                this.renderer.clearCanvas();
-                this.renderer.drawScore(score1, score2);
-                this.renderer.drawGameOverMessage(data.state.winner);
-
-                console.log('Game Over');
-                console.log(data);
-                isGameOver = true; // Stop game loop when the game ends
-            } else {
-                // Update game state for ongoing gameplay
-                this.renderer.clearCanvas();
-                this.renderer.drawScore(data.player_left.score, data.player_right.score);
-                this.renderer.drawPaddle(data.player_left.paddle_y);
-                this.renderer.drawPaddle(data.player_right.paddle_y);
-                this.renderer.drawBall(data.ball);
-                p1name = data.player_left.playerid;
-                p2name = data.player_right.playerid;
-                player1 = p1name;
-                player2 = p2name;
-            }
-            
-        };
-
-        Application.gameSocket.onclose = function () {
-            console.log('WebSocket connection closed');
-            document.getElementById('game-status').innerText = "Connection closed";
-        };
-
-        Application.gameSocket.onerror = function (error) {
-            console.error('WebSocket error:', error);
-        };
-          
-          try {
-            Application.gameSocket.onmessage = (event) => {
-            console.log("WebSocket message received: ", event.data);
-            const data = JSON.parse(event.data);
-            }
-          } catch (error) {
-            console.error("WebSocket error: ", error);
-          }
-
+        if (!this.canvas) {
+            throw new Error(`Canvas element with id 'pongCanvas' not found`);
         }
+
+        this.renderer = new PongRenderer(this.canvas);
+
+        // Initialize paddles and ball
+        this.paddle1 = {
+            x: this.canvas.width / 80,
+            y: this.canvas.height / 2 - this.canvas.height / 8,
+            width: this.canvas.width / 80,
+            height: this.canvas.height / 4,
+            dy: this.canvas.height / 40,
+        };
+        this.paddle2 = {
+            x: this.canvas.width - this.canvas.width / 40,
+            y: this.canvas.height / 2 - this.canvas.height / 8,
+            width: this.canvas.width / 80,
+            height: this.canvas.height / 4,
+            dy: this.canvas.height / 40,
+        };
+        this.ball = {
+            x: this.canvas.width / 2,
+            y: this.canvas.height / 2,
+            radius: 10,
+            dx: 4,
+            dy: 4,
+        };
+
+        if (Application.gameSocket) {
+            console.log("WebSocket connection already established.");
+            try {
+                Application.gameSocket.onopen = () => {
+                    console.log("WebSocket connection established");
+                    Application.gameSocket.send(
+                        JSON.stringify({ type: "create", data: { name: "newgame" } })
+                    );
+                    Application.gameSocket.send(
+                        JSON.stringify({ type: "join", data: { userid: "1", name: "newgame" } })
+                    );
+                };
+
+                Application.gameSocket.onmessage = (event) => {
+                    console.log("DATA=== ", event.data);
+                    const data = JSON.parse(event.data);
+
+                    if (data.type === "game_over") {
+                        this.score1 = data.state.player_left.score;
+                        this.score2 = data.state.player_right.score;
+
+                        // Draw final scores
+                        this.renderer.clearCanvas();
+                        this.renderer.drawScore(this.score1, this.score2);
+                        this.renderer.drawGameOverMessage(data.state.winner);
+
+                        console.log("Game Over");
+                        this.isGameOver = true; // Stop game loop when the game ends
+                    } else {
+                        // Update game state for ongoing gameplay
+                        this.p1name = data.player_left.playerid;
+                        this.p2name = data.player_right.playerid;
+                        this.score1 = data.player_left.score;
+                        this.score2 = data.player_right.score;
+                        this.paddle1.y = data.player_left.paddle_y;
+                        this.paddle2.y = data.player_right.paddle_y;
+                        const [newBallX, newBallY] = data.ball.position;
+                        this.ball.x = newBallX;
+                        this.ball.y = newBallY;
+                    }
+                };
+
+                Application.gameSocket.onclose = () => {
+                    console.log("WebSocket connection closed");
+                    document.getElementById("game-status").innerText = "Connection closed";
+                };
+
+                Application.gameSocket.onerror = (error) => {
+                    console.error("WebSocket error:", error);
+                };
+            } catch (err) {
+                console.error("Failed to process WebSocket message: ", err);
+            }
+        } else {
+            console.error("gameSocket connection not established.");
+        }
+
+        const loop = () => {
+            if (!this.isGameOver) {
+                this.renderer.renderingLoop(
+                    this.paddle1,
+                    this.paddle2,
+                    this.score1,
+                    this.score2,
+                    this.ball
+                );
+                requestAnimationFrame(loop);
+            }
+        };
+        requestAnimationFrame(loop);
     }
+
+    // handleKeyDown(event) {
+    //   switch (event.key) {
+    //       case 'ArrowUp':
+    //           this.commands.up = 1;
+    //           break;
+    //       case 'ArrowDown':
+    //           this.commands.down = 1;
+    //           break;
+    //       case 'w':
+    //           this.commands.w = 1;
+    //           break;
+    //       case 's':
+    //           this.commands.s = 1;
+    //           break;
+    //   }
+  // }
 
     _setHTML() {
         const container = document.querySelector("#view-container");
         if (container) {
-          container.innerHTML = `
+            container.innerHTML = `
             <style>
               #pongCanvas {
-            display: block; /* Ensures the canvas behaves like a block-level element */
-            margin: auto; /* Centers horizontally */
+                  display: block; /* Ensures the canvas behaves like a block-level element */
+                  margin: auto; /* Centers horizontally */
               }
               #view-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* Full viewport height */
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100vh; /* Full viewport height */
               }
             </style>
             <h1 class="text-white display-1">Tournament Game</h1>
             <canvas id="pongCanvas" width="800" height="400"></canvas>
             <div id="message-container"></div>
           `;
-
-
         } else {
-          console.error("#view-container not found in the DOM.");
+            console.error("#view-container not found in the DOM.");
         }
     }
 }
 
 export default PongGameView;
-
-{/* <h2 class="text-white display-2">${player1} against ${player2} - Round #${round}</h2> */}
