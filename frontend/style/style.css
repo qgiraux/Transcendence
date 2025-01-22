@@ -11,6 +11,7 @@ body {
   flex-direction: column;
   font-family: 'Montserrat', sans-serif;
   background-color: black;
+  text-decoration: white !important;
   margin: 0; /* Remove default margins */
   padding: 0; /* Remove default paddings */
   /* overflow-x: hidden; Prevent horizontal scrolling */
@@ -34,8 +35,8 @@ h1 {
 }
 
 /* SIDEBAR SETTINGS */
-.navebar {
-  text-decoration: white;
+.navbar {
+  text-decoration-color: white;
   font-weight: bold; /* Make the text bold */
   padding: 10px; /* Add some padding */
   display: block; /* Make the link a block element */
@@ -174,7 +175,7 @@ input:-webkit-autofill {
 
 /* Autofill on focus with neon effect */
 input:-webkit-autofill:focus {
-  box-shadow: 0 0 10px #f037a5, 0 0 20px #f037a5; /* Neon glow effect */
+  box-shadow: 0 0 7px #f037a5, 0 0 14px #f037a5; /* Neon glow effect */
   border-color: #f037a5 !important; /* Ensure the pink border remains */
   -webkit-text-fill-color: white !important;
 }
