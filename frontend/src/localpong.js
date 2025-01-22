@@ -93,12 +93,8 @@ class PongGame {
     }
     gameLoop() {
         console.log("La game loop se lance");
-        this.renderer.clearCanvas();
-        this.renderer.drawScore(this.score1, this.score2);
         this.movePaddles();
-        this.renderer.drawPaddle(this.paddle1);
-        this.renderer.drawPaddle(this.paddle2);
-        this.renderer.drawBall(this.ball);
+        this.renderer.renderingLoop(this.paddle1, this.paddle2, this.score1, this.score2, this.ball);
         this.ball.x += this.ball.dx;
         this.ball.y += this.ball.dy;
         this.pingPong();

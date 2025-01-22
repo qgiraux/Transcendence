@@ -56,6 +56,14 @@ class PongRenderer {
         this.ctx.fillText(`PLAYER ${winner} SCORED!!`, (this.canvas.width * 1 / 3), (this.canvas.height / 2));
         this.ctx.fillText("press space for next game", (this.canvas.width * 1 / 3) - 33, (this.canvas.height / 2) + 30);
     }
+
+    renderingLoop(paddle1, paddle2, score1, score2, ball) {
+        this.clearCanvas();
+        this.drawScore(score1, score2);
+        this.drawPaddle(paddle1);
+        this.drawPaddle(paddle2);
+        this.drawBall(ball);
+    }
 }
 
 export default PongRenderer;
