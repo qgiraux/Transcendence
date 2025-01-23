@@ -145,12 +145,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         """Send the chat message to the WebSocket."""
-        await self.send(text_data=json.dumps({
-            'type': 'chat',
-            'message': event['message'],
-            'group': event['group'],
-            'sender': event['sender'],
-        }))
+        logger.error(f"Chat message: {event['message']}")
+        if event['message'].startswith("'!invite") and event['group'] != 'global_chat':
+            tmp = event['message'][9: -1].strip()
+            logger.error(f"Invite message: {tmp}")
+            await self.send(text_data=json.dumps({
+                'type': 'invite',
+                'message': f"'{tmp}'",
+                'group': event['group'],
+                'sender': event['sender'],
+            }))
+        else:
+            await self.send(text_data=json.dumps({
+                'type': 'chat',
+                'message': event['message'],
+                'group': event['group'],
+                'sender': event['sender'],
+            }))
     
     async def redirection_message(self, event):
         """Send the chat message to the WebSocket."""
