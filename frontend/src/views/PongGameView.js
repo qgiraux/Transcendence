@@ -13,14 +13,14 @@ class PongGameView extends AbstractView {
 
         this.paddle1 = null;
         this.paddle2 = null;
-        this.ball = { x: 0, y: 0, radius: 10, dx: 4, dy: 4 };
+        this.ball = { x: 0, y: 0, radius: 10};
         this.score1 = 0;
         this.score2 = 0;
         this.p1name = "";
         this.p2name = "";
 
         this.isGameOver = false;
-
+      
         this.onStart();
     }
 
@@ -35,7 +35,7 @@ class PongGameView extends AbstractView {
         this._setHTML();
 
         this.canvas = document.getElementById("pongCanvas");
-        // document.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
 
         if (!this.canvas) {
             throw new Error(`Canvas element with id 'pongCanvas' not found`);
@@ -48,22 +48,20 @@ class PongGameView extends AbstractView {
             x: this.canvas.width / 80,
             y: this.canvas.height / 2 - this.canvas.height / 8,
             width: this.canvas.width / 80,
-            height: this.canvas.height / 4,
+            height: this.canvas.height / 5,
             dy: this.canvas.height / 40,
         };
         this.paddle2 = {
             x: this.canvas.width - this.canvas.width / 40,
             y: this.canvas.height / 2 - this.canvas.height / 8,
             width: this.canvas.width / 80,
-            height: this.canvas.height / 4,
+            height: this.canvas.height / 5,
             dy: this.canvas.height / 40,
         };
         this.ball = {
             x: this.canvas.width / 2,
             y: this.canvas.height / 2,
             radius: 10,
-            dx: 4,
-            dy: 4,
         };
 
         if (Application.gameSocket) {
@@ -80,7 +78,7 @@ class PongGameView extends AbstractView {
                 };
 
                 Application.gameSocket.onmessage = (event) => {
-                    console.log("DATA=== ", event.data);
+                    // console.log("DATA=== ", event.data);
                     const data = JSON.parse(event.data);
 
                     if (data.type === "game_over") {
@@ -94,23 +92,28 @@ class PongGameView extends AbstractView {
 
                         console.log("Game Over");
                         this.isGameOver = true; // Stop game loop when the game ends
+                    } else if (data.type === "countdown" ) {
+                        console.log("Countdown: ", data);
                     } else {
                         // Update game state for ongoing gameplay
+                        console.log("Game state: ", data);
                         this.p1name = data.player_left.playerid;
                         this.p2name = data.player_right.playerid;
                         this.score1 = data.player_left.score;
                         this.score2 = data.player_right.score;
-                        this.paddle1.y = data.player_left.paddle_y;
-                        this.paddle2.y = data.player_right.paddle_y;
-                        const [newBallX, newBallY] = data.ball.position;
-                        this.ball.x = newBallX;
-                        this.ball.y = newBallY;
+                        this.paddle1.y = data.player_left.paddle_y * 4;
+                        this.paddle2.y = data.player_right.paddle_y * 4;
+                        this.ball.x = data.ball.position[0] * 4;
+                        this.ball.y = data.ball.position[1] * 4;
+                        // console.log("newBall: ", newBallX, newBallY);
+                        // console.log("ball: ", this.ball.x, this.ball.y);
                     }
                 };
 
                 Application.gameSocket.onclose = () => {
                     console.log("WebSocket connection closed");
-                    document.getElementById("game-status").innerText = "Connection closed";
+                    document.removeEventListener('keydown', (event) => this.handleKeyDown(event));
+                    // document.getElementById("game-status").innerText = "Connection closed";
                 };
 
                 Application.gameSocket.onerror = (error) => {
@@ -124,13 +127,16 @@ class PongGameView extends AbstractView {
         }
 
         const loop = () => {
+          // console.log("ball  : ", this.ball);
             if (!this.isGameOver) {
+              
                 this.renderer.renderingLoop(
                     this.paddle1,
                     this.paddle2,
                     this.score1,
                     this.score2,
                     this.ball
+                    
                 );
                 requestAnimationFrame(loop);
             }
@@ -138,22 +144,23 @@ class PongGameView extends AbstractView {
         requestAnimationFrame(loop);
     }
 
-    // handleKeyDown(event) {
-    //   switch (event.key) {
-    //       case 'ArrowUp':
-    //           this.commands.up = 1;
-    //           break;
-    //       case 'ArrowDown':
-    //           this.commands.down = 1;
-    //           break;
-    //       case 'w':
-    //           this.commands.w = 1;
-    //           break;
-    //       case 's':
-    //           this.commands.s = 1;
-    //           break;
-    //   }
-  // }
+
+    handleKeyDown(event) {
+      console.log("Key pressed: ", event.key);
+      switch (event.key) {
+        case 'ArrowUp':
+        case 'w':
+          Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
+          console.log("UP");
+          break;
+        case 'ArrowDown':
+        case 's':
+          Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
+          console.log("DOWN");
+          break;
+      }
+    }
+
 
     _setHTML() {
         const container = document.querySelector("#view-container");
@@ -176,9 +183,12 @@ class PongGameView extends AbstractView {
             <canvas id="pongCanvas" width="800" height="400"></canvas>
             <div id="message-container"></div>
           `;
-        } else {
-            console.error("#view-container not found in the DOM.");
-        }
+          const canvas = document.getElementById("pongCanvas");
+          canvas.focus(); // Ensure the canvas is focusable
+      } else {
+          console.error("#view-container not found in the DOM.");
+      }
+
     }
 }
 

@@ -14,7 +14,7 @@ class PongRenderer {
         gradient.addColorStop(0.5, "lightblue");
         gradient.addColorStop(1, "lightgrey");
         this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+        this.ctx.fillRect(paddle.x, paddle.y - (paddle.height/2), paddle.width, paddle.height);
         this.ctx.shadowColor = "transparent";
     }
 
