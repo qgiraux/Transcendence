@@ -42,10 +42,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
-        if self.userid:
+        if self.user_id:
             await self.channel_layer.send(
                 "game_engine",
-                {"type": "player_leave", "userid": self.userid},
+                {"type": "player_leave", "user_id": self.user_id},
             )
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
