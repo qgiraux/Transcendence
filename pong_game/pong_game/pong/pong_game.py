@@ -122,6 +122,7 @@ class State:
 	ball = attr.ib(
 		attr.Factory(Ball), validator=attr.validators.instance_of(Ball)
 	)
+	score = 0
 	player_left: Player = attr.ib(default=None)
 	player_right: Optional[Player] = attr.ib(default=None)
 
@@ -156,14 +157,13 @@ class PongEngine(threading.Thread):
 		self.key_lock = threading.Lock()
 		self.game_on = False
 		self.ready_players = set()
+		self.score = 0
 
 	def run(self):
 		if not (self.state.player_left is None or self.state.player_right is None):
 			self.game_on = True
 			#wait for "space" press on both players, and start a countdown before truly starting the game
-
 		log.error("is game on? %s", self.game_on)
-
 		# Use asyncio.run to manage the event loop in this thread
 		try :
 			self.loop = asyncio.get_event_loop()
@@ -171,9 +171,7 @@ class PongEngine(threading.Thread):
 			self.loop = asyncio.new_event_loop()
 		try:
             # Block until both players are ready
-			# while len(self.ready_players) < 1:
-			# 	sleep(1)
-			self.loop.run_until_complete(self.broadcast_countdown())
+			
 			self.game_task = self.loop.create_task(self.game_loop())
 		except Exception as e:
 			log.error(f"Error during readiness check: {e}")
@@ -181,6 +179,10 @@ class PongEngine(threading.Thread):
 
 	async def game_loop(self):
 		try:
+			while len(self.ready_players) < 2:
+				log.error(len(self.ready_players))
+				await asyncio.sleep(1)
+			await self.broadcast_countdown()
 			while self.game_on:
 				# log.error("Game %s is on!!", self.name)
 				self.state = self.tick()
@@ -189,6 +191,12 @@ class PongEngine(threading.Thread):
 					await self.end_game()
 					log.error("Game %s is over", self.name)
 					break
+				tmp = self.state.player_left.score + self.state.player_right.score
+				log.error("Score: %s", tmp)
+				if tmp > self.score:
+					log.error("Score changed from %s to %s", self.score, tmp)
+					self.score = self.state.player_left.score + self.state.player_right.score
+					await self.broadcast_countdown()
 				await asyncio.sleep(self.TICK_RATE)
 		except asyncio.CancelledError:
 			log.error("Game loop cancelled")
@@ -206,17 +214,14 @@ class PongEngine(threading.Thread):
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "countdown", "data": "3"}
 		)
-		log.info("Countdown: 3")
 		await asyncio.sleep(0.5)
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "countdown", "data": "3"}
+			self.group_name, {"type": "countdown", "data": "2"}
 		)
-		log.info("Countdown: 2")
 		await asyncio.sleep(0.5)
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "countdown", "data": "3"}
+			self.group_name, {"type": "countdown", "data": "1"}
 		)
-		log.info("Countdown: 1")
 		await asyncio.sleep(0.5)
 
 
@@ -299,7 +304,7 @@ class PongEngine(threading.Thread):
 				self.paddle_y_change[playerid] = Direction.DOWN
 
 	def player_ready(self, userid):
-		log.error("Player %s is ready", userid)
+		log.error("Player %s pressed READY", userid)
 		self.ready_players.add(userid)
 
 	def add_player(self, playerid):

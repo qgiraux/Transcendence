@@ -97,7 +97,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             case "create":
                 await self.create(msg_data)
             case "ready":
-                await self.ready(msg_data)
+                await self.ready()
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
@@ -110,7 +110,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         direction = data.get("direction")
         self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
 
-    async def ready(self, data):
+    async def ready(self):
         if not self.user_id:
             log.error("User not correctly joined")
             return

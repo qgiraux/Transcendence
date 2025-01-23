@@ -25,17 +25,12 @@ class PongGameView extends AbstractView {
     }
 
     onStart() {
-        if (Application.getAccessToken() == null) {
-            setTimeout(() => {
-                Router.reroute("/landing");
-            }, 50);
-            return;
-        }
+        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
 
         this._setHTML();
 
         this.canvas = document.getElementById("pongCanvas");
-        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        
 
         if (!this.canvas) {
             throw new Error(`Canvas element with id 'pongCanvas' not found`);
@@ -150,14 +145,18 @@ class PongGameView extends AbstractView {
       switch (event.key) {
         case 'ArrowUp':
         case 'w':
-          Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
-          console.log("UP");
-          break;
+            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
+            console.log("UP");
+            break;
         case 'ArrowDown':
         case 's':
-          Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
-          console.log("DOWN");
-          break;
+            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
+            console.log("DOWN");
+            break;
+        case 'p':
+            Application.gameSocket.send(JSON.stringify({ type: 'ready', data: { direction: 'left' } }));
+            console.log("READY");
+            break;
       }
     }
 
