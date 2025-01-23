@@ -52,6 +52,21 @@ h1 {
   color: black;
 }
 
+.nav-link i {
+  pointer-events: none;
+}
+
+.bi {
+  font-size: 48px;
+  color: #f037a5; /* Neon pink */
+  text-shadow: 0 0 10px #f037a5, 0 0 20px #f037a5;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+.bi:hover {
+  transform: scale(1.2);
+}
+
 #login-side-info #side-username {
   padding: 10px;
 }
