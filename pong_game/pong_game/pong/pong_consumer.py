@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 
 class PlayerConsumer(AsyncWebsocketConsumer):
     pong = dict.fromkeys(['name','game'])
+    game_name = None
     for game in pong:
         pong[game] = None
 
@@ -41,16 +42,17 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
-        if self.userid:
+        if self.user_id:
             await self.channel_layer.send(
                 "game_engine",
-                {"type": "player_leave", "userid": self.userid},
+                {"type": "player_leave", "user_id": self.user_id},
             )
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def join(self, data):
         userid = data.get("userid")
         game_name = data.get("name")
+        self.game_name = game_name
         self.group_name = f"game_{game_name}"  # Create a unique group name for the game
         
         await self.channel_layer.group_add(self.group_name, self.channel_name)
@@ -100,19 +102,20 @@ class PlayerConsumer(AsyncWebsocketConsumer):
                 log.warning("Unknown message type: %s", msg_type)
 
     async def move_paddle(self, data):
-        if not self.userid:
+        if not self.user_id:
             log.error("User not correctly joined")
             return
-        log.error("User %s moved paddle", self.userid)
+        
+        log.error("User %s moved paddle", self.user_id)
         direction = data.get("direction")
-        self.pong[self.gameName].engine.get_player_paddle_move(self.userid, direction)
+        self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
 
     async def ready(self, data):
-        if not self.userid:
+        if not self.user_id:
             log.error("User not correctly joined")
             return
-        log.error("User %s is ready", self.userid)
-        self.pong[self.gameName].engine.player_ready(self.userid)
+        log.error("User %s is ready", self.user_id)
+        self.pong[self.game_name].engine.player_ready(self.user_id)
         # await self.send(text_data=json.dumps({"type": "received"}))
         
     async def game_update(self, event):

@@ -114,19 +114,58 @@ class CmdGame extends JWTCmd {
 	}
 
 	#onOpen() {
-		// if (true == this.newTournament) {
-		// 	HttpsClient.post(
-		// 		HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/create/"}),
-		// 		JSON.stringify({name: this.tournament, size: 2}),
-		// 		(ret) => {this.#startGame(ret);}
-		// 	);
-		// } else {
-		// 	HttpsClient.post(
-		// 		HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/join/"}),
-		// 		JSON.stringify({name: this.tournament}),
-		// 		(ret) => {this.#startGame(ret);}
-		// 	);
-		// }
+		if (true == this.newTournament) {
+			HttpsClient.post(
+				HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/create/"}),
+				JSON.stringify({name: this.tournament, size: 2}),
+				(ret) => {this.#onTournament(ret)},
+				this.jwt
+			);
+		} else {
+			HttpsClient.post(
+				HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/join/"}),
+				JSON.stringify({name: this.tournament}),
+				(ret) => {this.#onTournament(ret)},
+				this.jwt
+			);
+		}
+		//this.#startGame();
+	}
+
+	//TODO: make Style class 
+	// static beautifyJson(jsonResponse) {
+	// 	if (typeof jsonResponse != "object") {
+	// 		process.stdout.write(String(jsonResponse));
+	// 		return ;
+	// 	}
+	// 	let pretty = new String("Status code: ");
+
+	// 	if (300 > jsonResponse.statusCode && 200 <= jsonResponse.statusCode)
+	// 		pretty += `\x1b[32m`;
+	// 	else
+	// 		pretty += `\x1b[31m`;
+	// 	pretty += `${jsonResponse.statusCode}\x1b[0m\n`
+	// 	pretty += (typeof jsonResponse.message === "string") ?
+	// 		jsonResponse.message : JSON.stringify(jsonResponse.message, null, " ");
+	// 	if ("\n" != pretty.slice(-1))
+	// 		pretty += "\n";
+	// 	return pretty;
+	// }
+
+	#onTournament(ret){
+		if (!ret.statusCode) {
+			this.#dialog(JSON.stringify(ret));
+			this.#onStop();
+			return ;
+		} else if (404 == ret.statusCode) {
+			this.#dialog(`Tournament '${this.tournament}' not found`);
+			this.#onStop();
+			return ;
+		} else if (200 > ret.statusCode || 300 <= ret.statusCode) {
+			this.#dialog(JSON.stringify(ret));
+			this.#onStop();
+			return ;
+		}
 		this.#startGame();
 	}
 
@@ -145,14 +184,14 @@ class CmdGame extends JWTCmd {
 		this.pongCanvas.update();
 		this.#dialog(`Connecting to host...`); //
 		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
-		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access); //wss://{{host}}/ws/chat/?token={{access}};
-		this.ws = new WebSocket('wss://' + this.host + '/ws/pong/');
+		this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access); //wss://{{host}}/ws/chat/?token={{access}};
+		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/');
 		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
 		//console.log('\nwss://' + this.host + '/ws/pong/')
 		//process.exit()
 		this.ws.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
 		this.ws.on('open', () => {this.#onOpen()});
-		this.ws.on('message', (data) => {this.#onMessage(data)});
+		this.ws.on('message', (data) => {/*console.log(data);*/ this.#onMessage(data)}); //log
 	}
 
 
@@ -230,9 +269,9 @@ class CmdGame extends JWTCmd {
 
 	#startGame() {
 		this.#iniCanvas();
-		this.#dialog("Waiting for players");
-		//this.#initalizeController();
-		this.#initalizeControllerDebug();
+		this.#dialog(`Tournament="${this.tournament}" Waiting for players... `);
+		this.#initalizeController();
+		//this.#initalizeControllerDebug();
 	}
 }
 
