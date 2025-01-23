@@ -192,7 +192,7 @@ class CmdGame extends JWTCmd {
 		//process.exit()
 		this.ws.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
 		this.ws.on('open', () => {this.#onOpen()});
-		this.ws.on('message', (data) => {this.#onMessage(data)});
+		this.ws.on('message', (data) => {/*console.log(data);*/ this.#onMessage(data)}); //log
 	}
 
 
