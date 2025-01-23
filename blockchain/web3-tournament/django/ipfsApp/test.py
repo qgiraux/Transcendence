@@ -1,5 +1,8 @@
 import sys
 import logging
+import re
+import json
+import asgiref.sync
 #
 import rest_framework.test
 import rest_framework.status
@@ -11,14 +14,14 @@ import rest_framework.request
 import django.core.handlers.asgi
 import django.test
 #
-from .views import get_score, set_score, get_address
+from .views import get_contract_address, get_contract_abi, get_contract, get_score, set_score
 #
 sys.path.insert(0, "/")
 import Interface
 #
 
 logger = logging.getLogger(__name__)
-#logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 # async def _test_post_get(arf, name, result, interface):
 # 	post_request = arf.post("/score/", {"name": name, "result": result})
@@ -36,10 +39,69 @@ logger = logging.getLogger(__name__)
 # 	assert(response.status_code == rest_framework.status.HTTP_200_OK)
 # 	assert("" != response.data["address"])
 
-# class SerializerTest(rest_framework.test.APITestCase):
-# 	def setUp(self):
-# 		"""Set up the test environment."""
-# 		self._arf = django.test.AsyncRequestFactory()
+#@asgiref.sync.sync_to_async
+def _get_contract_info(rf):
+	request = rf.get("/contract/")
+	response = get_contract(request)
+	return response.data["address"], response.data["abi"]
+
+class SerializerTest(rest_framework.test.APITestCase):
+	def setUp(self):
+		"""Set up the test environment."""
+		self.arf = django.test.AsyncRequestFactory()
+		self.rf = django.test.RequestFactory()
+
+	def test_200_contract_address(self):
+		request = self.rf.get("/contract/address/")
+		response = get_contract_address(request)
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
+	
+	def test_200_contract_abi(self):
+		request = self.rf.get("/contract/abi/")
+		response = get_contract_abi(request)
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
+
+	def test_200_contract(self):
+		request = self.rf.get("/contract/")
+		response = get_contract(request)
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
+
+	def test_contract_address(self):
+		request = self.rf.get("/contract/address/")
+		response = get_contract_address(request)
+		address = response.data["address"]
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
+		self.assertEqual(True,  bool(re.match(r"^0x(?:[0-9a-fA-F]{40})$", address)))
+
+	def test_contract_abi(self):
+		request = self.rf.get("/contract/abi/")
+		response = get_contract_abi(request)
+		abi = response.data["abi"]
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
+		self.assertEqual(True, isinstance(abi, list))
+		self.assertNotEqual(0, len(abi))
+
+	def test_contract(self):
+		request = self.rf.get("/contract/")
+		response = get_contract(request)
+		abi = response.data["abi"]
+		address = response.data["address"]
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
+		self.assertEqual(True, isinstance(abi, list))
+		self.assertNotEqual(0, len(abi))
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_200_OK)
+		self.assertEqual(True,  bool(re.match(r"^0x(?:[0-9a-fA-F]{40})$", address)))
+
+	async def test_simple(self):
+		name = "MyCup"
+		result = "MyResult"
+		#
+		_get_contract_info_ = asgiref.sync.sync_to_async(_get_contract_info)
+		address, abi = await _get_contract_info_(self.rf)
+		request = self.arf.post("/score/", {"name": name, "result": result, "address": address, "abi": abi})
+		response = await set_score(request)
+		self.assertEqual(response.status_code, rest_framework.status.HTTP_201_CREATED)
+
 
 # 	def test_class_works(self):
 # 		name = "MyCup"

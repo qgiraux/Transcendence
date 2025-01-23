@@ -64,7 +64,8 @@ runserver:
 	docker exec -t web3-tournament python3 django/manage.py runserver
 
 test:
-	docker exec -it web3-tournament python3 django/manage.py test score
+	sleep 3
+	docker exec -it web3-tournament python3 django/manage.py test ipfsApp
 
 # ls $(VOLUME_DEVICE)
 

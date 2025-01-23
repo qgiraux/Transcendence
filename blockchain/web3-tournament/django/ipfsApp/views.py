@@ -1,5 +1,6 @@
 import sys
 import logging
+import json
 #
 import rest_framework.decorators
 import adrf.decorators
@@ -80,7 +81,7 @@ def get_contract_abi(request):
 			return rest_framework.response.Response({"abi": abi})
 		elif (1 == count):
 			contract = Contract.objects.first()
-			return rest_framework.response.Response({"abi": str(contract.abi)})
+			return rest_framework.response.Response({"abi": contract.abi})
 		return rest_framework.response.Response(
 			{"detail": f"DB expected 0 or 1 address, received {count}"},
 			status=rest_framework.status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -111,43 +112,6 @@ def get_contract_address(request):
 			status=rest_framework.status.HTTP_400_BAD_REQUEST
 		)
 
-# async def _destroy_interface(interface):
-# 	if (interface is not None):
-# 		await interface.destroy()
-
-# @adrf.decorators.api_view(["GET"])
-# async def get_score(request, name):
-# 	try:
-# 		count = Contract.objects.count()
-# 		if (0 == count):
-# 			address, abi = _initalize_db()
-# 		elif (1 == count):
-# 			contract = Contract.objects.first()
-# 			address, abi = contract.address
-# 		return rest_framework.response.Response(
-# 			{"detail": f"DB expected 0 or 1 address, received {count}"},
-# 			status=rest_framework.status.HTTP_500_INTERNAL_SERVER_ERROR
-# 		)
-# 	p_interface_ = None
-# 	try:
-# 		p_interface_ = await _get_interface(interface)
-# 		tournament = await interface.getScore(name) #
-# 	except Interface.ContractInterface.UnknownName as e:
-# 		await _destroy_interface(interface, p_interface_)
-# 		return rest_framework.response.Response(
-# 			{"detail":str(e)},
-# 			status=rest_framework.status.HTTP_404_NOT_FOUND
-# 		)
-# 	except Exception as e:
-# 		await _destroy_interface(interface, p_interface_)
-# 		return rest_framework.response.Response(
-# 			{"detail":str(e)},
-# 			status=rest_framework.status.HTTP_400_BAD_REQUEST
-# 		)
-# 	serializer = interface.TournamentSerializer(tournament) #
-# 	await _destroy_interface(interface, p_interface_)
-# 	return rest_framework.response.Response(serializer.data)
-
 
 @adrf.decorators.api_view(["GET"])
 async def get_score(request):
@@ -175,8 +139,11 @@ async def set_score(request):
 		address = request.data["address"]
 		abi = request.data["abi"]
 		interface_ = Interface.ContractInterface()
+		logger.info("interface") #
 		await interface_.initialize_from_contract_info(address, abi)
+		logger.info("setScore0") #
 		receipt = json.loads(await interface_.setScore(name, result))
+		logger.info("setScore1") #
 	except Exception as e:
 		await interface_.destroy()
 		return rest_framework.response.Response(

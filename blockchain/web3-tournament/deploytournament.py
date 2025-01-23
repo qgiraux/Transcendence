@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/17 10:50:15 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/20 11:03:14 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/23 13:08:05 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@
 import asyncio
 import logging
 import sys
-#import json
+import os
+import json
 #
 sys.path.insert(0, "/contract") #ugly
 import AsyncWeb3
