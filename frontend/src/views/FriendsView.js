@@ -88,7 +88,7 @@ class FriendsView extends AbstractView {
           Router.reroute(`/profile/${id}`);
           break;
         case "invite-game":
-          console.log(`placeHolder Inviting to a game for ID: ${id}`);
+          Router.reroute(`/tournaments`);
           break;
         case "unfriend":
           this._removeFriend(id);
@@ -199,47 +199,58 @@ class FriendsView extends AbstractView {
   addFriendCard(friend) {
     const friendsContainer = document.querySelector("#friends-container");
     const div = document.createElement("div");
-    div.classList.add("col-md-4");
-    div.classList.add("col-lg-3");
+    div.classList.add("col-md-4", "col-lg-3");
     div.style.maxWidth = "160px";
+  
+    // HTML for the card
     div.innerHTML = `
-	<div class="col-md-4 col-lg-3 " style="width: 150px;">
-		<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
-		style="background-color: #303030;">
-			<img class="card-img-top rounded" src="${Avatar.url(
-        friend.id
-      )}" alt="Card image cap">
-				<div class="card-body">
-					<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
-					${friend.nickname}
-					</h5>
-					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${
-            friend.username
-          })</p>
-
-					<div class="btn-group">
-					<button  style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);"
-					class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-					aria-expanded="false">
-					Online
-					</button>
-					<ul class="dropdown-menu">
-					<li><button class="dropdown-item" data-id=${
-            friend.id
-          } data-action="view-profile">View profile</button></li>
-                    <li><button class="dropdown-item" data-id=${
-                      friend.id
-                    } data-action="invite-game">Invite to a game</button></li>
-                    <li><button class="dropdown-item" data-id=${
-                      friend.id
-                    } data-action="unfriend">Unfriend</button></li>
-					</ul>
-					</div>
-				</div>
-			</div>
-	</div>`;
+      <div class="card shadow border-secondary p-2 fixed-width-card text-white" style="background-color: #303030; width: 150px;">
+      <img class="card-img-top rounded" src="${Avatar.url(friend.id)}" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title my-0 mb-0" style="font-size: 0.9rem; font-weight: bold;">
+        ${friend.nickname}
+        </h5>
+        <p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${friend.username})</p>
+        <div class="btn-group">
+        <button style="font-size: 0.8rem; font-weight: bold;"
+          class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          <span id="status-${friend.id}" style="color: grey;">Checking...</span>
+          <span class="dropdown-toggle-split" style="color: inherit;"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="view-profile">View profile</button></li>
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="invite-game">Invite to a game</button></li>
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="unfriend">Unfriend</button></li>
+        </ul>
+        </div>
+      </div>
+      </div>
+    `;
+  
     friendsContainer.appendChild(div);
+  
+    // Asynchronously fetch the friend's status
+    const statusElement = document.getElementById(`status-${friend.id}`);
+    console.log("Checking status for friend ", friend.id);
+    TRequest.request("GET", `/api/users/userstatus/${friend.id}`)
+      .then((result) => {
+        console.log("resuls is ", result)
+        if (result.online === 1) {
+          statusElement.style.color = "rgb(0, 255, 149)";
+          statusElement.textContent = "Online";
+        } else {
+          statusElement.style.color = "rgb(255, 0, 0)";
+          statusElement.textContent = "Offline";
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching status:", error);
+        statusElement.textContent = "Error";
+        statusElement.style.color = "orange";
+      });
   }
+  
 
   async _addFriend(event) {
     try {

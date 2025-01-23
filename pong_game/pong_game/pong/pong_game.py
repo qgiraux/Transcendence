@@ -15,6 +15,9 @@ import httpx
 
 log = logging.getLogger(__name__)
 
+PADDLE_SPEED = 3 # 3 / canvasheight per tick
+BALL_SPEED = 2.5 # 2.5 / canvaswidth per tick
+
 @unique
 class Direction(Enum):
 	UP = "up"
@@ -50,9 +53,9 @@ class Player:
 		log.error("Moving paddle %s", direction)
 		log.error("Paddle Y: %s", self.paddle_y)
 		if direction == Direction.UP and self.paddle_y > 10:
-			self.paddle_y -= 1
+			self.paddle_y -= PADDLE_SPEED
 		elif direction == Direction.DOWN and self.paddle_y < 90:
-			self.paddle_y += 1
+			self.paddle_y += PADDLE_SPEED
 		# else:
 		# 	raise ValueError(f"Invalid direction: {direction}")
 
@@ -60,7 +63,7 @@ class Ball:
 	def __init__(self, gameid):
 		
 		self.direction = [random.choice([-1, 1]), 0.2]
-		self.speed = 3
+		self.speed = BALL_SPEED
 		self.game = gameid
 		self.game_width = 200  # Assuming game width is 200
 		self.game_height = 100  # Assuming game height is 100
@@ -139,7 +142,7 @@ class State:
 		}
 
 class PongEngine(threading.Thread):
-	TICK_RATE = 0.033
+	TICK_RATE = 1 / 30  # 60 tick per second
 	MAX_SCORE = 3
 
 	def __init__(self, group_name, **kwargs):
