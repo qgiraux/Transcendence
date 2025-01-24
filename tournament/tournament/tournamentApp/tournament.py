@@ -28,7 +28,7 @@ def Tournament_operation(tournament):
             return
         logger.error("starting tournament...")
         winner = organize_tournament(lineup)
-        response = requests.post('http://web3-tournament/score/', json={'name': winner, "result": "win"})
+        response = requests.post('http://web3-tournament/score/', data={'name': winner, "result": "win"})
         if response.status_code != 201:
             logger.error(f"Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")
         else:
