@@ -18,7 +18,7 @@ import Interface
 #
 
 logger = logging.getLogger(__name__)
-#logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 async def _test_post_get(arf, name, result, interface):
 	post_request = arf.post("/score/", {"name": name, "result": result})
