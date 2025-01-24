@@ -59,17 +59,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
         if game_name not in self.pong:
             self.pong[game_name] = PongConsumer(self.group_name)
-        self.pong[game_name].player_join({"userid": userid})
+        await self.pong[game_name].player_join({"userid": userid})
 
-        # Notify other players in the group about the new player
-        # await self.channel_layer.group_send(
-        #     self.group_name,
-        #     {
-        #         "type": "join",
-        #         "userid": userid,
-        #         "channel": self.channel_name,
-        #     },
-        # )
 
     async def create(self, data):
         data = data.get("data")
@@ -158,7 +149,7 @@ class PongConsumer(SyncConsumer):
         self.players = []
         self.lock = Lock()
 
-    def player_join(self, event):
+    async def player_join(self, event):
         if len(self.players) >= 2:
             log.error("Game is full")
             return
@@ -166,7 +157,7 @@ class PongConsumer(SyncConsumer):
         log.error("PongConsumer - Player joined: %s", event.get("userid"))
         self.players.append(event["userid"])
 
-        self.engine.add_player(event["userid"])
+        await self.engine.add_player(event["userid"])
         
         if len(self.players) == 2:
             log.error("Starting game")
