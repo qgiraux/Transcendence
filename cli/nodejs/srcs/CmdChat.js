@@ -41,6 +41,8 @@ class ChatMessage {
 		this.sender = data.sender;
 	}
 
+	//save:\x1b[s restore:\x1b[u
+
 	/**
 	 * @param {"chat" | "notification" | "invite" | "GOTO" | String} type
 	 * @param {String} message
