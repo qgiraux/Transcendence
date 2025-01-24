@@ -54,11 +54,18 @@ class JWTCmd extends Command {
 			this.editor = new TextEditor();
 			this.editor.setOnKeys();
 		};
-		this.editor.echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
-		this.editor.refresh = () => {
-			process.stdout.write(
-				`\r\x1b[2K${prompt}${"*".repeat(this.editor.text.length)}`
-		)};
+		if (true == hidden) {
+			this.editor.echo = TextEditor.echo_hidden;
+			this.editor.refresh = () => {
+				process.stdout.write(
+					`\r\x1b[2K${prompt}${"*".repeat(this.editor.text.length)}`
+			)};
+		} else {
+			this.editor.echo = TextEditor.echo;
+			this.editor.refresh = () => {
+				process.stdout.write(`\r\x1b[2K${prompt}${this.editor.text}`)
+			};
+		}
 		this.editor.onEnter = () => {
 			callbackUpdate(this.editor.text);
 			this.editor.text = "";
