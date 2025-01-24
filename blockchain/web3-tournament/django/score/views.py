@@ -14,7 +14,6 @@ import Interface
 logger = logging.getLogger(__name__)
 
 @adrf.decorators.api_view(["GET", "POST"])
-@rest_framework.decorators.permission_classes([rest_framework.permissions.AllowAny]) 
 def view404(request, exception):
 	return rest_framework.response.Response(
 		{"detail":f"The princess is in another castle. {exception}"},
@@ -35,7 +34,6 @@ async def _get_interface(interface):
 	return p_interface_
 
 @adrf.decorators.api_view(["GET"])
-@rest_framework.decorators.permission_classes([rest_framework.permissions.AllowAny]) 
 async def get_address(request, interface=None):
 	p_interface_ = None
 	try:
@@ -50,7 +48,6 @@ async def get_address(request, interface=None):
 	return rest_framework.response.Response({"address":interface.getAddress()})
 
 @adrf.decorators.api_view(["GET"])
-@rest_framework.decorators.permission_classes([rest_framework.permissions.AllowAny]) 
 async def get_score(request, name, interface=None):
 	p_interface_ = None
 	try:
@@ -74,7 +71,6 @@ async def get_score(request, name, interface=None):
 
 
 @adrf.decorators.api_view(["POST"])
-@rest_framework.decorators.permission_classes([rest_framework.permissions.AllowAny]) 
 async def set_score(request, interface=None):
 	p_interface_ = None
 	try:
