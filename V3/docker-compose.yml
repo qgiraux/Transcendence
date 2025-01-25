@@ -1,0 +1,172 @@
+# version: "3.9"
+
+networks:
+  transcendence:
+    name: transcendence
+    driver: bridge
+
+services:
+  user_management:
+    image: user_management
+    container_name: user_management
+    build:
+      context: .
+      dockerfile: user_management/Dockerfile
+    volumes:
+      - ./user_management:/workspace/user_management
+    depends_on:
+      - db_user_management
+    networks:
+      - transcendence
+    ports:
+      - "8001:8000"
+    init: true
+
+  db_user_management:
+    image: postgres:15
+    restart: always
+    container_name: db_user_management
+    environment:
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
+      POSTGRES_DB: db_user_management
+    volumes:
+      - postgres_user_management:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
+  chat:
+    image: chat
+    container_name: chat
+    build:
+      context: .
+      dockerfile: chat/Dockerfile
+    volumes:
+      - ./chat:/workspace/chat
+    networks:
+      - transcendence
+    init: true
+
+  friends_list:
+    image: friends_list
+    container_name: friends_list
+    build:
+      context: .
+      dockerfile: friends_list/Dockerfile
+    volumes:
+      - ./friends_list:/workspace/friends_list
+    depends_on:
+      - db_friends_list
+      - user_management
+    networks:
+      - transcendence
+    init: true
+
+  db_friends_list:
+    container_name: db_friends_list
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
+      POSTGRES_DB: db_friends_list
+    volumes:
+      - postgres_friends_list:/var/lib/postgresql/data
+    networks:
+      - transcendence
+  
+  pong_game:
+    image: pong_game
+    container_name: pong_game
+    build:
+      context: .
+      dockerfile: pong_game/Dockerfile
+    networks:
+      - transcendence
+    ports:
+      - "8002:8000"
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    networks:
+      - transcendence
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    depends_on:
+      - user_management
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    networks:
+      - transcendence
+    ports:
+      - "5000:443"
+    restart: unless-stopped
+    init: true
+
+  tournament:
+    image: tournament
+    container_name: tournament
+    build:
+      context: .
+      dockerfile: tournament/Dockerfile
+    volumes:
+      - ./tournament:/workspace/tournament
+    depends_on:
+      - db_tournament
+    networks:
+      - transcendence
+    init: true
+
+  db_tournament:
+    image: postgres:15
+    restart: always
+    container_name: db_tournament
+    environment:
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
+      POSTGRES_DB: db_tournament
+    volumes:
+      - postgres_tournament:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
+  avatar:
+    image: avatar
+    container_name: avatar
+    build:
+      context: .
+      dockerfile: avatar/Dockerfile
+    volumes:
+      - avatar_images_volume:/avatar_images/images
+    depends_on:
+      - db_avatar
+    networks:
+      - transcendence
+    ports:
+      - 8000:8000
+    init: true
+
+  db_avatar:
+    image: postgres:15
+    restart: always
+    container_name: db_avatar
+    environment:
+      POSTGRES_USER: avatar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avatar}
+      POSTGRES_DB: db_avatar
+    volumes:
+      - postgres_avatar:/var/lib/postgresql/data
+    networks:
+      - transcendence
+
+volumes:
+  postgres_user_management:
+  postgres_friends_list:
+  postgres_avatar:
+  avatar_images_volume:
+  postgres_tournament:
