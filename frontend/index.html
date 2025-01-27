@@ -16,39 +16,28 @@
 
 <body>
     <!-- sidebar html -->
-    <div id="sidebar" class="col-md-2 col-xl-2 px-sm-2 py-4 px-0 d-none " data-link>
-        <div id="login-side-info" class="dropdown pb-4" data-link>
-            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-                id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img id="side-img" src="" alt="user" width="40" height="40" class="rounded-circle">
-                <span id="side-username" class="d-none d-sm-inline mx-1 text-base"></span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                <li><a class="dropdown-item text-danger" href="/logout">Log out</a></li>
-            </ul>
-        </div>
+    <nav class="navbar navbar-expand-lg d-none" id="sidebar">
+        <div class="container-fluid">
+            <a class="navbar-brand" data-link href="/">PONG</a>
+            <img id="side-img" src="" alt="user" width="40" height="40" class="rounded-circle me-2">
+            <!-- <a  data-link class="nav-link px-0 align-middle" href="/"><i class="bi bi-house"></i></a> -->
+        
+            <div class="d-flex align-items-center ms-auto">
+                <div class="dropdown me-3">
+                    <button class="btn btn-link dropdown-toggle p-0" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/profile">View Profile</a></li>
+                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/friends">Friends List</a></li>
+                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks">Blocking List</a></li>
+                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/switch-language">Switch to French</a></li>
+                    </ul>
+                </div>
 
-		<ul data-link
-			class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start d-flex justify-content-center navbar-dark"
-			id="menu">
-			<li>
-				<a href="/" data-link class="nav-link px-0 align-middle">Home</a>
-			</li>
-			<li>
-				<a href="/profile" data-link class="nav-link px-0 align-middle">Profile</a>
-			</li>
-			<li>
-				<a href="/friends" data-link class="nav-link px-0 align-middle">Friends</a>
-			</li>
-			<li>
-				<a href="/blocks" data-link class="nav-link px-0 align-middle">Blocking List</a>
-			</li>
-			<li>
-				<a href="/tournaments" data-link class="nav-link px-0 align-middle">Tournaments</a>
-			</li>
-		</ul>
-	</div>
-	</div>
+            </div>
+
+            <a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </nav>
 
     <!--  alert container html -->
     <div id="alert-container" class="position-fixed top-0 start-0 w-100 p-3">

@@ -204,8 +204,8 @@ class Application {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
     const userId = Application.getUserInfos().userId;
-    document.querySelector("#side-username").textContent =
-      Application.getUserInfos().userName;
+    // document.querySelector("#side-username").textContent =
+    //   Application.getUserInfos().userName;
     avatarImg.setAttribute("data-avatar", userId);
     Avatar.refreshAvatars().then(() => {
       sideBar.classList.toggle("d-none");
