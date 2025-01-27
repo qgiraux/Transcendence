@@ -171,8 +171,9 @@ class HomeView extends AbstractView {
               </div>
             </div>
           </div>
+          <canvas id="pongCanvas" width="800" height="400"></canvas>
         </div>
-        <canvas id="pongCanvas" width="800" height="400"></canvas>
+        
         <div id="message-container"></div>
       `;
   

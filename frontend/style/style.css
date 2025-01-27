@@ -66,7 +66,7 @@ h2 small {
   align-items: center;
   z-index: 10;
   padding: 10px 20px;
-  text-decoration-color: white;
+  /* text-decoration-color: white; */
   font-weight: bold; /* Make the text bold */
   display: flex; /* Make the link a block element */
   align-items: center;
@@ -82,7 +82,7 @@ h2 small {
   margin-right: 15px;
 }
 
-.navbar li:hover {
+.dropdown-item:hover {
   background-color: #adfe04;
   color: black;
   border-radius: 0;
@@ -100,7 +100,10 @@ i {
 
 #sidebar .dropdown-menu {
   background-color: transparent;
+  border: 2px solid #f037a5 !important;
+  box-shadow: 0 0 7px #f037a5, 0 0 14px #f037a5; /* Neon glow effect */
   color: white;
+  padding: 0.4rem;
 }
 
 .bi {
@@ -117,7 +120,7 @@ i {
   transform: scale(1.2);
 }
 
-#settingsDropdown::after {
+/* #settingsDropdown::after {
   display: inline-block;
   margin-left: 0.25em;
   vertical-align: middle;
@@ -125,7 +128,7 @@ i {
   border-top: 0.3em solid white;
   border-right: 0.3em solid transparent;
   border-left: 0.3em solid transparent;
-}
+} */
 
 /* #login-side-info #side-username {
   padding: 10px;
@@ -179,6 +182,7 @@ i {
 
 .view-container .row {
   border: none !important;
+  padding: 1rem;
 }
 
 .bi-people,
@@ -192,6 +196,13 @@ i {
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
 
+}
+
+#pongCanvas {
+  margin: 1rem 2rem;
+  border: 4px;
+  border-color: #90fce1;
+  box-shadow: 0 0 10px #90fce1, 0 0 20px #90fce1;
 }
 
 /* LANDING VIEW STYLING */
@@ -287,8 +298,8 @@ input:-webkit-autofill:focus {
 position: fixed;
 bottom: 20px;
 right: 20px;
-background-color: #007bff;
-color: white;
+background-color: #adfe04;
+color: black;
 border: none;
 border-radius: 50%;
 width: 60px;
@@ -305,10 +316,9 @@ bottom: 80px;
 right: 20px;
 width: 300px;
 height: 400px;
-background-color: white;
-border: 1px solid #ccc;
-border-radius: 10px;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+background-color: black;
+border: 4px solid #adfe04;
+border-radius: 0px;
 display: none;
 flex-direction: column;
 overflow: hidden;
@@ -316,8 +326,8 @@ overflow: hidden;
 
 /* Chat header */
 #chat-header {
-background-color: #007bff;
-color: white;
+background-color: #adfe04;
+color: black;
 padding: 10px;
 display: flex;
 justify-content: space-between;
@@ -327,7 +337,7 @@ align-items: center;
 #chat-header button {
 background: none;
 border: none;
-color: white;
+color: black;
 font-size: 18px;
 cursor: pointer;
 }
@@ -344,18 +354,20 @@ height: 88%;
 flex-grow: 1;
 padding: 10px;
 overflow-y: auto;
-background-color: #f9f9f9;
+background-color: black;
 }
 
 #chat-input {
 padding: 10px;
-border: 1px solid #ccc;
+border: 1px solid black;
 flex-grow: 1;
 }
 
 #send-btn {
-background-color: #007bff;
-color: white;
+background-color: #adfe04;
+color: black;
+text-align: center;
+text-transform: uppercase;
 border: none;
 padding: 9px;
 cursor: pointer;
