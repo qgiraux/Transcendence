@@ -115,7 +115,7 @@ class TournamentsView extends AbstractView {
 			</div>
 		</div>
 	`;
-    const title = card.querySelector("card-title");
+    const title = card.querySelector(".card-title");
     title.textContent = tournament["name"];
     const avatars_row1 = card.querySelector("#players-avatar-1");
     const avatars_row2 = card.querySelector("#players-avatar-2");
