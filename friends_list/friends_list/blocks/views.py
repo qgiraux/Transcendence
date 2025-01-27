@@ -37,6 +37,8 @@ def add_block(request):
         block_id = data.get('id')
         if not block_id:
             return JsonResponse({'detail': 'Block ID is required', 'code': 'block_id_required'}, status=400)
+        if block_id == user_id:
+            return JsonResponse({'message': 'user already cannot block himself', 'code': 'conflict'}, status=409)
         if Blocks.objects.filter(user_id=user_id, block_id=block_id).exists():
             return JsonResponse({'message': 'user already in block list', 'code': 'conflict'}, status=409)
 
