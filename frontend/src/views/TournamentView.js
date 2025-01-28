@@ -45,31 +45,55 @@ class TournamentsView extends AbstractView {
         this.tournaments = tournaments;
       })
       .then(() => {
-        this.displayTournaments();
-      })
-      .then(() => {
+        this.refreshPanel();
         Avatar.refreshAvatars();
       });
     //   .catch((error) => {
     //     Alert.errorMessage("Something went wrong", "Please try again later");
     //   });
+    const btnStatus0 = document.querySelector("#status-0");
+    const btnStatus1 = document.querySelector("#status-1");
+    const btnStatus2 = document.querySelector("#status-2");
+    this.addEventListener(btnStatus0, "click", this.switchStatus.bind(this));
+    this.addEventListener(btnStatus1, "click", this.switchStatus.bind(this));
+    this.addEventListener(btnStatus2, "click", this.switchStatus.bind(this));
   }
 
-  displayTournaments() {
+  switchStatus(event) {
+    const oldStatus = this.panel_status;
+    const newStatus = Number(event.target.dataset.status);
+    this.panel_status = newStatus;
+    const btnStatusOld = document.querySelector(`#status-${oldStatus}`);
+    const btnStatusNew = document.querySelector(`#status-${newStatus}`);
+    btnStatusOld.classList.remove("active");
+    btnStatusNew.classList.add("active");
+    this.refreshPanel();
+    Avatar.refreshAvatars();
+  }
+
+  refreshPanel() {
     const panel = document.getElementById("active-panel");
     if (!panel) return;
+    panel.innerHTML = "";
     const tournaments = this.tournaments.filter((tournament) => {
       return tournament["status"] === this.panel_status;
     });
     switch (this.panel_status) {
       case 0:
         tournaments.forEach((tournament) => {
-          panel.appendChild(this.createTournamentCard(tournament));
+          panel.appendChild(this.createOpenTournamentCard(tournament));
         });
         break;
       case 1:
+        tournaments.forEach((tournament) => {
+          panel.appendChild(this.CreateEightPlayersTournamentCard(tournament));
+          panel.appendChild(this.CreateEightPlayersTournamentCard(tournament));
+        });
         break;
       case 2:
+        tournaments.forEach((tournament) => {
+          panel.appendChild(this.createOpenTournamentCard(tournament));
+        });
         break;
     }
   }
@@ -86,7 +110,7 @@ class TournamentsView extends AbstractView {
     return img;
   }
 
-  createTournamentCard(tournament) {
+  createOpenTournamentCard(tournament) {
     const card = document.createElement("div");
     card.classList.add("row");
     card.classList.add("p-1");
@@ -103,7 +127,7 @@ class TournamentsView extends AbstractView {
 					</div>
 					<div class=" w-50 d-flex gap-1 flex-column">
 						<div>
-							<h5 class="text-secondary text-center"> place left</h5>
+							<h5 id="place-left" class="text-secondary text-center"> place left</h5>
 						</div>
 						<button type="button" class="btn btn-success  btn-sm">Join</button>
 						<button class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
@@ -117,6 +141,10 @@ class TournamentsView extends AbstractView {
 	`;
     const title = card.querySelector(".card-title");
     title.textContent = tournament["name"];
+    const placeLeft = card.querySelector("#place-left");
+    placeLeft.textContent = `${
+      tournament["size"] - tournament["players"].length
+    } places left`;
     const avatars_row1 = card.querySelector("#players-avatar-1");
     const avatars_row2 = card.querySelector("#players-avatar-2");
     console.log("players", tournament["players"]);
@@ -144,6 +172,94 @@ class TournamentsView extends AbstractView {
     return card;
   }
 
+  CreateEightPlayersTournamentCard(tournament) {
+    const card = document.createElement("div");
+    card.classList.add(
+      "row",
+      "bg-dark",
+      "text-white",
+      "border",
+      "border-secondary",
+      "rounded",
+      "p-2",
+      "mb-2"
+    );
+    card.innerHTML = `
+			<div class="row mt-1">
+				<h4 class="fw-bold">${tournament["name"]}</h4>
+			</div>
+			<!-- 8 players-->
+			<div class="col  justify-content-center align-items-center p-1">
+				<div
+					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
+					<img src="/api/avatar/picture/default/" width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 1">
+					<img src="/api/avatar/picture/default/" width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 2">
+				</div>
+				<div
+					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
+					<img src="/api/avatar/picture/default/" width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 3">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 4">
+				</div>
+				<div
+					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 5">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 6">
+				</div>
+				<div
+					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 7">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur 8">
+				</div>
+			</div>
+
+			<!-- 4 players-->
+			<div class="col d-flex flex-column justify-content-center">
+				<div
+					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur A">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur B">
+				</div>
+				<div
+					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur C">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Joueur D">
+				</div>
+			</div>
+
+			<!-- 2 players-->
+			<div class="col d-flex flex-column justify-content-center">
+				<div
+					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Finaliste 1">
+					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+						alt="Finaliste 2">
+				</div>
+			</div>
+
+			<!-- Winner !-->
+			<div class="col d-flex flex-column justify-content-center">
+				<div class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded ">
+					<img src="/api/avatar/picture/default/ "width="90" height="90"
+						class="rounded rounded-circle border border-warning" alt="Vainqueur">
+				</div>
+			</div>
+	`;
+    return card;
+  }
+
   async fetchTournamentDetails(names) {
     const details = await Promise.all(
       names.map(async (name) => {
@@ -157,10 +273,10 @@ class TournamentsView extends AbstractView {
           //   return null;
           return {
             /// placeholder
-            name: "tournament name",
+            name: "my tournament",
             players: [1, 2, 3, 4, 5, 6, 7],
             size: 8,
-            status: 0,
+            status: 1,
             rounds: {
               8: [1, 2, 3, 4, 5, 6],
             },
@@ -175,24 +291,55 @@ class TournamentsView extends AbstractView {
     const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `
-		<div class="row ">
-			<div class=" mx-auto">
+				<div class="row ">
+			<div class=" mx-auto" style="max-width: 700px;">
 				<h1 class="text-white text-center mb-5">Tournaments</h1>
-			</div>
-		</div>
-		<div class=" d-flex justify-content-center align-items-center m-0 align-middle" style="max-width: 600px;">
-			<div class="btn-group mx-auto align-items-center  ">
-				<a href="#" class="btn btn-primary active" aria-current="page">Open tournaments</a>
-				<a href="#" class="btn btn-primary">Tournaments in progress</a>
-				<a href="#" class="btn btn-primary">Finished tournaments</a>
-			</div>
-		</div>
-		<div class="container  mt-3 p-3 justify-content-center align-items-center  h-100 w-75 border border-secndary rounded"
-			style="max-width: 600px;" id="active-panel">
-			<div class="row mb-3">
-				<h2 class=" mx-auto col-9 text-white text-center ">Choose a tournament</h2>
-			</div>
 
+				<div class="row">
+					<div class="btn-group mx-auto align-items-center">
+						<button id="status-0" data-status="0" class="btn btn-primary" aria-current="page">Open
+							tournaments</button>
+						<button id="status-1" data-status="1" class="btn btn-primary">Tournaments in progress</button>
+						<button id="status-2" data-status="2" class="btn btn-primary active">Finished
+							tournaments</button>
+					</div>
+
+				</div>
+				<div class="row  mt-3 p-3 justify-content-center align-items-center  border border-secondary rounded"
+					id="active-panel">
+						</div>
+			</div>
+				</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			</div>
 		</div>
 
 
