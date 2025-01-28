@@ -89,6 +89,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
                 await self.create(msg_data)
             case "ready":
                 await self.ready()
+            case "infos":
+                await self.infos()
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
@@ -101,6 +103,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         direction = data.get("direction")
         self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
 
+
     async def ready(self):
         if not self.user_id:
             log.error("User not correctly joined")
@@ -108,7 +111,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         log.error("User %s is ready", self.user_id)
         self.pong[self.game_name].engine.player_ready(self.user_id)
         # await self.send(text_data=json.dumps({"type": "received"}))
-        
+    
     async def game_update(self, event):
         # log.error("Game update: %s", event)
         state = event["state"]
@@ -164,6 +167,26 @@ class PongConsumer(SyncConsumer):
             self.engine.run()
 
 
+    async def infos(self):
+        await asyncio.sleep(0.2)
+        log.error("Sending game infos")
+        if not self.game_name:
+            log.error("Game name not set")
+            return
+        state = self.engine.state
+        response = {
+            "type": "init",
+            "player_left": {
+                "playername": state.player_left.playername,
+                "score": state.player_left.score,
+            },
+            "player_right": {
+                "playername": state.player_right.playername,
+                "score": state.player_right.score,
+            },
+        }
+        await self.send(text_data=json.dumps(response))
+
     def player_leave(self, event):
         player = event.get("userid")
         log.error("Player left: %s", player)
@@ -171,6 +194,7 @@ class PongConsumer(SyncConsumer):
             self.players.remove(player)
             self.engine.player_leave(player)
 
+    
     def player_move_paddle(self, event):
         log.error("Move paddle: %s", event)
         direction = event.get("direction")

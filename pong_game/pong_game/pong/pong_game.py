@@ -35,7 +35,6 @@ class Player:
 	async def set_playername(self):
 		log.error("Setting playername to %s", self.playerid)
 		url = "http://user_management:8000/userinfo/" + str(self.playerid)
-		log.error("url : ",url)
 		headers = {
 			"Content-Type": "application/json",
 			"Accept": "application/json",  # Optional but recommended
@@ -50,7 +49,7 @@ class Player:
 			log.error(f"HTTP error occurred: {e.response.status_code}")
 		except Exception as e:
 			log.error(f"Error posting stats: {e}")
-		log.error("response : ",response)
+		log.error("response : %s",self.playername)
 	
 	async def initialize(self):
 		await self.set_playername()
