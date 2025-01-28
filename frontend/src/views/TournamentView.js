@@ -86,8 +86,8 @@ class TournamentsView extends AbstractView {
         break;
       case 1:
         tournaments.forEach((tournament) => {
-          panel.appendChild(this.CreateEightPlayersTournamentCard(tournament));
-          panel.appendChild(this.CreateEightPlayersTournamentCard(tournament));
+          panel.appendChild(this.createEightPlayersTournamentCard(tournament));
+          panel.appendChild(this.createEightPlayersTournamentCard(tournament));
         });
         break;
       case 2:
@@ -101,7 +101,7 @@ class TournamentsView extends AbstractView {
   _createAvatarImg(player) {
     const img = document.createElement("img");
     img.setAttribute("data-avatar", player);
-    img.src = "/api/avatar/picture/default/";
+    img.src = "/api/avatar/picture/5f9e0fc9-fbdf-4196-88b3-3dc8770b97e3/";
     img.width = 30;
     img.height = 30;
     img.setAttribute("data-link", "");
@@ -172,7 +172,22 @@ class TournamentsView extends AbstractView {
     return card;
   }
 
-  CreateEightPlayersTournamentCard(tournament) {
+  /*
+  une fonction qui retourne le user id correspondant a la poule et a l'index
+  retourne  otherwise
+
+*/
+  getIdfromTournament(tournament, round, index) {
+    if (!tournament["rounds"][round]) return 0;
+    if (tournament["rounds"][round].length < index) return 0;
+    return tournament["rounds"][round][index];
+  }
+
+  getProfileLinkformId(id) {
+    if (id === 0) return "";
+    return `/profile/${id}"`;
+  }
+  createEightPlayersTournamentCard(tournament) {
     const card = document.createElement("div");
     card.classList.add(
       "row",
@@ -184,6 +199,7 @@ class TournamentsView extends AbstractView {
       "p-2",
       "mb-2"
     );
+
     card.innerHTML = `
 			<div class="row mt-1">
 				<h4 class="fw-bold">${tournament["name"]}</h4>
@@ -192,30 +208,64 @@ class TournamentsView extends AbstractView {
 			<div class="col  justify-content-center align-items-center p-1">
 				<div
 					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="/api/avatar/picture/default/" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 1">
-					<img src="/api/avatar/picture/default/" width="40" height="40" class="rounded rounded-circle"
+					<a data-link href="${this.getProfileLinkformId(
+            this.getIdfromTournament(tournament, "8", 0)
+          )}">
+					<img data-link src="${
+            this.getIdfromTournament(tournament, "8", 0) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 0))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"></a>
+					<img src="${
+            this.getIdfromTournament(tournament, "8", 1) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 1))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur 2">
 				</div>
 				<div
 					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="/api/avatar/picture/default/" width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "8", 2) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 2))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur 3">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "8", 3) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 3))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur 4">
 				</div>
 				<div
 					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "8", 4) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 4))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur 5">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "8", 5) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 5))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur 6">
 				</div>
 				<div
 					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "8", 6) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 6))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur 7">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "8", 7) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "8", 7))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur 8">
 				</div>
 			</div>
@@ -224,16 +274,32 @@ class TournamentsView extends AbstractView {
 			<div class="col d-flex flex-column justify-content-center">
 				<div
 					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "4", 0) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "4", 0))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur A">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "4", 1) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "4", 1))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur B">
 				</div>
 				<div
 					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "4", 2) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "4", 2))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur C">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "4", 3) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "4", 3))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Joueur D">
 				</div>
 			</div>
@@ -242,9 +308,17 @@ class TournamentsView extends AbstractView {
 			<div class="col d-flex flex-column justify-content-center">
 				<div
 					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "2", 0) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "2", 0))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Finaliste 1">
-					<img src="/api/avatar/picture/default/ "width="40" height="40" class="rounded rounded-circle"
+					<img src="${
+            this.getIdfromTournament(tournament, "2", 1) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "2", 1))
+              : "/img/question_mark_icon.png"
+          }" width="40" height="40" class="rounded rounded-circle"
 						alt="Finaliste 2">
 				</div>
 			</div>
@@ -252,7 +326,11 @@ class TournamentsView extends AbstractView {
 			<!-- Winner !-->
 			<div class="col d-flex flex-column justify-content-center">
 				<div class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded ">
-					<img src="/api/avatar/picture/default/ "width="90" height="90"
+					<img src="${
+            this.getIdfromTournament(tournament, "1", 0) !== 0
+              ? Avatar.url(this.getIdfromTournament(tournament, "1", 0))
+              : "/img/question_mark_icon.png"
+          }" width="90" height="90"
 						class="rounded rounded-circle border border-warning" alt="Vainqueur">
 				</div>
 			</div>
