@@ -183,6 +183,7 @@ def TournamentList(request):
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
+    logger.error(f"User ID: {user_id}")
     tournaments = Tournament.objects.all()
     tournament_list = []
     for tournament in tournaments:
