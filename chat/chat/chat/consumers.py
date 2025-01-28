@@ -24,7 +24,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if user_info:
                 # Decode the token to get user_id and nickname
                 self.user_id = user_info['user_id']
-                self.nickname = user_info['nickname']
+                self.nickname = user_info['user_id']
                 logger.error(f"User {self.nickname} connected")
             else:
                 logger.error("Invalid token")
