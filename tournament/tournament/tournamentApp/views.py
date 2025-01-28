@@ -207,7 +207,7 @@ def TournamentDetails(request, name):
         tournament = Tournament.objects.get(tournament_name=name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    return JsonResponse({'tournament name': tournament.tournament_name, 'players': tournament.player_list, 'size': tournament.tournament_size}, status=200)
+    return JsonResponse({'tournament name': tournament.tournament_name, 'players': tournament.player_list, 'size': tournament.tournament_size, 'rounds': tournament.rounds, 'status': tournament.status}, status=200)
 
 @csrf_exempt
 @permission_classes([IsAuthenticated])
