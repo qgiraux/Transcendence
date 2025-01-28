@@ -172,7 +172,6 @@ class CmdGame extends JWTCmd {
 	#onMessage(data) {
 		const obj = JSON.parse(data);
 
-		console.error(data) //
 		if ("game_update" == obj.type) {
 			this.#parseGameUpdate(obj.data);
 		} else if ("countdown" == obj.type) {

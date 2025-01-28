@@ -7,7 +7,6 @@ class PongGameView extends AbstractView {
     constructor(params) {
         super(params);
         this._setTitle("Pong Game Tournament");
-
         this.canvas = null;
         this.renderer = null;
 
@@ -18,6 +17,7 @@ class PongGameView extends AbstractView {
         this.score2 = 0;
         this.p1name = "";
         this.p2name = "";
+        this.paused = true;
 
         this.isGameOver = false;
       
@@ -25,17 +25,13 @@ class PongGameView extends AbstractView {
     }
 
     onStart() {
-        if (Application.getAccessToken() == null) {
-            setTimeout(() => {
-                Router.reroute("/landing");
-            }, 50);
-            return;
-        }
+        
+        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
 
         this._setHTML();
 
         this.canvas = document.getElementById("pongCanvas");
-        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        
 
         if (!this.canvas) {
             throw new Error(`Canvas element with id 'pongCanvas' not found`);
@@ -63,22 +59,16 @@ class PongGameView extends AbstractView {
             y: this.canvas.height / 2,
             radius: 10,
         };
-
+        
         if (Application.gameSocket) {
             console.log("WebSocket connection already established.");
             try {
                 Application.gameSocket.onopen = () => {
-                    console.log("WebSocket connection established");
-                    Application.gameSocket.send(
-                        JSON.stringify({ type: "create", data: { name: "newgame" } })
-                    );
-                    Application.gameSocket.send(
-                        JSON.stringify({ type: "join", data: { userid: "1", name: "newgame" } })
-                    );
+                    console.log("WebSocket connection established");            
                 };
 
                 Application.gameSocket.onmessage = (event) => {
-                    // console.log("DATA=== ", event.data);
+                    console.log("DATA=== ", event.data);
                     const data = JSON.parse(event.data);
 
                     if (data.type === "game_over") {
@@ -93,12 +83,40 @@ class PongGameView extends AbstractView {
                         console.log("Game Over");
                         this.isGameOver = true; // Stop game loop when the game ends
                     } else if (data.type === "countdown" ) {
-                        console.log("Countdown: ", data);
+                        console.log("Countdown: ", data.data);
+                        if (data.data === 0) {
+                            console.log("Game started");
+                            this.paused = false;
+                            requestAnimationFrame(loop);
+                        }
+                        else if (data.data > 0) {
+                            this.paused = true;
+                            
+                        }
+                        this.renderer.drawCountdownMessage(
+                            this.paddle1,
+                            this.paddle2,
+                            this.score1,
+                            this.score2, 
+                            data.data,
+                            this.p1name,
+                            this.p2name
+                    );
+                    } else if (data.type === "init" ) {
+                        console.log("Countdown: ", data.data);
+                        this.p1name = data.player_left.playername;
+                        this.p2name = data.player_right.playername;
+                        this.renderer.drawStartMessage(
+                            this.paddle1,
+                            this.paddle2,
+                            this.p1name,
+                            this.p2name
+                        );
                     } else {
                         // Update game state for ongoing gameplay
                         console.log("Game state: ", data);
-                        this.p1name = data.player_left.playerid;
-                        this.p2name = data.player_right.playerid;
+                        this.p1name = data.player_left.playername;
+                        this.p2name = data.player_right.playername;
                         this.score1 = data.player_left.score;
                         this.score2 = data.player_right.score;
                         this.paddle1.y = data.player_left.paddle_y * 4;
@@ -125,17 +143,29 @@ class PongGameView extends AbstractView {
         } else {
             console.error("gameSocket connection not established.");
         }
-
+        console.log("sending request for initial infos")
+        Application.gameSocket.send(
+            JSON.stringify({ type: "infos", data: ""})
+        );
+        this.renderer.drawStartMessage(
+            this.paddle1,
+            this.paddle2,
+            this.p1name,
+            this.p2name
+        );
         const loop = () => {
           // console.log("ball  : ", this.ball);
-            if (!this.isGameOver) {
+            if (!this.isGameOver && this.paused === false) {
               
                 this.renderer.renderingLoop(
                     this.paddle1,
                     this.paddle2,
                     this.score1,
                     this.score2,
-                    this.ball
+                    this.ball,
+                    this.p1name,
+                    this.p2name
+
                     
                 );
                 requestAnimationFrame(loop);
@@ -150,14 +180,18 @@ class PongGameView extends AbstractView {
       switch (event.key) {
         case 'ArrowUp':
         case 'w':
-          Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
-          console.log("UP");
-          break;
+            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
+            console.log("UP");
+            break;
         case 'ArrowDown':
         case 's':
-          Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
-          console.log("DOWN");
-          break;
+            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
+            console.log("DOWN");
+            break;
+        case ' ':
+            Application.gameSocket.send(JSON.stringify({ type: 'ready', data: { direction: 'ready' } }));
+            console.log("READY");
+            break;
       }
     }
 

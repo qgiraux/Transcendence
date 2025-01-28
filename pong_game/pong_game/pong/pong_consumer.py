@@ -42,10 +42,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
-        if self.userid:
+        if self.user_id:
             await self.channel_layer.send(
                 "game_engine",
-                {"type": "player_leave", "userid": self.userid},
+                {"type": "player_leave", "user_id": self.user_id},
             )
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
@@ -59,17 +59,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
         if game_name not in self.pong:
             self.pong[game_name] = PongConsumer(self.group_name)
-        self.pong[game_name].player_join({"userid": userid})
+        await self.pong[game_name].player_join({"userid": userid})
 
-        # Notify other players in the group about the new player
-        # await self.channel_layer.group_send(
-        #     self.group_name,
-        #     {
-        #         "type": "join",
-        #         "userid": userid,
-        #         "channel": self.channel_name,
-        #     },
-        # )
 
     async def create(self, data):
         data = data.get("data")
@@ -97,7 +88,9 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             case "create":
                 await self.create(msg_data)
             case "ready":
-                await self.ready(msg_data)
+                await self.ready()
+            case "infos":
+                await self.infos()
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
@@ -110,14 +103,15 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         direction = data.get("direction")
         self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
 
-    async def ready(self, data):
+
+    async def ready(self):
         if not self.user_id:
             log.error("User not correctly joined")
             return
         log.error("User %s is ready", self.user_id)
         self.pong[self.game_name].engine.player_ready(self.user_id)
         # await self.send(text_data=json.dumps({"type": "received"}))
-        
+    
     async def game_update(self, event):
         # log.error("Game update: %s", event)
         state = event["state"]
@@ -158,7 +152,7 @@ class PongConsumer(SyncConsumer):
         self.players = []
         self.lock = Lock()
 
-    def player_join(self, event):
+    async def player_join(self, event):
         if len(self.players) >= 2:
             log.error("Game is full")
             return
@@ -166,12 +160,32 @@ class PongConsumer(SyncConsumer):
         log.error("PongConsumer - Player joined: %s", event.get("userid"))
         self.players.append(event["userid"])
 
-        self.engine.add_player(event["userid"])
+        await self.engine.add_player(event["userid"])
         
         if len(self.players) == 2:
             log.error("Starting game")
             self.engine.run()
 
+
+    async def infos(self):
+        await asyncio.sleep(0.2)
+        log.error("Sending game infos")
+        if not self.game_name:
+            log.error("Game name not set")
+            return
+        state = self.engine.state
+        response = {
+            "type": "init",
+            "player_left": {
+                "playername": state.player_left.playername,
+                "score": state.player_left.score,
+            },
+            "player_right": {
+                "playername": state.player_right.playername,
+                "score": state.player_right.score,
+            },
+        }
+        await self.send(text_data=json.dumps(response))
 
     def player_leave(self, event):
         player = event.get("userid")
@@ -180,6 +194,7 @@ class PongConsumer(SyncConsumer):
             self.players.remove(player)
             self.engine.player_leave(player)
 
+    
     def player_move_paddle(self, event):
         log.error("Move paddle: %s", event)
         direction = event.get("direction")

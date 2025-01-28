@@ -57,8 +57,43 @@ class PongRenderer {
         this.ctx.fillText("press space for next game", (this.canvas.width * 1 / 3) - 33, (this.canvas.height / 2) + 30);
     }
 
-    renderingLoop(paddle1, paddle2, score1, score2, ball) {
+    drawStartMessage(paddle1, paddle2, player1, player2) {
+        console.log("drawStartMessage", player1, player2);
         this.clearCanvas();
+        this.drawNames(player1, player2);
+        this.drawScore(0, 0);
+        this.drawPaddle(paddle1);
+        this.drawPaddle(paddle2);
+        this.ctx.font = "20px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("press space to start", this.canvas.width / 2, this.canvas.height / 2);
+    }
+
+    drawCountdownMessage(paddle1, paddle2, score1, score2, count, player1, player2) {
+        this.clearCanvas();
+        this.drawNames(player1, player2);
+        this.drawScore(score1, score2);
+        this.drawPaddle(paddle1);
+        this.drawPaddle(paddle2);
+        this.ctx.font = "20px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText(count, (this.canvas.width / 2), (this.canvas.height / 2));
+    }
+
+    drawNames(player1, player2) {
+        this.ctx.fillRect((this.canvas.width / 4) - 7, 25, 30, 30);
+        this.ctx.fillRect((this.canvas.width / 4) * 3 - 7, 25, 30, 30);
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(player1, (this.canvas.width / 4) - 7, 20);
+        this.ctx.fillText(player2, (this.canvas.width / 4) * 3 - 7, 20);
+        this.ctx.fillStyle = "white";
+        
+    }
+    renderingLoop(paddle1, paddle2, score1, score2, ball, player1, player2) {
+        this.clearCanvas();
+        this.drawNames(player1, player2);
         this.drawScore(score1, score2);
         this.drawPaddle(paddle1);
         this.drawPaddle(paddle2);

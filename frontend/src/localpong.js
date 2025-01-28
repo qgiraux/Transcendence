@@ -16,9 +16,10 @@ class PongGame {
         this.commands = { up: 0, down: 0, w: 0, s: 0 };
         this.reset = false;
 
-        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
-        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
-        document.addEventListener('keydown', (event) => this.resumeGame(event, this.reset));
+        // document.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        // document.addEventListener('keyup', (event) => this.handleKeyUp(event));
+        // document.addEventListener('keydown', (event) => this.resumeGame(event, this.reset));
+        // document.addEventListener('keydown', (event) => this.resumeGame(event));
     }
 
     handleKeyDown(event) {
@@ -107,7 +108,6 @@ class PongGame {
             this.ball.dy = 4;
             this.paused = true;
             this.renderer.drawPauseMessage(winner);
-            document.addEventListener('keydown', (event) => this.resumeGame(event));
             if (this.paused) return;
         }
         if (this.score1 == this.endScore || this.score2 == this.endScore) {
@@ -137,5 +137,17 @@ class PongGame {
         }
     }
 }
-
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        this.paused = true;
+        cancelAnimationFrame(this.animationFrameId);
+        document.removeEventListener('keydown', this.resumeGame);
+        document.removeEventListener('keydown', (event) => this.handleKeyDown(event));
+        document.removeEventListener('keyup', (event) => this.handleKeyUp(event));
+        document.removeEventListener('keydown', (event) => this.resumeGame(event));
+    } else {
+        this.paused = false;
+        this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
+    }
+});
 export default PongGame;

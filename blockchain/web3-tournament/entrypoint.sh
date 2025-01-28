@@ -7,4 +7,7 @@ rm /tmp/solc_input.json
 ##solc
 solc --standard-json solc_input.json > solc_output.json
 
+# Deploy Contract
+python3 deploytournament.py
+
 exec "$@"

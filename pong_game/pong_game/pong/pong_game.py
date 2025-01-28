@@ -29,6 +29,31 @@ class Player:
 	playerid = attr.ib()
 	score = attr.ib(default=0, validator=attr.validators.instance_of(int))
 	player_left = attr.ib(default = True, validator=attr.validators.instance_of(bool))
+	playername = attr.ib(init=False, default=None)
+
+
+	async def set_playername(self):
+		log.error("Setting playername to %s", self.playerid)
+		url = "http://user_management:8000/userinfo/" + str(self.playerid)
+		headers = {
+			"Content-Type": "application/json",
+			"Accept": "application/json",  # Optional but recommended
+			"Host": "localhost",
+		}
+		try:
+			async with httpx.AsyncClient() as client:
+				response = await client.get(url, headers=headers)
+				response.raise_for_status()  # Raise an exception for HTTP errors
+				self.playername = response.json()["nickname"]
+		except httpx.HTTPStatusError as e:
+			log.error(f"HTTP error occurred: {e.response.status_code}")
+		except Exception as e:
+			log.error(f"Error posting stats: {e}")
+		log.error("response : %s",self.playername)
+	
+	async def initialize(self):
+		await self.set_playername()
+	
 	
 	@staticmethod
 	def validate_paddle_y(_, __, value):
@@ -47,6 +72,7 @@ class Player:
 			"player_left": self.player_left,
 			"paddle_y": self.paddle_y,
 			"score": self.score,
+			"playername": self.playername,
 		}
 
 	def move_paddle(self, direction: Direction):
@@ -122,6 +148,7 @@ class State:
 	ball = attr.ib(
 		attr.Factory(Ball), validator=attr.validators.instance_of(Ball)
 	)
+	score = 0
 	player_left: Player = attr.ib(default=None)
 	player_right: Optional[Player] = attr.ib(default=None)
 
@@ -156,14 +183,13 @@ class PongEngine(threading.Thread):
 		self.key_lock = threading.Lock()
 		self.game_on = False
 		self.ready_players = set()
+		self.score = 0
 
 	def run(self):
 		if not (self.state.player_left is None or self.state.player_right is None):
 			self.game_on = True
 			#wait for "space" press on both players, and start a countdown before truly starting the game
-
 		log.error("is game on? %s", self.game_on)
-
 		# Use asyncio.run to manage the event loop in this thread
 		try :
 			self.loop = asyncio.get_event_loop()
@@ -171,9 +197,7 @@ class PongEngine(threading.Thread):
 			self.loop = asyncio.new_event_loop()
 		try:
             # Block until both players are ready
-			# while len(self.ready_players) < 1:
-			# 	sleep(1)
-			self.loop.run_until_complete(self.broadcast_countdown())
+			
 			self.game_task = self.loop.create_task(self.game_loop())
 		except Exception as e:
 			log.error(f"Error during readiness check: {e}")
@@ -181,6 +205,10 @@ class PongEngine(threading.Thread):
 
 	async def game_loop(self):
 		try:
+			while len(self.ready_players) < 2:
+				log.error(len(self.ready_players))
+				await asyncio.sleep(1)
+			await self.broadcast_countdown()
 			while self.game_on:
 				# log.error("Game %s is on!!", self.name)
 				self.state = self.tick()
@@ -189,6 +217,12 @@ class PongEngine(threading.Thread):
 					await self.end_game()
 					log.error("Game %s is over", self.name)
 					break
+				tmp = self.state.player_left.score + self.state.player_right.score
+				log.error("Score: %s", tmp)
+				if tmp > self.score:
+					log.error("Score changed from %s to %s", self.score, tmp)
+					self.score = self.state.player_left.score + self.state.player_right.score
+					await self.broadcast_countdown()
 				await asyncio.sleep(self.TICK_RATE)
 		except asyncio.CancelledError:
 			log.error("Game loop cancelled")
@@ -204,20 +238,20 @@ class PongEngine(threading.Thread):
 	async def broadcast_countdown(self):
 		log.error(f"Broadcasting countdown on group {self.group_name}")
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "countdown", "data": "3"}
+			self.group_name, {"type": "countdown", "data": 3}
 		)
-		log.info("Countdown: 3")
 		await asyncio.sleep(0.5)
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "countdown", "data": "3"}
+			self.group_name, {"type": "countdown", "data": 2}
 		)
-		log.info("Countdown: 2")
 		await asyncio.sleep(0.5)
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "countdown", "data": "3"}
+			self.group_name, {"type": "countdown", "data": 1}
 		)
-		log.info("Countdown: 1")
 		await asyncio.sleep(0.5)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": 0}
+		)
 
 
 	async def post_stats(self, url, data, headers):
@@ -229,6 +263,7 @@ class PongEngine(threading.Thread):
 			log.error(f"HTTP error occurred: {e.response.status_code}")
 		except Exception as e:
 			log.error(f"Error posting stats: {e}")
+	
 
 	async def broadcast_game_over(self):
 		log.error("Reached the game over broadcaster")
@@ -299,10 +334,10 @@ class PongEngine(threading.Thread):
 				self.paddle_y_change[playerid] = Direction.DOWN
 
 	def player_ready(self, userid):
-		log.error("Player %s is ready", userid)
+		log.error("Player %s pressed READY", userid)
 		self.ready_players.add(userid)
 
-	def add_player(self, playerid):
+	async def add_player(self, playerid):
 		log.error("Adding player %s to the game", playerid)
 
 		if (
@@ -314,9 +349,11 @@ class PongEngine(threading.Thread):
 
 		if self.state.player_left is None:
 			self.state.player_left = Player(playerid=playerid)
+			await self.state.player_left.set_playername()
 			self.state.player_left.player_left = True
 		elif self.state.player_right is None:
 			self.state.player_right = Player(playerid=playerid)
+			await self.state.player_right.set_playername()
 			self.state.player_right.player_left = False
 		else:
 			log.error("Game is full, player %s cannot join", playerid)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.postgres.fields import ArrayField
+from django.db.models import JSONField, IntegerField
 
 # Create your models here.
 class Tournament(models.Model):
@@ -23,4 +24,11 @@ class Tournament(models.Model):
         models.IntegerField(),
         default=list,  # Starts as an empty list
         blank=True
+    )
+    rounds = JSONField(
+        default=dict,
+        blank=True
+    )
+    status = IntegerField(
+        default=0
     )
