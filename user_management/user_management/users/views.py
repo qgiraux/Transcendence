@@ -192,7 +192,6 @@ def Get_user_infos(request, user_id):
         "id": user.id,
         "username": user.username,
         "nickname": user.nickname,
-        "2fa": user.twofa_enabled,
     }
     return JsonResponse(user_info)
 
