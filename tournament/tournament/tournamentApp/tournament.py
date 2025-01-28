@@ -11,6 +11,7 @@ import asyncio
 from .models import Tournament
 from asgiref.sync import async_to_sync
 import random
+import requests
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 
@@ -31,6 +32,11 @@ def Tournament_operation(tournament):
         tournament.status = 1
         tournament.save()
         winner = organize_tournament(lineup, tournament)
+        response = requests.post('http://web3-tournament/score/', data={'name': winner, "result": "win"})
+        if response.status_code != 201:
+            logger.error(f"Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")
+        else:
+            logger.error(f"Successfully notified the endpoint. Response: {response.text}")
         logger.error(f"[Tournament_operation] Winner: {winner}")
 
         return 
@@ -60,7 +66,6 @@ def organize_tournament(lineup, tournament):
             next_lineup.append(future.result())
 
     return organize_tournament(next_lineup, tournament)
-
 
 
 async def match(player1, player2, gamename):

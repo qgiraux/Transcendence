@@ -39,6 +39,8 @@ async def _test_post_get(arf, name, result, interface):
 class SerializerTest(rest_framework.test.APITestCase):
 	def setUp(self):
 		"""Set up the test environment."""
+		interface = Interface.ContractInterface()
+		interface.removeContract()
 		self._arf = django.test.AsyncRequestFactory()
 
 	def test_class_works(self):
