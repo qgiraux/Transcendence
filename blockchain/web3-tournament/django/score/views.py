@@ -1,6 +1,6 @@
 import sys
 import json
-import logging
+
 #
 import rest_framework.decorators
 import rest_framework.response
@@ -11,7 +11,9 @@ from django.views.decorators.csrf import requires_csrf_token
 sys.path.insert(0, "/")
 import Interface
 
-logger = logging.getLogger(__name__)
+#import logging
+#logger = logging.getLogger(__name__)
+#logging.basicConfig(level=logging.INFO)
 
 @adrf.decorators.api_view(["GET", "POST"])
 def view404(request, exception):
@@ -38,21 +40,23 @@ async def get_address(request, interface=None):
 	p_interface_ = None
 	try:
 		p_interface_ = await _get_interface(interface)
+		address = p_interface_.getAddress()
 	except Exception as e:
 		await _destroy_interface(interface, p_interface_)
 		return rest_framework.response.Response(
 			{"detail":str(e)},
 			status=rest_framework.status.HTTP_400_BAD_REQUEST
 		)
+	
 	await _destroy_interface(interface, p_interface_)
-	return rest_framework.response.Response({"address":interface.getAddress()})
+	return rest_framework.response.Response({"address":address})
 
 @adrf.decorators.api_view(["GET"])
 async def get_score(request, name, interface=None):
 	p_interface_ = None
 	try:
 		p_interface_ = await _get_interface(interface)
-		tournament = await interface.getScore(name) #
+		tournament = await p_interface_.getScore(name) #
 	except Interface.ContractInterface.UnknownName as e:
 		await _destroy_interface(interface, p_interface_)
 		return rest_framework.response.Response(
