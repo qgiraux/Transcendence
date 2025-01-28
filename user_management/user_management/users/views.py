@@ -78,7 +78,7 @@ def get_jwt_token(request):
                 # Add custom claims to the access token
                 access_token = refresh.access_token
                 access_token['username'] = user.username
-                access_token['nickname'] = user.nickname
+                # access_token['nickname'] = user.nickname
                 access = str(access_token)
 
                 return Response({
