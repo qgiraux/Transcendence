@@ -1,0 +1,158 @@
+{
+    "titles": {
+      "home": "Home",
+      "profile": "Profile",
+      "friends": "Friends",
+      "tournament": "Tournament",
+      "block": "Block list"
+    },
+    "landing": {
+      "login": {
+        "label": "Login",
+        "enterField": "Enter login",
+        "choose": "Choose your login"
+      },
+      "password": {
+        "label": "Password",
+        "field": "Password required",
+        "choose": "Choose your password",
+        "confirm": "Confirm your password"
+      },
+      "twofa": {
+        "label": "2FA code (if activated)",
+        "field": "2FA if required"
+      },
+      "signup": {
+        "submit": "Create your account"
+      },
+      "signin": {
+        "submit": "Log in"
+      },
+      "messages": {
+        "loginErrorTitle": "Login Error",
+        "registerErrorTitle": "Register Error",
+        "invalidCredentials": "Invalid username or password",
+        "wrongCredentialsFormat": "You must provide a valid username and password.\nThe login must contains only letters or digits and be between 5-20 characters long <br> The password must be contains at least 8 characters and contains one digit,\none uppercase letter and at least one special character : !@#$%^&* ",
+        "serverError": "The server could not process your request. Please try again later",
+        "userAlreadyExist": "A user with that username already exists.",
+        "passwordsDontMatch": "The two password fields must be identical"
+      }
+    },
+    "home": {
+      "welcome": "welcome to your homepage!",
+      "friends": "see my friends", 
+      "tournaments": "manage tournaments"
+    },
+    "friends":{
+      "card": {
+        "viewProfile": "View friend profile", 
+        "inviteGame" : "Invite to a game",
+        "unfriend" : "Unfriend"
+      },
+      "looking:for": {
+        "text": "Still looking for a friend ?",
+        "field": "Look for a friend"
+      },
+      "add": {
+        "action": "Add as friend",
+        "success": "Friend added successfully",
+        "failure": "The user couldn't be added as a friend"
+      },
+      "remove": {
+        "failure": "The user couldn't be removed from friends list"
+      },
+      "errors": {
+        "general": "Error",
+        "unexpected": "Something went wrong",
+        "list": {
+          "get": "Error getting friends list",
+          "display": "Error displaying friends list"
+        }
+    },
+    "close": "Close",
+    "modal": {
+        "notFound": "Error: modal not found",
+        "idAttributeMissing": "Error: data-id attribute not found on modal"
+    }
+    },
+  "block": {
+    "card": {
+      "viewProfile": "View friend profile",
+      "inviteGame": "Invite to a game",
+      "unblock": "Unblock"
+    },
+    "lookingFor": {
+      "text": "Looking for users to block?",
+      "field": "Look for a user to block"
+    },
+    "add": {
+      "action": "Add to the blocklist",
+      "success": "Block added successfully",
+      "failure": "The user couldn't be added to the blocklist"
+    },
+    "remove": {
+      "failure": "The user couldn't be removed from the blocklist"
+    },
+    "errors": {
+      "general": "Error",
+      "somethingWentWrong": "Something went wrong",
+      "getBlockList": "Error getting blocklist",
+      "displayBlockList": "Error displaying blocklist",
+      "modalNotFound": "Error: modal not found",
+      "idAttributeNotFound": "Error: data-id attribute not found on modal",
+      "addBlockFailure": "The user couldn't be added to the blocklist"
+    },
+    "success": {
+      "addBlock": "Block added successfully"
+    },
+    "close": "Close",
+    "modal": {
+      "notFound": "Error: modal not found",
+      "idAttributeMissing": "Error: data-id attribute not found on modal"
+      }
+    },
+    "tournament": {
+      "create": {
+          "txt": "Create tournament",
+        "name": {
+          "txt": "Tournament name",
+          "enter": "Enter tournament name"
+        },
+          "size": {
+          "txt": "Number of players"
+          },
+          "action": {
+            "txt": "Create"
+          },
+          "errors": {
+            "fetchTournaments": "Error fetching tournaments",
+            "displayTournaments": "Error displaying tournaments",
+            "joinTournament": "Error joining tournament",
+            "createTournament": "Error creating tournament",
+            "invalidName": "Invalid tournament name",
+            "tourNameRequirements": "Tournament name must be 3-30 characters long and contain only letters and numbers"
+          }
+      },
+      "invite": {
+        "title": "Friend Invited",
+        "success": "Successfully invited friend",
+        "failure": "Error inviting friend"
+      },
+      "card": {
+        "alreadyJoined": "Already joined",
+        "tournamentFull": "Tournament full",
+        "joinTournament": "Join Tournament",
+        "deleteTournament": "Delete"
+      }
+  },
+"twofa": {
+  "scanQR": "Scan this QR code with your authenticator app",
+  "enterActivation": "Enter your 2FA code to confirm activation",
+  "success": "2FA code verified successfully",
+  "invalid": "Invalid 2FA code",
+  "errors": {
+    "unexpected": "Something went wrong"
+  }
+}
+}
+  

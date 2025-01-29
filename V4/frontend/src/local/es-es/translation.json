@@ -1,0 +1,160 @@
+{
+    "titles": {
+      "home": "Inicio",
+      "profile": "Perfil",
+      "friends": "Amigos",
+      "tournament": "Torneo",
+      "block": "Lista de bloqueo"
+    },
+    "landing": {
+      "login": {
+        "label": "Nombre de usuario",
+        "enterField": "Introduce tu nombre de usuario",
+        "choose": "Elige tu nombre de usuario"
+      },
+      "password": {
+        "label": "Contraseña",
+        "field": "Contraseña requerida",
+        "choose": "Elige tu contraseña",
+        "confirm": "Confirma tu contraseña"
+      },
+      "twofa": {
+        "label": "Código 2FA (si está activado)",
+        "field": "2FA (opcional)"
+      },
+      "signup": {
+        "submit": "Crear una cuenta"
+      },
+      "signin": {
+        "submit": "Iniciar sesión"
+      },
+      "messages": {
+        "loginErrorTitle": "Error de inicio de sesión",
+        "registerErrorTitle": "Error de registro",
+        "invalidCredentials": "Nombre de usuario o contraseña no válidos",
+        "wrongCredentialsFormat": "Debes proporcionar un nombre de usuario y una contraseña válidos.\nEl nombre de usuario debe contener solo letras o números y tener entre 5 y 20 caracteres.<br>La contraseña debe contener al menos 8 caracteres, un número, una letra mayúscula y al menos un carácter especial: !@#$%^&*",
+        "serverError": "El servidor no pudo procesar tu solicitud. Por favor, inténtalo de nuevo más tarde",
+        "userAlreadyExist": "Ya existe un usuario con este nombre de usuario.",
+        "passwordsDontMatch": "Los dos campos de contraseña deben coincidir"
+      }
+    },
+    "home": {
+      "welcome": "Bienvenido a la página de inicio",
+      "friends": "Ver a mis amigos",
+      "tournaments": "Gestionar torneos"
+    },
+    "friends": {
+      "card": {
+        "viewProfile": "Ver el perfil del amigo",
+        "inviteGame": "Invitar a un juego",
+        "unfriend": "Eliminar de amigos"
+      },
+      "looking:for": {
+        "text": "¿Buscas un nuevo amigo?",
+        "field": "Buscar un amigo"
+      },
+      "add": {
+        "action": "Añadir a amigos",
+        "success": "Amigo añadido con éxito",
+        "failure": "No se pudo añadir al usuario como amigo"
+      },
+      "remove": {
+        "failure": "No se pudo eliminar al usuario de amigos"
+      },
+      "errors": {
+        "general": "Error",
+        "unexpected": "Ocurrió un error",
+        "list": {
+          "get": "Error al obtener la lista de amigos",
+          "display": "Error al mostrar la lista de amigos"
+        }
+      },
+      "close": "Cerrar",
+      "modal": {
+        "notFound": "Error: modal no encontrado",
+        "idAttributeMissing": "Error: falta el atributo data-id en el modal"
+      }
+    },
+    "block": {
+      "card": {
+        "viewProfile": "Ver el perfil del usuario",
+        "inviteGame": "Invitar a un juego",
+        "unblock": "Eliminar de la lista de bloqueo"
+      },
+      "lookingFor": {
+        "text": "¿Buscas un usuario para bloquear?",
+        "field": "Buscar un usuario"
+      },
+      "add": {
+        "action": "Añadir a la lista de bloqueo",
+        "success": "Usuario bloqueado con éxito",
+        "failure": "No se pudo añadir al usuario a la lista de bloqueo"
+      },
+      "remove": {
+        "failure": "No se pudo eliminar al usuario de la lista de bloqueo"
+      },
+      "errors": {
+        "general": "Error",
+        "somethingWentWrong": "Algo salió mal",
+        "getBlockList": "Error al obtener la lista de bloqueo",
+        "displayBlockList": "Error al mostrar la lista de bloqueo",
+        "modalNotFound": "Error: modal no encontrado",
+        "idAttributeNotFound": "Error: atributo data-id no encontrado",
+        "addBlockFailure": "No se pudo añadir al usuario a la lista de bloqueo"
+      },
+      "success": {
+        "addBlock": "Usuario bloqueado con éxito"
+      },
+      "close": "Cerrar",
+      "modal": {
+        "notFound": "Error: modal no encontrado",
+        "idAttributeMissing": "Error: falta el atributo data-id en el modal"
+      }
+    },
+    "tournament": {
+      "create": {
+        "txt": "Crear un torneo",
+        "name": {
+          "txt": "Nombre del torneo",
+          "enter": "Introduce el nombre del torneo"
+        },
+        "size": {
+          "txt": "Número de jugadores"
+        },
+        "action": {
+          "txt": "Crear"
+        },
+        "errors": {
+          "fetchTournaments": "Error al cargar los torneos",
+          "displayTournaments": "Error al mostrar los torneos",
+          "joinTournament": "Error al unirse al torneo",
+          "createTournament": "Error al crear el torneo",
+          "invalidName": "Nombre del torneo no válido",
+          "tourNameRequirements": "El nombre del torneo debe tener entre 3 y 30 caracteres y contener solo letras y números"
+        }
+      },
+      "invite": {
+        "title": "Amigo invitado",
+        "success": "Amigo invitado con éxito",
+        "failure": "Error al invitar al amigo"
+      },
+      "tournament": {
+        "card": {
+          "alreadyJoined": "Ya inscrito",
+          "tournamentFull": "Torneo completo",
+          "joinTournament": "Unirse al torneo",
+          "deleteTournament": "Eliminar"
+        }
+      }
+    },
+    "twofa": {
+      "scanQR": "Escanea este código QR con tu aplicación de autenticación",
+      "enterActivation": "Introduce tu código 2FA para confirmar la activación",
+      "success": "Código 2FA verificado con éxito",
+      "invalid": "Código 2FA no válido",
+      "errors": {
+        "unexpected": "Algo salió mal"
+      }
+    }
+  }
+  

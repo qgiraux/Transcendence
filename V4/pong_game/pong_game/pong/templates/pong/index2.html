@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pong Game</title>
+    <style>
+        canvas {
+            background: black;
+            display: block;
+            margin: 20px auto;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: white;">Pong Game</h1>
+    <canvas id="scoreCanvas" width="400" height="50"></canvas>
+    <canvas id="gameCanvas" width="408" height="208"></canvas>
+    <div id="game-status" style="text-align: center; color: white;"></div>
+
+    <script>
+        const ballradius = 4;
+        let isGameOver = false; 
+        // WebSocket Initialization
+        const ws = new WebSocket('wss://localhost:5000/ws/pong/'); // Use ws:// instead of wss:// for local development
+        const canvas = document.getElementById('gameCanvas');
+        const score_canvas = document.getElementById('scoreCanvas');
+        const ctx = canvas.getContext('2d');
+        const cts = score_canvas.getContext('2d');
+
+        let paddle1y = 100 + ballradius, paddle2y = 100 + ballradius;
+        let ballx = 200 + ballradius, bally = 100 + ballradius;
+        let score1 = 0, score2 = 0;
+        
+        const paddleheight = 40, paddlewidth = 4;
+        const paddle1x = 10 ;
+        const paddle2x = canvas.width - paddlewidth - 10 - ballradius;
+
+        ws.onopen = function () {
+            console.log('WebSocket connection established');
+            ws.send(JSON.stringify({ type: 'join', data: { userid: '2', name: 'newgame' } }));
+        };
+
+        ws.onmessage = function (event) {
+            console.log(event.data);
+            const data = JSON.parse(event.data);
+            if (data.type == 'game_over')
+            {
+                isGameOver = true;
+                console.log('Game Over');
+                console.log(data);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "blue";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "white";
+                ctx.font = "40px Arial";
+                if (data.state && data.state.winner) {
+                    console.log(data.state);
+                    ctx.textAlign = "center";
+                    ctx.fillText("WINNER : ", canvas.width / 2, 70);
+                    ctx.fillText(data.state.winner, canvas.width / 2, 110);
+                } else {
+                    ctx.fillText("WINNER : Unknown", 50, 100);
+                }
+                score1 = data.player_left.score;
+                score2 = data.player_right.score;
+                drawScore();
+
+                // document.getElementById('game-status').innerText = "Game Over";
+            }
+            else
+            {
+                paddle1y = data.player_left.paddle_y * 2;
+                paddle2y = data.player_right.paddle_y * 2;
+                ballx = data.ball.position[0] * 2 + ballradius;
+                bally = data.ball.position[1] * 2 + ballradius;
+                score1 = data.player_left.score;
+                score2 = data.player_right.score;
+            }
+            
+        };
+
+        ws.onclose = function () {
+            console.log('WebSocket connection closed');
+            document.getElementById('game-status').innerText = "Connection closed";
+        };
+
+        ws.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+
+
+        function drawScore(){ 
+            cts.fillStyle = "blue";
+            cts.fillRect(0, 0, 400, 50);
+            cts.fillStyle = "white";
+            cts.font = "30px Arial";
+            cts.fillText(score1, 15, 40);
+            cts.fillText(score2, 360, 40);
+            
+        }
+        // Paddle Control
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowUp') {
+                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
+            } else if (event.key === 'ArrowDown') {
+                ws.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
+            }
+        });
+
+        // Draw Paddle
+        function drawPaddle(x, y) {
+            ctx.fillStyle = "white";
+            ctx.fillRect(x, y - (paddleheight/2), paddlewidth, paddleheight);
+        }
+
+        // Draw Ball
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ballx, bally, ballradius, 0, Math.PI * 2);
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Game Loop
+        function gameLoop() {
+            if (isGameOver) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+            // Draw paddles and ball
+            drawPaddle(paddle1x, paddle1y);
+            drawPaddle(paddle2x, paddle2y);
+            drawBall();
+
+            requestAnimationFrame(gameLoop); // Recursively call gameLoop
+            drawScore();
+        }
+
+        // Start Game Loop
+        gameLoop();
+    </script>
+</body>
+</html>
