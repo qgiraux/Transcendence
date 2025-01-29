@@ -97,18 +97,11 @@ class LandingView extends AbstractView {
     const login = document.querySelector("#InputLogin");
     const password = document.querySelector("#InputPassword");
     const twofa = document.querySelector("#InputTwofa");
-    if (
-      this._validateLogin(login.value) &&
-      this._validatePass(password.value)
-    ) {
-      this.loginRequest({
+    this.loginRequest({
         username: login.value,
         password: password.value,
         twofa: twofa.value,
       });
-    } else {
-      Alert.errorMessage(this.messages.wrongCredentialsFormat);
-    }
   }
 
   async loginRequest(credentials) {
