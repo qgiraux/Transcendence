@@ -67,10 +67,7 @@ class Alert {
 		<div class="col-6 mx-auto">
 		  <div class="alert alert-primary alert-dismissible fade show" role="alert">
 			<strong>${title}</strong><p>${message}</p>
-			<a href="#" class="accept-invite">Accept</a>
-
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		  </div>
+		 </div>
 		</div>
 	  </div>`;
  

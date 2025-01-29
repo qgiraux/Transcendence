@@ -70,7 +70,7 @@ class HomeView extends AbstractView {
               const link = message;
               Router.reroute("/pong");
               console.log(`link: ${link} , textmessage: ${textmessage}`);
-              Alert.inviteMessage(type, textmessage, link)
+              Alert.inviteMessage("Tournament Match", textmessage, link)
               Application.gameSocket.send(JSON.stringify({ type: 'join', data: { userid: Application.getUserInfos().userId, name: link } }));
             }).catch(err => {console.error("Failed to fetch user info:", err);});
             
