@@ -1,7 +1,7 @@
 import Application from "../Application.js";
 import AbstractView from "./AbstractView.js";
-import Router from "../Router.js";
 import PongRenderer from "../pongrenderer.js";
+import TRequest from "../TRequest.js";
 
 class PongGameView extends AbstractView {
     constructor(params) {
@@ -18,7 +18,7 @@ class PongGameView extends AbstractView {
         this.p1name = "";
         this.p2name = "";
         this.paused = true;
-
+        this.startMessage = false
         this.isGameOver = false;
       
         this.onStart();
@@ -64,7 +64,7 @@ class PongGameView extends AbstractView {
             console.log("WebSocket connection already established.");
             try {
                 Application.gameSocket.onopen = () => {
-                    console.log("WebSocket connection established");            
+                    console.log("WebSocket connection established"); 
                 };
 
                 Application.gameSocket.onmessage = (event) => {
@@ -102,21 +102,44 @@ class PongGameView extends AbstractView {
                             this.p1name,
                             this.p2name
                     );
-                    } else if (data.type === "init" ) {
-                        console.log("Countdown: ", data.data);
-                        this.p1name = data.player_left.playername;
-                        this.p2name = data.player_right.playername;
-                        this.renderer.drawStartMessage(
-                            this.paddle1,
-                            this.paddle2,
-                            this.p1name,
-                            this.p2name
-                        );
+                    } else if (data.type === "game_init" ) {
+                        // this.p1name = data.state.player_left.playerid;
+                        // this.p2name = data.state.player_right.playerid;
+                        console.log("Game init: ", data);
+                        let uri1 = "/api/users/userinfo/" + data.state.player_left.playerid;
+                        TRequest.request("GET", uri1)
+                        .then((result) => {
+                            this.p1name = result.username;
+                            console.log("p1name: ", this.p1name);
+                            let uri2 = "/api/users/userinfo/" + data.state.player_right.playerid;
+                            TRequest.request("GET", uri2)
+                            .then((result) => {
+                                this.p2name = result.username;
+                                this.renderer.drawStartMessage(
+                                    this.paddle1,
+                                    this.paddle2,
+                                    this.p1name,
+                                    this.p2name
+                                );
+                            })
+                            .catch((error) => {
+                                Alert.errorMessage("Error", error.message);
+                            });
+                        })
+                        .catch((error) => {
+                            Alert.errorMessage("Error", error.message);
+                        });
+
+                        
                     } else {
                         // Update game state for ongoing gameplay
                         console.log("Game state: ", data);
-                        this.p1name = data.player_left.playername;
-                        this.p2name = data.player_right.playername;
+                        if (this.p1name === ""){
+                            this.p1name = data.player_left.playerid;
+                        }
+                        if (this.p2name === ""){
+                            this.p2name = data.player_right.playerid;
+                        }
                         this.score1 = data.player_left.score;
                         this.score2 = data.player_right.score;
                         this.paddle1.y = data.player_left.paddle_y * 4;
@@ -143,18 +166,16 @@ class PongGameView extends AbstractView {
         } else {
             console.error("gameSocket connection not established.");
         }
-        console.log("sending request for initial infos")
-        Application.gameSocket.send(
-            JSON.stringify({ type: "infos", data: ""})
-        );
-        this.renderer.drawStartMessage(
-            this.paddle1,
-            this.paddle2,
-            this.p1name,
-            this.p2name
-        );
         const loop = () => {
           // console.log("ball  : ", this.ball);
+
+            if (this.startMessage === false) {
+                console.log("Sending 'online' message");
+                Application.gameSocket.send(
+                    JSON.stringify({ type: "online", data: ""})
+                );
+                this.startMessage = true;
+            }
             if (!this.isGameOver && this.paused === false) {
               
                 this.renderer.renderingLoop(

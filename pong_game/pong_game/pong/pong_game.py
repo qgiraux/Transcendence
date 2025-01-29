@@ -29,30 +29,8 @@ class Player:
 	playerid = attr.ib()
 	score = attr.ib(default=0, validator=attr.validators.instance_of(int))
 	player_left = attr.ib(default = True, validator=attr.validators.instance_of(bool))
-	playername = attr.ib(init=False, default=None)
 
-
-	async def set_playername(self):
-		log.error("Setting playername to %s", self.playerid)
-		url = "http://user_management:8000/userinfo/" + str(self.playerid)
-		headers = {
-			"Content-Type": "application/json",
-			"Accept": "application/json",  # Optional but recommended
-			"Host": "localhost",
-		}
-		try:
-			async with httpx.AsyncClient() as client:
-				response = await client.get(url, headers=headers)
-				response.raise_for_status()  # Raise an exception for HTTP errors
-				self.playername = response.json()["nickname"]
-		except httpx.HTTPStatusError as e:
-			log.error(f"HTTP error occurred: {e.response.status_code}")
-		except Exception as e:
-			log.error(f"Error posting stats: {e}")
-		log.error("response : %s",self.playername)
 	
-	async def initialize(self):
-		await self.set_playername()
 	
 	
 	@staticmethod
@@ -67,13 +45,14 @@ class Player:
 		return Player(playerid=playerid, paddle_y=50, score=0)
 	
 	def render(self) -> Mapping[str, Any]:
-		return {
+		p = {
 			"playerid": self.playerid,
 			"player_left": self.player_left,
 			"paddle_y": self.paddle_y,
 			"score": self.score,
-			"playername": self.playername,
 		}
+		log.error(p)
+		return p
 
 	def move_paddle(self, direction: Direction):
 		log.error("Moving paddle %s", direction)
@@ -161,15 +140,17 @@ class State:
 		)
 	
 	def render(self) -> Mapping[str, Any]:
-		# log.error("rendering")
-		return {
+
+		frame = {
 			"ball": self.ball.render(),
 			"player_left": self.player_left.render(),
 			"player_right": self.player_right.render() if self.player_right else None,
 		}
+		log.error(frame)
+		return frame
 
 class PongEngine(threading.Thread):
-	TICK_RATE = 1 / 30  # 60 tick per second
+	TICK_RATE = 1 / 30  # 30 tick per second
 	MAX_SCORE = 3
 
 	def __init__(self, group_name, **kwargs):
@@ -183,6 +164,7 @@ class PongEngine(threading.Thread):
 		self.key_lock = threading.Lock()
 		self.game_on = False
 		self.ready_players = set()
+		self.online_players = 0
 		self.score = 0
 
 	def run(self):
@@ -206,11 +188,9 @@ class PongEngine(threading.Thread):
 	async def game_loop(self):
 		try:
 			while len(self.ready_players) < 2:
-				log.error(len(self.ready_players))
 				await asyncio.sleep(1)
 			await self.broadcast_countdown()
 			while self.game_on:
-				# log.error("Game %s is on!!", self.name)
 				self.state = self.tick()
 				await self.broadcast_state()  # Directly await the async function
 				if self.state.player_left.score >= self.MAX_SCORE or self.state.player_right.score >= self.MAX_SCORE:
@@ -230,9 +210,20 @@ class PongEngine(threading.Thread):
 
 	async def broadcast_state(self):
 		state_json = self.state.render()
-		# log.error("Broadcasting state: %s", state_json)
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "game_update", "state": state_json}
+			self.group_name, {"type": "game.update", "state": state_json}
+		)
+	
+	async def broadcast_starting_state(self):
+		self.online_players += 1
+		log.error(f"number on online players : {self.online_players}")
+		if self.online_players < 2:
+			return
+		log.error("rendering starting state")
+		state_json = self.state.render()
+		log.error("Broadcasting starting state: %s", state_json)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "game_init", "state": state_json}
 		)
 	
 	async def broadcast_countdown(self):
@@ -349,11 +340,9 @@ class PongEngine(threading.Thread):
 
 		if self.state.player_left is None:
 			self.state.player_left = Player(playerid=playerid)
-			await self.state.player_left.set_playername()
 			self.state.player_left.player_left = True
 		elif self.state.player_right is None:
 			self.state.player_right = Player(playerid=playerid)
-			await self.state.player_right.set_playername()
 			self.state.player_right.player_left = False
 		else:
 			log.error("Game is full, player %s cannot join", playerid)
