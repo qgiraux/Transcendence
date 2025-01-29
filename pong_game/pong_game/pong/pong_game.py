@@ -15,8 +15,8 @@ import httpx
 
 log = logging.getLogger(__name__)
 
-PADDLE_SPEED = 3 # 3 / canvasheight per tick
-BALL_SPEED = 2.5 # 2.5 / canvaswidth per tick
+PADDLE_SPEED = 2 # 3 / canvasheight per tick
+BALL_SPEED = 1.25 # 2.5 / canvaswidth per tick
 
 @unique
 class Direction(Enum):
@@ -150,7 +150,7 @@ class State:
 		return frame
 
 class PongEngine(threading.Thread):
-	TICK_RATE = 1 / 30  # 30 tick per second
+	TICK_RATE = 1 / 60  # 30 tick per second
 	MAX_SCORE = 3
 
 	def __init__(self, group_name, **kwargs):

@@ -26,7 +26,12 @@ SECRET_KEY = os.environ.get('W3T_SECRET_KEY', '')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['tournament', '.localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'tournament',
+    '.localhost',
+    '127.0.0.1',
+    '*',
+    ]
 
 
 # Application definition
