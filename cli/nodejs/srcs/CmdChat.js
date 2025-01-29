@@ -1,4 +1,4 @@
-const {JWTCmd} = require("./JWTCmd");
+const {CmdJWT} = require("./CmdJWT");
 const {Localization} = require("./Localization");
 const WebSocket = require('ws'); //npm install ws
 const {HttpsClient} = require("./HttpsClient");
@@ -40,8 +40,6 @@ class ChatMessage {
 		/** @type {Number} */
 		this.sender = data.sender;
 	}
-
-	//save:\x1b[s restore:\x1b[u
 
 	/**
 	 * @param {"chat" | "notification" | "invite" | "GOTO" | String} type
@@ -88,13 +86,14 @@ class ChatMessage {
 	//`/api/users/userinfo/${sender}`
 }
 
-class CmdChat extends JWTCmd {
+class CmdChat extends CmdJWT {
 	constructor() {
-		super((jwt)=>{this.onLogin(jwt);});
+		super((jwt)=>{this.#onLogin(jwt);});
 		this.name = "chat";
 		this.description = "Enter chat, get easy access to the API and WS endpoints.";
-		this.setUsage("pong-cli chat"); //
+		this.setUsage("pong-cli chat");
 		this.nicknames = {};
+		this.blocklist = [];
 		this.me = -1;
 		this.editor = undefined;
 		this.ws = undefined;
@@ -110,11 +109,11 @@ class CmdChat extends JWTCmd {
 			+ "\x1b[1m" + "!block <userId>" + "\x1b[0m " + "Blocks user\n"
 			+ "\x1b[1m" + "!unblock <userId>" + "\x1b[0m " + "Unblocks user\n"
 			+ "\x1b[1m" + "!invite <userId> <game>" + "\x1b[0m " + "Invite user to a game\n"
-			+ "\x1b[1m" + "!profile <userId>" + "\x1b[0m " + "View user profile\n"
-			+ "\x1b[1m" + "!api get <path>" + "\x1b[0m " + "Send Get Http Request to Pong Endpoints\n"
-			+ "\x1b[1m" + "!api post <path> <json>" + "\x1b[0m " + "Send Post Http Request to Pong Endpoints\n"
+			+ "\x1b[1m" + "!profile [<userId>]" + "\x1b[0m " + "View user profile\n"
+			+ "\x1b[1m" + "!api get <path>" + "\x1b[0m " + "Send Get Https Request to Pong Endpoints\n"
+			+ "\x1b[1m" + "!api post <path> <json>" + "\x1b[0m " + "Send Post Https Request to Pong Endpoints\n"
 			+ "\x1b[1m" + "!ws [chat | invite | <type>] [user_<userId> | global_chat | <group>] <message>" + "\x1b[0m " + "Send WS message\n"
-			+ "\x1b[1m" + "!!<message>" + "\x1b[0m " + "Sends !<message>\n"
+			+ "\x1b[1m" + "!![<message>]" + "\x1b[0m " + "Sends ![<message>]\n"
 			+ "\x1b[1m" + "!exit" + "\x1b[0m " + "Leave Chat\n"
 			+ "_____________________________________________________________________________________________\n"
 		;
@@ -126,11 +125,46 @@ class CmdChat extends JWTCmd {
 	}
 
 	#block(words) {
-		; //#TODO
+		if (!words || "block" != words[0]) {
+			;
+		} else if (!words[1]) {
+			CmdChat.writeSystem(`missing <userId>'\n`);
+		} else {
+			const userId = Number(words[1]);
+
+			if (userId == this.me) {
+				;
+			} else {
+				if (false == this.blocklist.includes(userId))
+					this.blocklist.push(userId);
+				HttpsClient.reqWithJwt(
+					HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/friends/blocks/addblock/"}), 
+					JSON.stringify({id: userId}), 
+					(ret)=>{CmdChat.#writeResponse(ret)},
+					this.jwt, (access) => {this.jwt.access = access}
+				);
+			}
+		}
 	}
 
 	#unblock(words) {
-		; //#TODO
+		if (!words || "unblock" != words[0]) {
+			;
+		} else if (!words[1]) {
+			CmdChat.writeSystem(`missing <userId>'\n`);
+		} else {
+			const userId = Number(words[1]);
+			const index = this.blocklist.indexOf(userId);
+
+			if (-1 != index > -1)
+				this.blocklist.splice(index, 1);
+			HttpsClient.reqWithJwt(
+				HttpsClient.setUrlInOptions(this.host, {method: "DELETE", path: "/api/friends/blocks/removeblock/"}), 
+				JSON.stringify({id: userId}), 
+				(ret)=>{CmdChat.#writeResponse(ret)},
+				this.jwt, (access) => {this.jwt.access = access}
+			);
+		}
 	}
 
 	#invite(words) {
@@ -145,7 +179,30 @@ class CmdChat extends JWTCmd {
 	}
 
 	#profile(words) {
-		; //#TODO
+		if (!words || "profile" != words[0])
+			return ;
+		const userId = (words[1]) ? Number(words[1]) : Number(this.me);
+		let profile = {};
+
+		const updateProfile = (ret, field) => {
+			if (HttpsClient.isStatusOk(ret.statusCode))
+				profile[field] = ret.message;
+			else
+				profile[field] = "/";
+			if (profile.userinfo && profile.userstats)
+				process.stdout.write(`${JSON.stringify(profile, null, " ")}\n`);
+		}
+		const getField = (field) => {
+			HttpsClient.reqWithJwt(
+				HttpsClient.setUrlInOptions(this.host, {method: "GET", path: `/api/users/${field}/${userId}`}), 
+				null, 
+				(ret)=>{updateProfile(ret, field)}, 
+				this.jwt, (access) => {this.jwt.access = access}
+			);
+		};
+
+		getField("userinfo");
+		getField("userstats");
 	}
 
 	#unknown(words) {
@@ -161,13 +218,18 @@ class CmdChat extends JWTCmd {
 			return ;
 		}
 		if ("get" == words[1]) {
-			HttpsClient.get(`https://${this.host}/${words[2]}`, (ret)=>{CmdChat.writeSystem(`${JSON.stringify(ret)}\n`)}, this.jwt);
+			HttpsClient.reqWithJwt(
+				HttpsClient.setUrlInOptions(this.host, {method: "GET", path: words[2]}), 
+				null, 
+				(ret)=>{CmdChat.#writeResponse(ret)}, 
+				this.jwt, (access) => {this.jwt.access = access}
+			);
 		} else if ("post" == words[1]) {
-			HttpsClient.post(
-				HttpsClient.setUrlInOptions(this.host, {path: words[2]}),
-				words.slice(3).join(" "),
-				(ret)=>{CmdChat.writeResponse(ret)},
-				this.jwt
+			HttpsClient.reqWithJwt(
+				HttpsClient.setUrlInOptions(this.host, {method: "POST", path: words[2]}), 
+				words.slice(3).join(" "), 
+				(ret)=>{CmdChat.#writeResponse(ret)}, 
+				this.jwt, (access) => {this.jwt.access = access}
 			);
 		} else {
 			CmdChat.writeSystem(`unknown command 'api ${words[1]}'\n`);
@@ -181,7 +243,7 @@ class CmdChat extends JWTCmd {
 			CmdChat.writeSystem(`missing or incorrect <type> or <group>\n`);
 			return ;
 		}
-		const message = (!!words[3]) ? words[3] : "";
+		const message = (!!words[3]) ? words.slice(3).join(" ") : "";
 
 		this.ws.send(ChatMessage.toJsonString(words[1], message, words[2], -1));
 	}
@@ -190,7 +252,10 @@ class CmdChat extends JWTCmd {
 		const user = words[1];
 
 		if (!user)
+		{
+			CmdChat.writeSystem(`missing <userId>\n`);
 			return ;
+		}
 		const message = words.slice(2).join(" ");
 		const dest = this.nicknames[user];
 
@@ -229,10 +294,10 @@ class CmdChat extends JWTCmd {
 			(w)=>{this.#unknown(w)},
 			(w)=>{this.#help()},
 			(w)=>{this.#direct(w)},
-			(w)=>{this.#block(w)}, //#TODO
-			(w)=>{this.#unblock(w)}, //#TODO
-			(w)=>{this.#invite(w)}, //#TODO
-			(w)=>{this.#profile(w)}, //#TODO
+			(w)=>{this.#block(w)},
+			(w)=>{this.#unblock(w)},
+			(w)=>{this.#invite(w)},
+			(w)=>{this.#profile(w)},
 			(w)=>{this.#api(w)},
 			(w)=>{this.#ws(w)},
 			(w)=>{this.#exit()},
@@ -259,15 +324,14 @@ class CmdChat extends JWTCmd {
 		process.stdout.write(`info: ${message}`);
 	}
 
-
-	static writeResponse(jsonResponse) {
+	static #writeResponse(jsonResponse) {
 		if (typeof jsonResponse != "object") {
 			process.stdout.write(String(jsonResponse));
 			return ;
 		}
 		let pretty = new String("Status code: ");
 
-		if (300 > jsonResponse.statusCode && 200 <= jsonResponse.statusCode)
+		if (HttpsClient.isStatusOk(jsonResponse.statusCode))
 			pretty += `\x1b[32m`;
 		else
 			pretty += `\x1b[31m`;
@@ -326,15 +390,35 @@ class CmdChat extends JWTCmd {
 	}
 
 	getUserInfo(user, callback=console.log) {
-		HttpsClient.get(`https://${this.host}/api/users/userinfo/${user}`, callback, this.jwt);
+		HttpsClient.reqWithJwt(
+			HttpsClient.setUrlInOptions(this.host, {method: "GET", path: `/api/users/userinfo/${user}`}), 
+			null, callback, this.jwt, (access) => {this.jwt.access = access}
+		);
 	}
 
-	onLogin(jwt) {
-		CmdChat.writeSystem(`Connecting to host...\n`);
-		this.ws = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
-		this.ws.on('error', console.error);
-		this.ws.on('open', () => {this.onOpen()});
-		this.ws.on('message', (data) => {this.onMessage(data);});
+	#onBlocklist(ret) {
+		if (false == HttpsClient.isStatusOk(ret.statusCode)) {
+			CmdChat.#writeResponse(ret);
+			return ;
+		} else {
+			this.blocklist = ret.message.blocks;
+			CmdChat.writeSystem(`Connecting to host via Websocket...\n`);
+			this.ws = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + this.jwt.access);
+			this.ws.on('error', console.error);
+			this.ws.on('open', () => {this.onOpen()});
+			this.ws.on('message', (data) => {this.onMessage(data);});
+		}
+	}
+
+	#onLogin(jwt) {
+		CmdChat.writeSystem(`Obtaining block list...\n`);
+		HttpsClient.reqWithJwt(
+			HttpsClient.setUrlInOptions(this.host, {method: "GET", path: "/api/friends/blocks/blockslist/"}), 
+			null, 
+			(ret) => {this.#onBlocklist(ret)}, 
+			jwt, 
+			(access) => {this.jwt.access = access}
+		);
 	}
 
 	onError() {
@@ -355,19 +439,23 @@ class CmdChat extends JWTCmd {
 	}
 
 	onOpen() {
-		HttpsClient.get(`https://${this.host}/api/users/userinfo/`, (ret)=>{
-			if (200 == ret.statusCode) {
-				const nickname_ = ret.message.nickname;
-
-				this.me = ret.message.id;
-				this.nicknames[String(this.me)] = nickname_;
-				CmdChat.writeSystem(`Your nickname is ${nickname_}\n`);
-				CmdChat.writeSystem(CmdChat.#getHelp());
-				this.openEditor();
-			} else {
-				process.stderr.log(JSON.stringify(ret));
-			}
-		}, this.jwt);
+		HttpsClient.reqWithJwt(
+			HttpsClient.setUrlInOptions(this.host, {method: "GET", path: "/api/users/userinfo/"}), 
+			null, 
+			(ret) => {
+				if (HttpsClient.isStatusOk(ret.statusCode)) {
+					const nickname_ = ret.message.nickname;
+	
+					this.me = ret.message.id;
+					this.nicknames[String(this.me)] = nickname_;
+					CmdChat.writeSystem(`Your nickname is ${nickname_}\n`);
+					CmdChat.writeSystem(CmdChat.#getHelp());
+					this.openEditor();
+				} else {
+					process.stderr.log(JSON.stringify(ret));
+				}
+			}, this.jwt, (access) => {this.jwt.access = access}
+		);
 	}
 
 	onGet(ret) {
@@ -384,6 +472,8 @@ class CmdChat extends JWTCmd {
 			return ;
 		}
 		if (false === ChatMessage.isValid(data_)) {
+			return ;
+		} else if (this.me != data_.sender && this.blocklist.includes(data_.sender)) {
 			return ;
 		} else if (!this.editor || "" == this.editor.text) {
 			this.writeChat(data_);

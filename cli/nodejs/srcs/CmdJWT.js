@@ -23,7 +23,7 @@ const TLK_PROMPT_LOGIN = "cli.prompt.login";
 //const TLK_API_SIGNUP = "api.signup";
 const TL_API_LOGIN = "/api/users/login/";
 
-class JWTCmd extends Command {
+class CmdJWT extends Command {
 	constructor(onLoggedin = (jwt)=>{console.log(JSON.stringify(jwt))},
 		beforeLogin = () => {return 0},
 		usage = ""
@@ -79,6 +79,15 @@ class JWTCmd extends Command {
 		process.stderr.write(`\x1b[31m${l.t(TLK_SYS_ERR)}: ${text}\x1b[0m\n`);
 	}
 
+	// retryRefreshJwt(getOptions, retryCallback, onFailure) {
+	// 	HttpsClient.refreshJwt(
+	// 		getOptions, 
+	// 		this.jwt, 
+	// 		(jwt) => {this.jwt = jwt; retryCallback()}, 
+	// 		onFailure
+	// 	)
+	// }
+
 	#stepJWT(ret){
 		const statusCode = Number(ret.statusCode);
 
@@ -88,7 +97,7 @@ class JWTCmd extends Command {
 			this.onLoggedin(this.jwt); //
 		}
 		else
-			JWTCmd.#printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
+			CmdJWT.#printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
 	}
 
 	#stepAPILogin(){	
@@ -100,7 +109,7 @@ class JWTCmd extends Command {
 			this.editor.stop();
 			this.editor = undefined;
 		} else if (2 != hostInfo.length) {
-			JWTCmd.#printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
+			CmdJWT.#printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
 			this.password = "";
 			return ;
 		}	
@@ -147,8 +156,8 @@ class JWTCmd extends Command {
 }
 
 module.exports = {
-	"JWTCmd": JWTCmd
+	"CmdJWT": CmdJWT
 }
 
-// const r = new JWTCmd();
+// const r = new CmdJWT();
 // r.parser.eval();

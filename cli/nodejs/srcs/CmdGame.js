@@ -1,4 +1,4 @@
-const {JWTCmd} = require("./JWTCmd");
+const {CmdJWT} = require("./CmdJWT");
 const {Localization} = require("./Localization");
 const WebSocket = require('ws'); //npm install ws
 const {HttpsClient} = require("./HttpsClient");
@@ -12,7 +12,7 @@ const {TextBox} = require("./TextBox")
 
 let l = new Localization(); //
 
-class CmdGame extends JWTCmd {
+class CmdGame extends CmdJWT {
 	constructor() {
 		super((jwt)=>{this.#onLogin(jwt)}, () => {return this.checkCanvas()}, "node pong-cli game");
 		this.name = "game";
@@ -25,19 +25,22 @@ class CmdGame extends JWTCmd {
 		this.pongCanvas = undefined;
 		this.tournament = String(Date.now()); //
 		this.newTournament = false;
-		this.description = "Play Pong."; //
+		this.description = "Play Pong using keyborad arrows. Create or join tournaments."; //
+		this.players = 2;
 		this.parser.addOptions([
 			"[--width=<width>]", 
 			"[--height=<height>]",
 			"[--display=<width:height>]",
 			"[--tournament=<tournament>]",
-			"[--create]"
+			"[--create]",
+			"[--players=<num_players>]",
 		],[
 			(match) => {this.width = Number(Parser.getOptionValue(match))}, 
 			(match) => {this.height = Number(Parser.getOptionValue(match))},
 			(match) => {this.dar = Parser.getOptionValue(match)},
 			(match) => {this.tournament = Parser.getOptionValue(match)},
-			() => {this.newTournament = true}
+			() => {this.newTournament = true},
+			(match) => {this.players = Number(Parser.getOptionValue(match))},
 		]);
 		this.mirror = false;
 		this.controller = new Controller();
@@ -117,7 +120,7 @@ class CmdGame extends JWTCmd {
 		if (true == this.newTournament) {
 			HttpsClient.post(
 				HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/create/"}),
-				JSON.stringify({name: this.tournament, size: 2}),
+				JSON.stringify({name: this.tournament, size: this.players}),
 				(ret) => {this.#onTournament(ret)},
 				this.jwt
 			);
