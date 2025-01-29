@@ -56,51 +56,6 @@ class PongGame {
         }
     }
 
-    drawPaddle(paddle) {
-        this.ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-        this.ctx.shadowBlur = 10;
-        this.ctx.shadowOffsetX = 4;
-        this.ctx.shadowOffsetY = 4;
-        let gradient = this.ctx.createLinearGradient(paddle.x, paddle.y, paddle.x, paddle.y + paddle.height);
-        gradient.addColorStop(0, "lightgrey");
-        gradient.addColorStop(0.5, "lightblue");
-        gradient.addColorStop(1, "lightgrey");
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
-        this.ctx.shadowColor = "transparent";
-    }
-
-    drawScore() {
-        this.ctx.fillStyle = "black";
-        this.ctx.fillRect((this.canvas.width / 4) - 7, 25, 30, 30);
-        this.ctx.fillRect((this.canvas.width / 4) * 3 - 7, 25, 30, 30);
-
-        this.ctx.font = "30px Audiowide";
-        this.ctx.fillStyle = "#ff4632";
-
-        this.ctx.shadowColor = "#ff4632"
-        this.ctx.shadowBlur = 10;
-        this.ctx.fillText(this.score1, (this.canvas.width / 4), 50);
-        this.ctx.fillText(this.score2, (this.canvas.width / 4) * 3, 50);
-        this.ctx.shadowColor = "transparent";
-    }
-
-    drawBall() {
-        let gradient = this.ctx.createRadialGradient(this.ball.x, this.ball.y, this.ball.radius / 4, this.ball.x, this.ball.y, this.ball.radius);
-        gradient.addColorStop(0, "lightblue");
-        gradient.addColorStop(1, "lightgrey");
-        this.ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-        this.ctx.shadowBlur = 10;
-        this.ctx.shadowOffsetX = 4;
-        this.ctx.shadowOffsetY = 4;
-        this.ctx.fillStyle = gradient;
-        this.ctx.beginPath();
-        this.ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.closePath();
-        this.ctx.shadowColor = "transparent";
-    }
-
     movePaddles() {
         if (this.commands.up == 1)
             this.paddle2.y = Math.max(this.paddle2.y - this.paddle2.dy, 0);
