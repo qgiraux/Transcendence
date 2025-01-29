@@ -79,7 +79,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         content = json.loads(text_data)
         msg_type = content.get("type")
         msg_data = content.get("data")
-        log.error("Received message: %s", msg_data)
+        log.error("Received message: %s -- %s", msg_type, msg_data)
         match msg_type:
             case "join":
                 await self.join(msg_data)
@@ -89,8 +89,9 @@ class PlayerConsumer(AsyncWebsocketConsumer):
                 await self.create(msg_data)
             case "ready":
                 await self.ready()
-            case "infos":
-                await self.infos()
+            case "online":
+                await self.online()
+
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
@@ -110,8 +111,17 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             return
         log.error("User %s is ready", self.user_id)
         self.pong[self.game_name].engine.player_ready(self.user_id)
-        # await self.send(text_data=json.dumps({"type": "received"}))
     
+    async def online(self):
+        if not self.user_id:
+            log.error("User not correctly joined")
+            return
+        log.error("User %s is online", self.user_id)
+        if self.game_name in self.pong:
+            await self.pong[self.game_name].engine.broadcast_starting_state()
+        else:
+            log.error("Game %s not found", self.game_name)
+
     async def game_update(self, event):
         # log.error("Game update: %s", event)
         state = event["state"]
@@ -119,6 +129,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     
     async def countdown(self, event):
+        # log.error("Game update: %s", event)
+        await self.send(text_data=json.dumps(event))
+    
+    async def game_init(self, event):
         # log.error("Game update: %s", event)
         await self.send(text_data=json.dumps(event))
     

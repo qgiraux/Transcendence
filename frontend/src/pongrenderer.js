@@ -60,7 +60,6 @@ class PongRenderer {
     drawStartMessage(paddle1, paddle2, player1, player2) {
         console.log("drawStartMessage", player1, player2);
         this.clearCanvas();
-        this.drawNames(player1, player2);
         this.drawScore(0, 0);
         this.drawPaddle(paddle1);
         this.drawPaddle(paddle2);
@@ -68,6 +67,7 @@ class PongRenderer {
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "white";
         this.ctx.fillText("press space to start", this.canvas.width / 2, this.canvas.height / 2);
+        this.drawNames(player1, player2);
     }
 
     drawCountdownMessage(paddle1, paddle2, score1, score2, count, player1, player2) {
