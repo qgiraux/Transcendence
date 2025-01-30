@@ -16,13 +16,15 @@ class HomeView extends AbstractView {
   }
 
   async init() {
+    console.log(Application.lang);
+    await Application.loadLocalization();
     await Application.setLanguage(Application.lang);
     await this.getMessages();
+    // await Application.applyTranslations();
     this.onStart();
   }
 
   async getMessages() {
-    await Application.loadLocalization();
     //  console.log("Translation is loaded ");
     this.domText.Title = await Application.localization.t("titles.home");
     this.domText.welcomeMessage = await Application.localization.t("home.welcome");
@@ -39,7 +41,7 @@ class HomeView extends AbstractView {
         await Application.setLanguage(selectedLanguage);
         await this.getMessages(); 
         await Application.applyTranslations();
-        this.setHtml();
+        this._setHtml();
       });
     }
   }
@@ -49,6 +51,8 @@ class HomeView extends AbstractView {
       Router.reroute("/landing");
     } else {
       this._setHtml();
+      this.listenForLanguageChange();
+
     }
     if (Application.mainSocket) {
       console.log("WebSocket connection already established.");

@@ -42,6 +42,21 @@ class BlocksView extends AbstractView {
     
   }
 
+
+  listenForLanguageChange() {
+    const languageSelector = document.getElementById("language-selector-container");
+    if (languageSelector) {
+      this.addEventListener(languageSelector, "change", async (event) => {
+        const selectedLanguage = event.target.value;
+        console.log(selectedLanguage);
+        await Application.setLanguage(selectedLanguage);
+        await this.loadMessages(); 
+        await Application.applyTranslations();
+        this._setHtml();
+      });
+    }
+  }
+
   onStart() {
     this._setTitle("Blocks");
     if (Application.getAccessToken() === null) {
@@ -95,6 +110,8 @@ class BlocksView extends AbstractView {
       "hide.bs.modal",
       this._modalSafeClose.bind(this)
     );
+    this.listenForLanguageChange();
+
   }
 
   // safely removing focus form the modal when it closes - accessibility issue

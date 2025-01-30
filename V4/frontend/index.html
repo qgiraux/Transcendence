@@ -36,13 +36,21 @@
         
             <div class="d-flex align-items-center ms-auto">
                 <div class="dropdown me-3">
-                    <button class="btn btn-link dropdown-toggle p-0" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" data-i18n="sidebar.profile">="/profile">View Profile</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" data-i18n="sidebar.friends">Friends List</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" data-i18n="sidebar.blocks">Blocking List</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/switch-language">Switch to French</a></li>
-                    </ul>
+
+                        <button class="btn btn-link dropdown-toggle p-0" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+                            <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/profile" data-18n="sidebar.profile">View Profile</a></li>
+                            <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/friends" data-18n="sidebar.friends">Friends List</a></li>
+                            <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks" data-18n="sidebar.blocks">Blocking List</a></li>
+                            <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/switch-language" data-18n="profile.switch_language">Switch to French</a></li>
+                        </ul>
+                    </div>
+                    
+                    <a class="btn btn-link p-0" href="/logout" data-18n="sidebar.logout"><i class="bi bi-box-arrow-right"></i></a>
+                    
+                    
 
 <!-- 
             <div class="d-flex align-items-center ms-auto">
@@ -54,12 +62,12 @@
                     <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks">Blocking List</a></li>
                     <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/switch-language">Switch to French</a></li>
                     </ul> -->
- 
+<!--  
                 </div>
 
             </div>
 
-            <a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+            <a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a> -->
         </div>
     </nav>
 

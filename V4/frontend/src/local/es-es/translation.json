@@ -1,5 +1,12 @@
 {
-    "titles": {
+  "sidebar": {
+    "logout": "Cerrar sesión",
+    "profile": "Perfil",
+    "friends": "Amigos",
+    "blocks": "Lista de bloqueados",
+    "tournaments": "Torneos"
+  },  
+  "titles": {
       "home": "Inicio",
       "profile": "Perfil",
       "friends": "Amigos",

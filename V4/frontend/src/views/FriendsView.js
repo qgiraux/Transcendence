@@ -46,16 +46,45 @@ class FriendsView extends AbstractView {
   listenForLanguageChange() {
     const languageSelector = document.getElementById("language-selector-container");
     if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log(selectedLanguage);
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages(); 
-        // await Application.applyTranslations();
-        this.setHtml();
-      });
+        this.addEventListener(languageSelector, "change", async (event) => {
+            const selectedLanguage = event.target.value;
+            console.log("Changement de langue détecté :", selectedLanguage);
+
+            await Application.setLanguage(selectedLanguage);
+            await this.loadMessages();
+            await Application.applyTranslations();
+
+            this._setHtml();
+            await this._refreshFriendsList();
+            this,this._rebindEventListeners();
+        });
     }
-  }
+}
+
+_rebindEventListeners() {
+  this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
+  this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
+  this.addEventListener(document.querySelector("#searchInput"), "click", this._updateDropdown.bind(this));
+  this.addEventListener(document.querySelector("#dropdownMenu"), "click", this._dropDownClickHandler.bind(this));
+  this.addEventListener(document.querySelector("#add-friend-button"), "click", this._addFriend.bind(this));
+  this.addEventListener(document.getElementById("UserSelectModal"), "hide.bs.modal", this._modalSafeClose.bind(this));
+}
+
+
+
+  // listenForLanguageChange() {
+  //   const languageSelector = document.getElementById("language-selector-container");
+  //   if (languageSelector) {
+  //     this.addEventListener(languageSelector, "change", async (event) => {
+  //       const selectedLanguage = event.target.value;
+  //       console.log(selectedLanguage);
+  //       await Application.setLanguage(selectedLanguage);
+  //       await this.loadMessages(); 
+  //       await Application.applyTranslations();
+  //       this._setHtml();
+  //     });
+  //   }
+  // }
 
   onStart() {
     this._setTitle("Friends");
@@ -66,6 +95,7 @@ class FriendsView extends AbstractView {
       return;
     }
     Avatar.getUUid();
+    this.listenForLanguageChange();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
         this.userList = result;
@@ -110,7 +140,6 @@ class FriendsView extends AbstractView {
       "hide.bs.modal",
       this._modalSafeClose.bind(this)
     );
-    this.listenForLanguageChange();
   }
 
   // safely removing focus form the modal when it closes - accessibility issue

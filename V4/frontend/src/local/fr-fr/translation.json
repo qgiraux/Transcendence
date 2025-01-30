@@ -1,5 +1,12 @@
 {
-    "titles": {
+  "sidebar": {
+    "logout": "Se déconnecter",
+    "profile": "Profil",
+    "friends": "Amis",
+    "blocks": "Liste des blocs",
+    "tournaments": "Tournois"
+  },  
+  "titles": {
       "home": "Accueil",
       "profile": "Profil",
       "friends": "Amis",

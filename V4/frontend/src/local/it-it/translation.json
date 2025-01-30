@@ -1,5 +1,12 @@
 {
-    "titles": {
+  "sidebar": {
+    "logout": "Esci",
+    "profile": "Profilo",
+    "friends": "Amici",
+    "blocks": "Lista dei bloccati",
+    "tournaments": "Tornei"
+  },  
+  "titles": {
       "home": "Home",
       "profile": "Profilo",
       "friends": "Amici",
