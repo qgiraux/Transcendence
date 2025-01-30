@@ -18,9 +18,19 @@ class ErrorView extends AbstractView {
       pm += String(key) + " : " + this.params[key] + "<br>";
     }
     if (container) {
-      container.innerHTML = `<h1>Oh Oh : 404 Not found !</h1>
-					<p>The url is ${location.pathname} </p>
-					params<br> ${pm} </p>
+      container.innerHTML = `
+
+		<div class="container d-flex flex-column align-items-center justify-content-center vh-100 text-center">
+				<h1 class="display-1 fw-bold text-danger">404</h1>
+				<img src="/img/404.jpg" alt="Error 404" class="img-fluid" style="max-width: 300px;">
+				<p class="mt-3 fs-5 text-white">Sorry the page you're looking for doesn't't exist.</p>
+				<p class="mt-3 fs-5 text-white">Path:  ${location.pathname}</p>
+				<p class="mt-3 fs-5 text-white">Dynamic parameters:  ${pm}</p>
+				<a href="/home" data-link class="btn btn-primary mt-3">Back to Home</a>
+			</div>
+
+
+
 					`;
     }
   }
