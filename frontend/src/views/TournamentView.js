@@ -21,25 +21,27 @@ class TournamentsView extends AbstractView {
       }, 50);
       return;
     }
-    //internal state toggle
-    this.panel_status = 0;
+    //internal state variables
+    this.panel_status = 0; // toggle for the panel open/in progress/ finished
+    this.joined = false; // did the user already joined a tournament
 
     this._setHtml();
+
     TRequest.request("GET", "/api/friends/friendslist/")
       .then((result) => {
-        this.friends = result;
+        return result["friends"];
       })
-      .catch((error) => {
-        Alert.errorMessage(
-          "Tournament",
-          "An error has occured. Please try again later"
-        );
-      });
-
-    TRequest.request("GET", "/api/tournament/list/")
+      .then((friends) => {
+        return this.fetchFriendsDetails(friends);
+      })
+      .then((details) => {
+        this.friendsDetails = details;
+      })
+      .then(() => {
+        return TRequest.request("GET", "/api/tournament/list/");
+      })
       .then((result) => {
-        // return this.fetchTournamentDetails(result["tournaments"]);
-        return this.fetchTournamentDetails(["tournoi1"]); //placeholder
+        return this.fetchTournamentDetails(result["tournaments"]);
       })
       .then((tournaments) => {
         this.tournaments = tournaments;
@@ -47,10 +49,15 @@ class TournamentsView extends AbstractView {
       .then(() => {
         this.refreshPanel();
         Avatar.refreshAvatars();
+      })
+      .catch((error) => {
+        Alert.errorMessage(
+          `Something went wrong : ${error}`,
+          `Please try again later `
+        );
       });
-    //   .catch((error) => {
-    //     Alert.errorMessage("Something went wrong", "Please try again later");
-    //   });
+
+    // Event listeners
     const btnStatus0 = document.querySelector("#status-0");
     const btnStatus1 = document.querySelector("#status-1");
     const btnStatus2 = document.querySelector("#status-2");
@@ -75,108 +82,36 @@ class TournamentsView extends AbstractView {
     const panel = document.getElementById("active-panel");
     if (!panel) return;
     panel.innerHTML = "";
-    const tournaments = this.tournaments.filter((tournament) => {
+    const selectedTournaments = this.tournaments.filter((tournament) => {
       return tournament["status"] === this.panel_status;
     });
     switch (this.panel_status) {
       case 0:
-        tournaments.forEach((tournament) => {
+        selectedTournaments.forEach((tournament) => {
+          if (
+            tournament["players"].includes(Application.getUserInfos().userId)
+          ) {
+            this.joined = true;
+          }
+        });
+        if (!this.joined) panel.appendChild(this.createNewTournamentPanel());
+        selectedTournaments.forEach((tournament) => {
           panel.appendChild(this.createOpenTournamentCard(tournament));
         });
         break;
       case 1:
-        tournaments.forEach((tournament) => {
-          panel.appendChild(this.createEightPlayersTournamentCard(tournament));
-          panel.appendChild(this.createEightPlayersTournamentCard(tournament));
+        selectedTournaments.forEach((tournament) => {
+          panel.appendChild(this.createTournamentCard(tournament));
         });
         break;
       case 2:
-        tournaments.forEach((tournament) => {
-          panel.appendChild(this.createOpenTournamentCard(tournament));
+        selectedTournaments.forEach((tournament) => {
+          panel.appendChild(this.createTournamentCard(tournament));
         });
         break;
     }
   }
 
-  _createAvatarImg(player) {
-    const img = document.createElement("img");
-    img.setAttribute("data-avatar", player);
-    img.src = "/api/avatar/picture/5f9e0fc9-fbdf-4196-88b3-3dc8770b97e3/";
-    img.width = 30;
-    img.height = 30;
-    img.setAttribute("data-link", "");
-    img.href = `/profile/${player}`;
-    img.classList.add("rounded-circle");
-    return img;
-  }
-
-  createOpenTournamentCard(tournament) {
-    const card = document.createElement("div");
-    card.classList.add("row");
-    card.classList.add("p-1");
-    card.innerHTML = `
-		<div class="row p-1">
-			<div class="card mx-auto col-9 bg-dark text-white border border-secondary rounded">
-				<div class="card-body d-flex">
-					<div class="content w-75">
-						<h4 class="card-title"></h4>
-						<div class="d-flex  gap-2 mt-1" id="players-avatar-1">
-						</div>
-						<div class="d-flex  gap-2 mt-1" id="players-avatar-2">
-						</div>
-					</div>
-					<div class=" w-50 d-flex gap-1 flex-column">
-						<div>
-							<h5 id="place-left" class="text-secondary text-center"> place left</h5>
-						</div>
-						<button type="button" class="btn btn-success  btn-sm">Join</button>
-						<button class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"
-							aria-expanded="false">
-							Invite a friend
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	`;
-    const title = card.querySelector(".card-title");
-    title.textContent = tournament["name"];
-    const placeLeft = card.querySelector("#place-left");
-    placeLeft.textContent = `${
-      tournament["size"] - tournament["players"].length
-    } places left`;
-    const avatars_row1 = card.querySelector("#players-avatar-1");
-    const avatars_row2 = card.querySelector("#players-avatar-2");
-    console.log("players", tournament["players"]);
-    let firstHalf = [];
-    let secondHalf = [];
-    if (tournament["size"] > 4) {
-      firstHalf = tournament["players"].slice(
-        0,
-        Math.ceil(tournament["players"].length / 2)
-      );
-      secondHalf = tournament["players"].slice(
-        Math.ceil(tournament["players"].length / 2)
-      );
-    } else {
-      firstHalf = tournament["players"];
-    }
-
-    firstHalf.forEach((player) => {
-      avatars_row1.appendChild(this._createAvatarImg(player));
-    });
-    secondHalf.forEach((player) => {
-      avatars_row2.appendChild(this._createAvatarImg(player));
-    });
-
-    return card;
-  }
-
-  /*
-  une fonction qui retourne le user id correspondant a la poule et a l'index
-  retourne  otherwise
-
-*/
   getIdfromTournament(tournament, round, index) {
     if (!tournament["rounds"][round]) return 0;
     if (tournament["rounds"][round].length <= index) return 0;
@@ -185,11 +120,211 @@ class TournamentsView extends AbstractView {
 
   getProfileLinkformId(id) {
     if (id === 0) return "";
-    return `href="/profile/${id}"`;
+    return `/profile/${id}`;
   }
-  createEightPlayersTournamentCard(tournament) {
+
+  createNewTournamentPanel() {
+    const link = document.createElement("a");
+    link.href = "/create-tournament";
+    link.text = "Create your own!";
+    link.dataset.link = 1;
+    link.classList.add("text-white", "text-center");
+    const header = document.createElement("div");
+    header.classList.add("row", "rounded", "p-2", "w-75");
+    header.innerHTML = `<h4 class="text-white text-center">Can't find a tournament you like?</h4>`;
+    header.appendChild(link);
+    return header;
+  }
+
+  createAvatarElementFromId(id, size, winner) {
+    const img = document.createElement("img");
+    img.classList.add("rounded", "rounded-circle");
+    if (winner) {
+      img.classList.add(
+        "rounded",
+        "rounded-circle",
+        "border",
+        "border-warning"
+      );
+    }
+    img.width = size;
+    img.height = size;
+    if (id !== 0) {
+      img.src = Avatar.url(id);
+      img.dataset.avatar = id;
+      const link = document.createElement("a");
+      link.dataset.link = 1;
+      link.href = this.getProfileLinkformId(id);
+      link.appendChild(img);
+      return link;
+    } else {
+      img.src = "/img/question_mark_icon.png";
+      return img;
+    }
+  }
+
+  createRoundMatchHTML(tournament, round, indexPlayerOne, indexPlayertwo) {
+    const match = document.createElement("div");
+    match.classList.add(
+      "match",
+      "d-flex",
+      "justify-content-center",
+      "align-items-center",
+      "mb-2",
+      "p-1",
+      "rounded",
+      "bg-primary",
+      "gap-1"
+    );
+    const idPlayerOne = this.getIdfromTournament(
+      tournament,
+      round,
+      indexPlayerOne
+    );
+    const idPlayerTwo = this.getIdfromTournament(
+      tournament,
+      round,
+      indexPlayertwo
+    );
+    match.appendChild(this.createAvatarElementFromId(idPlayerOne, 60, false));
+    return match;
+  }
+
+  createDropdownFriendElement(
+    tournamentName,
+    friendId,
+    friendUserName,
+    friendNickName
+  ) {
+    const li = document.createElement("li");
+    li.dataset.id = friendId;
+    li.dataset.tournament = tournamentName;
+    li.innerHTML = `<a class="dropdown-item text-white" >
+			<img data-avatar="${friendId}" src="${Avatar.url(
+      friendId
+    )}" alt="${friendUserName}" width="20" height="20" class="rounded-circle">
+			${friendNickName}<h6 class="text-secondary">@${friendUserName} </h6></a>`;
+    return li;
+  }
+
+  populateRound(tournament, roundDiv, roundNumber) {
+    if (roundNumber == 1) {
+      roundDiv.appendChild(
+        this.createAvatarElementFromId(
+          this.getIdfromTournament(tournament, "1", 0),
+          90,
+          true
+        )
+      );
+    }
+    let secondPlayer = roundNumber - 1;
+    for (secondPlayer = 1; secondPlayer < roundNumber; secondPlayer += 2) {
+      roundDiv.appendChild(
+        this.createRoundMatchHTML(
+          tournament,
+          String(roundNumber),
+          secondPlayer - 1,
+          secondPlayer
+        )
+      );
+    }
+    return roundDiv;
+  }
+
+  createOpenTournamentCard(tournament) {
+    const card = document.createElement("div");
+    const freeSpots = tournament["size"] - tournament["players"].length;
+    card.classList.add(
+      "w-75",
+      "text-white",
+      "border",
+      "border-secondary",
+      "rounded",
+      "p-3",
+      "bg-dark"
+    );
+    card.dataset.tournament = tournament["tournament name"];
+    card.innerHTML = `
+	<div class="row d-flex justify-content-center">
+		<div class="row d-flex justify-self-center">
+			<div class="col">
+				<h4 class="text-white">${tournament["tournament name"]}
+				<span class="badge bg-success" id="joined-badge" style="display: none;">Joined</span>
+				</h4>
+				<h4 class="text-secondary" id="size">${tournament["size"]} players</h4>
+				<h5 class="text-secondary " id="spot-left">${freeSpots} spot left</h5>
+				<div class="row d-flex justify-content-center justify-self-center mt-2" id="action"></div>
+			</div>
+		<div class="col d-flex flex-column justify-content-center align-items-center gap-2 p-1 border border-secondary rounded "
+			id="players-avatars">
+			<div class="d-flex flex-row gap-2  align-self-center" id="row1">
+			</div>
+			<div class="d-flex flex-row gap-2 align-self-center" id="row2">
+			</div>
+		</div>
+	</div>
+	`;
+
+    const row1Div = card.querySelector("#row1");
+    const row2Div = card.querySelector("#row2");
+    let i = 0;
+    for (; i < 4; i++) {
+      if (i < tournament["players"].length) {
+        row1Div.appendChild(
+          this.createAvatarElementFromId(tournament["players"][i], 60, false)
+        );
+      } else if (i < tournament["size"]) {
+        row1Div.appendChild(this.createAvatarElementFromId(0, 60, false));
+      }
+    }
+    for (; i < tournament["size"]; i++) {
+      if (i < tournament["players"].length) {
+        row2Div.appendChild(
+          this.createAvatarElementFromId(tournament["players"][i], 60, false)
+        );
+      } else {
+        row2Div.appendChild(this.createAvatarElementFromId(0, 60, false));
+      }
+    }
+    const actionDiv = card.querySelector("#action");
+    if (!this.joined) {
+      // add the joined button if no tournament has been joined yet
+      actionDiv.innerHTML = `<button id="btn-join" type="button" class="btn btn-primary w-50
+	  justify-self-center" data-tournament="${tournament["tournament name"]}">Join</button>`;
+    } else if (
+      tournament["players"].includes(Application.getUserInfos().userId)
+    ) {
+      const badge = card.querySelector("#joined-badge");
+      if (badge) {
+        badge.style.display = "inline-block";
+      }
+      actionDiv.innerHTML = `<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Invite a friend
+  </button>
+  			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
+	</div>`;
+      const dropdownMenu = actionDiv.querySelector(".dropdown-menu");
+      this.friendsDetails.forEach((friend) => {
+        dropdownMenu.appendChild(
+          this.createDropdownFriendElement(
+            tournament["tournament name"],
+            friend.id,
+            friend.username,
+            friend.nickname
+          )
+        );
+      });
+    }
+    return card;
+  }
+
+  createTournamentCard(tournament) {
+    let roundNumber = tournament["size"];
+    //create the tournament card div
     const card = document.createElement("div");
     card.classList.add(
+      "tournament",
       "row",
       "bg-dark",
       "text-white",
@@ -199,164 +334,26 @@ class TournamentsView extends AbstractView {
       "p-2",
       "mb-2"
     );
-
     card.innerHTML = `
-			<div class="row mt-1">
-				<h4 class="fw-bold">${tournament["name"]}</h4>
-			</div>
-			<!-- 8 players-->
-			<div class="col  justify-content-center align-items-center p-1">
-				<div
-					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<a data-link ${this.getProfileLinkformId(
-            this.getIdfromTournament(tournament, "8", 0)
-          )}>
-		  <img src="${
-        this.getIdfromTournament(tournament, "8", 0) !== 0
-          ? Avatar.url(this.getIdfromTournament(tournament, "8", 0))
-          : "/img/question_mark_icon.png"
-      }" width="40" height="40" class="rounded rounded-circle"></a>
+				<div class="row mt-1 d-flex  justify-content-center align-items-center mx-auto">
+  				<h4 class="fw-bold">${tournament["name"]}</h4>
+				<div class="row d-flex mx-auto justify-content-center align-items-center p-1" id="rounds-container"></div>
+				`;
+    const roundsContainer = card.querySelector("#rounds-container");
 
-	<a data-link ${this.getProfileLinkformId(
-    this.getIdfromTournament(tournament, "8", 1)
-  )}>
-					<img src="${
-            this.getIdfromTournament(tournament, "8", 1) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "8", 1))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 2"></a>
-				</div>
-				<div
-					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<a data-link ${this.getProfileLinkformId(
-            this.getIdfromTournament(tournament, "8", 2)
-          )}>
-					<img src="${
-            this.getIdfromTournament(tournament, "8", 2) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "8", 2))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 3"></a>
+    for (; roundNumber >= 1; roundNumber = roundNumber / 2) {
+      let roundDiv = document.createElement("div");
+      roundDiv.classList.add(
+        "col",
+        "d-flex",
+        "flex-column",
+        "justify-content-center"
+      );
+      roundDiv.id = `round-${roundNumber}`;
+      roundDiv = this.populateRound(tournament, roundDiv, roundNumber);
+      roundsContainer.appendChild(roundDiv);
+    }
 
-
-					<a data-link ${this.getProfileLinkformId(
-            this.getIdfromTournament(tournament, "8", 3)
-          )}>	<img src="${
-      this.getIdfromTournament(tournament, "8", 3) !== 0
-        ? Avatar.url(this.getIdfromTournament(tournament, "8", 3))
-        : "/img/question_mark_icon.png"
-    }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 4"></a>
-				</div>
-				<div
-					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-				<a data-link ${this.getProfileLinkformId(
-          this.getIdfromTournament(tournament, "8", 4)
-        )}>	<img src="${
-      this.getIdfromTournament(tournament, "8", 4) !== 0
-        ? Avatar.url(this.getIdfromTournament(tournament, "8", 4))
-        : "/img/question_mark_icon.png"
-    }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 5"></a>
-					<a data-link ${this.getProfileLinkformId(
-            this.getIdfromTournament(tournament, "8", 5)
-          )}><img src="${
-      this.getIdfromTournament(tournament, "8", 5) !== 0
-        ? Avatar.url(this.getIdfromTournament(tournament, "8", 5))
-        : "/img/question_mark_icon.png"
-    }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 6"></a>
-				</div>
-				<div
-					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<a data-link ${this.getProfileLinkformId(
-            this.getIdfromTournament(tournament, "8", 6)
-          )}><img src="${
-      this.getIdfromTournament(tournament, "8", 6) !== 0
-        ? Avatar.url(this.getIdfromTournament(tournament, "8", 6))
-        : "/img/question_mark_icon.png"
-    }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 7">
-
-					<a data-link ${this.getProfileLinkformId(
-            this.getIdfromTournament(tournament, "8", 7)
-          )}><img src="${
-      this.getIdfromTournament(tournament, "8", 7) !== 0
-        ? Avatar.url(this.getIdfromTournament(tournament, "8", 7))
-        : "/img/question_mark_icon.png"
-    }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur 8"></a>
-				</div>
-			</div>
-
-
-
-			<!-- 4 players-->
-			<div class="col d-flex flex-column justify-content-center">
-				<div
-					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="${
-            this.getIdfromTournament(tournament, "4", 0) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "4", 0))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur A">
-					<img src="${
-            this.getIdfromTournament(tournament, "4", 1) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "4", 1))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur B">
-				</div>
-				<div
-					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="${
-            this.getIdfromTournament(tournament, "4", 2) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "4", 2))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur C">
-					<img src="${
-            this.getIdfromTournament(tournament, "4", 3) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "4", 3))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Joueur D">
-				</div>
-			</div>
-
-			<!-- 2 players-->
-			<div class="col d-flex flex-column justify-content-center">
-				<div
-					class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded bg-primary gap-1">
-					<img src="${
-            this.getIdfromTournament(tournament, "2", 0) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "2", 0))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Finaliste 1">
-					<img src="${
-            this.getIdfromTournament(tournament, "2", 1) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "2", 1))
-              : "/img/question_mark_icon.png"
-          }" width="40" height="40" class="rounded rounded-circle"
-						alt="Finaliste 2">
-				</div>
-			</div>
-
-			<!-- Winner !-->
-			<div class="col d-flex flex-column justify-content-center">
-				<div class="match d-flex justify-content-center align-items-center mb-2 p-1 rounded ">
-					<img src="${
-            this.getIdfromTournament(tournament, "1", 0) !== 0
-              ? Avatar.url(this.getIdfromTournament(tournament, "1", 0))
-              : "/img/question_mark_icon.png"
-          }" width="90" height="90"
-						class="rounded rounded-circle border border-warning" alt="Vainqueur">
-				</div>
-			</div>
-	`;
     return card;
   }
 
@@ -366,21 +363,28 @@ class TournamentsView extends AbstractView {
         try {
           const response = await TRequest.request(
             "GET",
-            `/api/tournament/details/${name}/`
+            `/api/tournament/details/${name}`
           );
           return response;
         } catch (error) {
-          //   return null;
-          return {
-            /// placeholder
-            name: "my tournament",
-            players: [1, 2, 3, 4, 5, 6, 7],
-            size: 8,
-            status: 1,
-            rounds: {
-              8: [1, 2, 3, 4, 5, 6, 7],
-            },
-          };
+          return null;
+        }
+      })
+    );
+    return details;
+  }
+
+  async fetchFriendsDetails(friends) {
+    const details = await Promise.all(
+      friends.map(async (friend) => {
+        try {
+          const response = await TRequest.request(
+            "GET",
+            `/api/users/userinfo/${friend}`
+          );
+          return response;
+        } catch (error) {
+          return null;
         }
       })
     );
@@ -391,56 +395,24 @@ class TournamentsView extends AbstractView {
     const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `
-				<div class="row ">
 			<div class=" mx-auto" style="max-width: 700px;">
 				<h1 class="text-white text-center mb-5">Tournaments</h1>
 
 				<div class="row">
 					<div class="btn-group mx-auto align-items-center">
-						<button id="status-0" data-status="0" class="btn btn-primary" aria-current="page">Open
+						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">Open
 							tournaments</button>
 						<button id="status-1" data-status="1" class="btn btn-primary">Tournaments in progress</button>
-						<button id="status-2" data-status="2" class="btn btn-primary active">Finished
+						<button id="status-2" data-status="2" class="btn btn-primary">Finished
 							tournaments</button>
 					</div>
 
 				</div>
-				<div class="row  mt-3 p-3 justify-content-center align-items-center  border border-secondary rounded"
-					id="active-panel">
+				<div class="row  mt-3 p-3 gap-3 justify-content-center align-items-center  border border-secondary rounded" id="active-panel">
 						</div>
 			</div>
 				</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 			</div>
-		</div>
 
 
       `;
