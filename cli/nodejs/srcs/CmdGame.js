@@ -126,7 +126,7 @@ class CmdGame extends CmdJWT {
 		);
 	}
 
-	#onOpenJoinTournament() {
+	#onOpenCreateTournament() {
 		if (true == this.newTournament) {
 			HttpsClient.reqWithJwt(
 				HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/create/"}),
@@ -143,7 +143,6 @@ class CmdGame extends CmdJWT {
 		} else {
 			this.#onTournamentJoin();
 		}
-		//this.#startGame();
 	}
 
 	//TODO: make Style class 
@@ -200,7 +199,7 @@ class CmdGame extends CmdJWT {
 		if ("game" == obj.type) {
 			this.wsGame.send(JSON.stringify({
 				type: "join",
-				data: {userId: this.me, name: obj.data.name}
+				data: {userId: this.me, name: obj.message}
 			}));
 		}
 	}
@@ -210,19 +209,14 @@ class CmdGame extends CmdJWT {
 		this.pongCanvas.update();
 		this.#dialog(`Connecting to host...`); //
 		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
-		this.wsGame = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access); //wss://{{host}}/ws/chat/?token={{access}};
-		//this.wsGame = new WebSocket('wss://' + this.host + '/ws/pong/');
-		//this.wsGame = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
-		//console.log('\nwss://' + this.host + '/ws/pong/')
-		//process.exit()
-		this.wsGame.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
-		this.wsGame.on('open', () => {this.#onOpenJoinTournament()});
-		this.wsGame.on('message', (data) => {/*console.log(data);*/ this.#onPongMessage(data)}); //log
-		this.wsChat.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
-		this.wsChat.on('open', () => {this.#onOpenJoinTournament()});
-		this.wsChat.on('message', (data) => {/*console.log(data);*/ this.#onChatMessage(data)}); //log
+		this.wsGame = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
+		this.wsGame.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
+		this.wsGame.on('open', () => {this.#onOpenCreateTournament()});
+		this.wsGame.on('message', (data) => {this.#onPongMessage(data)});
+		this.wsChat = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
+		this.wsChat.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
+		this.wsChat.on('message', (data) => {this.#onChatMessage(data)});
 	}
-
 
 	#onStop() {
 		if (this.wsGame)
