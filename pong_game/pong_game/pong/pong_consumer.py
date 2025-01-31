@@ -49,19 +49,6 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             )
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
-    async def join(self, data):
-        userid = data.get("userid")
-        game_name = data.get("name")
-        self.game_name = game_name
-        self.group_name = f"game_{game_name}"  # Create a unique group name for the game
-        
-        await self.channel_layer.group_add(self.group_name, self.channel_name)
-
-        if game_name not in self.pong:
-            self.pong[game_name] = PongConsumer(self.group_name)
-        await self.pong[game_name].player_join({"userid": userid})
-
-
     async def create(self, data):
         data = data.get("data")
         game_name = data.get("name")
@@ -95,6 +82,18 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
+    async def join(self, data):
+        userid = data.get("userid")
+        game_name = data.get("name")
+        self.game_name = game_name
+        self.group_name = f"game_{game_name}"  # Create a unique group name for the game
+        
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+
+        if game_name not in self.pong:
+            self.pong[game_name] = PongConsumer(self.group_name)
+        await self.pong[game_name].player_join({"userid": userid})
+        
     async def move_paddle(self, data):
         if not self.user_id:
             log.error("User not correctly joined")
