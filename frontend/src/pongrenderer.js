@@ -19,11 +19,11 @@ class PongRenderer {
     }
 
     drawScore(score1, score2) {
-        this.ctx.fillRect((this.canvas.width / 4) - 7, 25, 30, 30);
-        this.ctx.fillRect((this.canvas.width / 4) * 3 - 7, 25, 30, 30);
+        this.ctx.fillRect((this.canvas.width / 4) - 15, 28, 30, 30);
+        this.ctx.fillRect((this.canvas.width / 4) * 3 - 15, 28, 30, 30);
         this.ctx.fillStyle = "black";
-        this.ctx.fillText(score1, (this.canvas.width / 4), 50);
-        this.ctx.fillText(score2, (this.canvas.width / 4) * 3, 50);
+        this.ctx.fillText(score1, (this.canvas.width / 4 - this.ctx.measureText(score1).width/2), 50);
+        this.ctx.fillText(score2, (this.canvas.width / 4) * 3  - this.ctx.measureText(score1).width/2, 50);
         this.ctx.fillStyle = "white";
     }
 
@@ -60,7 +60,6 @@ class PongRenderer {
     drawStartMessage(paddle1, paddle2, player1, player2) {
         console.log("drawStartMessage", player1, player2);
         this.clearCanvas();
-        this.drawNames(player1, player2);
         this.drawScore(0, 0);
         this.drawPaddle(paddle1);
         this.drawPaddle(paddle2);
@@ -68,6 +67,7 @@ class PongRenderer {
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "white";
         this.ctx.fillText("press space to start", this.canvas.width / 2, this.canvas.height / 2);
+        this.drawNames(player1, player2);
     }
 
     drawCountdownMessage(paddle1, paddle2, score1, score2, count, player1, player2) {
@@ -83,13 +83,15 @@ class PongRenderer {
     }
 
     drawNames(player1, player2) {
-        this.ctx.fillRect((this.canvas.width / 4) - 7, 25, 30, 30);
-        this.ctx.fillRect((this.canvas.width / 4) * 3 - 7, 25, 30, 30);
-        this.ctx.fillStyle = "black";
-        this.ctx.fillText(player1, (this.canvas.width / 4) - 7, 20);
-        this.ctx.fillText(player2, (this.canvas.width / 4) * 3 - 7, 20);
+        console.log("drawing namesss");
+        this.ctx.fillStyle = "blue";
+        this.ctx.font = "18px Arial";
+        // this.ctx.fillRect((this.canvas.width / 4) - 7, 25, 30, 30);
+        // this.ctx.fillRect((this.canvas.width / 4) * 3 - 7, 25, 30, 30);
         this.ctx.fillStyle = "white";
-        
+        this.ctx.font.width
+        this.ctx.fillText(player1, (this.canvas.width / 4) - (this.ctx.measureText(player1).width / 2), 20);
+        this.ctx.fillText(player2, (this.canvas.width / 4) * 3 - (this.ctx.measureText(player2).width / 2), 20);        
     }
     renderingLoop(paddle1, paddle2, score1, score2, ball, player1, player2) {
         this.clearCanvas();

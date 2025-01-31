@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'friends_list',
+    '*',
 ]
 
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'

@@ -42,25 +42,15 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
+        log.error(f"Player {self.user_id} disconnected")
+        if self.game_name in self.pong:
+            self.pong[self.game_name].player_leave(self.user_id)
         if self.user_id:
             await self.channel_layer.send(
                 "game_engine",
                 {"type": "player_leave", "user_id": self.user_id},
             )
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
-
-    async def join(self, data):
-        userid = data.get("userid")
-        game_name = data.get("name")
-        self.game_name = game_name
-        self.group_name = f"game_{game_name}"  # Create a unique group name for the game
-        
-        await self.channel_layer.group_add(self.group_name, self.channel_name)
-
-        if game_name not in self.pong:
-            self.pong[game_name] = PongConsumer(self.group_name)
-        await self.pong[game_name].player_join({"userid": userid})
-
 
     async def create(self, data):
         data = data.get("data")
@@ -79,7 +69,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         content = json.loads(text_data)
         msg_type = content.get("type")
         msg_data = content.get("data")
-        log.error("Received message: %s", msg_data)
+        log.error("Received message: %s -- %s", msg_type, msg_data)
         match msg_type:
             case "join":
                 await self.join(msg_data)
@@ -89,11 +79,24 @@ class PlayerConsumer(AsyncWebsocketConsumer):
                 await self.create(msg_data)
             case "ready":
                 await self.ready()
-            case "infos":
-                await self.infos()
+            case "online":
+                await self.online()
+
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
+    async def join(self, data):
+        userid = data.get("userid")
+        game_name = data.get("name")
+        self.game_name = game_name
+        self.group_name = f"game_{game_name}"  # Create a unique group name for the game
+        
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+
+        if game_name not in self.pong:
+            self.pong[game_name] = PongConsumer(self.group_name)
+        await self.pong[game_name].player_join({"userid": userid})
+        
     async def move_paddle(self, data):
         if not self.user_id:
             log.error("User not correctly joined")
@@ -110,8 +113,17 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             return
         log.error("User %s is ready", self.user_id)
         self.pong[self.game_name].engine.player_ready(self.user_id)
-        # await self.send(text_data=json.dumps({"type": "received"}))
     
+    async def online(self):
+        if not self.user_id:
+            log.error("User not correctly joined")
+            return
+        log.error("User %s is online", self.user_id)
+        if self.game_name in self.pong:
+            await self.pong[self.game_name].engine.broadcast_starting_state()
+        else:
+            log.error("Game %s not found", self.game_name)
+
     async def game_update(self, event):
         # log.error("Game update: %s", event)
         state = event["state"]
@@ -119,6 +131,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     
     async def countdown(self, event):
+        # log.error("Game update: %s", event)
+        await self.send(text_data=json.dumps(event))
+    
+    async def game_init(self, event):
         # log.error("Game update: %s", event)
         await self.send(text_data=json.dumps(event))
     

@@ -8,4 +8,5 @@ patterns = ["[--help]", "[--version]"]
 callbacks = [()=>{p.displayHelp = true}, ()=>{process.stdout.write("pong-cli version 0.1.0\n")}]
 p.setOptions(patterns, callbacks);
 p.commands = [new CmdRegister(), new CmdChat(), new CmdGame()];
+p.defaultCallback = ()=>{p.printHelp()};
 p.eval();
