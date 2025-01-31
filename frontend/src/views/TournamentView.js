@@ -196,15 +196,22 @@ class TournamentsView extends AbstractView {
     friendUserName,
     friendNickName
   ) {
-    const li = document.createElement("li");
-    li.dataset.id = friendId;
-    li.dataset.tournament = tournamentName;
-    li.innerHTML = `<a class="dropdown-item text-white" >
+    const div = document.createElement("div");
+    div.dataset.id = friendId;
+    div.dataset.tournament = tournamentName;
+    div.classList.add(
+      "dropdown-item",
+      "d-flex",
+      "flex-row",
+      "w-100",
+      "w-0",
+      "bg-warning"
+    );
+    div.innerHTML = `
 			<img data-avatar="${friendId}" src="${Avatar.url(
       friendId
-    )}" alt="${friendUserName}" width="20" height="20" class="rounded-circle">
-			${friendNickName}<h6 class="text-secondary">@${friendUserName} </h6></a>`;
-    return li;
+    )}" alt="${friendUserName}" width="30" height="30" class="rounded-circle"><h5>${friendNickName}</h5>`;
+    return div;
   }
 
   populateRound(tournament, roundDiv, roundNumber) {
