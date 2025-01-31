@@ -31,10 +31,11 @@ class PongGameView extends AbstractView {
         Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
         
     }
+
     onStart() {
         
-        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
-        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
+        this.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        this.addEventListener('keyup', (event) => this.handleKeyUp(event));
 
         this._setHTML();
 
@@ -90,8 +91,7 @@ class PongGameView extends AbstractView {
 
                         console.log("Game Over");
                         this.isGameOver = true; // Stop game loop when the game ends
-                    } 
-                    else if (data.type === "countdown" ) {
+                    } else if (data.type === "countdown" ) {
                         console.log("Countdown: ", data.data);
                         if (data.data === 0) {
                             console.log("Game started");
@@ -158,6 +158,13 @@ class PongGameView extends AbstractView {
                         // console.log("newBall: ", newBallX, newBallY);
                         // console.log("ball: ", this.ball.x, this.ball.y);
                     }
+                };
+
+                Application.gameSocket.onclose = () => {
+                    console.log("WebSocket connection closed");
+                    document.removeEventListener('keydown', (event) => this.handleKeyDown(event));
+                    document.removeEventListener('keyup', (event) => this.handleKeyUp(event));
+                    // document.getElementById("game-status").innerText = "Connection closed";
                 };
 
                 Application.gameSocket.onerror = (error) => {

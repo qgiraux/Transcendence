@@ -11,10 +11,10 @@ class PongRenderer {
         this.ctx.shadowOffsetY = 4;
         let gradient = this.ctx.createLinearGradient(paddle.x, paddle.y, paddle.x, paddle.y + paddle.height);
         gradient.addColorStop(0, "lightgrey");
-        gradient.addColorStop(0.5, "lightblue");
+        gradient.addColorStop(0.5, "lightpink");
         gradient.addColorStop(1, "lightgrey");
         this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(paddle.x, paddle.y - (paddle.height/2), paddle.width, paddle.height);
+        this.ctx.fillRect(paddle.x, paddle.y + (paddle.height), paddle.width, paddle.height);
         this.ctx.shadowColor = "transparent";
     }
 
@@ -29,7 +29,7 @@ class PongRenderer {
 
     drawBall(ball) {
         let gradient = this.ctx.createRadialGradient(ball.x, ball.y, ball.radius / 4, ball.x, ball.y, ball.radius);
-        gradient.addColorStop(0, "lightblue");
+        gradient.addColorStop(0, "lightpink");
         gradient.addColorStop(1, "lightgrey");
         this.ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
         this.ctx.shadowBlur = 10;
@@ -83,15 +83,16 @@ class PongRenderer {
     }
 
     drawNames(player1, player2) {
-        console.log("drawing namesss");
         this.ctx.fillStyle = "blue";
         this.ctx.font = "18px Arial";
         // this.ctx.fillRect((this.canvas.width / 4) - 7, 25, 30, 30);
         // this.ctx.fillRect((this.canvas.width / 4) * 3 - 7, 25, 30, 30);
+        let p1 = player1 || "Player 1";
+        let p2 = player2 || "Player 2";
         this.ctx.fillStyle = "white";
         this.ctx.font.width
-        this.ctx.fillText(player1, (this.canvas.width / 4) - (this.ctx.measureText(player1).width / 2), 20);
-        this.ctx.fillText(player2, (this.canvas.width / 4) * 3 - (this.ctx.measureText(player2).width / 2), 20);        
+        this.ctx.fillText(p1, (this.canvas.width / 4) - (this.ctx.measureText(p1).width / 2), 20);
+        this.ctx.fillText(p2, (this.canvas.width / 4) * 3 - (this.ctx.measureText(p2).width / 2), 20);        
     }
     renderingLoop(paddle1, paddle2, score1, score2, ball, player1, player2) {
         this.clearCanvas();

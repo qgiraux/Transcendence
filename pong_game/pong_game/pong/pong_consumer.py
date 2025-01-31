@@ -81,6 +81,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
                 await self.ready()
             case "online":
                 await self.online()
+            case "giveup":
+                if self.game_name in self.pong:
+                    self.pong[self.game_name].engine.player_leave(self.user_id)
+
 
             case _:
                 log.warning("Unknown message type: %s", msg_type)
