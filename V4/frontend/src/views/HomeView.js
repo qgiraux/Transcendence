@@ -30,6 +30,7 @@ class HomeView extends AbstractView {
     this.domText.welcomeMessage = await Application.localization.t("home.welcome");
     this.domText.seeFriends =  await Application.localization.t("home.friends");
     this.domText.manageTournaments = await Application.localization.t("home.tournaments");
+        console.log("📝 Traductions récupérées :", this.domText);
   }
 
   listenForLanguageChange() {
@@ -41,7 +42,8 @@ class HomeView extends AbstractView {
         await Application.setLanguage(selectedLanguage);
         await this.getMessages(); 
         await Application.applyTranslations();
-        this._setHtml();
+        // this._setHtml();
+        Router.reroute("/home");
       });
     }
   }

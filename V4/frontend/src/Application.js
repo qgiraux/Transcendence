@@ -19,8 +19,7 @@ class Application {
   };
   static mainSocket = null;
   static gameSocket = null;
-  static lang = "en-us";
-  static localization = new Localization(Application.lang);
+  static lang = localStorage.getItem("selectedLang") || "en-us";  static localization = new Localization(Application.lang);
   static translationsCache = {};
 
   constructor() {
@@ -232,23 +231,25 @@ class Application {
     await this.localization.loadTranslations();
     await Application.applyTranslations();
   }
+
+  //Function to translate the elements from index.html
   static async applyTranslations() {
-    document.querySelectorAll("[data-i18n]").forEach(async (el) => {
-      const translationKey = el.getAttribute("data-i18n");
-      const translation = await Application.localization.t(translationKey);
-      if (translation) {
-        el.textContent = translation;
-      }
+
+    const elements = document.querySelectorAll("[data-i18n]");
+
+    elements.forEach(async (el) => {
+        const translationKey = el.getAttribute("data-i18n");
+
+        const translation = await Application.localization.t(translationKey);
+        if (translation) {
+            if (el.tagName.toLowerCase() === 'a') {
+                el.textContent = translation;
+            } else {
+                el.textContent = translation;
+            }
+        }
     });
-    document.querySelectorAll("[data-i18n-placeholder]").forEach(async (el) => {
-      const translationKey = el.getAttribute("data-i18n-placeholder");
-      const translation = await Application.localization.t(translationKey);
-      if (translation) {
-        el.placeholder = translation;
-      }
-    });
-  }
-  
+}
 }
 
 

@@ -54,9 +54,11 @@ class FriendsView extends AbstractView {
             await this.loadMessages();
             await Application.applyTranslations();
 
-            this._setHtml();
-            await this._refreshFriendsList();
-            this,this._rebindEventListeners();
+            Router.reroute("/friends");
+
+            // this._setHtml();
+            // await this._refreshFriendsList();
+            // this,this._rebindEventListeners();
         });
     }
 }

@@ -1,6 +1,8 @@
 /**
  * The entrypoint of our great app
  */
+
+
 import RootView from "./views/RootView.js";
 import LandingView from "./views/LandingView.js";
 import HomeView from "./views/HomeView.js";
@@ -15,37 +17,46 @@ import PongGameView from "./views/PongGameView.js";
 import Application from "../Application.js";
 
 
-
 async function initializeLanguageSelector() {
-    const langSelect = document.getElementById("lang-select");
-    const langFlag = document.getElementById("lang-flag"); // Optionnel si vous voulez changer l'icône à l'extérieur du select
-  
-    if (!langSelect) {
+  const langSelect = document.getElementById("lang-select");
+  const langFlag = document.getElementById("lang-flag"); // Trying to implement the flag
+
+  if (!langSelect) {
       console.error("Language selector not found.");
       return;
-    }
-  
-    langSelect.addEventListener("change", async (event) => {
+  }
+
+  langSelect.value = Application.lang;
+
+  langSelect.addEventListener("change", async (event) => {
       const selectedLang = event.target.value;
       const selectedOption = event.target.options[event.target.selectedIndex];
       const flagIcon = selectedOption.getAttribute("data-icon");
-  
+
       if (langFlag) {
-        langFlag.src = flagIcon;
-        langFlag.alt = selectedOption.textContent.trim();
+          langFlag.src = flagIcon;
+          langFlag.alt = selectedOption.textContent.trim();
       }
-  
+
       await Application.setLanguage(selectedLang);
-    });
-  
-    const initialOption = langSelect.options[langSelect.selectedIndex];
-    if (langFlag) {
+      await Application.applyTranslations();
+  });
+
+  const initialOption = langSelect.options[langSelect.selectedIndex];
+  if (langFlag) {
       langFlag.src = initialOption.getAttribute("data-icon");
       langFlag.alt = initialOption.textContent.trim();
-    }
-  
-    await Application.setLanguage(Application.lang);
   }
+
+  await Application.setLanguage(Application.lang);
+  await Application.applyTranslations(); 
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log("DOM is loaded, applying translations");
+
+await Application.applyTranslations(); 
+
   
 const router = new Router();
 router.addRoute("/", RootView);
@@ -64,8 +75,8 @@ router.setListeners();
 router.route();
 
 initializeLanguageSelector();
-Application.applyTranslations();
 
-window.addEventListener("popstate", () => {
-  Application.applyTranslations();
+window.addEventListener("popstate", async () => {
+    await Application.applyTranslations();
+});
 });

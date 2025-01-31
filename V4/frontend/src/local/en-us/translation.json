@@ -46,9 +46,9 @@
       }
     },
     "home": {
-      "welcome": "welcome to your homepage!",
-      "friends": "see my friends", 
-      "tournaments": "manage tournaments"
+      "welcome": "Welcome to your homepage!",
+      "friends": "See my friends", 
+      "tournaments": "Manage tournaments"
     },
     "friends":{
       "card": {

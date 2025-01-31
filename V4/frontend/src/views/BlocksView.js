@@ -52,7 +52,8 @@ class BlocksView extends AbstractView {
         await Application.setLanguage(selectedLanguage);
         await this.loadMessages(); 
         await Application.applyTranslations();
-        this._setHtml();
+        // this._setHtml();
+        Router.reroute("/blocks");
       });
     }
   }

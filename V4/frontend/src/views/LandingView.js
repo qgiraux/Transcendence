@@ -57,6 +57,7 @@ class LandingView extends AbstractView {
         await this.loadMessages(); 
         await Application.applyTranslations();
         this.setHtml();
+        // Router.reroute("/landing");
       });
     }
   }
