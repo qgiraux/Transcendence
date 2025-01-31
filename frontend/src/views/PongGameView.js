@@ -157,6 +157,7 @@ class PongGameView extends AbstractView {
                 Application.gameSocket.onclose = () => {
                     console.log("WebSocket connection closed");
                     document.removeEventListener('keydown', (event) => this.handleKeyDown(event));
+                    document.removeEventListener('keyup', (event) => this.handleKeyUp(event));
                     // document.getElementById("game-status").innerText = "Connection closed";
                 };
 
