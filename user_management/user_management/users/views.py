@@ -38,42 +38,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def get_jwt_token(request):
-#     body_unicode = request.body.decode('utf-8')
-#     body = json.loads(body_unicode)
-    
-#     try:
-#         user = User.objects.get(username=body['username'])
-#     except User.DoesNotExist:
-#         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
-
-#     # Check if the password matches the one stored in the database
-#     password = body.get('password')
-#     if not password:
-#         return Response({'error': 'Password is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-#     user = authenticate(username=body['username'], password=password)
-#     if user is None:
-#         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-#     # If 2FA is enabled, proceed with the two-factor authentication process
-#     if user.twofa_enabled:
-#         return Response({'2FA': '2FA token required'}, status=status.HTTP_401_UNAUTHORIZED)
-
-#     # 2FA not enabled: directly generate tokens
-#     refresh = RefreshToken.for_user(user)
-#     access = str(refresh.access_token)
-#     access_token = refresh.access_token
-#     access_token['username'] = user.username
-#     access_token['nickname'] = user.nickname
-#     access = str(access_token)
-
-#     return Response({
-#         'refresh': str(refresh),
-#         'access': access
-#     })
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -114,7 +78,7 @@ def get_jwt_token(request):
                 # Add custom claims to the access token
                 access_token = refresh.access_token
                 access_token['username'] = user.username
-                access_token['nickname'] = user.nickname
+                # access_token['nickname'] = user.nickname
                 access = str(access_token)
 
                 return Response({
@@ -175,7 +139,7 @@ def Add_user_stats(request, user_id):
     return Response(user.stats , status=201)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([AllowAny]) 
 def Get_user_infos(request, user_id):
     logger.error(user_id)
     if user_id == 0:
@@ -192,7 +156,6 @@ def Get_user_infos(request, user_id):
         "id": user.id,
         "username": user.username,
         "nickname": user.nickname,
-        "2fa": user.twofa_enabled,
     }
     return JsonResponse(user_info)
 

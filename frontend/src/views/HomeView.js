@@ -72,6 +72,7 @@ class HomeView extends AbstractView {
                 console.log(username);
                 const textmessage = `your game is starting!`;
                 const link = message;
+                Router.reroute("/pong");
                 console.log(`link: ${link} , textmessage: ${textmessage}`);
                 Alert.inviteMessage(type, textmessage, link);
                 Application.gameSocket.send(
@@ -157,18 +158,33 @@ class HomeView extends AbstractView {
         display: block; /* Ensures the canvas behaves like a block-level element */
         margin: auto; /* Centers horizontally */
           }
-          #view-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh; /* Full viewport height */
-          }
         </style>
         <h1 class="text-white display-1">${
           Application.getUserInfos().userName
-        } welcome to your home page!</h1>
-        <canvas id="pongCanvas" width="800" height="400"></canvas>
+        }</h1>
+        <h2><small>Welcome to your home page!</small></h2>
+        <div class="container mt-4">
+          <div class="row ">
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+              <div class="text-center">
+                <a href="/friends" data-link class="btn">
+                  <i class="bi bi-people display-3"></i>
+                  <i class="bi bi-arrow-right" id="homeIcon"></i>
+                  <p class="mt-2">See Friends</p></a>
+              </div>
+            </div>
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+              <div class="text-center">
+                <a href="/tournaments" data-link class="btn">
+                  <i class="bi bi-trophy display-3"></i>
+                  <i id="homeIcon" class="bi bi-arrow-right"></i>
+                  <p class="mt-2">Manage Tournament</p></a>
+              </div>
+            </div>
+          </div>
+          <canvas id="pongCanvas" width="800" height="400"></canvas>
+        </div>
+
         <div id="message-container"></div>
       `;
 

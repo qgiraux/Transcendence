@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/15 14:33:36 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/23 15:33:12 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,6 @@ SOLC_OUTPUT_JSON = "/solc_output.json"
 SOLC_INPUT_JSON = "/solc_input.json"
 JSON_FILE = "/tournament.json"
 ORIGIN = "daemon"
-WS_URL='ws://hardhat-network:8545'
 BASE58="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
 logger = logging.getLogger(__name__)

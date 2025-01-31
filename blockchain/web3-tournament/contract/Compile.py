@@ -6,32 +6,15 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/15 14:30:19 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/23 14:29:51 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #
 import json
-import logging
-#
-#import solcx
-#
 import Utils
 
-JSON_FILE = "/tournament.json"
-
-logger = logging.getLogger(__name__)
-
-#
-# def get_solc_output_from_source(sourceName):
-# 	source = readfile(sourceName)
-# 	assert "" != source
-# 	solcx.install_solc(version='latest')
-# 	compiled_sol = solcx.compile_source(source, output_values=['bin', 'metadata'], optimize=True, optimize_runs=10)
-# 	contract_id, contract_interface = compiled_sol.popitem()
-# 	bytecode = contract_interface['bin']
-# 	metadata = contract_interface['metadata']
-# 	return bytecode, metadata
+JSON_FILE = "/solc_output.json"
 
 def get_solc_output_from_json(jsonFile=JSON_FILE) -> tuple[str, str]:
 	"""Gets compiled contract `bytecode` and `metadata`"""
@@ -42,10 +25,17 @@ def get_solc_output_from_json(jsonFile=JSON_FILE) -> tuple[str, str]:
 	return bytecode, metadata
 
 
-async def main():
+def main():
 	"""Uploads contract"""
 	logging.basicConfig(level=logging.INFO)
 	bytecode, metadata = get_solc_output_from_json(JSON_FILE)
+	logger.info("bytecode:")
+	logger.info(bytecode)
+	logger.info("metadata:")
+	logger.info(metadata)
+
 
 if __name__ == '__main__':
+	import logging
+	logger = logging.getLogger(__name__)
 	main()

@@ -42,6 +42,14 @@ class Application {
     Application.#token.access = newAccesstoken;
   }
 
+  static deleteAccessToken() {
+    Application.#token = null;
+  }
+
+  static deleteRefreshToken() {
+    Application.#token = null;
+  }
+
   static getAccessToken() {
     if (Application.#token !== null) return Application.#token.access;
     return null;
@@ -202,8 +210,8 @@ class Application {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
     const userId = Application.getUserInfos().userId;
-    document.querySelector("#side-username").textContent =
-      Application.getUserInfos().userName;
+    // document.querySelector("#side-username").textContent =
+    //   Application.getUserInfos().userName;
     avatarImg.setAttribute("data-avatar", userId);
     Avatar.refreshAvatars().then(() => {
       sideBar.classList.toggle("d-none");

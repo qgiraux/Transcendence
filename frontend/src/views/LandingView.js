@@ -97,18 +97,11 @@ class LandingView extends AbstractView {
     const login = document.querySelector("#InputLogin");
     const password = document.querySelector("#InputPassword");
     const twofa = document.querySelector("#InputTwofa");
-    if (
-      this._validateLogin(login.value) &&
-      this._validatePass(password.value)
-    ) {
-      this.loginRequest({
+    this.loginRequest({
         username: login.value,
         password: password.value,
         twofa: twofa.value,
       });
-    } else {
-      Alert.errorMessage(this.messages.wrongCredentialsFormat);
-    }
   }
 
   async loginRequest(credentials) {
@@ -130,8 +123,8 @@ class LandingView extends AbstractView {
       Application.setUserInfosFromToken();
       Application.toggleSideBar();
       Application.toggleChat();
-      Application.openWebSocket("wss://localhost:5000/ws/chat/");
-      Application.openGameSocket("wss://localhost:5000/ws/pong/");
+      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
+      Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);
@@ -196,69 +189,73 @@ class LandingView extends AbstractView {
     if (container) {
       container.innerHTML = `
 			<div class="row text-white ">
-			<div class="col-10 mx-auto justify-content-center mb-5">
-        <img src="/img/transcendence.webp" class="img-fluid" alt="Responsive image" style="max-height: 50vh; width: auto; display: block; margin: 0 auto;">
-			</div>
+        <div class="col-10 mx-auto justify-content-center mb-5">
+          <img src="/img/transcendence.webp" class="img-fluid" alt="Responsive image" id="landing-image">
+        </div>
+      </div>
 
-		</div>
-		<div class="row text-white ">
-			<div class="col-6 mx-auto">
-				<div class="btn-group d-flex text-center" role="group" aria-label="toggle login register">
-					<input type="radio" class="btn-check" name="btnradio" id="loginradio" autocomplete="off" checked>
-					<label class="btn btn-outline-primary btn-custom" for="loginradio"> Login</label>
+      <div class="row " id="landing-page-form">
+        <div class="col-6 mx-auto">
+          <div class="btn-group d-flex text-center" role="group" aria-label="toggle login register">
+            <input type="radio" class="btn-check" name="btnradio" id="loginradio" autocomplete="off" checked>
+            <label class="btn btn-outline-primary btn-custom" for="loginradio">Login</label>
 
-					<input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
-					<label class="btn btn-outline-primary btn-custom" for="registerradio">Create an account</label>
-				</div>
-			</div>
+            <input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
+            <label class="btn btn-outline-primary btn-custom" for="registerradio">Create an account</label>
+          </div>
+        </div>
 
-		</div>
+        <div class="row " id="login-form">
+          <div class="col-6 mx-auto mt-5">
+            <form>
+              <div class="form-group text-white ">
+                <label for="InputLogin">Login</label>
+                <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
+                  placeholder="Enter login" required>
 
-		<div class="row " id="login-form">
-			<div class="col-6 mx-auto mt-5">
-				<form>
-					<div class="form-group text-white ">
-						<label for="InputLogin">Login</label>
-						<input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
-							placeholder="Enter login" required>
+              </div>
+              <div class="form-group text-white ">
+                <label for="InputPassword">Password</label>
+                <input type="password" class="form-control" id="InputPassword" placeholder="Password required">
+              </div>
+              <div class="form-group text-white ">
+                <label for="InputPassword">2FA code (if activated)</label>
+                <input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
+              </div>
+              <div class="d-flex justify-content-center mt-3">
+                <button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
+              </div>
+            </form>
 
-					</div>
-					<div class="form-group text-white ">
-						<label for="InputPassword">Password</label>
-						<input type="password" class="form-control" id="InputPassword" placeholder="Password required">
-					</div>
-          <div class="form-group text-white ">
-						<label for="InputPassword">2FA code (if activated)</label>
-						<input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
-					</div>
-					<button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
-				</form>
+          </div>
 
-			</div>
+        </div>
 
-		</div>
+        <div class="row " id="register-form">
+          <div class="col-6 mx-auto mt-5 ">
+            <form>
+              <div class="form-group text-white  ">
+                <label for="RegisterLogin">Choose your Login</label>
+                <input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
+                  placeholder="Choose a login" required>
 
-		<div class="row " id="register-form">
-			<div class="col-6 mx-auto mt-5 ">
-				<form>
-					<div class="form-group text-white  ">
-						<label for="RegisterLogin">Choose your Login</label>
-						<input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
-							placeholder="Choose a login" required>
+              </div>
+              <div class="form-group text-white mt-2 ">
+                <label for="RegisterPassword">Choose your Password</label>
+                <input type="password" class="form-control" id="RegisterPassword" placeholder="Password" required>
+              </div>
+              <div class="form-group text-white mt-2 ">
+                <label for="RegisterPasswordConfirm">Confirm your Password</label>
+                <input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
+              </div>
+              <div class="d-flex justify-content-center mt-3">
+                <button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
+              </div>
+            </form>
 
-					</div>
-					<div class="form-group text-white mt-2 ">
-						<label for="RegisterPassword">Choose your Password</label>
-						<input type="password" class="form-control" id="RegisterPassword" placeholder="Password" required>
-					</div>
-					<div class="form-group text-white mt-2 ">
-						<label for="RegisterPasswordConfirm">Confirm your Password</label>
-						<input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
-					</div>
-					<button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
-				</form>
-
-			</div>
+          </div>
+        </div>
+      </div>
 `;
     }
   }

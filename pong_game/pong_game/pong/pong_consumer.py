@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 
 class PlayerConsumer(AsyncWebsocketConsumer):
     pong = dict.fromkeys(['name','game'])
+    game_name = None
     for game in pong:
         pong[game] = None
 
@@ -41,33 +42,15 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
-        if self.userid:
+        log.error(f"Player {self.user_id} disconnected")
+        if self.game_name in self.pong:
+            self.pong[self.game_name].player_leave(self.user_id)
+        if self.user_id:
             await self.channel_layer.send(
                 "game_engine",
-                {"type": "player_leave", "userid": self.userid},
+                {"type": "player_leave", "user_id": self.user_id},
             )
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
-
-    async def join(self, data):
-        userid = data.get("userid")
-        game_name = data.get("name")
-        self.group_name = f"game_{game_name}"  # Create a unique group name for the game
-        
-        await self.channel_layer.group_add(self.group_name, self.channel_name)
-
-        if game_name not in self.pong:
-            self.pong[game_name] = PongConsumer(self.group_name)
-        self.pong[game_name].player_join({"userid": userid})
-
-        # Notify other players in the group about the new player
-        # await self.channel_layer.group_send(
-        #     self.group_name,
-        #     {
-        #         "type": "join",
-        #         "userid": userid,
-        #         "channel": self.channel_name,
-        #     },
-        # )
 
     async def create(self, data):
         data = data.get("data")
@@ -86,7 +69,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         content = json.loads(text_data)
         msg_type = content.get("type")
         msg_data = content.get("data")
-        log.error("Received message: %s", msg_data)
+        log.error("Received message: %s -- %s", msg_type, msg_data)
         match msg_type:
             case "join":
                 await self.join(msg_data)
@@ -95,26 +78,52 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             case "create":
                 await self.create(msg_data)
             case "ready":
-                await self.ready(msg_data)
+                await self.ready()
+            case "online":
+                await self.online()
+
             case _:
                 log.warning("Unknown message type: %s", msg_type)
 
-    async def move_paddle(self, data):
-        if not self.userid:
-            log.error("User not correctly joined")
-            return
-        log.error("User %s moved paddle", self.userid)
-        direction = data.get("direction")
-        self.pong[self.gameName].engine.get_player_paddle_move(self.userid, direction)
-
-    async def ready(self, data):
-        if not self.userid:
-            log.error("User not correctly joined")
-            return
-        log.error("User %s is ready", self.userid)
-        self.pong[self.gameName].engine.player_ready(self.userid)
-        # await self.send(text_data=json.dumps({"type": "received"}))
+    async def join(self, data):
+        userid = data.get("userid")
+        game_name = data.get("name")
+        self.game_name = game_name
+        self.group_name = f"game_{game_name}"  # Create a unique group name for the game
         
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+
+        if game_name not in self.pong:
+            self.pong[game_name] = PongConsumer(self.group_name)
+        await self.pong[game_name].player_join({"userid": userid})
+        
+    async def move_paddle(self, data):
+        if not self.user_id:
+            log.error("User not correctly joined")
+            return
+        
+        log.error("User %s moved paddle", self.user_id)
+        direction = data.get("direction")
+        self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
+
+
+    async def ready(self):
+        if not self.user_id:
+            log.error("User not correctly joined")
+            return
+        log.error("User %s is ready", self.user_id)
+        self.pong[self.game_name].engine.player_ready(self.user_id)
+    
+    async def online(self):
+        if not self.user_id:
+            log.error("User not correctly joined")
+            return
+        log.error("User %s is online", self.user_id)
+        if self.game_name in self.pong:
+            await self.pong[self.game_name].engine.broadcast_starting_state()
+        else:
+            log.error("Game %s not found", self.game_name)
+
     async def game_update(self, event):
         # log.error("Game update: %s", event)
         state = event["state"]
@@ -122,6 +131,10 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     
     async def countdown(self, event):
+        # log.error("Game update: %s", event)
+        await self.send(text_data=json.dumps(event))
+    
+    async def game_init(self, event):
         # log.error("Game update: %s", event)
         await self.send(text_data=json.dumps(event))
     
@@ -155,7 +168,7 @@ class PongConsumer(SyncConsumer):
         self.players = []
         self.lock = Lock()
 
-    def player_join(self, event):
+    async def player_join(self, event):
         if len(self.players) >= 2:
             log.error("Game is full")
             return
@@ -163,12 +176,32 @@ class PongConsumer(SyncConsumer):
         log.error("PongConsumer - Player joined: %s", event.get("userid"))
         self.players.append(event["userid"])
 
-        self.engine.add_player(event["userid"])
+        await self.engine.add_player(event["userid"])
         
         if len(self.players) == 2:
             log.error("Starting game")
             self.engine.run()
 
+
+    async def infos(self):
+        await asyncio.sleep(0.2)
+        log.error("Sending game infos")
+        if not self.game_name:
+            log.error("Game name not set")
+            return
+        state = self.engine.state
+        response = {
+            "type": "init",
+            "player_left": {
+                "playername": state.player_left.playername,
+                "score": state.player_left.score,
+            },
+            "player_right": {
+                "playername": state.player_right.playername,
+                "score": state.player_right.score,
+            },
+        }
+        await self.send(text_data=json.dumps(response))
 
     def player_leave(self, event):
         player = event.get("userid")
@@ -177,6 +210,7 @@ class PongConsumer(SyncConsumer):
             self.players.remove(player)
             self.engine.player_leave(player)
 
+    
     def player_move_paddle(self, event):
         log.error("Move paddle: %s", event)
         direction = event.get("direction")
