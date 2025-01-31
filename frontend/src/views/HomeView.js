@@ -33,58 +33,71 @@ class HomeView extends AbstractView {
           message = message.slice(1, -1); // Remove the first and last characters
           console.log("dequoted message: ", message);
           const type = data.type || "none"; // Default if field missing
-          
-          if (type === "chat")
-          {
-            TRequest.request("GET", "/api/friends/blocks/blockslist/").then(blocklist => {
-              if (!blocklist.blocks.includes(sender)) 
-              {
-                chatBox.DisplayNewMessage(message, sender);
-              }
-            }).catch(err => {console.error("Failed to fetch blocklist:", err);});
+
+          if (type === "chat") {
+            TRequest.request("GET", "/api/friends/blocks/blockslist/")
+              .then((blocklist) => {
+                if (!blocklist.blocks.includes(sender)) {
+                  chatBox.DisplayNewMessage(message, sender);
+                }
+              })
+              .catch((err) => {
+                console.error("Failed to fetch blocklist:", err);
+              });
           }
-          if (type === "notification")
-          {
+          if (type === "notification") {
             // Display the notification
-            Alert.classicMessage(type, message)
+            Alert.classicMessage(type, message);
           }
-          if (type === "invite")
-          {
+          if (type === "invite") {
             // Display the invite
-            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(username => {
-              console.log(username);
-              const textmessage = `${username.username} has invited you to a game!`;
-              const link = message;
-              console.log(`link: ${link} , textmessage: ${textmessage}`);
-              Alert.inviteMessage(type, textmessage, link)
-            }).catch(err => {console.error("Failed to fetch user info:", err);});
+            TRequest.request("GET", `/api/users/userinfo/${sender}`)
+              .then((username) => {
+                console.log(username);
+                const textmessage = `${username.username} has invited you to a game!`;
+                const link = message;
+                console.log(`link: ${link} , textmessage: ${textmessage}`);
+                Alert.inviteMessage(type, textmessage, link);
+              })
+              .catch((err) => {
+                console.error("Failed to fetch user info:", err);
+              });
           }
           console.log("checkpoint 2");
-          if (type === "game")
-          {
+          if (type === "game") {
             console.log("game invite received");
             // Display the invite
-            TRequest.request("GET", `/api/users/userinfo/${sender}`).then(username => {
-              console.log(username);
-              const textmessage = `your game is starting!`;
-              const link = message;
-              Router.reroute("/pong");
-              console.log(`link: ${link} , textmessage: ${textmessage}`);
-              Alert.inviteMessage(type, textmessage, link)
-              Application.gameSocket.send(JSON.stringify({ type: 'join', data: { userid: Application.getUserInfos().userId, name: link } }));
-            }).catch(err => {console.error("Failed to fetch user info:", err);});
-            
+            TRequest.request("GET", `/api/users/userinfo/${sender}`)
+              .then((username) => {
+                console.log(username);
+                const textmessage = `your game is starting!`;
+                const link = message;
+                Router.reroute("/pong");
+                console.log(`link: ${link} , textmessage: ${textmessage}`);
+                Alert.inviteMessage(type, textmessage, link);
+                Application.gameSocket.send(
+                  JSON.stringify({
+                    type: "join",
+                    data: {
+                      userid: Application.getUserInfos().userId,
+                      name: link,
+                    },
+                  })
+                );
+              })
+              .catch((err) => {
+                console.error("Failed to fetch user info:", err);
+              });
           }
-          if (type === "GOTO")
-          {
+          if (type === "GOTO") {
             // Display the alert
             Router.reroute(message);
           }
-        }
+        };
       } catch (err) {
         console.error("Failed to process WebSocket message:", err);
       }
-    
+
       Application.mainSocket.onerror = (error) => {
         console.error("WebSocket error:", error);
       };
@@ -111,16 +124,15 @@ class HomeView extends AbstractView {
           const group = data.group || "No group"; // Default if field missing
           const message = data.message || "No message content"; // Default if field missing
           const type = data.type || "none"; // Default if field missing
-          if (type === "GOTO")
-          {
+          if (type === "GOTO") {
             // Display the alert
             Router.reroute(message);
           }
-        }
+        };
       } catch (err) {
         console.error("Failed to process WebSocket message:", err);
       }
-    
+
       Application.gameSocket.onerror = (error) => {
         console.error("WebSocket error:", error);
       };
@@ -132,11 +144,10 @@ class HomeView extends AbstractView {
       Application.gameSocket.onclose = () => {
         console.log("WebSocket connection closed.");
       };
-    } 
-    else {
+    } else {
       console.error("gameSocket connection not established.");
     }
-}
+  }
 
   _setHtml() {
     const container = document.querySelector("#view-container");
@@ -173,18 +184,17 @@ class HomeView extends AbstractView {
           </div>
           <canvas id="pongCanvas" width="800" height="400"></canvas>
         </div>
-        
+
         <div id="message-container"></div>
       `;
-  
+
       // Instantiate PongGame and start the game loop
-      const pongGame = new PongGame('pongCanvas');
+      const pongGame = new PongGame("pongCanvas");
       pongGame.gameLoop();
     } else {
       console.error("#view-container not found in the DOM.");
     }
   }
-   
 }
 
 export default HomeView;
