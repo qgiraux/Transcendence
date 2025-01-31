@@ -111,7 +111,8 @@ class PongGameView extends AbstractView {
                             this.p1name,
                             this.p2name
                     );
-                    } else if (data.type === "game_init" ) {
+                    } 
+                    else if (data.type === "game_init" ) {
                         // this.p1name = data.state.player_left.playerid;
                         // this.p2name = data.state.player_right.playerid;
                         console.log("Game init: ", data);
@@ -140,21 +141,23 @@ class PongGameView extends AbstractView {
                         });
 
                         
-                    } else {
+                    } 
+                    else if (data.type === "game_update") {
                         // Update game state for ongoing gameplay
-                        console.log("Game state: ", data);
+                        const datum = data.state;
+                        console.log("Game state: ", datum);
                         if (this.p1name === ""){
-                            this.p1name = data.player_left.playerid;
+                            this.p1name = datum.player_left.playerid;
                         }
                         if (this.p2name === ""){
-                            this.p2name = data.player_right.playerid;
+                            this.p2name = datum.player_right.playerid;
                         }
-                        this.score1 = data.player_left.score;
-                        this.score2 = data.player_right.score;
-                        this.paddle1.y = data.player_left.paddle_y * 4;
-                        this.paddle2.y = data.player_right.paddle_y * 4;
-                        this.ball.x = data.ball.position[0] * 4;
-                        this.ball.y = data.ball.position[1] * 4;
+                        this.score1 = datum.player_left.score;
+                        this.score2 = datum.player_right.score;
+                        this.paddle1.y = datum.player_left.paddle_y * 4;
+                        this.paddle2.y = datum.player_right.paddle_y * 4;
+                        this.ball.x = datum.ball.position[0] * 4;
+                        this.ball.y = datum.ball.position[1] * 4;
                         // console.log("newBall: ", newBallX, newBallY);
                         // console.log("ball: ", this.ball.x, this.ball.y);
                     }

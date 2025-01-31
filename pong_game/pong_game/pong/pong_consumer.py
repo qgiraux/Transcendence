@@ -130,8 +130,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def game_update(self, event):
         # log.error("Game update: %s", event)
-        state = event["state"]
-        await self.send(text_data=json.dumps(state))
+        # state = event[""]
+        await self.send(text_data=json.dumps(event))
 
     
     async def countdown(self, event):

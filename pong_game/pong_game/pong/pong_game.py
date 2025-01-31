@@ -177,7 +177,6 @@ class PongEngine(threading.Thread):
 		except Exception as e:
 			log.error(f"Error during readiness check: {e}")
 
-
 	async def game_loop(self):
 		try:
 			while len(self.ready_players) < 2:
@@ -203,7 +202,7 @@ class PongEngine(threading.Thread):
 	async def broadcast_state(self):
 		state_json = self.state.render()
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "game.update", "state": state_json}
+			self.group_name, {"type": "game_update", "state": state_json}
 		)
 	
 	async def broadcast_starting_state(self):
@@ -235,7 +234,6 @@ class PongEngine(threading.Thread):
 			self.group_name, {"type": "countdown", "data": 0}
 		)
 
-
 	async def post_stats(self, url, data, headers):
 		try:
 			async with httpx.AsyncClient() as client:
@@ -246,7 +244,6 @@ class PongEngine(threading.Thread):
 		except Exception as e:
 			log.error(f"Error posting stats: {e}")
 	
-
 	async def broadcast_game_over(self):
 		state_json = self.state.render()
 		state_json["winner"] = (
@@ -299,7 +296,6 @@ class PongEngine(threading.Thread):
 		# log.error(endJson)
 		await self.post_stats(url2, endJson, header)		
 		
-
 	def tick(self) -> State:
 		state = self.state
 		with self.key_lock:
@@ -342,7 +338,6 @@ class PongEngine(threading.Thread):
 			return
 
 		log.error("Player %s joined the game", playerid)
-
 
 	def process_paddle_movement(self, state, movements):
 		# log.error("Processing paddle movements for game %s", self.name)
