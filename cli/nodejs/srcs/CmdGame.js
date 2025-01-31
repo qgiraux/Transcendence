@@ -14,7 +14,7 @@ let l = new Localization(); //
 
 class CmdGame extends CmdJWT {
 	constructor() {
-		super((jwt)=>{this.#onLogin(jwt)}, () => {return this.checkCanvas()}, "node pong-cli game");
+		super((jwt)=>{this.#onLoginInitialize(jwt)}, () => {return this.checkCanvas()}, "node pong-cli game");
 		this.name = "game";
 		this.description = "Play pong";
 		this.width = 53; //Min 29
@@ -116,20 +116,30 @@ class CmdGame extends CmdJWT {
 		}));
 	}
 
-	#onOpen() {
+	// #onTournament() {
+	// 	HttpsClient.reqWithJwt(
+	// 		HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/join/"}),
+	// 		JSON.stringify({name: this.tournament}),
+	// 		(ret) => {this.#onJoin(ret)},
+	// 		this.jwt, (access) => {this.jwt.access = access}
+	// 	);
+	// }
+
+	#onOpenJoinTournament() {
+		//console.error("patate"); //
 		if (true == this.newTournament) {
-			HttpsClient.post(
-				HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/create/"}),
+			HttpsClient.reqWithJwt(
+				HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/create/"}),
 				JSON.stringify({name: this.tournament, size: this.players}),
 				(ret) => {this.#onTournament(ret)},
-				this.jwt
+				this.jwt, (access) => {this.jwt.access = access}
 			);
 		} else {
-			HttpsClient.post(
-				HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/join/"}),
+			HttpsClient.reqWithJwt(
+				HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/join/"}),
 				JSON.stringify({name: this.tournament}),
 				(ret) => {this.#onTournament(ret)},
-				this.jwt
+				this.jwt, (access) => {this.jwt.access = access}
 			);
 		}
 		//this.#startGame();
@@ -156,6 +166,7 @@ class CmdGame extends CmdJWT {
 	// }
 
 	#onTournament(ret){
+		//console.error("onTournament"); //
 		if (!ret.statusCode) {
 			this.#dialog(JSON.stringify(ret));
 			this.#onStop();
@@ -175,14 +186,24 @@ class CmdGame extends CmdJWT {
 	#onMessage(data) {
 		const obj = JSON.parse(data);
 
+		//Application.gameSocket.send(JSON.stringify({ type: 'join', data: { userid: Application.getUserInfos().userId, name: link } }));
+
+		console.error("onMessage"); //
+		console.error(obj); //
 		if ("game_update" == obj.type) {
 			this.#parseGameUpdate(obj.data);
 		} else if ("countdown" == obj.type) {
 			this.#parseCountdown(obj.time_to_game);
+		} else if ("game" == obj.type) {
+			console.error(obj); //
+			this.ws.send(JSON.stringify({
+				type: "join",
+				data: {userId: this.me, name: obj.data.name}
+			}));
 		}
 	}
 
-	#onLogin(jwt) {
+	#onLoginInitialize(jwt) {
 		this.#iniCanvas();
 		this.pongCanvas.update();
 		this.#dialog(`Connecting to host...`); //
@@ -193,7 +214,7 @@ class CmdGame extends CmdJWT {
 		//console.log('\nwss://' + this.host + '/ws/pong/')
 		//process.exit()
 		this.ws.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
-		this.ws.on('open', () => {this.#onOpen()});
+		this.ws.on('open', () => {this.#onOpenJoinTournament()});
 		this.ws.on('message', (data) => {/*console.log(data);*/ this.#onMessage(data)}); //log
 	}
 
@@ -241,6 +262,7 @@ class CmdGame extends CmdJWT {
 
 
 	#dialog(msg) {
+		console.error(msg); //
 		this.dialogCanvas.resetText(msg);
 		this.dialogCanvas.displayText();
 	}
@@ -274,6 +296,10 @@ class CmdGame extends CmdJWT {
 		this.#iniCanvas();
 		this.#dialog(`Tournament="${this.tournament}" Waiting for players... `);
 		this.#initalizeController();
+		// this.ws.send(JSON.stringify({
+		// 	type: "online",
+		// 	data: ""
+		// }));
 		//this.#initalizeControllerDebug();
 	}
 }
