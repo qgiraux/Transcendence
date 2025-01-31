@@ -61,7 +61,7 @@ class CmdGame extends CmdJWT {
 
 
 	#initalizeController() {
-		this.controller.onStopKey = () => {CvsPong.showCursor(); this.wsGame.close()}; //Move at End
+		this.controller.onStopKey = () => {/*this.controller.stop();*/ this.#onStop()}; //Move at End
 		this.controller.onKeys([Controller.keyArrowUp, Controller.keyArrowDown, " "], [
 			() => {this.#movePaddle("up")},
 			() => {this.#movePaddle("down")},
@@ -82,6 +82,15 @@ class CmdGame extends CmdJWT {
 
 	#parseCountdown(obj) {
 		this.#dialog(String(obj));
+	}
+
+	#parseInit(obj) {
+		const player_left = obj.player_left;
+		const player_right = obj.player_right;
+
+		if (this.me == obj.player_right.player_id)
+			this.mirror = true;
+		this.#dialog("Press space to start");
 	}
 
 	//WSI
@@ -117,6 +126,69 @@ class CmdGame extends CmdJWT {
 		}));
 	}
 
+	#onPongMessage(data) {
+		const obj = JSON.parse(data);
+
+		// console.error("onPongMessage"); //
+		console.error(obj); //
+		if ("game_update" == obj.type) {
+			this.#parseGameUpdate(obj.state);
+		} else if ("countdown" == obj.type) {
+			this.#parseCountdown(obj.data);
+		} else if ("game_init" == obj.type) {
+			this.#parseInit(obj.state);
+		}
+	}
+
+	#onChatMessage(data) {
+		const obj = JSON.parse(data);
+
+		// console.error("onChatMessage"); //
+		// console.error(obj); //
+		if ("game" == obj.type) {
+			const match = obj.group.match(/^user_([0-9]+)$/);
+
+			if (!match || 2 != match.length) {
+				this.#dialog("Received incorrect 'game' message from server.")
+				this.#onStop();
+				return ;
+			}
+			this.me = Number(match[1]);
+			this.wsGame.send(JSON.stringify({
+				type: "join",
+				data: {userid: this.me, name: obj.message.slice(1, -1)}
+			}));
+			this.wsGame.send(JSON.stringify({
+				type: "online",
+				data: ""
+			}));
+			this.wsChat.close();
+			this.wsChat = null;
+		}
+	}
+
+	// steps
+
+	#onJoinStart(ret){
+		// console.error("onJoinStart"); //
+		if (!ret.statusCode) {
+			this.#dialog(JSON.stringify(ret));
+			this.#onStop();
+			return ;
+		} else if (409 == ret.statusCode) {
+			; //Skip is already joined
+		} else if (404 == ret.statusCode) {
+			this.#dialog(`Tournament '${this.tournament}' not found`);
+			this.#onStop();
+			return ;
+		} else if (200 > ret.statusCode || 300 <= ret.statusCode) {
+			this.#dialog(JSON.stringify(ret));
+			this.#onStop();
+			return ;
+		}
+		this.#startGame();
+	}
+
 	#onTournamentJoin() {
 		HttpsClient.reqWithJwt(
 			HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/join/"}),
@@ -145,65 +217,6 @@ class CmdGame extends CmdJWT {
 		}
 	}
 
-	//TODO: make Style class 
-	// static beautifyJson(jsonResponse) {
-	// 	if (typeof jsonResponse != "object") {
-	// 		process.stdout.write(String(jsonResponse));
-	// 		return ;
-	// 	}
-	// 	let pretty = new String("Status code: ");
-
-	// 	if (300 > jsonResponse.statusCode && 200 <= jsonResponse.statusCode)
-	// 		pretty += `\x1b[32m`;
-	// 	else
-	// 		pretty += `\x1b[31m`;
-	// 	pretty += `${jsonResponse.statusCode}\x1b[0m\n`
-	// 	pretty += (typeof jsonResponse.message === "string") ?
-	// 		jsonResponse.message : JSON.stringify(jsonResponse.message, null, " ");
-	// 	if ("\n" != pretty.slice(-1))
-	// 		pretty += "\n";
-	// 	return pretty;
-	// }
-
-	#onJoinStart(ret){
-		//console.error("onTournament"); //
-		if (!ret.statusCode) {
-			this.#dialog(JSON.stringify(ret));
-			this.#onStop();
-			return ;
-		} else if (404 == ret.statusCode) {
-			this.#dialog(`Tournament '${this.tournament}' not found`);
-			this.#onStop();
-			return ;
-		} else if (200 > ret.statusCode || 300 <= ret.statusCode) {
-			this.#dialog(JSON.stringify(ret));
-			this.#onStop();
-			return ;
-		}
-		this.#startGame();
-	}
-
-	#onPongMessage(data) {
-		const obj = JSON.parse(data);
-
-		if ("game_update" == obj.type) {
-			this.#parseGameUpdate(obj.data);
-		} else if ("countdown" == obj.type) {
-			this.#parseCountdown(obj.time_to_game);
-		}
-	}
-
-	#onChatMessage(data) {
-		const obj = JSON.parse(data);
-
-		if ("game" == obj.type) {
-			this.wsGame.send(JSON.stringify({
-				type: "join",
-				data: {userId: this.me, name: obj.message}
-			}));
-		}
-	}
-
 	#onLoginInitialize(jwt) {
 		this.#iniCanvas();
 		this.pongCanvas.update();
@@ -221,12 +234,14 @@ class CmdGame extends CmdJWT {
 	#onStop() {
 		if (this.wsGame)
 			this.wsGame.close();
-		if (this.wsPong)
-			this.wsPong.close();
+		if (this.wsChat)
+			this.wsChat.close();
 		if (this.boxCanvas)
 			this.boxCanvas.moveCursor(this.boxCanvas.dx - 1, this.boxCanvas.dy - 1);
+		if (this.controller)
+			this.controller.stop();
 		process.stdout.write("\n");
-		CvsPong.showCursor(); 
+		CvsPong.showCursor();
 	}
 
 	#onGameUpdate(fun = () => {}) {
@@ -265,7 +280,7 @@ class CmdGame extends CmdJWT {
 
 
 	#dialog(msg) {
-		console.error(msg); //
+		//console.error(msg); //
 		this.dialogCanvas.resetText(msg);
 		this.dialogCanvas.displayText();
 	}
