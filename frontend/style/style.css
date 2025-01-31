@@ -9,7 +9,7 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   background-color: black;
   color: white !important;
   margin: 0; /* Remove default margins */
@@ -25,10 +25,7 @@ body {
   vertical-align: middle;
   font-family: "Audiowide", sans-serif;
   text-transform: uppercase;
-  text-shadow:
-    0 0 7px #f037a5,
-    0 0 10px #f037a5,
-    0 0 42px #f037a5,
+  text-shadow: 0 0 7px #f037a5, 0 0 10px #f037a5, 0 0 42px #f037a5,
     0 0 82px #f037a5;
   color: #f037a5;
   font-size: 3rem;
@@ -39,19 +36,13 @@ h1 {
   padding: 25px;
   font-family: "Audiowide", sans-serif;
   text-transform: uppercase;
-  text-shadow:
-    0 0 7px #fff,
-    0 0 10px #fff,
-    0 0 42px #f037a5,
-    0 0 82px #f037a5,
-    0 0 92px #f037a5,
-    0 0 102px #f037a5,
-    0 0 151px #f037a5;
+  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 42px #f037a5, 0 0 82px #f037a5,
+    0 0 92px #f037a5, 0 0 102px #f037a5, 0 0 151px #f037a5;
 }
 
 h2 small {
   text-align: center;
-  color: white ;
+  color: white;
   /* padding: 25px; */
   font-family: "Audiowide", sans-serif;
   text-transform: none;
@@ -60,7 +51,7 @@ h2 small {
 /* SIDEBAR SETTINGS */
 .navbar {
   position: fixed;
-  top:0;
+  top: 0;
   width: 100%;
   display: flex;
   align-items: center;
@@ -150,7 +141,6 @@ i {
   margin: 0 auto;
 }
 
-
 /* BUTTONS */
 .btn-primary {
   background-color: #adfe04;
@@ -195,7 +185,6 @@ i {
   text-shadow: 0 0 10px #ff4632, 0 0 20px #ff4632;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
-
 }
 
 #pongCanvas {
@@ -295,117 +284,117 @@ input:-webkit-autofill:focus {
 
 /* Chat button */
 #chat-btn {
-position: fixed;
-bottom: 20px;
-right: 20px;
-background-color: #adfe04;
-color: black;
-border: none;
-border-radius: 50%;
-width: 60px;
-height: 60px;
-cursor: pointer;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-font-size: 16px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #adfe04;
+  color: black;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
 }
 
 /* Chat popup */
 #chat-popup {
-position: fixed;
-bottom: 80px;
-right: 20px;
-width: 300px;
-height: 400px;
-background-color: black;
-border: 4px solid #adfe04;
-border-radius: 0px;
-display: none;
-flex-direction: column;
-overflow: hidden;
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 300px;
+  height: 400px;
+  background-color: black;
+  border: 4px solid #adfe04;
+  border-radius: 0px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Chat header */
 #chat-header {
-background-color: #adfe04;
-color: black;
-padding: 10px;
-display: flex;
-justify-content: space-between;
-align-items: center;
+  background-color: #adfe04;
+  color: black;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #chat-header button {
-background: none;
-border: none;
-color: black;
-font-size: 18px;
-cursor: pointer;
+  background: none;
+  border: none;
+  color: black;
+  font-size: 18px;
+  cursor: pointer;
 }
 
 /* Chat body */
 #chat-body {
-display: flex;
-flex-direction: column;
-height: 88%;
-/* max-height: 349px; */
+  display: flex;
+  flex-direction: column;
+  height: 88%;
+  /* max-height: 349px; */
 }
 
 #chat-messages {
-flex-grow: 1;
-padding: 10px;
-overflow-y: auto;
-background-color: black;
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: black;
 }
 
 #chat-input {
-padding: 10px;
-border: 1px solid black;
-flex-grow: 1;
+  padding: 10px;
+  border: 1px solid black;
+  flex-grow: 1;
 }
 
 #send-btn {
-background-color: #adfe04;
-color: black;
-text-align: center;
-text-transform: uppercase;
-border: none;
-padding: 9px;
-cursor: pointer;
+  background-color: #adfe04;
+  color: black;
+  text-align: center;
+  text-transform: uppercase;
+  border: none;
+  padding: 9px;
+  cursor: pointer;
 }
 
 .hover-tooltip {
-position: relative;
-text-decoration: none;
-cursor: pointer;
+  position: relative;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .hover-tooltip .tooltip {
-position: absolute;
-top: 50%; /* Align vertically with the link */
-left: 100%; /* Position to the right of the link */
-transform: translateY(-50%); /* Center the tooltip vertically */
-background-color: black; /* Background for contrast */
-color: white;
-padding: 10px;
-border-radius: 8px;
-white-space: nowrap;
-visibility: hidden; /* Initially hidden */
-opacity: 0;
-transition: opacity 0.2s ease; /* Smooth fade effect */
-display: flex; /* Layout the image and text in a row */
-align-items: center; /* Vertically align image and text */
-gap: 10px; /* Space between image and text */
-z-index: 10; /* Ensure tooltip appears on top */
+  position: absolute;
+  top: 50%; /* Align vertically with the link */
+  left: 100%; /* Position to the right of the link */
+  transform: translateY(-50%); /* Center the tooltip vertically */
+  background-color: black; /* Background for contrast */
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  visibility: hidden; /* Initially hidden */
+  opacity: 0;
+  transition: opacity 0.2s ease; /* Smooth fade effect */
+  display: flex; /* Layout the image and text in a row */
+  align-items: center; /* Vertically align image and text */
+  gap: 10px; /* Space between image and text */
+  z-index: 10; /* Ensure tooltip appears on top */
 }
 
 .hover-tooltip:hover .tooltip {
-visibility: visible;
-opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
 
 .hover-tooltip .tooltip img {
-display: block;
-border: 2px solid white; /* Optional: Add a border around the image */
+  display: block;
+  border: 2px solid white; /* Optional: Add a border around the image */
 }
 
 /* Navigation Bar */
@@ -458,4 +447,54 @@ p {
   color: white;
   text-decoration: none;
   border-radius: 5px;
+}
+
+#scrollable-panel {
+  max-height: 600px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+#active-panel {
+  scrollbar-width: thin; /* Pour Firefox */
+  scrollbar-color: #888 #f1f1f1; /* Couleur du thumb et du track */
+}
+
+/* Pour Chrome, Edge et Safari */
+#active-panel::-webkit-scrollbar {
+  width: 10px; /* Largeur de la barre */
+}
+
+#active-panel::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Couleur de fond */
+  border-radius: 10px;
+}
+
+#active-panel::-webkit-scrollbar-thumb {
+  background: #888; /* Couleur du curseur */
+  border-radius: 10px;
+  border: 2px solid #f1f1f1; /* Crée un effet d'espace */
+}
+
+#active-panel::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Assombri au survol */
+}
+
+/* Flèches haut/bas */
+#active-panel::-webkit-scrollbar-button {
+  display: block;
+  background: #ccc;
+  height: 15px;
+}
+
+#active-panel::-webkit-scrollbar-button:vertical:start {
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><path d="M7 14l5-5 5 5H7z"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+#active-panel::-webkit-scrollbar-button:vertical:end {
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><path d="M7 10l5 5 5-5H7z"/></svg>')
+    no-repeat center;
+  background-size: contain;
 }
