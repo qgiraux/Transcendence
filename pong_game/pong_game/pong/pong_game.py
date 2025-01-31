@@ -51,12 +51,9 @@ class Player:
 			"paddle_y": self.paddle_y,
 			"score": self.score,
 		}
-		log.error(p)
 		return p
 
 	def move_paddle(self, direction: Direction):
-		log.error("Moving paddle %s", direction)
-		log.error("Paddle Y: %s", self.paddle_y)
 		if direction == Direction.UP and self.paddle_y > 10:
 			self.paddle_y -= PADDLE_SPEED
 		elif direction == Direction.DOWN and self.paddle_y < 90:
@@ -146,7 +143,6 @@ class State:
 			"player_left": self.player_left.render(),
 			"player_right": self.player_right.render() if self.player_right else None,
 		}
-		log.error(frame)
 		return frame
 
 class PongEngine(threading.Thread):
@@ -170,8 +166,6 @@ class PongEngine(threading.Thread):
 	def run(self):
 		if not (self.state.player_left is None or self.state.player_right is None):
 			self.game_on = True
-			#wait for "space" press on both players, and start a countdown before truly starting the game
-		log.error("is game on? %s", self.game_on)
 		# Use asyncio.run to manage the event loop in this thread
 		try :
 			self.loop = asyncio.get_event_loop()
@@ -179,7 +173,6 @@ class PongEngine(threading.Thread):
 			self.loop = asyncio.new_event_loop()
 		try:
             # Block until both players are ready
-			
 			self.game_task = self.loop.create_task(self.game_loop())
 		except Exception as e:
 			log.error(f"Error during readiness check: {e}")
@@ -198,7 +191,6 @@ class PongEngine(threading.Thread):
 					log.error("Game %s is over", self.name)
 					break
 				tmp = self.state.player_left.score + self.state.player_right.score
-				log.error("Score: %s", tmp)
 				if tmp > self.score:
 					log.error("Score changed from %s to %s", self.score, tmp)
 					self.score = self.state.player_left.score + self.state.player_right.score
@@ -219,7 +211,6 @@ class PongEngine(threading.Thread):
 		log.error(f"number on online players : {self.online_players}")
 		if self.online_players < 2:
 			return
-		log.error("rendering starting state")
 		state_json = self.state.render()
 		log.error("Broadcasting starting state: %s", state_json)
 		await self.channel_layer.group_send(
@@ -257,7 +248,6 @@ class PongEngine(threading.Thread):
 	
 
 	async def broadcast_game_over(self):
-		log.error("Reached the game over broadcaster")
 		state_json = self.state.render()
 		state_json["winner"] = (
 			self.state.player_left.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_right.playerid
@@ -376,9 +366,11 @@ class PongEngine(threading.Thread):
 		if self.state.player_left.playerid == playerid:
 			self.state.player_left = None
 			self.state.player_right.score = self.MAX_SCORE
+			self.state.player_right.score = -1
 		elif self.state.player_right.playerid == playerid:
 			self.state.player_right = None
 			self.state.player_left.score = self.MAX_SCORE
+			self.state.player_left.score = -1
 		else:
 			log.error("Player %s not in game", playerid)
 			return
