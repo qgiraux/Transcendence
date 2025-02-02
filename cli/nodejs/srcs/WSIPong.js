@@ -1,11 +1,11 @@
 class WSIPong {
-	static width = 120;
+	static width = 200;
 	static height = 100;
 	static paddleLX = 10;
-	static paddleRX = 110;
+	static paddleRX = 190;
 	static paddleLH = 10;
 	static paddleRH = 10;
-	static ballX0 = 50;
+	static ballX0 = 100;
 	static ballY0 = 50;
 
 	static flipXEngine(xEngine) {
@@ -16,8 +16,8 @@ class WSIPong {
 		return (Math.floor(xEngine * xDivMax / WSIPong.width));
 	}
 
-	static toYDiv(xEngine, xDivMax) {
-		return (Math.floor(xEngine * xDivMax / WSIPong.height));
+	static toYDiv(yEngine, yDivMax) {
+		return (Math.floor(yEngine * yDivMax / WSIPong.height));
 	}
 
 	static ready = JSON.stringify({type: "ready"});

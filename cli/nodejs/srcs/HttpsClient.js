@@ -127,6 +127,8 @@ class HttpsClient{
 			options.headers['Content-Type'] = 'application/json',
 			options.headers['Content-Length']= jsonData.length
 		}
+		// console.error(options); //
+		// console.error(jsonData); //
 		const req = https.request(options, (res) => {
 			const { statusCode } = res;
 			const contentType = res.headers['content-type'];

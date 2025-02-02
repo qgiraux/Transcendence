@@ -36,7 +36,7 @@ class CmdRegister extends Command {
 		];
 		this.name = "signup";
 		this.parser.setOptions(opts, callbacks);
-		this.parser.defaultCallback = () => {this._stepEnterLogin()};
+		this.parser.defaultCallback = () => {this.#stepEnterLogin()};
 		this.host = "";
 		this.hostDefault = l.source.sys.host;
 		this.login = "";
@@ -45,16 +45,24 @@ class CmdRegister extends Command {
 		this.editor = undefined;
 	}
 
-	_getValue(prompt = "", callbackUpdate, callbackNext, hidden){
+	#getValue(prompt = "", callbackUpdate, callbackNext, hidden){
 		process.stdout.write(prompt);
 		if (!this.editor) {
 			this.editor = new TextEditor();
 			this.editor.setOnKeys();
 		};
-		this.editor.echo = (true == hidden) ? TextEditor.echo_hidden : TextEditor.echo;
-		this.editor.refresh = () => {
-			process.stdout.write(`\r\x1b[2K${prompt}${this.editor.text}`)
-		};
+		if (true == hidden) {
+			this.editor.echo = TextEditor.echo_hidden;
+			this.editor.refresh = () => {
+				process.stdout.write(
+					`\r\x1b[2K${prompt}${"*".repeat(this.editor.text.length)}`
+			)};
+		} else {
+			this.editor.echo = TextEditor.echo;
+			this.editor.refresh = () => {
+				process.stdout.write(`\r\x1b[2K${prompt}${this.editor.text}`)
+			};
+		}
 		this.editor.onEnter = () => {
 			callbackUpdate(this.editor.text);
 			this.editor.text = "";
@@ -82,7 +90,7 @@ class CmdRegister extends Command {
 			CmdRegister._printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
 	}
 
-	_stepPost(){
+	#stepPost(){
 		if (this.editor) {
 			this.editor.stop();
 			this.editor = undefined;
@@ -112,29 +120,29 @@ class CmdRegister extends Command {
 		);
 	}
 
-	_stepConfirmPassword(){
+	#stepConfirmPassword(){
 		const update = (line) => {this.passwordConfirm = line};
-		const nextStep = () => {this._stepPost();};
+		const nextStep = () => {this.#stepPost();};
 
-		this._getValue(l.t(TLK_PROMPT_PWD_RE), update, nextStep, true);
+		this.#getValue(l.t(TLK_PROMPT_PWD_RE), update, nextStep, true);
 	}
 
-	_stepEnterPassword(){
+	#stepEnterPassword(){
 		const update = (line) => {this.password = line};
-		const nextStep = () => {this._stepConfirmPassword();};
+		const nextStep = () => {this.#stepConfirmPassword();};
 
 		if (!this.password)
-			this._getValue(l.t(TLK_PROMPT_PWD), update, nextStep, true);
+			this.#getValue(l.t(TLK_PROMPT_PWD), update, nextStep, true);
 		else
 			nextStep();
 	}
 
-	_stepEnterLogin(){
+	#stepEnterLogin(){
 		const update = (line) => {this.login = line};
-		const nextStep = () => {this._stepEnterPassword();};
+		const nextStep = () => {this.#stepEnterPassword();};
 
 		if (!this.login)
-			this._getValue(l.t(TLK_PROMPT_LOGIN), update, nextStep, false);
+			this.#getValue(l.t(TLK_PROMPT_LOGIN), update, nextStep, false);
 		else
 			nextStep();
 	}

@@ -276,7 +276,7 @@ class CvsPong extends Canvas {
 	}
 
 	initalize(){
-		this.paddleRX = CvsPong.pixPerChar * (this.dx - 1);
+		//this.paddleRX = CvsPong.pixPerChar * (this.dx - 1);
 		this.netX = Math.floor(this.dx / 2);
 		this.scoreLY = 2;
 		this.scoreRY = 2;
