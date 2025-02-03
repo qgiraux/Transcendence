@@ -2,6 +2,7 @@ import Application from "../Application.js";
 import AbstractView from "./AbstractView.js";
 import PongRenderer from "../pongrenderer.js";
 import TRequest from "../TRequest.js";
+import Avatar from "../Avatar.js";
 
 class PongGameView extends AbstractView {
     constructor(params) {
@@ -32,6 +33,8 @@ class PongGameView extends AbstractView {
         document.addEventListener('keyup', (event) => this.handleKeyUp(event));
 
         this._setHTML();
+
+        this.createTournamentProgressionDisplay()
 
         this.canvas = document.getElementById("pongCanvas");
         
@@ -249,6 +252,128 @@ class PongGameView extends AbstractView {
         }
       }
 
+    createTournamentProgressionDisplay() {
+        let tournament_name = Application.joinedTournament;
+        TRequest.request("GET", `/api/tournament/details/${tournament_name}`)
+        .then((tournament) => {
+            let roundNumber = tournament["size"];
+            let currentRound = Object.keys(tournament["rounds"]).length;
+            const container = document.getElementById("tournament-progression-container");
+            container.innerHTML = `
+                        <div class="row mt-1 d-flex  justify-content-center align-items-center mx-auto">
+                        <h2>${tournament["tournament name"]} - round ${currentRound}</h2>
+                        <div class="row d-flex mx-auto justify-content-center align-items-center p-1" id="rounds-container"></div>
+                        `;
+            const roundsContainer = container.querySelector("#rounds-container");
+        
+            for (; roundNumber >= 1; roundNumber = roundNumber / 2) {
+            let roundDiv = document.createElement("div");
+            roundDiv.classList.add(
+                "col",
+                "d-flex",
+                "flex-column",
+                "justify-content-center"
+            );
+            roundDiv.id = `round-${roundNumber}`;
+            roundDiv = this.populateRound(tournament, roundDiv, roundNumber);
+            roundsContainer.appendChild(roundDiv);
+            }
+        })
+      }
+
+      getIdfromTournament(tournament, round, index) {
+        if (!tournament["rounds"][round]) return 0;
+        if (tournament["rounds"][round].length <= index) return 0;
+        return tournament["rounds"][round][index];
+      }
+    
+      getProfileLinkformId(id) {
+        if (id === 0) return "";
+        return `/profile/${id}`;
+      }
+    
+      createAvatarElementFromId(id, size, winner) {
+        const img = document.createElement("img");
+        img.classList.add("rounded", "rounded-circle");
+        if (winner) {
+          img.classList.add(
+            "rounded",
+            "rounded-circle",
+            "border",
+            "border-warning"
+          );
+        }
+        img.width = size;
+        img.height = size;
+        if (id !== 0) {
+          img.src = Avatar.url(id);
+          img.dataset.avatar = id;
+          const link = document.createElement("a");
+          link.dataset.link = 1;
+          link.href = this.getProfileLinkformId(id);
+          link.appendChild(img);
+          return link;
+        } else {
+          img.src = "/img/question_mark_icon.png";
+          return img;
+        }
+      }
+
+      createRoundMatchHTML(tournament, round, indexPlayerOne, indexPlayertwo) {
+        const match = document.createElement("div");
+        match.classList.add(
+          "match",
+          "d-flex",
+          "justify-content-center",
+          "align-items-center",
+          "mb-2",
+          "p-1",
+          "border",
+          "gap-1"
+        );
+        const idPlayerOne = this.getIdfromTournament(
+          tournament,
+          round,
+          indexPlayerOne
+        );
+        const idPlayerTwo = this.getIdfromTournament(
+          tournament,
+          round,
+          indexPlayertwo
+        );
+        const userid = Application.getUserInfos().userId;
+        if (userid == idPlayerOne || userid == idPlayerTwo) {
+            match.classList.add("current-match");
+        }
+        match.appendChild(this.createAvatarElementFromId(idPlayerOne, 50, false));
+        match.appendChild(this.createAvatarElementFromId(idPlayerTwo, 50, false));
+        return match;
+      }
+
+      populateRound(tournament, roundDiv, roundNumber) {
+        if (roundNumber == 1) {
+          roundDiv.appendChild(
+            this.createAvatarElementFromId(
+              this.getIdfromTournament(tournament, "1", 0),
+              90,
+              true
+            )
+          );
+        }
+        let secondPlayer = roundNumber - 1;
+        for (secondPlayer = 1; secondPlayer < roundNumber; secondPlayer += 2) {
+          roundDiv.appendChild(
+            this.createRoundMatchHTML(
+              tournament,
+              String(roundNumber),
+              secondPlayer - 1,
+              secondPlayer
+            )
+          );
+        }
+        return roundDiv;
+      }
+    
 
     _setHTML() {
         const container = document.querySelector("#view-container");
@@ -267,7 +392,7 @@ class PongGameView extends AbstractView {
                   height: 100vh; /* Full viewport height */
               }
             </style>
-            <h1 class="text-white display-1">Tournament Game</h1>
+            <h3 class="text-white display-1">Tournament Game</h3>
             <div id="tournament-progression-container"></div>
             <canvas id="pongCanvas" width="800" height="400"></canvas>
             <div id="message-container"></div>

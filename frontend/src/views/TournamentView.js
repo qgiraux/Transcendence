@@ -101,11 +101,11 @@ class TournamentsView extends AbstractView {
         const req = await TRequest.request("POST", "/api/tournament/join/", {
           name: tournamentName,
         });
+        Application.joinedTournament = tournamentName;
         Alert.successMessage(
           "Tournament",
           `Successfully joined tournament ${tournamentName}`
         );
-        Application.joinedTournament = tournamentName;
       } catch (error) {
         Alert.errorMessage("Tournament", "Could not join tournament");
       }

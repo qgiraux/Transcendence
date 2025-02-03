@@ -473,3 +473,8 @@ p {
 .match {
   border-color: #b7b7b7 !important;
 }
+
+.current-match {
+  border-color: #ffffff !important; /* Pink border remains */
+  box-shadow: 0 0 10px #f3f3f3, 0 0 20px #ffffff; /* Neon glow effect */
+}
