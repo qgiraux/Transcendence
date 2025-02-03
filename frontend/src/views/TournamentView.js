@@ -105,6 +105,7 @@ class TournamentsView extends AbstractView {
           "Tournament",
           `Successfully joined tournament ${tournamentName}`
         );
+        Application.joinedTournament = tournamentName;
       } catch (error) {
         Alert.errorMessage("Tournament", "Could not join tournament");
       }
@@ -241,7 +242,7 @@ Request API function
     link.dataset.link = 1;
     link.classList.add("text-white", "text-center");
     const header = document.createElement("div");
-    header.classList.add("row", "rounded", "p-2", "w-75");
+    header.classList.add("row", "p-2", "w-75");
     header.innerHTML = `<h4 class="text-white text-center">Can't find a tournament you like?</h4>`;
     header.appendChild(link);
     return header;
@@ -251,13 +252,11 @@ Request API function
     const card = document.createElement("div");
     const freeSpots = tournament["size"] - tournament["players"].length;
     card.classList.add(
+      "tournament-card",
       "w-75",
       "text-white",
       "border",
-      "border-secondary",
-      "rounded",
-      "p-3",
-      "bg-dark"
+      "p-3"
     );
     card.dataset.tournament = tournament["tournament name"];
     card.innerHTML = `
@@ -265,14 +264,14 @@ Request API function
 		<div class="row d-flex justify-self-center">
 			<div class="col">
 				<h4 class="text-white">${tournament["tournament name"]}
-				<span class="badge bg-success" id="joined-badge" style="display: none;">Joined</span>
+				<span class="badge bg-success joined-badge" style="display: none;">Joined</span>
 				</h4>
 				<h4 class="text-secondary" id="size">${tournament["size"]} players</h4>
 				<h5 class="text-secondary " id="spot-left">${freeSpots} spot left</h5>
 				<div class="row d-flex justify-content-center justify-self-center mt-2" id="action"></div>
 			</div>
-		<div class="col d-flex flex-column justify-content-center align-items-center gap-2 p-1 border border-secondary rounded "
-			id="players-avatars">
+		<div class="players-avatars col d-flex flex-column justify-content-center align-items-center gap-2 p-1 border  "
+			>
 			<div class="d-flex flex-row gap-2  align-self-center" id="row1">
 			</div>
 			<div class="d-flex flex-row gap-2 align-self-center" id="row2">
@@ -310,7 +309,7 @@ Request API function
     } else if (
       tournament["players"].includes(Application.getUserInfos().userId)
     ) {
-      const badge = card.querySelector("#joined-badge");
+      const badge = card.querySelector(".joined-badge");
       if (badge) {
         badge.style.display = "inline-block";
       }
@@ -340,13 +339,11 @@ Request API function
     //create the tournament card div
     const card = document.createElement("div");
     card.classList.add(
+      "tournament-card",
       "w-75",
       "text-white",
       "border",
-      "border-secondary",
-      "rounded",
-      "p-3",
-      "bg-dark"
+      "p-3"
     );
     card.innerHTML = `
 				<div class="row mt-1 d-flex  justify-content-center align-items-center mx-auto">
@@ -380,8 +377,7 @@ Request API function
       "align-items-center",
       "mb-2",
       "p-1",
-      "rounded",
-      "bg-primary",
+      "border",
       "gap-1"
     );
     const idPlayerOne = this.getIdfromTournament(
@@ -465,7 +461,7 @@ Request API function
 					</div>
 
 				</div>
-				<div class="row  mt-3 p-3 gap-3 justify-content-center align-items-center  border border-secondary rounded overflow-auto" id="scrollable-panel">
+				<div class="row  mt-3 p-3 gap-3 justify-content-center align-items-center  border  overflow-auto" id="scrollable-panel">
 						</div>
 			</div>
 				</div>
