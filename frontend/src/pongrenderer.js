@@ -61,12 +61,12 @@ class PongRenderer {
         console.log("drawStartMessage", player1, player2);
         this.clearCanvas();
         this.drawScore(0, 0);
-        this.drawPaddle(paddle1);
-        this.drawPaddle(paddle2);
-        this.ctx.font = "20px Arial";
+        // this.drawPaddle(paddle1);
+        // this.drawPaddle(paddle2);
+        this.ctx.font = "30px Montserrat";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "white";
-        this.ctx.fillText("press space to start", this.canvas.width / 2, this.canvas.height / 2);
+        this.ctx.fillText("Press space to start", this.canvas.width / 2, this.canvas.height / 2);
         this.drawNames(player1, player2);
     }
 
@@ -76,7 +76,7 @@ class PongRenderer {
         this.drawScore(score1, score2);
         this.drawPaddle(paddle1);
         this.drawPaddle(paddle2);
-        this.ctx.font = "20px Arial";
+        this.ctx.font = "20px Audiowide";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "white";
         this.ctx.fillText(count, (this.canvas.width / 2), (this.canvas.height / 2));
@@ -85,13 +85,14 @@ class PongRenderer {
     drawNames(player1, player2) {
         console.log("drawing namesss");
         this.ctx.fillStyle = "blue";
-        this.ctx.font = "18px Arial";
+        this.ctx.font = "40px Audiowide";
         // this.ctx.fillRect((this.canvas.width / 4) - 7, 25, 30, 30);
         // this.ctx.fillRect((this.canvas.width / 4) * 3 - 7, 25, 30, 30);
         this.ctx.fillStyle = "white";
-        this.ctx.font.width
-        this.ctx.fillText(player1, (this.canvas.width / 4) - (this.ctx.measureText(player1).width / 2), 20);
-        this.ctx.fillText(player2, (this.canvas.width / 4) * 3 - (this.ctx.measureText(player2).width / 2), 20);        
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(player1, (this.canvas.width / 4), 50);
+        this.ctx.fillText(player2, (this.canvas.width / 4) * 3, 50);
+        this.ctx.fillText("vs", this.canvas.width / 2, 50)        
     }
     renderingLoop(paddle1, paddle2, score1, score2, ball, player1, player2) {
         this.clearCanvas();

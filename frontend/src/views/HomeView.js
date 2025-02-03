@@ -66,6 +66,7 @@ class HomeView extends AbstractView {
           console.log("checkpoint 2");
           if (type === "game") {
             console.log("game invite received");
+            console.log("data message websocket",data);
             // Display the invite
             TRequest.request("GET", `/api/users/userinfo/${sender}`)
               .then((username) => {

@@ -455,7 +455,6 @@ Request API function
       container.innerHTML = `
 			<div class=" mx-auto" style="max-width: 700px;">
 				<h1 class="text-white text-center mb-5">Tournaments</h1>
-
 				<div class="row">
 					<div class="btn-group mx-auto align-items-center">
 						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">Open
