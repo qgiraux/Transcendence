@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2024/12/15 12:06:43 by jerperez         ###   ########.fr        #
+#    Updated: 2025/01/23 15:40:57 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,8 +15,11 @@ import os
 import logging
 #
 import web3
+import aiohttp
 
 WS_URL='ws://hardhat-network:8545'
+HTTP_URL='http://hardhat-network:8545' #HTTPProvider
+
 ENV_ACCOUNT_SERVICE_KEY='ACCOUNT_SERVICE_KEY'
 ENV_ACCOUNT_USER_KEY='ACCOUNT_USER_KEY'
 
@@ -76,7 +79,12 @@ def hide_private_key(private_key : str, web3_ : web3.main.AsyncWeb3) -> str:
 async def initialize_web3(owner_private_key=get_private_key_from_env()) -> web3.main.AsyncWeb3: 
 	"""Gets web3 ready for transaction """
 	logger.info(f"owner payable address:{"*" * len(owner_private_key)}")
-	web3_ = await web3.AsyncWeb3(web3.AsyncWeb3.WebSocketProvider(WS_URL))
+	#web3_ = await web3.AsyncWeb3(web3.AsyncWeb3.WebSocketProvider(WS_URL)) #uses signals :(
+	
+	web3_ = web3.AsyncWeb3(web3.AsyncWeb3.AsyncHTTPProvider(HTTP_URL))
+	custom_session = aiohttp.ClientSession()
+	await web3_.provider.cache_async_session(custom_session)
+
 	web3_.eth.default_account = hide_private_key(owner_private_key, web3_)
 	logger.info(f"owner public address: {web3_.eth.default_account}")
 	return web3_

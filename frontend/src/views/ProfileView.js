@@ -11,6 +11,19 @@ class ProfileView extends AbstractView {
     this._setTitle("DefaultView");
     this.domText = {};
     this.messages = {};
+    this.init();
+  }
+
+  async init() {
+    console.log(Application.lang);
+    Application.localization.loadTranslations();
+    await Application.setLanguage(Application.lang);
+    await this.loadMessages();
+    // await Application.applyTranslations();
+    this.onStart();
+  }
+
+  async loadMessages() {
     this.messages.error = "Error";
     this.messages.wentWrong = "Something went wrong";
     this.messages.userStatsErr = "Error getting user stats";
@@ -18,11 +31,36 @@ class ProfileView extends AbstractView {
     this.messages.avatarUpdateErr = "Error updating avatar";
     this.messages.avatarRefreshErr = "Error refreshing avatar";
     this.messages.fileSelectFalse = "You must select a file";
-    this.messages.aliasUpdateErr = "Error updating alias"
-
+    this.messages.aliasUpdateErr = "Error updating alias";
+    this.messages.errUpload = "The picture could't be uploaded. Please check that it is a valid jpeg or png file";
     this.messages.aliasEmptyErr = "Alias cannot be empty."
-    this.onStart();
+    this.domText.manageAvatar = await Application.localization.t("profile.actions.manageAvatar");
+    this.domText.changeAlias = await Application.localization.t("profile.actions.changeAlias");
+    this.domText.activate2FA = await Application.localization.t("profile.actions.activate2FA");
+    this.domText.close = await Application.localization.t("profile.actions.closeBtn");
+    this.domText.aliasLabel = await Application.localization.t("profile.alias.label");
+    this.domText.aliasField = await Application.localization.t("profile.alias.field");
+    this.domText.avatarReset = await Application.localization.t("profile.avatar.resetDefault");
+    this.domText.chooseFile = await Application.localization.t("profile.avatar.chooseFile");
+    this.domText.avatarUpdate = await Application.localization.t("profile.avatar.update");
   }
+
+  listenForLanguageChange() {
+    const languageSelector = document.getElementById("language-selector-container");
+    if (languageSelector) {
+        this.addEventListener(languageSelector, "change", async (event) => {
+            const selectedLanguage = event.target.value;
+            console.log("Changement de langue détecté :", selectedLanguage);
+
+            await Application.setLanguage(selectedLanguage);
+            await this.loadMessages();
+            await Application.applyTranslations();
+
+            Router.reroute("/profile");
+        });
+    }
+}
+
 
   onStart() {
     this._setTitle("Profile");
@@ -32,6 +70,7 @@ class ProfileView extends AbstractView {
       }, 50);
       return;
     }
+    this.listenForLanguageChange();
     this.id = this.params["id"] || Application.getUserInfos().userId;
     TRequest.request("GET", `/api/users/userinfo/${this.id}`)
       .then((result) => {
@@ -44,7 +83,6 @@ class ProfileView extends AbstractView {
         });
       })
       .catch((error) => {
-        // Alert.errorMessage("Something went wrong", error.message);
         Alert.errorMessage(this.messages.wentWrong, error.message);
 
       });
@@ -107,14 +145,8 @@ class ProfileView extends AbstractView {
         }
       })
       .catch((error) => {
-        Alert.errorMessage(this.messages.userStatsErr, error.message); // AV
+        Alert.errorMessage(this.messages.userStatsErr, error.message);
       });
-      // .catch((error) => {
-      //   Alert.errorMessage(
-      //     "User Stats",
-      //     `Something went wrong: ${error.message}`
-      //   );
-      // })
       ;
   }
 
@@ -168,16 +200,12 @@ class ProfileView extends AbstractView {
         .then(() => {
           Avatar.refreshAvatars();
         })
-        // .catch((error) => {
-        //   Alert.errorMessage("Avatar reset", `Something went wrong: ${error}`);
-        // });
         .catch((error) => {
           Alert.errorMessage(this.messages.avatarResetErr, error.message); // AV
         });
     } else if (this.avatarChoice === "update") {
       const fileInput = document.getElementById("fileInput");
       if (!fileInput || fileInput.files.length === 0) {
-        // Alert.errorMessage("Avatar", "You must select a file");
         Alert.errorMessage(this.messages.avatarUpdateErr, this.messages.fileSelectFalse);
         return;
       }
@@ -186,11 +214,21 @@ class ProfileView extends AbstractView {
       formData.append("image", fileInput.files[0]);
 
       try {
-        await TRequest.request("POST", "/api/avatar/upload/", formData);
+        console.log("starting the request");
+        const r = await TRequest.request(
+          "POST",
+          "/api/avatar/upload/",
+          formData
+        );
+        if (typeof r != "object") throw new Error("upload error");
+        if (r.hasOwnProperty("error")) {
+          console.log(r.error);
+          throw new Error("upload error");
+        }
         await Avatar.refreshAvatars();
       } catch (error) {
-        // Alert.errorMessage("Avatar", error.message);
-        Alert.errorMessage(this.messages.avatarRefreshErr, error.message);
+        console.log("an error has occured");
+        Alert.errorMessage(this.messages.avatarRefreshErr, this.messages.errUpload);
       }
     }
 
@@ -245,7 +283,6 @@ class ProfileView extends AbstractView {
 
     const newAlias = aliasInput.value.trim();
     if (!newAlias) {
-      // Alert.errorMessage("Alias", "Alias cannot be empty.");
       Alert.errorMessage(this.messages.aliasUpdateErr, this.messages.aliasEmptyErr);
       return;
     }
@@ -283,15 +320,14 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-      <button class="btn btn-primary" id="manage-btn">Manage Avatar</button>
+      <button class="btn btn-primary better-btn" id="manage-btn">${this.domText.manageAvatar}</button>
     `;
     const profileAlias = `
-      <button class="btn btn-primary" id="alias-btn">Change Alias</button>
+      <button class="btn btn-primary better-btn" id="alias-btn">${this.domText.changeAlias}</button>
     `;
     const profileTwofa = `
-      <label class="btn btn-primary">
-        Activate 2FA
-        <a href="/twofa" data-link class="nav-link px-0 align-middle">profile</a>
+      <label class="btn btn-primary better-btn" id="twofa-better-btn">
+       ${this.domText.activate2FA}<a href="/twofa" data-link class="nav-link px-0 align-middle">Profile</a>
       </label>
     `;
     const container = document.querySelector("#view-container");
@@ -304,16 +340,16 @@ class ProfileView extends AbstractView {
             <div class="modal-content bg-dark">
               <div class="modal-header">
                 <h2>Change Alias</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=${this.domText.close}></button>
               </div>
               <div class="modal-body">
                 <div class="form-group">
-                  <label for="newAliasInput" class="form-label">New Alias</label>
-                  <input type="text" class="form-control" id="newAliasInput" placeholder="Enter new alias">
+                  <label for="newAliasInput" class="form-label">${this.domText.aliasLabel}</label>
+                  <input type="text" class="form-control" id="newAliasInput" placeholder="${this.domText.aliasField}">
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="update-alias-btn" data-bs-dismiss="modal">Update Alias</button>
+                <button type="button" class="btn btn-primary" id="update-alias-btn" data-bs-dismiss="modal">${this.domText.aliasUpdate}</button>
               </div>
             </div>
           </div>
@@ -326,16 +362,16 @@ class ProfileView extends AbstractView {
             <div class="modal-content bg-dark">
               <div class="modal-header">
                 <h2>Avatar Settings</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-autobs-dismiss="modal" aria-label=${this.domText.close}></button>
               </div>
               <div class="mt-3">
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="avatarOption" id="resetDefault" value="reset" checked>
-                  <label class="form-check-label" for="resetDefault">Reset to Default</label>
+                  <label class="form-check-label" for="resetDefault">${this.domText.avatarReset}</label>
                 </div>
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="radio" name="avatarOption" id="uploadFile" value="file">
-                  <label class="form-check-label" for="uploadFile">Choose from File</label>
+                  <label class="form-check-label" for="uploadFile">${this.domText.chooseFile}</label>
                   <div class="input-group mb-3">
                     <div class="custom-file">
                       <input type="file" class="custom-file-input" accept="image/png,image/jpeg" id="fileInput" disabled>
@@ -344,44 +380,52 @@ class ProfileView extends AbstractView {
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="update-button" data-bs-dismiss="modal">Update</button>
+                <button type="button" class="btn btn-primary" id="update-button" data-bs-dismiss="modal">${this.domText.avatarUpdate}</button>
               </div>
             </div>
           </div>
         </div>
         <!-- END Avatar Modal -->
 
-        <div class="row p-3">
-          <div class="row align-items-center">
+        <div class="row p-3 justify-content-center">
+          <div class="row">
             <div class="col-md-6">
-              <img id="profile-img" src="${Avatar.url(
-                this.currentUserInfos.id
-              )}" width="300" height="300" data-avatar="${
-        this.currentUserInfos.id
-      }" alt="user" class="rounded-circle">
+              <img 
+                id="profile-img" 
+                src="${Avatar.url(this.currentUserInfos.id)}"
+                data-avatar="${this.currentUserInfos.id}"
+                alt="user"
+                class="rounded-circle">
             </div>
             <div class="col-md-6">
               <h1 class="text-white display-1">${
                 this.currentUserInfos.username
               }</h1>
-              <p class="text-white display-5" id=nickname>${
-                this.currentUserInfos.nickname
-              }</p>
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileEdit
-                  : ""
-              }
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileAlias
-                  : ""
-              }
-              ${
-                this.currentUserInfos.id === Application.getUserInfos().userId
-                  ? profileTwofa
-                  : ""
-              }
+              ${this.currentUserInfos.nickname !== this.currentUserInfos.username ? 
+              `<p class="text-white display-5" id="nickname">aka ${this.currentUserInfos.nickname}</p>` : ''}
+              <div class="row justify-content-center">
+                <div class="col-12 col-md-auto d-flex align-items-stretch">
+                  ${
+                    this.currentUserInfos.id === Application.getUserInfos().userId
+                      ? profileEdit
+                      : ""
+                  }
+                </div>
+                <div class="col-12 col-md-auto d-flex align-items-stretch">
+                  ${
+                    this.currentUserInfos.id === Application.getUserInfos().userId
+                      ? profileAlias
+                      : ""
+                  }
+                </div>
+                <div class="col-12 col-md-auto d-flex align-items-stretch">
+                  ${
+                    this.currentUserInfos.id === Application.getUserInfos().userId
+                      ? profileTwofa
+                      : ""
+                  }
+                </div>
+              </div>
             </div>
             <div id="stat-container">
             </div>

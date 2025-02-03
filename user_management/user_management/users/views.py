@@ -37,7 +37,6 @@ class UserListView(generics.ListAPIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-        
 
 
 @api_view(['POST'])
@@ -65,7 +64,7 @@ def get_jwt_token(request):
         try:
             token = body.get('twofa')
             if not token:
-                return Response({'error': '2FA token missing'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'2FA': '2FA token required'}, status=status.HTTP_401_UNAUTHORIZED)
 
             device = get_user_totp_device(user)
             if device and device.verify_token(token):
@@ -79,7 +78,7 @@ def get_jwt_token(request):
                 # Add custom claims to the access token
                 access_token = refresh.access_token
                 access_token['username'] = user.username
-                access_token['nickname'] = user.nickname
+                # access_token['nickname'] = user.nickname
                 access = str(access_token)
 
                 return Response({
@@ -105,8 +104,6 @@ def get_jwt_token(request):
         'access': access
     })
 
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def Get_my_infos(request):
@@ -123,9 +120,10 @@ def Get_user_stats(request, user_id):
     return Response(user.stats , status=200)
 
 @csrf_exempt
-@permission_classes([AllowAny])
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def Add_user_stats(request, user_id):
+    logger.error(f"adduserstats - Request body: {request.body}")
     # Use the authenticated user from request.user
     user = get_object_or_404(User, id=user_id) 
     body_unicode = request.body.decode('utf-8')
@@ -141,9 +139,51 @@ def Add_user_stats(request, user_id):
     return Response(user.stats , status=201)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([AllowAny]) 
 def Get_user_infos(request, user_id):
+    logger.error(user_id)
+    if user_id == 0:
+        user_info = {
+        "id": 0,
+        "username": "system",
+        "nickname": "system",
+        "2fa": "false",
+        }
+        logger.error(user_info)
+        return JsonResponse(user_info) 
     user = get_object_or_404(User, id=user_id)
+    user_info = {
+        "id": user.id,
+        "username": user.username,
+        "nickname": user.nickname,
+    }
+    return JsonResponse(user_info)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
+def Get_user_id(request):
+    if not request.body:
+        logger.error("Missing body")
+        return Response({"error":'Missing username'}, status=400)
+    
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    if 'username' not in body:
+        logger.error("Missing username")
+        return Response({"error": 'Missing username'}, status=400)
+    
+    username = body['username']
+    logger.error(username)
+    if username == 'system':
+        user_info = {
+        "id": 0,
+        "username": "system",
+        "nickname": "system",
+        "2fa": "false",
+        }
+        logger.error(user_info)
+        return JsonResponse(user_info) 
+    user = get_object_or_404(User, username=username)
     user_info = {
         "id": user.id,
         "username": user.username,
@@ -152,13 +192,30 @@ def Get_user_infos(request, user_id):
     }
     return JsonResponse(user_info)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
 def Enable_Twofa(request):
     user = request.user
-    user.twofa_enabled = True
-    user.save()
-    return Response({"success":'2fa enabled'}, status=200)
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    try:
+        token = body.get('twofa')
+        if not token:
+            return Response({'error': '2FA token missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+        device = get_user_totp_device(user)
+        if device and device.verify_token(token):
+            if not device.confirmed:
+                device.confirmed = True
+                device.save()
+
+            user.twofa_enabled = True
+            user.save()
+            return Response({"success":'2fa enabled'}, status=200)
+        return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
+    except json.JSONDecodeError:
+        return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
@@ -199,8 +256,6 @@ def DeleteUser(request):
     user.delete()
     return Response({"deleted":id}, status=200)
 
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny]) 
 def RegisterUser(request):
@@ -213,15 +268,34 @@ def RegisterUser(request):
         return Response(serializer.data, status=201)
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) 
+def ChangePassword(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    user = request.user
+    username = user.username
+    # Check if the password matches the one stored in the database
+    oldpassword = body.get('oldpassword')
+    newpassword = body.get('newpassword')
+    if not oldpassword:
+        return Response({'error': 'old Password is required'}, status=status.HTTP_400_BAD_REQUEST)
+    if not newpassword:
+        return Response({'error': 'new Password is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+    user = authenticate(username=username, password=oldpassword)
+    if user is None:
+        return Response({'error': 'Invalid old password'}, status=status.HTTP_401_UNAUTHORIZED)
+    user.set_password(newpassword)
+    user.save()
+    return Response({"success": "Password changed successfully"}, status=200)
+
+@csrf_exempt
 @permission_classes([AllowAny])
+@api_view(['GET'])
 def CheckUserStatus(request, user_id):
     online = is_user_online(user_id)
     return JsonResponse({"user_id": user_id, "online": online})
-
-
-
 
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
@@ -238,8 +312,6 @@ class TOTPCreateView(views.APIView):
     
     def get(self, request, format=None):
         user = request.user
-        user.twofa_enabled = True
-        user.save()
         # Check if the user already has a TOTP device
         device = get_user_totp_device(user)
         if not device:

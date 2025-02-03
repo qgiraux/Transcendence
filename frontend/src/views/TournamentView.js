@@ -12,19 +12,52 @@ class TournamentsView extends AbstractView {
     super(params);
     this.domText = {};
     this.messages = {};
-    this.messages.fetchTournamentsErr = "Error fetching tournaments";
-    this.messages.displayTournamentsErr = "Error displaying tournaments";
-    this.messages.joinTournamentErr = "Error joining tournament";
-    this.messages.createTournamentErr = "Error creating tournament";
-    this.messages.inviteFriendTitle = "Friend Invited";
-    this.messages.inviteFriendSuccess = "Successfully invited friend";
-    this.messages.inviteFriendFailure = "Error inviting friend";
-    this.messages.invalidName = "Invalid tournament name";
-    this.messages.tourNameRequirements = "Tournament name must be 3-30 characters long and contain only letters and numbers.";
+    this.init();
+  }
 
+  async init() {
+    await this.loadMessages();
     this.onStart();
   }
 
+  async loadMessages() {
+    await Application.localization.loadTranslations();
+    await Application.setLanguage(Application.lang);
+    this.domText.Title = await Application.localization.t("tournament.create.txt");
+    this.domText.createTournamentTxt = await Application.localization.t("tournament.create.txt");
+    this.domText.tournamentNameTxt = await Application.localization.t("tournament.create.name.txt");
+    this.domText.tournamentNameEnter = await Application.localization.t("tournament.create.name.enter");
+    this.domText.tournamentSizeTxt = await Application.localization.t("tournament.create.size.txt");
+    this.domText.createTournamentAction = await Application.localization.t("tournament.create.action.txt");
+    this.messages.fetchTournamentsErr = await Application.localization.t("tournament.create.errors.fetchTournaments");
+    this.messages.displayTournamentsErr = await Application.localization.t("tournament.create.errors.displayTournaments");
+    this.messages.joinTournamentErr = await Application.localization.t("tournament.create.errors.joinTournament");
+    this.messages.createTournamentErr = await Application.localization.t("tournament.create.errors.createTournament");
+    this.messages.invalidName = await Application.localization.t("tournament.create.errors.invalidName");
+    this.messages.tourNameRequirements = await Application.localization.t("tournament.create.errors.tourNameRequirements");
+    this.messages.inviteFriendTitle = await Application.localization.t("tournament.invite.title");
+    this.messages.inviteFriendSuccess = await Application.localization.t("tournament.invite.success");
+    this.messages.inviteFriendFailure = await Application.localization.t("tournament.invite.failure");
+    this.messages.alreadyJoined = await Application.localization.t("tournament.card.alreadyJoined");
+    this.messages.tournamentFull = await Application.localization.t("tournament.card.tournamentFull");
+    this.messages.joinTournament = await Application.localization.t("tournament.card.joinTournament");
+    this.messages.deleteTournament = await Application.localization.t("tournament.card.deleteTournament");
+  }
+  
+  listenForLanguageChange() {
+    const languageSelector = document.getElementById("language-selector-container");
+    if (languageSelector) {
+      this.addEventListener(languageSelector, "change", async (event) => {
+        const selectedLanguage = event.target.value;
+        console.log(selectedLanguage);
+        await Application.setLanguage(selectedLanguage);
+        await this.loadMessages(); 
+        await Application.applyTranslations();
+        // this._setHtml();
+        Router.reroute("/tournaments");
+      });
+    }
+  }
   onStart() {
     this._setTitle("Tournaments");
     if (Application.getAccessToken() === null) {
@@ -33,7 +66,7 @@ class TournamentsView extends AbstractView {
       }, 50);
       return;
     }
-
+    this.listenForLanguageChange();
     Avatar.getUUid();
     this._fetchTournaments();
     this._setHtml();
@@ -47,7 +80,6 @@ class TournamentsView extends AbstractView {
       this.tournamentsList = response.tournaments || [];
       this.displayTournamentsList(this.tournamentsList);
     } catch (error) {
-      // Alert.errorMessage("Error fetching tournaments", error.message);
       Alert.errorMessage(this.messages.fetchTournamentsErr, error.message);
 
     }
@@ -61,7 +93,6 @@ class TournamentsView extends AbstractView {
         await this.addTournamentCard(tournament);
       }
     } catch (error) {
-      // Alert.errorMessage("Error displaying tournaments", error.message);
       Alert.errorMessage(this.messages.displayTournamentsErr, error.message);
 
     }
@@ -73,7 +104,6 @@ class TournamentsView extends AbstractView {
     try {
       await this._fetchTournaments()
     } catch (error) {
-      // Alert.errorMessage("Error displaying tournaments", error.message);
       Alert.errorMessage(this.messages.displayTournamentsErr, error.message);
 
     }
@@ -91,6 +121,8 @@ class TournamentsView extends AbstractView {
       const { "tournament name": name, players, size } = details;
   
       // Check if the current user is part of the tournament
+      await this.loadMessages();
+      
       const userId = Application.getUserInfos().userId;
       const isPlayerInTournament = players.includes(userId);
       const isTournamentFull = players.length >= size;
@@ -113,7 +145,7 @@ class TournamentsView extends AbstractView {
 
       // Set the card content
       div.innerHTML = `
-        <div class="card shadow border-secondary p-2 text-white" style="background-color: #303030;">
+        <div class="card shadow border-secondary p-2 text-white">
           <div class="card-body">
             <h7 class="card-title">${name.length > 14 ? name.substring(0, 11) + '...' : name}</h7>
             <p class="card-text">${players.length} / ${size}</p>
@@ -123,7 +155,7 @@ class TournamentsView extends AbstractView {
               data-tournament="${tournament}"
               ${isPlayerInTournament || isTournamentFull ? "disabled" : ""}
               style="${isPlayerInTournament || isTournamentFull ? "background-color: grey; cursor: not-allowed;" : ""}">
-              ${isPlayerInTournament ? "Already Joined" : isTournamentFull ? "Tournament Full" : "Join Tournament"}
+              ${isPlayerInTournament ? this.messages.alreadyJoined : isTournamentFull ? this.messages.tournamentFull : this.messages.joinTournament}
             </button>
             <button 
               class="btn btn-secondary" 
@@ -131,7 +163,7 @@ class TournamentsView extends AbstractView {
               data-tournament="${tournament}"
               ${!isPlayerInTournament ? "disabled" : ""}
               style="${!isPlayerInTournament ? "background-color: grey; cursor: not-allowed;" : ""}">
-              "delete"
+              ${this.messages.deleteTournament}
             </button>
           </div>
 
@@ -167,7 +199,6 @@ class TournamentsView extends AbstractView {
             joinButton.style.backgroundColor = "grey";
             joinButton.style.cursor = "not-allowed";
           } catch (error) {
-            // Alert.errorMessage("Error joining tournament", error.message);
             Alert.errorMessage(this.messages.joinTournamentErr, error.message);
 
           }
@@ -182,12 +213,7 @@ class TournamentsView extends AbstractView {
             // Join the tournament
             await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament });
             await this._refresh_cards(tournament);
-            // joinButton.disabled = true;
-            // joinButton.innerText = "Joined";
-            // joinButton.style.backgroundColor = "grey";
-            // joinButton.style.cursor = "not-allowed";
           } catch (error) {
-            // Alert.errorMessage("Error joining tournament", error.message);
             Alert.errorMessage(this.messages.joinTournamentErr, error.message);
           }
         });
@@ -207,11 +233,9 @@ class TournamentsView extends AbstractView {
             });
             const username = await TRequest.request("GET", `/api/users/userinfo/${friendId}`);
             console.log(friendList[friendId])
-            // Alert.successMessage("Friend Invited", `Successfully invited friend ${username.username}`);
             Alert.successMessage(this.messages.inviteFriendTitle, `${this.messages.inviteFriendSuccess} ${username.username}`);
           } catch (error) {
             Alert.errorMessage(this.messages.inviteFriendFailure, error.message);
-            // Alert.errorMessage("Error inviting friend", error.message);
           }
         });
       });
@@ -238,7 +262,6 @@ class TournamentsView extends AbstractView {
       }
       return response.friends;
     } catch (error) {
-      // Alert.errorMessage("Error fetching tournament", error.message);
       Alert.errorMessage(this.messages.fetchTournamentsErr, error.message);
       return []; // Return an empty array if there's an error
     }
@@ -249,21 +272,21 @@ class TournamentsView extends AbstractView {
   createNewTournamentForm() {
     const tournamentsContainer = document.querySelector("#new-tournament-container");
     tournamentsContainer.innerHTML = `
-      <h5 class="text-white">Create Tournament</h5>
+      <h5 class="text-white">${this.domText.createTournamentTxt}</h5>
       <form id="create-tournament-form" class="d-flex align-items-center">
         <div class="form-group mr-2">
-          <label for="tournament-name" class="text-white">Tournament Name</label>
-          <input type="text" class="form-control" id="tournament-name" placeholder="Enter tournament name" required>
+          <label for="tournament-name" class="text-white">${this.domText.tournamentNameTxt}</label>
+          <input type="text" class="form-control" id="tournament-name" placeholder="${this.domText.tournamentNameEnter}" required>
         </div>
         <div class="form-group mr-2">
-          <label for="tournament-size" class="text-white">Tournament Size</label>
+          <label for="tournament-size" class="text-white">${this.domText.tournamentSizeTxt}</label>
           <select class="form-control" id="tournament-size" required>
             <option value="2">2</option>
             <option value="4">4</option>
             <option value="8">8</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-primary mt-4">Create</button>
+        <button type="submit" class="btn btn-primary mt-4">${this.domText.createTournamentAction}</button>
       </form>
     `;
   }
@@ -276,7 +299,6 @@ class TournamentsView extends AbstractView {
       const tournamentSize = document.querySelector("#tournament-size").value;
 
       if (!/^[a-zA-Z0-9]{3,30}$/.test(tournamentName)) {
-        // Alert.errorMessage("Invalid tournament name", "Tournament name must be 3-30 characters long and contain only letters and numbers.");
         Alert.errorMessage(this.messages.invalidName, this.messages.tourNameRequirements);
 
         return;
@@ -296,7 +318,7 @@ class TournamentsView extends AbstractView {
       container.innerHTML = `
         <div class="row">
           <div class="col-12">
-            <h1 class="text-white display-1">Tournaments</h1>
+            <h1 class="text-white display-1">${this.domText.Title}</h1>
           </div>
         </div>
         <div class="row">

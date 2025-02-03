@@ -10,9 +10,13 @@ import attr
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from datetime import datetime
+from time import sleep
 import httpx
 
 log = logging.getLogger(__name__)
+
+PADDLE_SPEED = 2 # 3 / canvasheight per tick
+BALL_SPEED = 1.25 # 2.5 / canvaswidth per tick
 
 @unique
 class Direction(Enum):
@@ -25,6 +29,9 @@ class Player:
 	playerid = attr.ib()
 	score = attr.ib(default=0, validator=attr.validators.instance_of(int))
 	player_left = attr.ib(default = True, validator=attr.validators.instance_of(bool))
+
+	
+	
 	
 	@staticmethod
 	def validate_paddle_y(_, __, value):
@@ -38,30 +45,31 @@ class Player:
 		return Player(playerid=playerid, paddle_y=50, score=0)
 	
 	def render(self) -> Mapping[str, Any]:
-		return {
+		p = {
 			"playerid": self.playerid,
 			"player_left": self.player_left,
 			"paddle_y": self.paddle_y,
 			"score": self.score,
 		}
+		return p
 
 	def move_paddle(self, direction: Direction):
-		log.error("Moving paddle %s", direction)
-		log.error("Paddle Y: %s", self.paddle_y)
 		if direction == Direction.UP and self.paddle_y > 10:
-			self.paddle_y -= 1
+			self.paddle_y -= PADDLE_SPEED
 		elif direction == Direction.DOWN and self.paddle_y < 90:
-			self.paddle_y += 1
+			self.paddle_y += PADDLE_SPEED
 		# else:
 		# 	raise ValueError(f"Invalid direction: {direction}")
 
 class Ball:
 	def __init__(self, gameid):
-		self.position = [100, 50]
+		
 		self.direction = [random.choice([-1, 1]), 0.2]
-		self.speed = 10
+		self.speed = BALL_SPEED
 		self.game = gameid
 		self.game_width = 200  # Assuming game width is 200
+		self.game_height = 100  # Assuming game height is 100
+		self.position = [self.game_width / 2, self.game_height / 2]
 		self.position[0] += self.speed * self.direction[0]
 		self.position[1] += self.speed * self.direction[1]
 
@@ -71,49 +79,40 @@ class Ball:
 
 	def check_collisions(self, paddle_left, paddle_right):
 		# Wall collisions
-		if (self.position[1] <= 0 + 2 and self.direction[1] < 0) or (self.position[1] >= 100 - 2 and self.direction[1] > 0):
+		if (self.position[1] <= 0 and self.direction[1] < 0) or (self.position[1] > self.game_height and self.direction[1] > 0):
 			self.direction[1] = -self.direction[1]
 		
 		# Paddle collisions
-		if (self.position[0] <= 10 - 2 and 
+		if (self.position[0] <= 10 and 
 			paddle_left - 10 <= self.position[1] <= paddle_left + 10) and self.direction[0] < 0:
 			delta = self.position[1] - paddle_left
 			self.direction[0] = -self.direction[0]
 
 			# Normalize the delta to a more reasonable angle adjustment
-			if delta == 0:
-				self.direction[1] = 0  # Ball hits the center, no vertical change
-			else:
-				# Adjust the *2 factor to control angle steepness
-				self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
+			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
 
-		elif (self.position[0] >= 190 + 2 and
+		elif (self.position[0] >= 190 and
 			paddle_right - 10 <= self.position[1] <= paddle_right + 10) and self.direction[0] > 0:
 			delta = self.position[1] - paddle_right
 			self.direction[0] = -self.direction[0]
 
 			# Normalize the delta to a more reasonable angle adjustment
-			if delta == 0:
-				self.direction[1] = 0  # Ball hits the center, no vertical change
-			else:
-				# Adjust the *2 factor to control angle steepness
-				self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
+			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
 
 	def update_scoring(self, player1, player2):
 		if self.position[0] <= 0:
 			player2.score += 1
 			self.reset()
-		elif self.position[0] >= 200:  # Assuming game width is 200
+		elif self.position[0] >= self.game_width:
 			player1.score += 1
 			self.reset()
 	
 	def reset(self):
-		if self.position[0] < 100:
+		if self.position[0] < self.game_height:
 			self.direction = [1, random.uniform(0.1, 0.3)]
 		else:
 			self.direction = [-1, random.uniform(0.1, 0.3)]
-		self.position = [100, 50]
-		random.uniform(0.1, 0.3)
+		self.position = [self.game_width / 2, self.game_height / 2]
 
 	def render(self) -> Mapping[str, Any]:
 		return {
@@ -125,6 +124,7 @@ class State:
 	ball = attr.ib(
 		attr.Factory(Ball), validator=attr.validators.instance_of(Ball)
 	)
+	score = 0
 	player_left: Player = attr.ib(default=None)
 	player_right: Optional[Player] = attr.ib(default=None)
 
@@ -137,15 +137,16 @@ class State:
 		)
 	
 	def render(self) -> Mapping[str, Any]:
-		# log.error("rendering")
-		return {
+
+		frame = {
 			"ball": self.ball.render(),
 			"player_left": self.player_left.render(),
 			"player_right": self.player_right.render() if self.player_right else None,
 		}
+		return frame
 
 class PongEngine(threading.Thread):
-	TICK_RATE = 0.033
+	TICK_RATE = 1 / 60  # 30 tick per second
 	MAX_SCORE = 3
 
 	def __init__(self, group_name, **kwargs):
@@ -158,59 +159,107 @@ class PongEngine(threading.Thread):
 		self.paddle_y_change: Mapping[str, Direction] = {}
 		self.key_lock = threading.Lock()
 		self.game_on = False
-
-
+		self.ready_players = set()
+		self.online_players = 0
+		self.score = 0
 
 	def run(self):
-		log.error("game Name:%s", self.group_name)
-		log.error("player Left: %s", type(self.state.player_left))
-		log.error("player Right: %s", type(self.state.player_right))
-
 		if not (self.state.player_left is None or self.state.player_right is None):
-			log.error("game is on!")
 			self.game_on = True
-
-		log.error("is game on? %s", self.game_on)
-
 		# Use asyncio.run to manage the event loop in this thread
 		try :
-			loop = asyncio.get_event_loop()
+			self.loop = asyncio.get_event_loop()
 		except RuntimeError:
-			loop = asyncio.new_event_loop()
-		loop.create_task(self.game_loop())
+			self.loop = asyncio.new_event_loop()
+		try:
+            # Block until both players are ready
+			self.game_task = self.loop.create_task(self.game_loop())
+		except Exception as e:
+			log.error(f"Error during readiness check: {e}")
 
 	async def game_loop(self):
-		while self.game_on:
-			# log.error("Game %s is on!!", self.name)
-			self.state = self.tick()
-			await self.broadcast_state()  # Directly await the async function
-			if self.state.player_left.score >= self.MAX_SCORE or self.state.player_right.score >= self.MAX_SCORE:
-				await self.end_game()
-				log.error("Game %s is over", self.name)
-				break
-			await asyncio.sleep(self.TICK_RATE)
+		try:
+			while len(self.ready_players) < 2:
+				await asyncio.sleep(1)
+			await self.broadcast_countdown()
+			while self.game_on:
+				self.state = self.tick()
+				await self.broadcast_state()  # Directly await the async function
+				if self.state.player_left.score >= self.MAX_SCORE or self.state.player_right.score >= self.MAX_SCORE:
+					await self.end_game()
+					log.error("Game %s is over", self.name)
+					break
+				tmp = self.state.player_left.score + self.state.player_right.score
+				if tmp > self.score:
+					log.error("Score changed from %s to %s", self.score, tmp)
+					self.score = self.state.player_left.score + self.state.player_right.score
+					await self.broadcast_countdown()
+				await asyncio.sleep(self.TICK_RATE)
+		except asyncio.CancelledError:
+			log.error("Game loop cancelled")
+			raise
 
 	async def broadcast_state(self):
 		state_json = self.state.render()
-		# log.error("Broadcasting state: %s", state_json)
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_update", "state": state_json}
 		)
 	
+	async def broadcast_starting_state(self):
+		self.online_players += 1
+		log.error(f"number on online players : {self.online_players}")
+		if self.online_players < 2:
+			return
+		state_json = self.state.render()
+		log.error("Broadcasting starting state: %s", state_json)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "game_init", "state": state_json}
+		)
+	
+	async def broadcast_countdown(self):
+		log.error(f"Broadcasting countdown on group {self.group_name}")
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": 3}
+		)
+		await asyncio.sleep(0.5)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": 2}
+		)
+		await asyncio.sleep(0.5)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": 1}
+		)
+		await asyncio.sleep(0.5)
+		await self.channel_layer.group_send(
+			self.group_name, {"type": "countdown", "data": 0}
+		)
+
+	async def post_stats(self, url, data, headers):
+		try:
+			async with httpx.AsyncClient() as client:
+				response = await client.post(url, json=data, headers=headers)
+				response.raise_for_status()  # Raise an exception for HTTP errors
+		except httpx.HTTPStatusError as e:
+			log.error(f"HTTP error occurred: {e.response.status_code}")
+		except Exception as e:
+			log.error(f"Error posting stats: {e}")
+	
 	async def broadcast_game_over(self):
-		log.error("Reached the game over broadcaster")
 		state_json = self.state.render()
 		state_json["winner"] = (
 			self.state.player_left.playerid if self.state.player_left.score >= self.MAX_SCORE else self.state.player_right.playerid
 		)
 		state_json["tournament_id"] = self.group_name
-		state_json["date"] = datetime.now().strftime("%Y/%m/%d %H:%M")
+		state_json["date"] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 		state_json["p1"] = self.state.player_left.playerid
 		state_json["p1score"] = self.state.player_left.score
 		state_json["p2"] = self.state.player_right.playerid
 		state_json["p2score"] = self.state.player_right.score
-		state_json["score"] = f"{state_json['p1score']}/{state_json['p2score']}"
-
+		if self.state.player_left.score == -1 or self.state.player_right.score == -1:
+			state_json["score"] = "forfeit"
+		else:
+			state_json["score"] = f"{state_json['p1score']}/{state_json['p2score']}"
+		log.error(f"sending game over to group {self.group_name}")
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
 		)
@@ -221,42 +270,32 @@ class PongEngine(threading.Thread):
 		except ValueError:
 			log.error(f"Invalid player IDs: p1={state_json['p1']}, p2={state_json['p2']}")
 			return
-		required_fields = ['tournament_id', 'date', 'opponent', 'score', 'win']
-		
+
+		log.error("Posting stats for players %s and %s", p1_id, p2_id)
 		url1 = f"http://user_management:8000/adduserstats/{p1_id}"
 		url2 = f"http://user_management:8000/adduserstats/{p2_id}"
 		header = {
 			"Content-Type": "application/json",
-			"Accept": "application/json"  # Optional but recommended
+			"Accept": "application/json",  # Optional but recommended
+			"Host": "localhost",
 		}
-
+		endJson = {
+			"tournament_id": self.group_name,
+			"date": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+			"opponent": self.state.player_right.playerid,
+			"score": state_json["score"],
+			"win": "yes" if self.state.player_left.score > self.state.player_right.score else "no"
+		}
 		# Post stats for player 1
-		state_json["win"] = "yes" if self.state.player_left.score > self.state.player_right.score else "no"
-		state_json["opponent"] = state_json["p2"]
-		async with httpx.AsyncClient() as client:
-			response = await client.post(
-				f"https://localhost:5000/api/users/adduserstats/1",
-				json=state_json,
-				headers=header
-			)
-			log.error(response.status_code)
-		
+		# log.error(endJson)
+		await self.post_stats(url1, endJson, header)
 
 		# Post stats for player 2
-		state_json["win"] = "no" if self.state.player_left.score > self.state.player_right.score else "yes"
-		state_json["opponent"] = state_json["p1"]
-		async with httpx.AsyncClient() as client:
-			response = await client.post(
-				f"http://user_management:8000/adduserstats/{p2_id}",
-				json=state_json,
-				headers=header
-			)
-			log.error(response.status_code)
-
+		endJson["win"] = "no" if self.state.player_left.score > self.state.player_right.score else "yes"
+		endJson["opponent"] = state_json["p1"]
+		# log.error(endJson)
+		await self.post_stats(url2, endJson, header)		
 		
-		
-		
-
 	def tick(self) -> State:
 		state = self.state
 		with self.key_lock:
@@ -274,7 +313,11 @@ class PongEngine(threading.Thread):
 			elif direction == 'down':
 				self.paddle_y_change[playerid] = Direction.DOWN
 
-	def add_player(self, playerid):
+	def player_ready(self, userid):
+		log.error("Player %s pressed READY", userid)
+		self.ready_players.add(userid)
+
+	async def add_player(self, playerid):
 		log.error("Adding player %s to the game", playerid)
 
 		if (
@@ -295,7 +338,6 @@ class PongEngine(threading.Thread):
 			return
 
 		log.error("Player %s joined the game", playerid)
-
 
 	def process_paddle_movement(self, state, movements):
 		# log.error("Processing paddle movements for game %s", self.name)
@@ -320,13 +362,16 @@ class PongEngine(threading.Thread):
 	def player_leave(self, playerid):
 		log.error("Player %s left the game", playerid)
 		if self.state.player_left.playerid == playerid:
-			self.state.player_left = None
+			self.state.player_left.player_left = None
 			self.state.player_right.score = self.MAX_SCORE
+			self.state.player_left.score = -1
 		elif self.state.player_right.playerid == playerid:
-			self.state.player_right = None
+			self.state.player_right.player_left = None
 			self.state.player_left.score = self.MAX_SCORE
+			self.state.player_right.score = -1
 		else:
 			log.error("Player %s not in game", playerid)
+			log.error("game state is %s", self.state)
 			return
 
 		if self.state.player_left is None or self.state.player_right is None:
@@ -335,6 +380,10 @@ class PongEngine(threading.Thread):
 
 	async def end_game(self):
 		self.game_on = False
-		log.error("reached the end_game broadcaster")
 		await self.broadcast_game_over()
-		
+		if self.game_task:
+			self.game_task.cancel()
+			try:
+				await self.game_task
+			except asyncio.CancelledError:
+				log.error("Game loop task cancelled")

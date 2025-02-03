@@ -1,0 +1,194 @@
+{
+  "sidebar": {
+    "logout": "Se déconnecter",
+    "profile": "Profil",
+    "friends": "Amis",
+    "blocks": "Liste de blocage",
+    "tournaments": "Tournois"
+  },  
+  "chat": {
+    "message": "Entrez votre message",
+    "group": "Entrez un groupe (optionnel)",
+    "send": "Envoyer"
+  },
+  "titles": {
+      "home": "Accueil",
+      "profile": "Profil",
+      "friends": "Amis",
+      "tournament": "Tournoi",
+      "block": "Liste de blocage"
+    },
+    "landing": {
+      "login": {
+        "label": "Identifiant",
+        "enterField": "Renseignez votre identifiant",
+        "choose": "Choisissez votre identifiant"
+      },
+      "password": {
+        "label": "Mot de passe",
+        "field": "Mot de passe requis",
+        "choose": "Choisissez votre mot de passe",
+        "confirm": "Confirmez votre mot de passe"
+      },
+      "twofa": {
+        "label": "Code 2FA (si activé)",
+        "field": "2FA (optionnel)"
+      },
+      "signup": {
+        "submit": "Créer un compte"
+      },
+      "signin": {
+        "submit": "Se connecter"
+      },
+      "messages": {
+        "loginErrorTitle": "Erreur de connexion",
+        "registerErrorTitle": "Erreur d'inscription",
+        "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide",
+        "wrongCredentialsFormat": "Vous devez fournir un nom d'utilisateur et un mot de passe valides.\nL'identifiant doit contenir uniquement des lettres ou des chiffres et avoir entre 5 et 20 caractères.<br>Le mot de passe doit contenir au moins 8 caractères, un chiffre,\nune lettre majuscule et au moins un caractère spécial : !@#$%^&*",
+        "serverError": "Le serveur n'a pas pu traiter votre demande. Veuillez réessayer plus tard",
+        "userAlreadyExist": "Un utilisateur avec cet identifiant existe déjà.",
+        "passwordsDontMatch": "Les deux champs de mot de passe doivent être identiques"
+      }
+    },
+    "home": {
+      "welcome": "Bienvenue sur la page d'accueil",
+      "friends": "Voir mes amis", 
+      "tournaments": "Gérer les tournois"
+
+    },
+    "profile": {
+      "actions": {
+        "manageAvatar" : "Gérer l'avatar",
+        "changeAlias" : "Changer d'alias",
+        "activate2FA" : "Activer la 2FA",
+        "closeBtn" : "Fermer"
+      },
+      "alias": {
+        "label" : "Nouvel alias", 
+        "field" : "Entrez un nouvel alias",
+        "update" : "Mettre à jour l'alias"
+      },
+      "avatar": {
+        "label": "Paramètres de l'avatar", 
+        "resetDefault": "Réinitialiser par défaut", 
+        "chooseFile": "Choisir un fichier", 
+        "update": "Mettre à jour l'avatar"
+      }
+    },
+    "friends": {
+      "card": {
+      "viewProfile": "Voir le profil de l'ami", 
+      "inviteGame": "Inviter à une partie",
+      "unfriend": "Retirer de la liste d'amis"
+      },
+      "looking:for": {
+        "text": "A la recherche d'un nouvel ami?",
+        "field": "Rechercher un ami"
+      },
+      "add": {
+        "action": "Ajouter en ami",
+        "success": "Ami ajouté avec succès",
+        "failure": "L'utilisateur n'a pas pu être ajouté comme ami"
+      },
+      "remove": {
+        "failure": "L'utilisateur n'a pas pu être retiré de la liste d'amis"
+      },
+      "errors": {
+        "general": "Erreur",
+        "unexpected": "Une erreur s'est produite",
+        "list": {
+          "get": "Erreur lors de la récupération de la liste d'amis",
+          "display": "Erreur lors de l'affichage de la liste d'amis"
+        }
+    },
+    "close": "Fermer",
+    "modal": {
+        "notFound": "Erreur : modale introuvable",
+        "idAttributeMissing": "Erreur : l'attribut data-id est manquant sur la modale"
+    }
+    },
+  "block": {
+    "card": {
+      "viewProfile": "Voir le profil de l'utilisateur",
+      "inviteGame": "Inviter à une partie",
+      "unblock": "Retirer de la liste de blocage"
+    },
+    "lookingFor": {
+      "text": "Vous cherchez un utilisateur a bloquer?",
+      "field": "Rechercher un utilisateur"
+    },
+    "add": {
+      "action": "Ajouter à la liste de blocage",
+      "success": "Utilisateur bloqué avec succès",
+      "failure": "L'utilisateur n'a pas pu être ajouté à la liste de blocage"
+    },
+    "remove": {
+      "failure": "L'utilisateur n'a pas pu être retiré de la liste de blocage"
+    },
+    "errors": {
+      "general": "Erreur",
+      "somethingWentWrong": "Un problème est survenu",
+      "getBlockList": "Erreur lors de la récupération de la liste de blocage",
+      "displayBlockList": "Erreur lors de l'affichage de la liste de blocage",
+      "modalNotFound": "Erreur : modal introuvable",
+      "idAttributeNotFound": "Erreur : attribut data-id introuvable",
+      "addBlockFailure": "L'utilisateur n'a pas pu être ajouté à la liste de blocage"
+    },
+    "success": {
+      "addBlock": "Utilisateur bloqué avec succès"
+    },
+    "close": "Fermer",
+    "modal": {
+      "notFound": "Erreur : modale introuvable",
+      "idAttributeMissing": "Erreur : l'attribut data-id est manquant sur la modale"
+      }
+  },
+    "tournament": {
+    "create": {
+        "txt": "Créer un tournoi",
+        "name": {
+            "txt": "Nom du tournoi",
+            "enter": "Entrez le nom du tournoi"
+        },
+        "size": {
+            "txt": "Nombre de joueurs"
+        },
+        "action": {
+            "txt": "Créer"
+        },
+        "errors": {
+            "fetchTournaments": "Erreur lors du chargement des tournois",
+            "displayTournaments": "Erreur lors de l'affichage des tournois",
+            "joinTournament": "Erreur lors de la participation au tournoi",
+            "createTournament": "Erreur lors de la création du tournoi",
+            "invalidName": "Nom du tournoi invalide",
+            "tourNameRequirements": "Le nom du tournoi doit comporter entre 3 et 30 caractères et ne contenir que des lettres et des chiffres"
+        }
+    },
+    "invite": {
+        "title": "Ami invité",
+        "success": "Ami invité avec succès",
+        "failure": "Erreur lors de l'invitation de l'ami"
+    },
+    "tournament": {
+      "card": {
+          "alreadyJoined": "Déjà rejoint",
+          "tournamentFull": "Tournoi complet",
+          "joinTournament": "Rejoindre le tournoi",
+          "deleteTournament": "Supprimer"
+      }
+    }
+  },
+  "twofa": {
+    "scanQR": "Scannez ce code QR avec votre application d'authentification",
+    "enterActivation": "Entrez votre code 2FA pour confirmer l'activation",
+    "field" : "Code 2FA",
+    "success": "Code 2FA vérifié avec succès",
+    "invalid": "Code 2FA invalide",
+    "errors": {
+    "unexpected": "Quelque chose s'est mal passé"
+    }
+  }
+}
+
+  

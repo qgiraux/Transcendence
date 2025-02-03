@@ -12,18 +12,60 @@ class FriendsView extends AbstractView {
     super(params);
     this.domText = {};
     this.messages = {};
-    this.messages.error = "Error";
-    this.messages.wentWrong = "Something went wrong";
-    this.messages.getFriendsErr = "Error getting friends list";
-    this.messages.displayFriendsErr = "Error displaying friends list";
-    this.messages.modalNotFound = "Error : modal not found";
-    this.messages.idAttributeNotFound = "Error : data-id attribute not found on modal";
-    this.messages.addFriendSuccess = "Friend added successfully";
-    this.messages.addFriendFailure = "The user couldn't be added as a friend";
-    this.messages.removeFriendFailure = "The user couldn't be removed from friends list";
-    //Faudrait-il traduire les titres des pages?
+    this.init();
+  }
+
+  async init() {
+    await this.loadMessages();
     this.onStart();
   }
+
+  async loadMessages() {
+    await Application.localization.loadTranslations();
+    await Application.setLanguage(Application.lang);
+    this.domText.Title = await Application.localization.t("titles.friends");
+    this.domText.viewProfile = await Application.localization.t("friends.card.viewProfile");
+    this.domText.inviteGame = await Application.localization.t("friends.card.inviteGame");
+    this.domText.unfriend = await Application.localization.t("friends.card.unfriend");
+    this.domText.lookingForTxt = await Application.localization.t("friends.looking:for.text");
+    this.domText.lookingForField = await Application.localization.t("friends.looking:for.field");
+    this.domText.addFriendAction = await Application.localization.t("friends.add.action");
+    this.domText.close = await Application.localization.t("friends.close");
+    this.messages.error = await Application.localization.t("friends.errors.general");
+    this.messages.wentWrong = await Application.localization.t("friends.errors.unexpected");
+    this.messages.getFriendsErr = await Application.localization.t("friends.errors.list.get");
+    this.messages.displayFriendsErr = await Application.localization.t("friends.errors.list.display");
+    this.messages.modalNotFound = await Application.localization.t("friends.errors.modal.notFound");
+    this.messages.idAttributeNotFound = await Application.localization.t("friends.errors.modal.idAttributeMissing");
+    this.messages.addFriendSuccess = await Application.localization.t("friends.add.success");
+    this.messages.addFriendFailure = await Application.localization.t("friends.add.failure");
+    this.messages.removeFriendFailure = await Application.localization.t("friends.remove.failure");
+  }
+
+  listenForLanguageChange() {
+    const languageSelector = document.getElementById("language-selector-container");
+    if (languageSelector) {
+        this.addEventListener(languageSelector, "change", async (event) => {
+            const selectedLanguage = event.target.value;
+            console.log("Changement de langue détecté :", selectedLanguage);
+
+            await Application.setLanguage(selectedLanguage);
+            await this.loadMessages();
+            await Application.applyTranslations();
+
+            Router.reroute("/friends");
+        });
+    }
+}
+
+_rebindEventListeners() {
+  this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
+  this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
+  this.addEventListener(document.querySelector("#searchInput"), "click", this._updateDropdown.bind(this));
+  this.addEventListener(document.querySelector("#dropdownMenu"), "click", this._dropDownClickHandler.bind(this));
+  this.addEventListener(document.querySelector("#add-friend-button"), "click", this._addFriend.bind(this));
+  this.addEventListener(document.getElementById("UserSelectModal"), "hide.bs.modal", this._modalSafeClose.bind(this));
+}
 
   onStart() {
     this._setTitle("Friends");
@@ -34,14 +76,14 @@ class FriendsView extends AbstractView {
       return;
     }
     Avatar.getUUid();
+    this.listenForLanguageChange();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
         this.userList = result;
         this._refreshFriendsList();
       })
       .catch((error) => {
-        // Alert.errorMessage("Error", error.message);
-        Alert.errorMessage(this.messages.error, error.message); // AV
+        Alert.errorMessage("Error", error.message);
       });
 
     this._setHtml();
@@ -101,7 +143,7 @@ class FriendsView extends AbstractView {
           Router.reroute(`/profile/${id}`);
           break;
         case "invite-game":
-          console.log(`placeHolder Inviting to a game for ID: ${id}`);
+          Router.reroute(`/tournaments`);
           break;
         case "unfriend":
           this._removeFriend(id);
@@ -134,8 +176,7 @@ class FriendsView extends AbstractView {
           modal.show();
         })
         .catch((error) => {
-          // Alert.errorMessage("something went wrong", error.message);
-          Alert.errorMessage(this.messages.wentWrong, error.message); //AV
+          Alert.errorMessage(this.messages.wentWrong, error.message);
         });
     }
   }
@@ -187,7 +228,6 @@ class FriendsView extends AbstractView {
       this.displayFriendsList(this.friendList);
     } catch (error) {
       Alert.errorMessage(
-        // "get Friends list : something went wrong",
         this.messages.getFriends,error.message);
     }
   }
@@ -205,70 +245,76 @@ class FriendsView extends AbstractView {
         this.addFriendCard(friend);
       });
     } catch (error) {
-      // Alert.errorMessage("displayFriendsList error", error.message);
-      Alert.errorMessage(this.messages.displayFriendsErr, error.message); //AV
-
+      Alert.errorMessage(this.messages.displayFriendsErr, error.message)
     }
   }
 
   addFriendCard(friend) {
     const friendsContainer = document.querySelector("#friends-container");
     const div = document.createElement("div");
-    div.classList.add("col-md-4");
-    div.classList.add("col-lg-3");
+    div.classList.add("col-md-4", "col-lg-3");
     div.style.maxWidth = "160px";
+  
+    // HTML for the card
     div.innerHTML = `
-	<div class="col-md-4 col-lg-3 " style="width: 150px;">
-		<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
-		style="background-color: #303030;">
-			<img class="card-img-top rounded" src="${Avatar.url(
-        friend.id
-      )}" alt="Card image cap">
-				<div class="card-body">
-					<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
-					${friend.nickname}
-					</h5>
-					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${
-            friend.username
-          })</p>
-
-					<div class="btn-group">
-					<button  style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);"
-					class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-					aria-expanded="false">
-					Online
-					</button>
-					<ul class="dropdown-menu">
-					<li><button class="dropdown-item" data-id=${
-            friend.id
-          } data-action="view-profile">View profile</button></li>
-                    <li><button class="dropdown-item" data-id=${
-                      friend.id
-                    } data-action="invite-game">Invite to a game</button></li>
-                    <li><button class="dropdown-item" data-id=${
-                      friend.id
-                    } data-action="unfriend">Unfriend</button></li>
-					</ul>
-					</div>
-				</div>
-			</div>
-	</div>`;
+      <div class="card shadow border-secondary p-2 fixed-width-card text-white" style="background-color: #303030; width: 150px;">
+      <img class="card-img-top rounded" src="${Avatar.url(friend.id)}" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title my-0 mb-0" style="font-size: 0.9rem; font-weight: bold;">
+        ${friend.nickname}
+        </h5>
+        <p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${friend.username})</p>
+        <div class="btn-group">
+        <button style="font-size: 0.8rem; font-weight: bold;"
+          class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          <span id="status-${friend.id}" style="color: grey;">Checking...</span>
+          <span class="dropdown-toggle-split" style="color: inherit;"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="view-profile">${this.domText.viewProfile}</button></li>
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="invite-game">${this.domText.inviteGame}</button></li>
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="unfriend">${this.domText.unfriend}</button></li>
+        </ul>
+        </div>
+      </div>
+      </div>
+    `;
+  
     friendsContainer.appendChild(div);
+  
+    // Asynchronously fetch the friend's status
+    const statusElement = document.getElementById(`status-${friend.id}`);
+    console.log("Checking status for friend ", friend.id);
+    TRequest.request("GET", `/api/users/userstatus/${friend.id}`)
+      .then((result) => {
+        console.log("resuls is ", result)
+        if (result.online === 1) {
+          statusElement.style.color = "rgb(0, 255, 149)";
+          statusElement.textContent = "Online"; //A TRADUIRE AMELLE
+        } else {
+          statusElement.style.color = "rgb(255, 0, 0)";
+          statusElement.textContent = "Offline"; //A TRADUIRE AMELLE
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching status:", error);
+        statusElement.textContent = "Error";
+        statusElement.style.color = "orange";
+      });
   }
+  
 
   async _addFriend(event) {
     try {
       const button = event.target;
       const modal = button.closest(".modal");
       if (!modal) {
-        // throw new Error("Modal not found");
-        throw new Error(this.messages.modalNotFound); // AV
+        throw new Error(this.messages.modalNotFound); 
       }
       const friendId = modal.getAttribute("data-id");
       if (!friendId) {
-        // throw new Error("data-id attribute not found on modal");
-        throw new Error(this.messages.idAttributeNotFound); //AV
-
+        throw new Error(this.messages.idAttributeNotFound);
       }
       const request = await TRequest.request(
         "POST",
@@ -277,15 +323,11 @@ class FriendsView extends AbstractView {
           id: friendId,
         }
       );
-      //if (request.message !== "Friend added successfully")
-        //throw new Error(this.messages.addFriendFailure);
-      if (request.message !== this.messages.addFriendSuccess)
+      if (request.message !== "Friend added successfully")
         throw new Error(this.messages.addFriendFailure);
       await this._refreshFriendsList();
     } catch (error) {
-      // Alert.errorMessage("something went wrong", error.message);
       Alert.errorMessage(this.messages.wentWrong, error.message);
-
     }
   }
 
@@ -296,9 +338,7 @@ class FriendsView extends AbstractView {
       });
       this._refreshFriendsList();
     } catch (error) {
-      // Alert.errorMessage("remove friend error", error.message);
       Alert.errorMessage(this.messages.removeFriendFailure, error.message);
-
     }
   }
 
@@ -320,8 +360,8 @@ class FriendsView extends AbstractView {
         <p id="modal-nickname">placeholder</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="add-friend-button"  data-bs-dismiss="modal">Add as a friend</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+        <button type="button" class="btn btn-primary" id="add-friend-button"  data-bs-dismiss="modal">${this.domText.addFriendAction}</button>
       </div>
     </div>
   </div>
@@ -330,7 +370,7 @@ class FriendsView extends AbstractView {
 
 <div class="row">
 			<div class="col-12">
-				<h1 class="text-white display-1">Friends</h1>
+				<h1 class="text-white display-1">${this.domText.Title}</h1>
 			</div>
 		</div>
 		<div class="row g-2  border border-secondary p-2 rounded" id="friends-container">
@@ -338,14 +378,14 @@ class FriendsView extends AbstractView {
 
 		<div class="row">
 			<div class="col-12">
-				<h3 class="text-white display-5 mt-5 mb-0">Still looking for a friend ?</h3>
+				<h3 class="text-white display-5 mt-5 mb-0">${this.domText.lookingForTxt}</h3>
 			</div>
 			<div class="row mt-0">
 				<div class="col-9 mx-auto">
 					<div class="container mt-5">
 						<div class="dropdown" mx-auto>
 							<input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
-								placeholder="Search a friend" data-bs-toggle="dropdown" aria-expanded="false" />
+								placeholder="${this.domText.lookingForField}" data-bs-toggle="dropdown" aria-expanded="false" />
 							<ul class="dropdown-menu w-100" id="dropdownMenu">
 								<!-- Les options seront ajoutées ici dynamiquement -->
 							</ul>

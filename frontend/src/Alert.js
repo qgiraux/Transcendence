@@ -67,7 +67,7 @@ class Alert {
 		<div class="col-6 mx-auto">
 		  <div class="alert alert-primary alert-dismissible fade show" role="alert">
 			<strong>${title}</strong><p>${message}</p>
-			<a href="#" class="accept-invite" style="display: inline-block; padding: 10px 15px; background-color: darkblue; color: white; text-decoration: none; border-radius: 5px;">accept</a>
+			<a href="#" class="accept-invite">Accept</a>
 
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		  </div>

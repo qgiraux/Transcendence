@@ -28,8 +28,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
-    'redis',
-    'nginx',
+    '127.0.0.1',
+    'pong_game',
 ]
 
 

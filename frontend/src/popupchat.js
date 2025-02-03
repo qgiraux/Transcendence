@@ -1,5 +1,6 @@
 // script.js
 import Application from "./Application.js";
+import TRequest from "./TRequest.js"; // Assuming TRequest is defined in TRequest.js
 
 // Elements
 const chatBtn = document.getElementById('chat-btn');
@@ -23,9 +24,26 @@ closeChat.addEventListener('click', () => {
 });
 
 // if (sendBtn !== null) {
-    const sendMessage = () => {
+    const sendMessage = async () => {
+        let group;
         console.log('Send button clicked');
-        const group = chatGroup.value || 'global_chat';
+        if (chatGroup.value === 'global_chat' || !chatGroup.value)
+        {
+            group = 'global_chat';
+        }
+        else
+        {
+            let username = {'username':chatGroup.value};
+            await TRequest.request("POST", "/api/users/userid/", username).then(value => {
+                console.log("value:", value);
+                group = "user_" + value['id'];
+            }).catch(err => {console.error("no user with this name:", err);
+                        group = 'none';
+            });
+        };
+        // const group = chatGroup.value || 'global_chat';
+        // const group = chatGroup.value || 'global_chat';
+        console.log('Group:', group);
         const body = {
             message: chatInput.value,
             group: group,
@@ -34,6 +52,7 @@ closeChat.addEventListener('click', () => {
         };
         Application.mainSocket.send(JSON.stringify(body));
         chatInput.value = '';
+        
     };
 
     sendBtn.addEventListener('click', sendMessage);

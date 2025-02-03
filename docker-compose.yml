@@ -19,7 +19,7 @@ services:
     networks:
       - transcendence
     ports:
-      - ":8000"
+      - "8001:8000"
     init: true
 
   db_user_management:
@@ -83,6 +83,8 @@ services:
       dockerfile: pong_game/Dockerfile
     networks:
       - transcendence
+    ports:
+      - "8002:8000"
 
   redis:
     container_name: redis
@@ -161,6 +163,29 @@ services:
       - postgres_avatar:/var/lib/postgresql/data
     networks:
       - transcendence
+    
+  web3-tournament:
+    build: ./blockchain/web3-tournament
+    container_name: web3-tournament
+    restart: always
+    env_file: ./.env
+    networks:
+      - transcendence
+    depends_on:
+      - hardhat-network
+    expose:
+      - 8000
+
+  hardhat-network:
+    build: ./blockchain/hardhat-network
+    container_name: hardhat-network
+    restart: always
+    env_file: ./.env
+    networks:
+      - transcendence
+    expose:
+      - 8545
+
 
 volumes:
   postgres_user_management:
@@ -168,3 +193,4 @@ volumes:
   postgres_avatar:
   avatar_images_volume:
   postgres_tournament:
+  ethereum-testnet:

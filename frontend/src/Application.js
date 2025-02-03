@@ -2,6 +2,8 @@
 
  */
 import Avatar from "./Avatar.js";
+import Localization from "./Localization.js";
+
 
 class Application {
   /**
@@ -16,6 +18,10 @@ class Application {
     nickname: null,
   };
   static mainSocket = null;
+  static gameSocket = null;
+  static lang = localStorage.getItem("selectedLang") || "en-us";
+  static localization = new Localization(Application.lang);
+  static translationsCache = {};
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -39,6 +45,14 @@ class Application {
 
   static setAccessToken(newAccesstoken) {
     Application.#token.access = newAccesstoken;
+  }
+
+  static deleteAccessToken() {
+    Application.#token = null;
+  }
+
+  static deleteRefreshToken() {
+    Application.#token = null;
   }
 
   static getAccessToken() {
@@ -162,22 +176,78 @@ class Application {
     return Application.mainSocket;
   }
 
+  static openGameSocket(url) {
+    if (Application.#token === null) {
+      // Correct the check
+      console.error(
+        `Application: Error opening WebSocket: user not identified`
+      );
+      return null;
+    }
+    if (!url) {
+      console.error("WebSocket URL must be provided.");
+      return null;
+    }
+    const fullpath = `${url}?token=${Application.getAccessToken()}`; // Fix token retrieval
+    Application.gameSocket = new WebSocket(fullpath);
+
+    // Add event listeners for debugging
+    Application.gameSocket.onopen = () => {
+      console.log("WebSocket connection opened:", fullpath);
+    };
+    Application.gameSocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    Application.gameSocket.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+    console.log(Application.gameSocket);
+    return Application.gameSocket;
+  }
+
+//Slight modifications to correct the d-none of the sidebar after log in
   static toggleSideBar() {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
     const userId = Application.getUserInfos().userId;
-    document.querySelector("#side-username").textContent =
-      Application.getUserInfos().userName;
     avatarImg.setAttribute("data-avatar", userId);
     Avatar.refreshAvatars().then(() => {
-      sideBar.classList.toggle("d-none");
+      sideBar.classList.remove("d-none");
     });
   }
 
   static toggleChat() {
     const chatBox = document.querySelector("#chat-btn");
-    chatBox.classList.toggle("d-none");
+    chatBox.classList.remove("d-none");
   }
+
+  static async setLanguage(lang) {
+    Application.lang = lang;
+    if (lang !== this.localization.lang)
+    {
+      this.localization.lang = this.lang;
+    }
+    await this.localization.loadTranslations();
+    await Application.applyTranslations();
+  }
+
+static async applyTranslations() {
+  const elements = document.querySelectorAll("[data-i18n]");
+
+  elements.forEach(async (el) => {
+      const translationKey = el.getAttribute("data-i18n");
+      const translation = await Application.localization.t(translationKey);
+
+      if (translation) {
+          if (el.hasAttribute("placeholder")) {
+              el.setAttribute("placeholder", translation);
+          } else {
+              el.textContent = translation;
+          }
+      }
+  });
+}
+
 }
 
 export default Application;

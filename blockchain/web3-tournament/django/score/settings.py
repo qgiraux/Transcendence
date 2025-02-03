@@ -26,7 +26,12 @@ SECRET_KEY = os.environ.get('W3T_SECRET_KEY', '')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['tournament', '.localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'tournament',
+    '.localhost',
+    '127.0.0.1',
+    '*',
+    ]
 
 
 # Application definition
@@ -37,9 +42,6 @@ INSTALLED_APPS = [
 	'adrf',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    # 'django.contrib.sessions',
-    # 'django.contrib.messages',
-    # 'django.contrib.staticfiles',
 	'rest_framework',
 ]
 
@@ -47,7 +49,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.AllowAny',
     ]
 }
 
@@ -64,7 +66,7 @@ ASGI_APPLICATION = 'score.asgi.application'
 
 DATABASES = {
 	"default": {
-		"ENGINE": "django.db.backends.sqlite3",
+		"ENGINE": "django.db.backends.sqlite3", #used in testing only
 	}
 }
 
@@ -79,7 +81,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTEurope/ParisC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
