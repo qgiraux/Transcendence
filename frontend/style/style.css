@@ -453,48 +453,23 @@ p {
   max-height: 600px;
   overflow-y: auto;
   min-height: 0;
+  border-color: #90fce1 !important;
+  box-shadow: 0 0 10px #90fce1, 0 0 20px #90fce1;
+  scrollbar-color: #000000 #90fce1;
 }
 
-#active-panel {
-  scrollbar-width: thin; /* Pour Firefox */
-  scrollbar-color: #888 #f1f1f1; /* Couleur du thumb et du track */
+.tournament-card {
+  border-color: #b7b7b7 !important;
 }
 
-/* Pour Chrome, Edge et Safari */
-#active-panel::-webkit-scrollbar {
-  width: 10px; /* Largeur de la barre */
+.players-avatars {
+  border-color: #ffffff !important;
 }
 
-#active-panel::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Couleur de fond */
-  border-radius: 10px;
+.joined-badge {
+  background-color: #f037a5 !important;
 }
 
-#active-panel::-webkit-scrollbar-thumb {
-  background: #888; /* Couleur du curseur */
-  border-radius: 10px;
-  border: 2px solid #f1f1f1; /* Crée un effet d'espace */
-}
-
-#active-panel::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Assombri au survol */
-}
-
-/* Flèches haut/bas */
-#active-panel::-webkit-scrollbar-button {
-  display: block;
-  background: #ccc;
-  height: 15px;
-}
-
-#active-panel::-webkit-scrollbar-button:vertical:start {
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><path d="M7 14l5-5 5 5H7z"/></svg>')
-    no-repeat center;
-  background-size: contain;
-}
-
-#active-panel::-webkit-scrollbar-button:vertical:end {
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><path d="M7 10l5 5 5-5H7z"/></svg>')
-    no-repeat center;
-  background-size: contain;
+.match {
+  border-color: #b7b7b7 !important;
 }
