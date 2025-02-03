@@ -105,6 +105,7 @@ class TournamentsView extends AbstractView {
           "Tournament",
           `Successfully joined tournament ${tournamentName}`
         );
+        Application.joinedTournament = tournamentName;
       } catch (error) {
         Alert.errorMessage("Tournament", "Could not join tournament");
       }
