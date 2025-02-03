@@ -20,6 +20,8 @@ class PongGameView extends AbstractView {
         this.paused = true;
         this.startMessage = false
         this.isGameOver = false;
+        this.up = false;
+        this.down = false;
       
         this.onStart();
     }
@@ -27,6 +29,7 @@ class PongGameView extends AbstractView {
     onStart() {
         
         document.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
 
         this._setHTML();
 
@@ -154,6 +157,7 @@ class PongGameView extends AbstractView {
                 Application.gameSocket.onclose = () => {
                     console.log("WebSocket connection closed");
                     document.removeEventListener('keydown', (event) => this.handleKeyDown(event));
+                    document.removeEventListener('keyup', (event) => this.handleKeyUp(event));
                     // document.getElementById("game-status").innerText = "Connection closed";
                 };
 
@@ -168,7 +172,7 @@ class PongGameView extends AbstractView {
         }
         const loop = () => {
           // console.log("ball  : ", this.ball);
-
+            this.update_keys();
             if (this.startMessage === false) {
                 console.log("Sending 'online' message");
                 Application.gameSocket.send(
@@ -195,19 +199,30 @@ class PongGameView extends AbstractView {
         requestAnimationFrame(loop);
     }
 
-
+    update_keys() {
+        if (this.up && !this.down) {
+            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
+            console.log("UP");
+        }
+        if (this.down && !this.up) {
+            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
+            console.log("DOWN");
+        }
+    }
     handleKeyDown(event) {
       console.log("Key pressed: ", event.key);
       switch (event.key) {
         case 'ArrowUp':
         case 'w':
-            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
-            console.log("UP");
+            // Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
+            // console.log("UP");
+            this.up = true;
             break;
         case 'ArrowDown':
         case 's':
-            Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
-            console.log("DOWN");
+            // Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
+            // console.log("DOWN");
+            this.down = true;
             break;
         case ' ':
             Application.gameSocket.send(JSON.stringify({ type: 'ready', data: { direction: 'ready' } }));
@@ -215,6 +230,24 @@ class PongGameView extends AbstractView {
             break;
       }
     }
+    handleKeyUp(event) {
+        console.log("Key pressed: ", event.key);
+        switch (event.key) {
+          case 'ArrowUp':
+          case 'w':
+              // Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
+              // console.log("UP");
+              this.up = false;
+              break;
+          case 'ArrowDown':
+          case 's':
+              // Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
+              // console.log("DOWN");
+              this.down = false;
+              break;
+
+        }
+      }
 
 
     _setHTML() {

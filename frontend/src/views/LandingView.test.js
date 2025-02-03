@@ -10,7 +10,7 @@ import Alert from "../Alert.js";
 jest.mock("../Application.js", () => ({
   toggleSideBar: jest.fn(),
   setToken: jest.fn(),
-  setUserInfos: jest.fn(),
+  setUserInfosFromToken: jest.fn(),
   toggleChat: jest.fn(),
   openWebSocket: jest.fn(),
   reroute: jest.fn(),

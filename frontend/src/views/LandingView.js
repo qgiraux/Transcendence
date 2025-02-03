@@ -120,7 +120,7 @@ class LandingView extends AbstractView {
       }
       const json = await response.json();
       Application.setToken(json);
-      Application.setUserInfos();
+      Application.setUserInfosFromToken();
       Application.toggleSideBar();
       Application.toggleChat();
       Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);

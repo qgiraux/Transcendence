@@ -10,6 +10,7 @@ import FriendsView from "./views/FriendsView.js";
 import BlocksView from "./views/BlocksView.js";
 import TwofaView from "./views/TowfaView.js";
 import TournamentView from "./views/TournamentView.js";
+import AccountManagementView from "./views/AccountManagementView.js";
 import LogoutView from "./views/LogoutView.js";
 import PongGameView from "./views/PongGameView.js";
 
@@ -20,6 +21,7 @@ router.addRoute("/home", HomeView);
 router.addRoute("/profile", ProfileView);
 router.addRoute("/profile/:id", ProfileView);
 router.addRoute("/friends", FriendsView);
+router.addRoute("/account", AccountManagementView);
 router.addRoute("/logout", LogoutView);
 router.addRoute("/pong", PongGameView);
 

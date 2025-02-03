@@ -30,9 +30,12 @@ class Router {
   }
 
   _handleLinkClick(event) {
-    if (event.target.matches("[data-link]")) {
+    const link = event.target.closest("a[data-link]");
+
+    if (link) {
       event.preventDefault();
-      history.pushState(null, null, event.target.href);
+      const href = link.getAttribute("href");
+      history.pushState(null, null, href);
       this.route();
     }
   }
