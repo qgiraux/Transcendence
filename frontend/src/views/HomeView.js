@@ -36,11 +36,10 @@ class HomeView extends AbstractView {
     if (languageSelector) {
       this.addEventListener(languageSelector, "change", async (event) => {
         const selectedLanguage = event.target.value;
-        console.log(selectedLanguage);
+        console.log("Language change detected :", selectedLanguage);
         await Application.setLanguage(selectedLanguage);
         await this.loadMessages(); 
         await Application.applyTranslations();
-        // this._setHtml();
         Router.reroute("/home");
       });
     }
@@ -50,6 +49,8 @@ class HomeView extends AbstractView {
     if (Application.getAccessToken() === null) {
       Router.reroute("/landing");
     } else {
+      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
+      Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
       this._setHtml();
       this.listenForLanguageChange();
     }
@@ -165,6 +166,14 @@ class HomeView extends AbstractView {
 
       Application.gameSocket.onclose = () => {
         console.log("WebSocket connection closed.");
+        try
+        {
+          Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
+        }
+        catch (err)
+        {
+          console.error("Failed to reopen gameSocket:", err);
+        }
       };
     } 
     else {

@@ -159,8 +159,7 @@ class LandingView extends AbstractView {
       Application.setUserInfos();
       Application.toggleSideBar();
       Application.toggleChat();
-      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
-      Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
+
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);
@@ -293,13 +292,13 @@ class LandingView extends AbstractView {
         </div>
       </div>
 `;
-    const loginRadio = document.getElementById("loginradio");
-    const registerRadio = document.getElementById("registerradio");
+    // const loginRadio = document.getElementById("loginradio");
+    // const registerRadio = document.getElementById("registerradio");
 
-    if (loginRadio && registerRadio) {
-      loginRadio.addEventListener("change", this._handleToggle.bind(this));
-      registerRadio.addEventListener("change", this._handleToggle.bind(this));
-    }
+    // if (loginRadio && registerRadio) {
+    //   loginRadio.addEventListener("change", this._handleToggle.bind(this));
+    //   registerRadio.addEventListener("change", this._handleToggle.bind(this));
+    // }
     //Change the forms 
     this._handleToggle(new Event("change"));
     }

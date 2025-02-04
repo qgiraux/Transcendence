@@ -216,7 +216,7 @@ class PongGameView extends AbstractView {
         }
     }
     handleKeyDown(event) {
-      console.log("Key pressed: ", event.key);
+    //   console.log("Key pressed: ", event.key);
       switch (event.key) {
         case 'ArrowUp':
         case 'w':
@@ -237,7 +237,7 @@ class PongGameView extends AbstractView {
       }
     }
     handleKeyUp(event) {
-        console.log("Key pressed: ", event.key);
+        // console.log("Key pressed: ", event.key);
         switch (event.key) {
           case 'ArrowUp':
           case 'w':

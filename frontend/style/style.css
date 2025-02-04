@@ -92,12 +92,6 @@ i {
   pointer-events: none;
 }
 
-#side-img {
-  margin-left: 15px; /* Optional spacing adjustment */
-  margin-right: 15px; /* Optional spacing adjustment */
-  vertical-align: middle; /* Align the image's vertical baseline */
-}
-
 #lang-select {
   appearance: none;
   -webkit-appearance: none;
@@ -127,6 +121,12 @@ i {
   right: 15px; 
   transform: translateY(-50%);
   pointer-events: none; 
+}
+
+#side-img {
+  margin-left: 15px; /* Optional spacing adjustment */
+  margin-right: 15px; /* Optional spacing adjustment */
+  vertical-align: middle; /* Align the image's vertical baseline */
 }
 
 #sidebar .dropdown-menu {
@@ -241,18 +241,6 @@ i {
 #landing-page-form {
   max-height: 50vh;
 }
-
-#language-selector-container::after {
-  content: "▼";
-  font-size: 14px;
-  color: #f037a5;
-  position: absolute;
-  top: 50%;
-  right: 15px; 
-  transform: translateY(-50%);
-  pointer-events: none; 
-}
-
 
 /* Default state: Not selected, not hovered */
 .btn-custom {

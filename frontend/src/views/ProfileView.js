@@ -84,7 +84,6 @@ class ProfileView extends AbstractView {
       })
       .catch((error) => {
         Alert.errorMessage(this.messages.wentWrong, error.message);
-
       });
   }
 
@@ -201,7 +200,7 @@ class ProfileView extends AbstractView {
           Avatar.refreshAvatars();
         })
         .catch((error) => {
-          Alert.errorMessage(this.messages.avatarResetErr, error.message); // AV
+          Alert.errorMessage(this.messages.avatarResetErr, error.message);
         });
     } else if (this.avatarChoice === "update") {
       const fileInput = document.getElementById("fileInput");

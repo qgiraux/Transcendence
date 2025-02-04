@@ -47,25 +47,23 @@ class FriendsView extends AbstractView {
     if (languageSelector) {
         this.addEventListener(languageSelector, "change", async (event) => {
             const selectedLanguage = event.target.value;
-            console.log("Changement de langue détecté :", selectedLanguage);
-
+            console.log("Language change detected :", selectedLanguage);
             await Application.setLanguage(selectedLanguage);
             await this.loadMessages();
             await Application.applyTranslations();
-
             Router.reroute("/friends");
         });
     }
 }
 
-_rebindEventListeners() {
-  this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
-  this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
-  this.addEventListener(document.querySelector("#searchInput"), "click", this._updateDropdown.bind(this));
-  this.addEventListener(document.querySelector("#dropdownMenu"), "click", this._dropDownClickHandler.bind(this));
-  this.addEventListener(document.querySelector("#add-friend-button"), "click", this._addFriend.bind(this));
-  this.addEventListener(document.getElementById("UserSelectModal"), "hide.bs.modal", this._modalSafeClose.bind(this));
-}
+// _rebindEventListeners() {
+//   this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
+//   this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
+//   this.addEventListener(document.querySelector("#searchInput"), "click", this._updateDropdown.bind(this));
+//   this.addEventListener(document.querySelector("#dropdownMenu"), "click", this._dropDownClickHandler.bind(this));
+//   this.addEventListener(document.querySelector("#add-friend-button"), "click", this._addFriend.bind(this));
+//   this.addEventListener(document.getElementById("UserSelectModal"), "hide.bs.modal", this._modalSafeClose.bind(this));
+// }
 
   onStart() {
     this._setTitle("Friends");
@@ -291,10 +289,10 @@ _rebindEventListeners() {
         console.log("resuls is ", result)
         if (result.online === 1) {
           statusElement.style.color = "rgb(0, 255, 149)";
-          statusElement.textContent = "Online"; //A TRADUIRE AMELLE
+          statusElement.textContent = "Online";
         } else {
           statusElement.style.color = "rgb(255, 0, 0)";
-          statusElement.textContent = "Offline"; //A TRADUIRE AMELLE
+          statusElement.textContent = "Offline";
         }
       })
       .catch((error) => {

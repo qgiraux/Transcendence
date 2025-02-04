@@ -26,10 +26,10 @@ async function initializeLanguageSelector() {
 
   langSelect.value = Application.lang;
 
+  //Listening to language changes on the index.html elements
   langSelect.addEventListener("change", async (event) => {
       const selectedLang = event.target.value;
       const selectedOption = event.target.options[event.target.selectedIndex];
-      const flagIcon = selectedOption.getAttribute("data-icon");
       await Application.setLanguage(selectedLang);
       await Application.applyTranslations();
   });
@@ -62,6 +62,7 @@ router.route();
 
 initializeLanguageSelector();
 
+//Apply translation to the navigation history
 window.addEventListener("popstate", async () => {
     await Application.applyTranslations();
 });
