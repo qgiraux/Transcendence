@@ -14,41 +14,50 @@ let l = new Localization(); //
 
 class CmdGame extends CmdJWT {
 	constructor() {
-		super((jwt)=>{this.#onLogin(jwt)}, () => {return this.checkCanvas()}, "node pong-cli game");
+		super((jwt)=>{this.#onLoginInitialize(jwt)}, () => {return this.#checkProperties()}, "node pong-cli game");
 		this.name = "game";
 		this.description = "Play pong";
-		this.width = 53; //Min 29
-		this.height = 33; // Min 8
-		this.dar = "1:1"; // * NOT IMPLEMENTED
+		this.width = 103; //Min 29
+		this.height = 28; // Min 8
+		//this.dar = "1:1"; // * NOT IMPLEMENTED
 		this.boxCanvas = undefined;
 		this.dialogCanvas = undefined;
 		this.pongCanvas = undefined;
-		this.tournament = String(Date.now()); //
+		this.tournament = undefined;
 		this.newTournament = false;
-		this.description = "Play Pong using keyborad arrows. Create or join tournaments."; //
+		this.description = "Play Pong using keyboard arrows. Create or join tournaments."; //
 		this.players = 2;
 		this.parser.addOptions([
 			"[--width=<width>]", 
 			"[--height=<height>]",
-			"[--display=<width:height>]",
+			//"[--display=<width:height>]",
 			"[--tournament=<tournament>]",
 			"[--create]",
 			"[--players=<num_players>]",
 		],[
 			(match) => {this.width = Number(Parser.getOptionValue(match))}, 
 			(match) => {this.height = Number(Parser.getOptionValue(match))},
-			(match) => {this.dar = Parser.getOptionValue(match)},
+			//(match) => {this.dar = Parser.getOptionValue(match)},
 			(match) => {this.tournament = Parser.getOptionValue(match)},
 			() => {this.newTournament = true},
 			(match) => {this.players = Number(Parser.getOptionValue(match))},
 		]);
 		this.mirror = false;
 		this.controller = new Controller();
-		this.ws = undefined;
+		this.wsGame = undefined;
+		this.wsChat = undefined;
+		this.me = undefined;
+		this.opponent = undefined;
+		this.opponentName = undefined;
+		this.playerNames = undefined; //
+		this.askready = false;
 	}
 
-	checkCanvas() {
-		if (!this.width || 29 > this.width) {
+	#checkProperties() {
+		if (false == this.newTournament && !this.tournament) {
+			process.stderr.write(`Error: expected tounament name. Use --tourname=<name>'\n`);
+			return 1;
+		} else if (!this.width || 29 > this.width) {
 			process.stderr.write(`Error: width must be 29 or above, received: '${this.width}'\n`);
 			return 1;
 		} else if (!this.height || 8 > this.height) {
@@ -60,7 +69,7 @@ class CmdGame extends CmdJWT {
 
 
 	#initalizeController() {
-		this.controller.onStopKey = () => {CvsPong.showCursor(); this.ws.close()}; //Move at End
+		this.controller.onStopKey = () => {/*this.controller.stop();*/ this.#onStop()}; //Move at End
 		this.controller.onKeys([Controller.keyArrowUp, Controller.keyArrowDown, " "], [
 			() => {this.#movePaddle("up")},
 			() => {this.#movePaddle("down")},
@@ -73,7 +82,8 @@ class CmdGame extends CmdJWT {
 		obj.ball.position[0] = WSIPong.flipXEngine(obj.ball.position[0]);
 	}
 
-	#parseGameUpdate(obj) {
+	#parseGameState(obj) {
+		//console.error(obj); //
 		if (this.mirror)
 			this.#mirorGame(obj);
 		this.#onGameUpdate(()=>{this.#updateGame(obj)})
@@ -83,83 +93,214 @@ class CmdGame extends CmdJWT {
 		this.#dialog(String(obj));
 	}
 
+	#parseInit(state) {
+		//console.log(state); //
+		if (this.me == state.player_right.playerid) {
+			this.mirror = true;
+			this.opponent = state.player_left.playerid;
+		} else if (this.me == state.player_left.playerid) {
+			this.mirror = false;
+			this.opponent = state.player_right.playerid;
+		} else {
+			this.mirror = false;
+			this.#parseGameState(state);
+			this.#dialog("[space] to start, Arroys to move.");
+			this.askready = true;
+			return ;
+		}
+		this.opponentName = (this.playerNames) ? this.playerNames[String(this.opponent)] : null;
+		this.#parseGameState(state);
+		this.#dialog("[space] to start, Arroys to move. You are on the left.");
+		this.askready = true;
+	}
+
+	#onMatchResult(ret) {
+		if (!ret || false == HttpsClient.isStatusOk(ret.statusCode) || !ret.message.status) {
+			this.#dialog("Failed to retreive tournament details. Wait or quit.");
+		} else if (2 == ret.message.status) {
+			this.#dialog("Tournament Victory!");
+			this.#onStop();
+		} else if (1 == ret.message.status) {
+			this.#dialog("Waiting for next tournament game...");
+		} else {
+			this.#dialog(`Unexpected tournament status:${ret.message.status}. Wait or quit.`);
+		}
+	}
+
+	#onVictory() {
+		this.#dialog("Game Won");
+		HttpsClient.reqWithJwt(
+			HttpsClient.setUrlInOptions(
+				this.host, 
+				{method: "GET", path: `/api/tournament/details/${this.tournament}`}
+			),
+			null,
+			(ret) => {this.#onMatchResult(ret)},
+			this.jwt,
+			(access) => {this.jwt.access = access}
+		);
+	}
+
+	#onLoss() {
+		this.#dialog("Game lost");
+		this.#onStop();
+	}
+
+	#parseOver(state) {
+		if (this.me == state.winner) {
+			this.#onVictory();
+		} else {
+			this.#onLoss();
+		}
+		this.opponent = null;
+		this.opponentName = null;
+	}
+
 	//WSI
 	#toCanvasX(xEngine){
-		return WSIPong.toXDiv(xEngine, this.pongCanvas.dx);
+		return WSIPong.toXDiv(xEngine, 2 * this.pongCanvas.dx);
 	}
 
 	#toCanvasY(yEngine){
-		return WSIPong.toXDiv(yEngine, this.pongCanvas.dy);
+		return WSIPong.toYDiv(yEngine, 2 * this.pongCanvas.dy);
 	}
 
 	#updateGame(obj) {
-		this.ballX = Number(this.#toCanvasX(obj.ball.position[0]));
-		this.ballY = Number(this.#toCanvasY(obj.ball.position[1]));
-		this.paddleLY = Number(this.#toCanvasY(obj.player_left.paddle_y - WSIPong.paddleLH / 2));
-		this.paddleRY = Number(this.#toCanvasY(obj.player_right.paddle_y - WSIPong.paddleRH / 2));
-		this.scoreL = Number(obj.player_left.score);
-		this.scoreR = Number(obj.player_right.score);
+		//console.error(this); //
+		this.pongCanvas.ballX = Number(this.#toCanvasX(obj.ball.position[0]));
+		this.pongCanvas.ballY = Number(this.#toCanvasY(obj.ball.position[1]));
+		this.pongCanvas.paddleLY = Number(this.#toCanvasY(obj.player_left.paddle_y - WSIPong.paddleLH / 2));
+		this.pongCanvas.paddleRY = Number(this.#toCanvasY(obj.player_right.paddle_y - WSIPong.paddleRH / 2));
+		this.pongCanvas.scoreL = Number(obj.player_left.score);
+		this.pongCanvas.scoreR = Number(obj.player_right.score);
+		//console.error(obj); //
+		//console.error(this); //
 	}
 
 	//WS
 	#sayReady() {
-		this.ws.send(JSON.stringify({
+		this.wsGame.send(JSON.stringify({
 			type: "ready",
 			data: {direction: "ready"}
 		}));
+		if (true == this.askready) {
+			this.askready = false;
+			if (this.opponentName) {
+				this.#dialog(`Waiting for ${this.opponentName}...`);
+			} else {
+				this.#dialog("Waiting for game players...");
+			}
+		}
 	}
 
 	#movePaddle(d) {
-		this.ws.send(JSON.stringify({
+		this.wsGame.send(JSON.stringify({
 			type: "move_paddle",
 			data: {direction: d}
 		}));
 	}
 
-	#onOpen() {
-		if (true == this.newTournament) {
-			HttpsClient.post(
-				HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/create/"}),
-				JSON.stringify({name: this.tournament, size: this.players}),
-				(ret) => {this.#onTournament(ret)},
-				this.jwt
-			);
-		} else {
-			HttpsClient.post(
-				HttpsClient.setUrlInOptions(this.host, {path: "/api/tournament/join/"}),
-				JSON.stringify({name: this.tournament}),
-				(ret) => {this.#onTournament(ret)},
-				this.jwt
-			);
+	#onPongMessage(data) {
+		const obj = JSON.parse(data);
+
+		// console.error("onPongMessage"); //
+		//console.error(obj); //
+		if ("game_update" == obj.type) {
+			this.#parseGameState(obj.state);
+		} else if ("countdown" == obj.type) {
+			this.#parseCountdown(obj.data);
+		} else if ("game_init" == obj.type) {
+			this.#parseInit(obj.state);
+		} else if ("game_over" == obj.type) {
+			this.#parseOver(obj.state);
 		}
-		//this.#startGame();
 	}
 
-	//TODO: make Style class 
-	// static beautifyJson(jsonResponse) {
-	// 	if (typeof jsonResponse != "object") {
-	// 		process.stdout.write(String(jsonResponse));
-	// 		return ;
-	// 	}
-	// 	let pretty = new String("Status code: ");
+	#onUserinfoSetName(ret) {
+		//console.error(ret);
+		if (
+			HttpsClient.isStatusOk(ret.statusCode)
+			&& ret.message 
+			&& ret.message.nickname
+			&& ret.message.id
+		) {
+			if (!this.playerNames) {
+				this.playerNames = {};
+			}
+			this.playerNames[String(ret.message.id)] = String(ret.message.nickname);
+		}
+		//console.error(this.playerNames);
+	}
 
-	// 	if (300 > jsonResponse.statusCode && 200 <= jsonResponse.statusCode)
-	// 		pretty += `\x1b[32m`;
-	// 	else
-	// 		pretty += `\x1b[31m`;
-	// 	pretty += `${jsonResponse.statusCode}\x1b[0m\n`
-	// 	pretty += (typeof jsonResponse.message === "string") ?
-	// 		jsonResponse.message : JSON.stringify(jsonResponse.message, null, " ");
-	// 	if ("\n" != pretty.slice(-1))
-	// 		pretty += "\n";
-	// 	return pretty;
-	// }
+	#onTournamentDetailsGetNames(ret) {
+		if (
+			HttpsClient.isStatusOk(ret.statusCode)
+			&& ret.message 
+			&& ret.message.players
+		) {
+			for (const playerId of ret.message.players) {
+				if (playerId != this.me) {
+					HttpsClient.reqWithJwt(
+						HttpsClient.setUrlInOptions(
+							this.host, 
+							{method: "GET", path: `/api/users/userinfo/${playerId}`}
+						),
+						null,
+						(ret) => {this.#onUserinfoSetName(ret)},
+						this.jwt,
+						(access) => {this.jwt.access = access}
+					)
+				}
+			}
+		}
+	}
 
-	#onTournament(ret){
+	#onChatMessage(data) {
+		const obj = JSON.parse(data);
+
+		if ("game" == obj.type) {
+			const match = obj.group.match(/^user_([0-9]+)$/);
+
+			if (!match || 2 != match.length) {
+				this.#dialog("Received incorrect 'game' message from server.")
+				this.#onStop();
+				return ;
+			}
+			this.me = Number(match[1]);
+			this.wsGame.send(JSON.stringify({
+				type: "join",
+				data: {userid: this.me, name: obj.message.slice(1, -1)}
+			}));
+			this.wsGame.send(JSON.stringify({
+				type: "online",
+				data: ""
+			}));
+			if (!this.playerNames) {
+				HttpsClient.reqWithJwt(
+					HttpsClient.setUrlInOptions(
+						this.host, 
+						{method: "GET", path: `/api/tournament/details/${this.tournament}`}
+					),
+					null,
+					(ret) => {this.#onTournamentDetailsGetNames(ret)},
+					this.jwt,
+					(access) => {this.jwt.access = access}
+				)
+			}
+			// this.wsChat.close();
+			// this.wsChat = null;
+		}
+	}
+
+	// steps
+
+	#onJoinStart(ret) {
 		if (!ret.statusCode) {
 			this.#dialog(JSON.stringify(ret));
 			this.#onStop();
 			return ;
+		} else if (409 == ret.statusCode) {
+			; //Skip is already joined
 		} else if (404 == ret.statusCode) {
 			this.#dialog(`Tournament '${this.tournament}' not found`);
 			this.#onStop();
@@ -172,37 +313,66 @@ class CmdGame extends CmdJWT {
 		this.#startGame();
 	}
 
-	#onMessage(data) {
-		const obj = JSON.parse(data);
+	#onTournamentJoin() {
+		if (!this.tournament) {
+			this.#dialog("Missing tournament name. Use --tournament=<name>");
+			this.#onStop();
+		}
+		HttpsClient.reqWithJwt(
+			HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/join/"}),
+			JSON.stringify({name: this.tournament}),
+			(ret) => {this.#onJoinStart(ret)},
+			this.jwt, (access) => {this.jwt.access = access}
+		);
+	}
 
-		if ("game_update" == obj.type) {
-			this.#parseGameUpdate(obj.data);
-		} else if ("countdown" == obj.type) {
-			this.#parseCountdown(obj.time_to_game);
+	#onOpenCreateTournament() {
+		if (true == this.newTournament) {
+			if (!this.tournament) {
+				this.tournament=String(Date.now());
+			}
+			HttpsClient.reqWithJwt(
+				HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/create/"}),
+				JSON.stringify({name: this.tournament, size: this.players}),
+				(ret) => {
+					if (false == HttpsClient.isStatusOk(ret.statusCode)) {
+						this.#dialog(JSON.stringify(ret));
+						this.#onStop();
+					} else {
+						this.#onTournamentJoin();
+					}
+				}, this.jwt, (access) => {this.jwt.access = access}
+			);
+		} else {
+			this.#onTournamentJoin();
 		}
 	}
 
-	#onLogin(jwt) {
+	#onLoginInitialize(jwt) {
 		this.#iniCanvas();
 		this.pongCanvas.update();
 		this.#dialog(`Connecting to host...`); //
 		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
-		this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access); //wss://{{host}}/ws/chat/?token={{access}};
-		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/');
-		//this.ws = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
-		//console.log('\nwss://' + this.host + '/ws/pong/')
-		//process.exit()
-		this.ws.on('error', (data) => {this.#dialog(String(data)); this.#onStop()}); //this.#onStop()});
-		this.ws.on('open', () => {this.#onOpen()});
-		this.ws.on('message', (data) => {/*console.log(data);*/ this.#onMessage(data)}); //log
+		this.wsGame = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
+		this.wsGame.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
+		this.wsGame.on('open', () => {this.#onOpenCreateTournament()});
+		this.wsGame.on('message', (data) => {this.#onPongMessage(data)});
+		this.wsChat = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
+		this.wsChat.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
+		this.wsChat.on('message', (data) => {this.#onChatMessage(data)});
 	}
 
-
 	#onStop() {
-		this.ws.close();
-		this.boxCanvas.moveCursor(this.boxCanvas.dx - 1, this.boxCanvas.dy - 1);
+		if (this.wsGame)
+			this.wsGame.close();
+		if (this.wsChat)
+			this.wsChat.close();
+		if (this.boxCanvas)
+			this.boxCanvas.moveCursor(this.boxCanvas.dx - 1, this.boxCanvas.dy - 1);
+		if (this.controller)
+			this.controller.stop();
 		process.stdout.write("\n");
-		CvsPong.showCursor(); 
+		CvsPong.showCursor();
 	}
 
 	#onGameUpdate(fun = () => {}) {
@@ -241,6 +411,7 @@ class CmdGame extends CmdJWT {
 
 
 	#dialog(msg) {
+		//console.error(msg); //
 		this.dialogCanvas.resetText(msg);
 		this.dialogCanvas.displayText();
 	}
@@ -257,10 +428,12 @@ class CmdGame extends CmdJWT {
 		this.pongCanvas = new CvsPong(this.width - 2, this.height - 2, 2, 2);
 		this.pongCanvas.paddleRY = 0;
 		this.pongCanvas.paddleLY = 0;
-		this.pongCanvas.paddleRH = this.#toCanvasY(WSIPong.paddleRH);
-		this.pongCanvas.paddleLH = this.#toCanvasY(WSIPong.paddleLH);
 		this.pongCanvas.scoreL = 0;
 		this.pongCanvas.scoreR = 0;
+		this.pongCanvas.paddleRH = this.#toCanvasY(WSIPong.paddleRH);
+		this.pongCanvas.paddleLH = this.#toCanvasY(WSIPong.paddleLH);
+		this.pongCanvas.paddleRX = this.#toCanvasX(WSIPong.paddleRX);
+		this.pongCanvas.paddleLX = this.#toCanvasX(WSIPong.paddleLX);
 		this.pongCanvas.ballX = this.#toCanvasX(WSIPong.ballX0);
 		this.pongCanvas.ballY = this.#toCanvasY(WSIPong.ballY0);
 		this.pongCanvas.initalize();
@@ -272,7 +445,7 @@ class CmdGame extends CmdJWT {
 
 	#startGame() {
 		this.#iniCanvas();
-		this.#dialog(`Tournament="${this.tournament}" Waiting for players... `);
+		this.#dialog(`Tournament="${this.tournament}" Waiting for tounament players... `);
 		this.#initalizeController();
 		//this.#initalizeControllerDebug();
 	}
