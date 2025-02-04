@@ -13,6 +13,7 @@ import TournamentView from "./views/TournamentView.js";
 import AccountManagementView from "./views/AccountManagementView.js";
 import LogoutView from "./views/LogoutView.js";
 import PongGameView from "./views/PongGameView.js";
+import CreateTournamentView from "./views/CreateTournamentView.js";
 
 const router = new Router();
 router.addRoute("/", RootView);
@@ -28,5 +29,6 @@ router.addRoute("/pong", PongGameView);
 router.addRoute("/blocks", BlocksView);
 router.addRoute("/twofa", TwofaView);
 router.addRoute("/tournaments", TournamentView);
+router.addRoute("/create-tournament", CreateTournamentView);
 router.setListeners();
 router.route();
