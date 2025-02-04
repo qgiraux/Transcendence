@@ -98,7 +98,6 @@ class PongGame {
         this.ball = { x: this.canvas.width / 2, y: this.canvas.height / 2, radius: 10, dx: 4, dy: 4 };
     }
     gameLoop() {
-        console.log("La game loop se lance");
         this.movePaddles();
         this.renderer.renderingLoop(this.paddle1, this.paddle2, this.score1, this.score2, this.ball);
         this.ball.x += this.ball.dx;

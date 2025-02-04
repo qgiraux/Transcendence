@@ -123,8 +123,7 @@ class LandingView extends AbstractView {
       Application.setUserInfos();
       Application.toggleSideBar();
       Application.toggleChat();
-      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
-      Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
+      
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);

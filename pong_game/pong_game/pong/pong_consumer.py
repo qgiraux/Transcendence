@@ -44,12 +44,12 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         # Leave the game group
         log.error(f"Player {self.user_id} disconnected")
         if self.game_name in self.pong:
-            self.pong[self.game_name].player_leave(self.user_id)
-        if self.user_id:
-            await self.channel_layer.send(
-                "game_engine",
-                {"type": "player_leave", "user_id": self.user_id},
-            )
+            self.pong[self.game_name].engine.player_leave(self.user_id)
+        # if self.user_id:
+        #     await self.channel_layer.send(
+        #         "game_engine",
+        #         {"type": "player_leave", "user_id": self.user_id},
+        #     )
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def create(self, data):
@@ -70,24 +70,22 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         msg_type = content.get("type")
         msg_data = content.get("data")
         log.error("Received message: %s -- %s", msg_type, msg_data)
-        match msg_type:
-            case "join":
-                await self.join(msg_data)
-            case "move_paddle":
-                await self.move_paddle(msg_data) 
-            case "create":
-                await self.create(msg_data)
-            case "ready":
-                await self.ready()
-            case "online":
-                await self.online()
-            case "giveup":
-                if self.game_name in self.pong:
-                    self.pong[self.game_name].engine.player_leave(self.user_id)
-
-
-            case _:
-                log.warning("Unknown message type: %s", msg_type)
+        if msg_type == "join":
+            await self.join(msg_data)
+        elif msg_type == "move_paddle":
+            await self.move_paddle(msg_data) 
+        elif msg_type == "create":
+            await self.create(msg_data)
+        elif msg_type == "ready":
+            await self.ready()
+        elif msg_type == "online":
+            await self.online()
+        elif msg_type == "giveup":
+            log.error("Player %s gave up with message %s", self.user_id, msg_data)
+            if self.game_name in self.pong:
+                self.pong[self.game_name].engine.player_leave(self.user_id)
+        else:
+            log.warning("Unknown message type: %s", msg_type)
 
     async def join(self, data):
         userid = data.get("userid")
@@ -207,12 +205,12 @@ class PongConsumer(SyncConsumer):
         }
         await self.send(text_data=json.dumps(response))
 
-    def player_leave(self, event):
-        player = event.get("userid")
-        log.error("Player left: %s", player)
-        if player in self.players:
-            self.players.remove(player)
-            self.engine.player_leave(player)
+    # def player_leave(self, event):
+    #     player = event.get("userid")
+    #     log.error("Player left: %s", player)
+    #     if player in self.players:
+    #         self.players.remove(player)
+    #         self.engine.player_leave(player)
 
     
     def player_move_paddle(self, event):

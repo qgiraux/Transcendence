@@ -362,19 +362,19 @@ class PongEngine(threading.Thread):
 	def player_leave(self, playerid):
 		log.error("Player %s left the game", playerid)
 		if self.state.player_left.playerid == playerid:
-			self.state.player_left.player_left = None
+			self.state.player_left.player_left = False
 			self.state.player_right.score = self.MAX_SCORE
 			self.state.player_left.score = -1
 		elif self.state.player_right.playerid == playerid:
-			self.state.player_right.player_left = None
+			self.state.player_right.player_left = False
 			self.state.player_left.score = self.MAX_SCORE
 			self.state.player_right.score = -1
 		else:
 			log.error("Player %s not in game", playerid)
-			log.error("game state is %s", self.state)
+			# log.error("game state is %s", self.state)
 			return
 
-		if self.state.player_left is None or self.state.player_right is None:
+		if self.state.player_left is False or self.state.player_right is False:
 			log.error("Game %s is over", self.name)
 			self.end_game()
 
