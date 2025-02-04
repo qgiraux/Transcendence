@@ -13,13 +13,20 @@ CLI_MODULES=cli/node_modules/
 #########################################################
 ### REGLES
 #########################################################
-.PHONY:		all init up down prune tests re cli cli-fclean
+.PHONY:		all init up down prune tests re cli cli-fclean status
 
 
 all: build up cli
 
+status:
+	docker ps
+	docker volume ls
+	docker image ls
+	docker image ls
+	docker network ls
+
 #regle re : wipe les volumes et reconstruit tout
-re: down build up
+re: down all
 
 $(CLI_MODULES):
 	make -C cli/ all 

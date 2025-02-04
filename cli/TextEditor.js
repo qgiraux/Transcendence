@@ -13,14 +13,20 @@ class TextEditor extends Controller {
 		this.refresh = () => {this.#refresh()};
 	}
 
-	setOnKeys(keyEnter=Controller.keyEnter){
+	setOnKeys(keyEnter){
+		if (!keyEnter) {
+			if (process.stdin.isTTY) {
+				keyEnter = Controller.keyEnter;
+			} else {
+				keyEnter = Controller.keyEnterNotTTY;
+			}
+		}
 		this.onKeys(
-			[Controller.keyBackspace, keyEnter, `\x1b${keyEnter}`], 
-			[() => {this.#onBackSpaceCallback()}, 
+			[Controller.keyBackspace, keyEnter, `\x1b${keyEnter}`], [
+				() => {this.#onBackSpaceCallback()}, 
 				() => {this.#onEnterCallback()}, 
 				() => {this.#onAltEnterCallback()}
-			],
-			(buff) => {this.#onKeyCallback(buff, (buff_)=>{this.echo(buff_)});}
+			], (buff) => {this.#onKeyCallback(buff, (buff_)=>{this.echo(buff_)})}
 		);
 	}
 

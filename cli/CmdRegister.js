@@ -111,8 +111,7 @@ class CmdRegister extends Command {
 		const hostname = hostInfo[0];
 		const port = Number(hostInfo[1]);
 
-		
-		HttpsClient.allowSelfSigned(); //
+		//HttpsClient.allowSelfSigned(); //
 		HttpsClient.post(
 			{hostname: hostname, port:port, path: l.source.api.signup},
 			JSON.stringify({username: this.login, password: this.password}),
