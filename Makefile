@@ -7,18 +7,28 @@ Blue=\033[0;34m         # Blue
 Purple=\033[1;95m    # Bold Light Purple
 Red=\033[1;31m        # Red
 Green=\033[0;32m       # Green
+
+CLI_MODULES=cli/node_modules/
+
 #########################################################
 ### REGLES
 #########################################################
-.PHONY:		all init up down prune tests re
+.PHONY:		all init up down prune tests re cli cli-fclean
 
 
-all: build up
+all: build up cli
 
 #regle re : wipe les volumes et reconstruit tout
 re: down build up
 
+$(CLI_MODULES):
+	make -C cli/ all 
 
+cli: $(CLI_MODULES)
+
+cli-fclean:
+	make -C cli/ fclean
+ 
 build:
 	@echo "🔧 Building the images..."
 	@docker compose  -f docker-compose.yml build
