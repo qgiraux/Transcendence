@@ -10,9 +10,94 @@ class TournamentsView extends AbstractView {
 
   constructor(params) {
     super(params);
+    this.domText = {};
+    this.messages = {};
+    this.init();
+  }
+
+  async init() {
+    await this.loadMessages();
     this.onStart();
   }
 
+  async loadMessages() {
+    await Application.localization.loadTranslations();
+    await Application.setLanguage(Application.lang);
+    this.domText.Title = await Application.localization.t(
+      "tournament.create.txt"
+    );
+    this.domText.createTournamentTxt = await Application.localization.t(
+      "tournament.create.txt"
+    );
+    this.domText.tournamentNameTxt = await Application.localization.t(
+      "tournament.create.name.txt"
+    );
+    this.domText.tournamentNameEnter = await Application.localization.t(
+      "tournament.create.name.enter"
+    );
+    this.domText.tournamentSizeTxt = await Application.localization.t(
+      "tournament.create.size.txt"
+    );
+    this.domText.createTournamentAction = await Application.localization.t(
+      "tournament.create.action.txt"
+    );
+    this.messages.fetchTournamentsErr = await Application.localization.t(
+      "tournament.create.errors.fetchTournaments"
+    );
+    this.messages.displayTournamentsErr = await Application.localization.t(
+      "tournament.create.errors.displayTournaments"
+    );
+    this.messages.joinTournamentErr = await Application.localization.t(
+      "tournament.create.errors.joinTournament"
+    );
+    this.messages.createTournamentErr = await Application.localization.t(
+      "tournament.create.errors.createTournament"
+    );
+    this.messages.invalidName = await Application.localization.t(
+      "tournament.create.errors.invalidName"
+    );
+    this.messages.tourNameRequirements = await Application.localization.t(
+      "tournament.create.errors.tourNameRequirements"
+    );
+    this.messages.inviteFriendTitle = await Application.localization.t(
+      "tournament.invite.title"
+    );
+    this.messages.inviteFriendSuccess = await Application.localization.t(
+      "tournament.invite.success"
+    );
+    this.messages.inviteFriendFailure = await Application.localization.t(
+      "tournament.invite.failure"
+    );
+    this.messages.alreadyJoined = await Application.localization.t(
+      "tournament.card.alreadyJoined"
+    );
+    this.messages.tournamentFull = await Application.localization.t(
+      "tournament.card.tournamentFull"
+    );
+    this.messages.joinTournament = await Application.localization.t(
+      "tournament.card.joinTournament"
+    );
+    this.messages.deleteTournament = await Application.localization.t(
+      "tournament.card.deleteTournament"
+    );
+  }
+
+  listenForLanguageChange() {
+    const languageSelector = document.getElementById(
+      "language-selector-container"
+    );
+    if (languageSelector) {
+      this.addEventListener(languageSelector, "change", async (event) => {
+        const selectedLanguage = event.target.value;
+        console.log(selectedLanguage);
+        await Application.setLanguage(selectedLanguage);
+        await this.loadMessages();
+        await Application.applyTranslations();
+        // this._setHtml();
+        // Router.reroute("/tournaments");
+      });
+    }
+  }
   onStart() {
     this._setTitle("Tournaments");
     if (Application.getAccessToken() === null) {

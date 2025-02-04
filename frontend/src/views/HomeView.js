@@ -10,16 +10,57 @@ class HomeView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("Home");
+    this.domText = {};
+    this.messages = {};
+    this.init();
+  }
+
+  async init() {
+    console.log(Application.lang);
+    Application.localization.loadTranslations();
+    await Application.setLanguage(Application.lang);
+    await this.loadMessages();
+    // await Application.applyTranslations();
     this.onStart();
   }
 
+  async loadMessages() {
+    this.domText.Title = await Application.localization.t("titles.home");
+    this.domText.welcomeMessage = await Application.localization.t(
+      "home.welcome"
+    );
+    this.domText.seeFriends = await Application.localization.t("home.friends");
+    this.domText.manageTournaments = await Application.localization.t(
+      "home.tournaments"
+    );
+  }
+
+  listenForLanguageChange() {
+    // const languageSelector = document.getElementById(
+    //   "language-selector-container"
+    // );
+    // if (languageSelector) {
+    //   this.addEventListener(languageSelector, "change", async (event) => {
+    //     const selectedLanguage = event.target.value;
+    //     console.log("Language change detected :", selectedLanguage);
+    //     await Application.setLanguage(selectedLanguage);
+    //     await this.loadMessages();
+    //     await Application.applyTranslations();
+    //     Router.reroute("/home");
+    //   });
+    // }
+  }
+
   onStart() {
+    console.log("THIS IS A NEW HOME VIEW");
+
     if (Application.getAccessToken() === null) {
       Router.reroute("/landing");
     } else {
       Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
       Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
       this._setHtml();
+      this.listenForLanguageChange();
     }
     if (Application.mainSocket) {
       console.log("WebSocket connection already established.");
@@ -169,7 +210,7 @@ class HomeView extends AbstractView {
         <h1 class="text-white display-1">${
           Application.getUserInfos().userName
         }</h1>
-        <h2><small>Welcome to your home page!</small></h2>
+        <h2><small>${this.domText.welcomeMessage}</small></h2>
         <div class="container mt-4">
           <div class="row ">
             <div class="col-md-6 d-flex align-items-center justify-content-center">
@@ -177,7 +218,7 @@ class HomeView extends AbstractView {
                 <a href="/friends" data-link class="btn">
                   <i class="bi bi-people display-3"></i>
                   <i class="bi bi-arrow-right" id="homeIcon"></i>
-                  <p class="mt-2">See Friends</p></a>
+                  <p class="mt-2">${this.domText.seeFriends}</p></a>
               </div>
             </div>
             <div class="col-md-6 d-flex align-items-center justify-content-center">
@@ -185,7 +226,7 @@ class HomeView extends AbstractView {
                 <a href="/tournaments" data-link class="btn">
                   <i class="bi bi-trophy display-3"></i>
                   <i id="homeIcon" class="bi bi-arrow-right"></i>
-                  <p class="mt-2">Manage Tournament</p></a>
+                  <p class="mt-2">${this.domText.manageTournaments}</p></a>
               </div>
             </div>
           </div>
@@ -201,6 +242,10 @@ class HomeView extends AbstractView {
     } else {
       console.error("#view-container not found in the DOM.");
     }
+  }
+
+  childOnDestroy() {
+    // this.pongGame.destroy();
   }
 }
 

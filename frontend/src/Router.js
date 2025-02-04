@@ -118,6 +118,7 @@ class Router {
     this.route();
   }
   static reroute(uri) {
+    console.log(`ROUTER ${uri}`);
     const regex = /^\/[a-zA-Z0-9\/]*$/;
     if (!regex.test(uri)) throw new Error("Router::reroute : invalid route");
     const event = new CustomEvent("redirect", {

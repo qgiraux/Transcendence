@@ -17,7 +17,18 @@
 </head>
 
 <body>
-	<!-- sidebar html -->
+
+	<!-- language selector -->
+	<div id="language-selector-container" style="position: absolute; top: 35px; right: 220px; z-index: 9999;">
+		<select id="lang-select" class="form-select">
+			<option value="en-us">English</option>
+			<option value="fr-fr">Français</option>
+			<option value="it-it">Italiano</option>
+			<option value="es-es">Español</option>
+		</select>
+	</div>
+
+	<!-- navbar html -->
 	<nav class="navbar navbar-expand-lg d-none" id="sidebar">
 		<div class="container-fluid">
 			<a class="navbar-brand" data-link href="/">PONG</a>
@@ -29,20 +40,22 @@
 					<button class="btn btn-link dropdown-toggle p-0" type="button" id="settingsDropdown"
 						data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button>
 					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
-						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/profile">View
-								Profile</a></li>
-						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/friends">Friends
-								List</a></li>
-						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks">Blocking
-								List</a></li>
-						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/switch-language">Switch
-								to French</a></li>
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/profile"
+								data-i18n="sidebar.profile">View profile</a></li>
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/friends"
+								data-i18n="sidebar.friends">Friends List</a></li>
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks"
+								data-i18n="sidebar.blocks">Blocking List</a></li>
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/tournaments"
+								data-i18n="sidebar.tournaments">Tournaments</a></li>
 					</ul>
 				</div>
 
 			</div>
 
-			<a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+		</div>
+
+		<a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
 		</div>
 	</nav>
 
@@ -69,9 +82,9 @@
 		</div>
 		<div id="chat-body">
 			<div id="chat-messages"></div>
-			<input type="text" id="messageInput" placeholder="Enter your message" />
-			<input type="text" id="groupInput" placeholder="Enter group (optional)" />
-			<button id="send-btn">Send Message</button>
+			<input type="text" id="messageInput" placeholder="Enter your message" data-i18n="chat.message" />
+			<input type="text" id="groupInput" placeholder="Enter group (optional)" data-i18n="chat.group" />
+			<button id="send-btn" data-i18n="chat.send"></button>
 		</div>
 	</div>
 	<button id="chat-btn" class="d-none">Chat</button>

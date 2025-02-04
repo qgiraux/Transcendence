@@ -2,6 +2,7 @@
 
  */
 import Avatar from "./Avatar.js";
+import Localization from "./Localization.js";
 
 class Application {
   /**
@@ -17,6 +18,9 @@ class Application {
   };
   static mainSocket = null;
   static gameSocket = null;
+  static lang = localStorage.getItem("selectedLang") || "en-us";
+  static localization = new Localization(Application.lang);
+  static translationsCache = {};
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -214,13 +218,39 @@ class Application {
     //   Application.getUserInfos().userName;
     avatarImg.setAttribute("data-avatar", userId);
     Avatar.refreshAvatars().then(() => {
-      sideBar.classList.toggle("d-none");
+      sideBar.classList.remove("d-none");
     });
   }
 
   static toggleChat() {
     const chatBox = document.querySelector("#chat-btn");
-    chatBox.classList.toggle("d-none");
+    chatBox.classList.remove("d-none");
+  }
+
+  static async setLanguage(lang) {
+    Application.lang = lang;
+    if (lang !== this.localization.lang) {
+      this.localization.lang = this.lang;
+    }
+    await this.localization.loadTranslations();
+    await Application.applyTranslations();
+  }
+
+  static async applyTranslations() {
+    const elements = document.querySelectorAll("[data-i18n]");
+
+    elements.forEach(async (el) => {
+      const translationKey = el.getAttribute("data-i18n");
+      const translation = await Application.localization.t(translationKey);
+
+      if (translation) {
+        if (el.hasAttribute("placeholder")) {
+          el.setAttribute("placeholder", translation);
+        } else {
+          el.textContent = translation;
+        }
+      }
+    });
   }
 }
 
