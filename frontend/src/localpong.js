@@ -16,12 +16,17 @@ class PongGame {
         this.commands = { up: 0, down: 0, w: 0, s: 0 };
         this.reset = false;
 
-        // document.addEventListener('keydown', (event) => this.handleKeyDown(event));
-        // document.addEventListener('keyup', (event) => this.handleKeyUp(event));
-        // document.addEventListener('keydown', (event) => this.resumeGame(event, this.reset));
-        // document.addEventListener('keydown', (event) => this.resumeGame(event));
+        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
+        document.addEventListener('keydown', (event) => this.resumeGame(event, this.reset));
     }
 
+    destroy() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+        document.removeEventListener('keyup', this.handleKeyUp);
+        document.removeEventListener('keydown', this.resumeGame);
+    }
+    
     handleKeyDown(event) {
         switch (event.key) {
             case 'ArrowUp':
@@ -93,7 +98,6 @@ class PongGame {
         this.ball = { x: this.canvas.width / 2, y: this.canvas.height / 2, radius: 10, dx: 4, dy: 4 };
     }
     gameLoop() {
-        console.log("La game loop se lance");
         this.movePaddles();
         this.renderer.renderingLoop(this.paddle1, this.paddle2, this.score1, this.score2, this.ball);
         this.ball.x += this.ball.dx;
@@ -115,7 +119,6 @@ class PongGame {
             
             this.ball.dy = 4;
             this.paused = true;
-            document.addEventListener('keydown', (event) => this.resumeGame(event, true));
             if (this.paused) return;
         }
         requestAnimationFrame(() => this.gameLoop());
@@ -137,17 +140,4 @@ class PongGame {
         }
     }
 }
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        this.paused = true;
-        cancelAnimationFrame(this.animationFrameId);
-        document.removeEventListener('keydown', this.resumeGame);
-        document.removeEventListener('keydown', (event) => this.handleKeyDown(event));
-        document.removeEventListener('keyup', (event) => this.handleKeyUp(event));
-        document.removeEventListener('keydown', (event) => this.resumeGame(event));
-    } else {
-        this.paused = false;
-        this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
-    }
-});
 export default PongGame;

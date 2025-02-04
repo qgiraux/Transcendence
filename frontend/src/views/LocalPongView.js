@@ -2,7 +2,6 @@ import Application from "../Application.js";
 import AbstractView from "./AbstractView.js";
 import PongRenderer from "../pongrenderer.js";
 import TRequest from "../TRequest.js";
-import Alert from "../Alert.js";
 
 class PongGameView extends AbstractView {
     constructor(params) {
@@ -27,16 +26,16 @@ class PongGameView extends AbstractView {
         this.onStart();
     }
 
-    // childOnDestroy() {
-    //     console.log("Destroying PongGameView");
-    //     if (this.isGameOver === false)
-    //         Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
+    childOnDestroy() {
+        console.log("Destroying PongGameView");
+        Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
         
-    // }
+    }
+
     onStart() {
         
-        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
-        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
+        this.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        this.addEventListener('keyup', (event) => this.handleKeyUp(event));
 
         this._setHTML();
 
@@ -73,12 +72,12 @@ class PongGameView extends AbstractView {
         if (Application.gameSocket) {
             console.log("WebSocket connection already established.");
             try {
-                // Application.gameSocket.onopen = () => {
-                //     console.log("WebSocket connection established"); 
-                // };
+                Application.gameSocket.onopen = () => {
+                    console.log("WebSocket connection established"); 
+                };
 
                 Application.gameSocket.onmessage = (event) => {
-                    // console.log("DATA=== ", event.data);
+                    console.log("DATA=== ", event.data);
                     const data = JSON.parse(event.data);
 
                     if (data.type === "game_over") {
@@ -92,8 +91,7 @@ class PongGameView extends AbstractView {
 
                         console.log("Game Over");
                         this.isGameOver = true; // Stop game loop when the game ends
-                    } 
-                    else if (data.type === "countdown" ) {
+                    } else if (data.type === "countdown" ) {
                         console.log("Countdown: ", data.data);
                         if (data.data === 0) {
                             console.log("Game started");
@@ -113,8 +111,7 @@ class PongGameView extends AbstractView {
                             this.p1name,
                             this.p2name
                     );
-                    } 
-                    else if (data.type === "game_init" ) {
+                    } else if (data.type === "game_init" ) {
                         // this.p1name = data.state.player_left.playerid;
                         // this.p2name = data.state.player_right.playerid;
                         console.log("Game init: ", data);
@@ -143,26 +140,31 @@ class PongGameView extends AbstractView {
                         });
 
                         
-                    } 
-                    else if (data.type === "game_update") {
+                    } else {
                         // Update game state for ongoing gameplay
-                        const datum = data.state;
-                        // console.log("Game state: ", datum);
+                        console.log("Game state: ", data);
                         if (this.p1name === ""){
-                            this.p1name = datum.player_left.playerid;
+                            this.p1name = data.player_left.playerid;
                         }
                         if (this.p2name === ""){
-                            this.p2name = datum.player_right.playerid;
+                            this.p2name = data.player_right.playerid;
                         }
-                        this.score1 = datum.player_left.score;
-                        this.score2 = datum.player_right.score;
-                        this.paddle1.y = datum.player_left.paddle_y * 4;
-                        this.paddle2.y = datum.player_right.paddle_y * 4;
-                        this.ball.x = datum.ball.position[0] * 4;
-                        this.ball.y = datum.ball.position[1] * 4;
+                        this.score1 = data.player_left.score;
+                        this.score2 = data.player_right.score;
+                        this.paddle1.y = data.player_left.paddle_y * 4;
+                        this.paddle2.y = data.player_right.paddle_y * 4;
+                        this.ball.x = data.ball.position[0] * 4;
+                        this.ball.y = data.ball.position[1] * 4;
                         // console.log("newBall: ", newBallX, newBallY);
                         // console.log("ball: ", this.ball.x, this.ball.y);
                     }
+                };
+
+                Application.gameSocket.onclose = () => {
+                    console.log("WebSocket connection closed");
+                    document.removeEventListener('keydown', (event) => this.handleKeyDown(event));
+                    document.removeEventListener('keyup', (event) => this.handleKeyUp(event));
+                    // document.getElementById("game-status").innerText = "Connection closed";
                 };
 
                 Application.gameSocket.onerror = (error) => {
@@ -230,7 +232,7 @@ class PongGameView extends AbstractView {
             break;
         case ' ':
             Application.gameSocket.send(JSON.stringify({ type: 'ready', data: { direction: 'ready' } }));
-            // console.log("READY");
+            console.log("READY");
             break;
       }
     }

@@ -177,7 +177,6 @@ class PongEngine(threading.Thread):
 		except Exception as e:
 			log.error(f"Error during readiness check: {e}")
 
-
 	async def game_loop(self):
 		try:
 			while len(self.ready_players) < 2:
@@ -203,7 +202,7 @@ class PongEngine(threading.Thread):
 	async def broadcast_state(self):
 		state_json = self.state.render()
 		await self.channel_layer.group_send(
-			self.group_name, {"type": "game.update", "state": state_json}
+			self.group_name, {"type": "game_update", "state": state_json}
 		)
 
 	async def broadcast_starting_state(self):
@@ -235,7 +234,6 @@ class PongEngine(threading.Thread):
 			self.group_name, {"type": "countdown", "data": 0}
 		)
 
-
 	async def post_stats(self, url, data, headers):
 		try:
 			async with httpx.AsyncClient() as client:
@@ -245,6 +243,7 @@ class PongEngine(threading.Thread):
 			log.error(f"HTTP error occurred: {e.response.status_code}")
 		except Exception as e:
 			log.error(f"Error posting stats: {e}")
+
 
 
 	async def broadcast_game_over(self):
@@ -258,7 +257,10 @@ class PongEngine(threading.Thread):
 		state_json["p1score"] = self.state.player_left.score
 		state_json["p2"] = self.state.player_right.playerid
 		state_json["p2score"] = self.state.player_right.score
-		state_json["score"] = f"{state_json['p1score']}/{state_json['p2score']}"
+		if self.state.player_left.score == -1 or self.state.player_right.score == -1:
+			state_json["score"] = "forfeit"
+		else:
+			state_json["score"] = f"{state_json['p1score']}/{state_json['p2score']}"
 		log.error(f"sending game over to group {self.group_name}")
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
@@ -283,7 +285,7 @@ class PongEngine(threading.Thread):
 			"tournament_id": self.group_name,
 			"date": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
 			"opponent": self.state.player_right.playerid,
-			"score": f"{state_json['p1score']}/{state_json['p2score']}",
+			"score": state_json["score"],
 			"win": "yes" if self.state.player_left.score > self.state.player_right.score else "no"
 		}
 		# Post stats for player 1
@@ -340,7 +342,6 @@ class PongEngine(threading.Thread):
 
 		log.error("Player %s joined the game", playerid)
 
-
 	def process_paddle_movement(self, state, movements):
 		# log.error("Processing paddle movements for game %s", self.name)
 
@@ -364,18 +365,19 @@ class PongEngine(threading.Thread):
 	def player_leave(self, playerid):
 		log.error("Player %s left the game", playerid)
 		if self.state.player_left.playerid == playerid:
-			self.state.player_left = None
+			self.state.player_left.player_left = False
 			self.state.player_right.score = self.MAX_SCORE
-			self.state.player_right.score = -1
-		elif self.state.player_right.playerid == playerid:
-			self.state.player_right = None
-			self.state.player_left.score = self.MAX_SCORE
 			self.state.player_left.score = -1
+		elif self.state.player_right.playerid == playerid:
+			self.state.player_right.player_left = False
+			self.state.player_left.score = self.MAX_SCORE
+			self.state.player_right.score = -1
 		else:
 			log.error("Player %s not in game", playerid)
+			# log.error("game state is %s", self.state)
 			return
 
-		if self.state.player_left is None or self.state.player_right is None:
+		if self.state.player_left is False or self.state.player_right is False:
 			log.error("Game %s is over", self.name)
 			self.end_game()
 

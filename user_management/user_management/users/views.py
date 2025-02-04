@@ -104,6 +104,29 @@ def get_jwt_token(request):
         'access': access
     })
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def refresh_jwt_token(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    
+    try:
+        refresh = RefreshToken(body['refresh'])
+        user = User.objects.get(id=refresh['user_id'])
+    except RefreshToken.DoesNotExist:
+        return Response({'error': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+
+    refresh = RefreshToken.for_user(user)
+    access = str(refresh.access_token)
+    access_token = refresh.access_token
+    access_token['username'] = user.username
+    access_token['nickname'] = user.nickname
+    access = str(access_token)
+
+    return Response({
+        'access': access
+    })
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) 
 def Get_my_infos(request):
