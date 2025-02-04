@@ -64,24 +64,6 @@ class ProfileView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log("Changement de langue détecté :", selectedLanguage);
-
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-
-        Router.reroute("/profile");
-      });
-    }
-  }
-
   onStart() {
     this._setTitle("Profile");
     if (Application.getAccessToken() === null) {
@@ -90,7 +72,6 @@ class ProfileView extends AbstractView {
       }, 50);
       return;
     }
-    this.listenForLanguageChange();
     this.id = this.params["id"] || Application.getUserInfos().userId;
     /*
         Localization placeholders

@@ -72,15 +72,6 @@ class FriendsView extends AbstractView {
     );
   }
 
-  async listenForLanguageChange(event) {
-    const selectedLanguage = event.target.value;
-    console.log("Language change detected :", selectedLanguage);
-    await Application.setLanguage(selectedLanguage);
-    await this.loadMessages();
-    await Application.applyTranslations();
-    Router.reroute("/friends");
-  }
-
   // _rebindEventListeners() {
   //   this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
   //   this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
@@ -142,15 +133,6 @@ class FriendsView extends AbstractView {
       document.getElementById("UserSelectModal"),
       "hide.bs.modal",
       this._modalSafeClose.bind(this)
-    );
-
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    this.addEventListener(
-      languageSelector,
-      "change",
-      this.listenForLanguageChange.bind(this)
     );
   }
 
@@ -327,10 +309,8 @@ class FriendsView extends AbstractView {
 
     // Asynchronously fetch the friend's status
     const statusElement = document.getElementById(`status-${friend.id}`);
-    console.log("Checking status for friend ", friend.id);
     TRequest.request("GET", `/api/users/userstatus/${friend.id}`)
       .then((result) => {
-        console.log("resuls is ", result);
         if (result.online === 1) {
           statusElement.style.color = "rgb(0, 255, 149)";
           statusElement.textContent = "Online";

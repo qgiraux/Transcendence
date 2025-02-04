@@ -1,16 +1,14 @@
-const pathEn = '../../local/en-us/translation.json';
-const pathFr = '../../local/fr-fr/translation.json';
-const pathEs = '../../local/es-es/translation.json';
-const pathIt = '../../local/it-it/translation.json';
+const pathEn = "../../local/en-us/translation.json";
+const pathFr = "../../local/fr-fr/translation.json";
+const pathEs = "../../local/es-es/translation.json";
+const pathIt = "../../local/it-it/translation.json";
 
 class Localization {
   constructor(lang) {
     this.lang = Localization.detectLanguage();
-	console.log("The language is = ");
-	console.log(this.lang);
     this.translation = null;
     this.source = null;
-	this.loadTranslations();
+    this.loadTranslations();
   }
 
   static detectLanguage() {
@@ -29,40 +27,38 @@ class Localization {
   }
 
   static _getTLPath(lang) {
-    if (lang === 'fr-fr') {
-        return pathFr;
-    } 
-    else if (lang === 'es-es') {
-        return pathEs;
-    } 
-    else if (lang == 'it-it') {
-        return pathIt;
-    }
-    else {
+    if (lang === "fr-fr") {
+      return pathFr;
+    } else if (lang === "es-es") {
+      return pathEs;
+    } else if (lang == "it-it") {
+      return pathIt;
+    } else {
       return pathEn;
-    }  
+    }
   }
 
   async loadTranslations() {
     const path = Localization._getTLPath(this.lang);
     this.translation = await Localization._load(path);
-	  if (!this.translation)
-		  console.log("Error fetching translation file");
-	  this.source = await Localization._load(pathEn);
+    if (!this.translation) console.log("Error fetching translation file");
+    this.source = await Localization._load(pathEn);
     this.isLoaded = true;
-	  if (!this.isLoaded)
-		  console.log("Error loading translation");
+    if (!this.isLoaded) console.log("Error loading translation");
   }
 
   async t(flatkey, data) {
-    if (!this.isLoaded)
-      await this.loadTranslations();
+    if (!this.isLoaded) await this.loadTranslations();
     const keys = flatkey.split(".");
     let translation = this.translation;
     let source = this.source;
     let i = 0;
 
-    while (translation !== undefined && source !== undefined && i < keys.length) {
+    while (
+      translation !== undefined &&
+      source !== undefined &&
+      i < keys.length
+    ) {
       const key_ = keys[i++];
       if (translation) translation = translation[key_];
       if (source) source = source[key_];

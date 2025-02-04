@@ -16,11 +16,9 @@ class HomeView extends AbstractView {
   }
 
   async init() {
-    console.log(Application.lang);
     Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
-    // await Application.applyTranslations();
     this.onStart();
   }
 
@@ -35,46 +33,19 @@ class HomeView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    // const languageSelector = document.getElementById(
-    //   "language-selector-container"
-    // );
-    // if (languageSelector) {
-    //   this.addEventListener(languageSelector, "change", async (event) => {
-    //     const selectedLanguage = event.target.value;
-    //     console.log("Language change detected :", selectedLanguage);
-    //     await Application.setLanguage(selectedLanguage);
-    //     await this.loadMessages();
-    //     await Application.applyTranslations();
-    //     Router.reroute("/home");
-    //   });
-    // }
-  }
-
   onStart() {
-    console.log("THIS IS A NEW HOME VIEW");
-
-    if (Application.getAccessToken() === null) {
-      Router.reroute("/landing");
-    } else {
-      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
-      Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
-      this._setHtml();
-      this.listenForLanguageChange();
-    }
+    Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
+    Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
+    this._setHtml();
     if (Application.mainSocket) {
-      console.log("WebSocket connection already established.");
       try {
         Application.mainSocket.onmessage = (event) => {
           // Parse the incoming JSON
-          console.log("WebSocket message received---:", event);
           let data = JSON.parse(event.data);
           const sender = data.sender || 0; // Default if field missing
           const group = data.group || "No group"; // Default if field missing
           let message = data.message || "No message content"; // Default if field missing
-          console.log("quoted message: ", message);
           message = message.slice(1, -1); // Remove the first and last characters
-          console.log("dequoted message: ", message);
           const type = data.type || "none"; // Default if field missing
 
           if (type === "chat") {
@@ -96,27 +67,21 @@ class HomeView extends AbstractView {
             // Display the invite
             TRequest.request("GET", `/api/users/userinfo/${sender}`)
               .then((username) => {
-                console.log(username);
                 const textmessage = `${username.username} has invited you to a game!`;
                 const link = message;
-                console.log(`link: ${link} , textmessage: ${textmessage}`);
                 Alert.inviteMessage(type, textmessage, link);
               })
               .catch((err) => {
                 console.error("Failed to fetch user info:", err);
               });
           }
-          console.log("checkpoint 2");
           if (type === "game") {
-            console.log("game invite received");
             // Display the invite
             TRequest.request("GET", `/api/users/userinfo/${sender}`)
               .then((username) => {
-                console.log(username);
                 const textmessage = `your game is starting!`;
                 const link = message;
                 Router.reroute("/pong");
-                console.log(`link: ${link} , textmessage: ${textmessage}`);
                 Alert.inviteMessage(type, textmessage, link);
                 Application.gameSocket.send(
                   JSON.stringify({
@@ -134,6 +99,7 @@ class HomeView extends AbstractView {
           }
           if (type === "GOTO") {
             // Display the alert
+
             Router.reroute(message);
           }
         };
@@ -169,6 +135,8 @@ class HomeView extends AbstractView {
           const type = data.type || "none"; // Default if field missing
           if (type === "GOTO") {
             // Display the alert
+            console.log("calling reroute from websocket");
+
             Router.reroute(message);
           }
         };
@@ -244,9 +212,7 @@ class HomeView extends AbstractView {
     }
   }
 
-  childOnDestroy() {
-    // this.pongGame.destroy();
-  }
+  childOnDestroy() {}
 }
 
 export default HomeView;

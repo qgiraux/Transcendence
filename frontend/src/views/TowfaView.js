@@ -38,26 +38,6 @@ class TwofaView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log("Changement de langue détecté :", selectedLanguage);
-
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-
-        Router.reroute("/profile");
-
-        // this._setHtml();
-      });
-    }
-  }
-
   onStart() {
     this._setTitle("Profile");
     if (Application.getAccessToken() === null) {
@@ -76,7 +56,6 @@ class TwofaView extends AbstractView {
       .catch((error) => {
         Alert.errorMessage(this.messages.wentWrong, error.message);
       });
-    this.listenForLanguageChange();
   }
 
   _setHtml() {

@@ -3,6 +3,7 @@
  */
 import Avatar from "./Avatar.js";
 import Localization from "./Localization.js";
+import Router from "./Router.js";
 
 class Application {
   /**
@@ -210,16 +211,15 @@ class Application {
     return Application.gameSocket;
   }
 
-  static toggleSideBar() {
+  static async toggleSideBar() {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
     const userId = Application.getUserInfos().userId;
     // document.querySelector("#side-username").textContent =
     //   Application.getUserInfos().userName;
     avatarImg.setAttribute("data-avatar", userId);
-    Avatar.refreshAvatars().then(() => {
-      sideBar.classList.remove("d-none");
-    });
+    await Avatar.refreshAvatars();
+    sideBar.classList.remove("d-none");
   }
 
   static toggleChat() {
@@ -251,6 +251,18 @@ class Application {
         }
       }
     });
+  }
+
+  static async listenForLanguageChange(event) {
+    const selectedLanguage = event.target.value;
+    console.log("Language change detected :", selectedLanguage);
+    await Application.setLanguage(selectedLanguage);
+
+    // recuperer l'instance view courante
+    const currentView = Application.router.getCurrentView();
+    await currentView.loadMessages();
+    await Application.applyTranslations();
+    Router.reroute(location.pathname);
   }
 }
 

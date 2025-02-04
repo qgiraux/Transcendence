@@ -82,22 +82,6 @@ class TournamentsView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log(selectedLanguage);
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-        // this._setHtml();
-        // Router.reroute("/tournaments");
-      });
-    }
-  }
   onStart() {
     this._setTitle("Tournaments");
     if (Application.getAccessToken() === null) {

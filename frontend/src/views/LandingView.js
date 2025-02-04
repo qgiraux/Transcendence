@@ -81,23 +81,6 @@ class LandingView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log(selectedLanguage);
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-        this.setHtml();
-        // Router.reroute("/landing");
-      });
-    }
-  }
-
   onStart() {
     this.setHtml();
     const loginRadio = document.getElementById("loginradio");
@@ -109,12 +92,6 @@ class LandingView extends AbstractView {
       this._handleToggle.bind(this)
     );
     document.getElementById("register-form").style.display = "none";
-    this.addEventListener(
-      document.getElementById("login-btn"),
-      "click",
-      this._loginHandler.bind(this)
-    );
-    this.listenForLanguageChange();
   }
 
   _handleToggle(event) {
@@ -194,8 +171,9 @@ class LandingView extends AbstractView {
       const json = await response.json();
       Application.setToken(json);
       Application.setUserInfosFromToken();
-      Application.toggleSideBar();
+      await Application.toggleSideBar();
       Application.toggleChat();
+
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);

@@ -23,6 +23,10 @@ class Router {
     this._matchRoute.bind(this);
   }
 
+  getCurrentView() {
+    return this.#currentView;
+  }
+
   setListeners() {
     window.addEventListener("popstate", this.route.bind(this));
     document.addEventListener("click", this._handleLinkClick.bind(this));
@@ -118,7 +122,6 @@ class Router {
     this.route();
   }
   static reroute(uri) {
-    console.log(`ROUTER ${uri}`);
     const regex = /^\/[a-zA-Z0-9\/]*$/;
     if (!regex.test(uri)) throw new Error("Router::reroute : invalid route");
     const event = new CustomEvent("redirect", {
