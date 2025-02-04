@@ -356,7 +356,7 @@ class BlocksView extends AbstractView {
 				<h1 class="text-white display-1">${this.domText.Title}</h1>
 			</div>
 		</div>
-		<div class="row g-2  border border-secondary p-2 rounded" id="blocks-container">
+		<div class="row g-2  p-2" id="blocks-container">
 		</div>
 
 		<div class="row">

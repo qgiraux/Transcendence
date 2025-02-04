@@ -270,9 +270,15 @@ class FriendsView extends AbstractView {
           <span class="dropdown-toggle-split" style="color: inherit;"></span>
         </button>
         <ul class="dropdown-menu">
+<<<<<<< HEAD
           <li><button class="dropdown-item" data-id="${friend.id}" data-action="view-profile">${this.domText.viewProfile}</button></li>
           <li><button class="dropdown-item" data-id="${friend.id}" data-action="invite-game">${this.domText.inviteGame}</button></li>
           <li><button class="dropdown-item" data-id="${friend.id}" data-action="unfriend">${this.domText.unfriend}</button></li>
+=======
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="view-profile">View profile</button></li>
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="invite-game">Invite to a game</button></li>
+          <li><button class="dropdown-item" data-id="${friend.id}" data-action="unfriend">Unfriend</button></li>
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
         </ul>
         </div>
       </div>

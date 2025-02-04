@@ -19,9 +19,12 @@ class Application {
   };
   static mainSocket = null;
   static gameSocket = null;
+<<<<<<< HEAD
   static lang = localStorage.getItem("selectedLang") || "en-us";
   static localization = new Localization(Application.lang);
   static translationsCache = {};
+=======
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -205,11 +208,19 @@ class Application {
     return Application.gameSocket;
   }
 
+<<<<<<< HEAD
 //Slight modifications to correct the d-none of the sidebar after log in
+=======
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
   static toggleSideBar() {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
     const userId = Application.getUserInfos().userId;
+<<<<<<< HEAD
+=======
+    // document.querySelector("#side-username").textContent =
+    //   Application.getUserInfos().userName;
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
     avatarImg.setAttribute("data-avatar", userId);
     Avatar.refreshAvatars().then(() => {
       sideBar.classList.remove("d-none");

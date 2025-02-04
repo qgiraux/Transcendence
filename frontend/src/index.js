@@ -14,7 +14,10 @@ import TwofaView from "./views/TowfaView.js";
 import TournamentView from "./views/TournamentView.js";
 import LogoutView from "./views/LogoutView.js";
 import PongGameView from "./views/PongGameView.js";
+<<<<<<< HEAD
 import Application from "../Application.js";
+=======
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
 
 
 async function initializeLanguageSelector() {

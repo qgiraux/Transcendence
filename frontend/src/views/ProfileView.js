@@ -227,7 +227,15 @@ class ProfileView extends AbstractView {
         await Avatar.refreshAvatars();
       } catch (error) {
         console.log("an error has occured");
+<<<<<<< HEAD
         Alert.errorMessage(this.messages.avatarRefreshErr, this.messages.errUpload);
+=======
+        Alert.errorMessage(
+          "Avatar",
+          `The picture could't be uploaded.
+			Please check that it is a valid jpeg or png file, less or equal than 5MB`
+        );
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
       }
     }
 
@@ -319,6 +327,7 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
+<<<<<<< HEAD
       <button class="btn btn-primary better-btn" id="manage-btn">${this.domText.manageAvatar}</button>
     `;
     const profileAlias = `
@@ -327,6 +336,16 @@ class ProfileView extends AbstractView {
     const profileTwofa = `
       <label class="btn btn-primary better-btn" id="twofa-better-btn">
        ${this.domText.activate2FA}<a href="/twofa" data-link class="nav-link px-0 align-middle">Profile</a>
+=======
+      <button class="btn btn-primary better-btn" id="manage-btn">Manage Avatar</button>
+    `;
+    const profileAlias = `
+      <button class="btn btn-primary better-btn" id="alias-btn">Change Alias</button>
+    `;
+    const profileTwofa = `
+      <label class="btn btn-primary better-btn" id="twofa-better-btn">
+        Activate 2FA <a href="/twofa" data-link class="nav-link px-0 align-middle">Profile</a>
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
       </label>
     `;
     const container = document.querySelector("#view-container");
@@ -361,7 +380,11 @@ class ProfileView extends AbstractView {
             <div class="modal-content bg-dark">
               <div class="modal-header">
                 <h2>Avatar Settings</h2>
+<<<<<<< HEAD
                 <button type="button" class="btn-close" data-autobs-dismiss="modal" aria-label=${this.domText.close}></button>
+=======
+                <button type="button" class="btn-close" data-autobs-dismiss="modal" aria-label="Close"></button>
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
               </div>
               <div class="mt-3">
                 <div class="form-check">

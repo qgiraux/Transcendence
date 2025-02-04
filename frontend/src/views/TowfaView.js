@@ -85,10 +85,17 @@ class TwofaView extends AbstractView {
                         <img src="${imageUrl}" alt="QR Code" class="img-fluid">
                     </div>
                 </div>    
+<<<<<<< HEAD
                 <h1 class="text-white display-4">${this.domText.confirmActivation}</h1>
                 <div class="row p-2 mb-0">
                     <div class="col-3 mx-1">
                         <input type="text" id="twofa" class="form-control" placeholder="${this.domText.twofaField}">
+=======
+                <h1 class="text-white display-4">give your 2Fa code to confirm the activation</h1>
+                <div class="row p-2 mb-0">
+                    <div class="col-3 mx-1">
+                        <input type="text" id="twofa" class="form-control" placeholder="2Fa code">
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
                     </div>
             `;
         container.querySelector("#twofa").addEventListener("keypress", (event) => {
@@ -96,11 +103,19 @@ class TwofaView extends AbstractView {
                 const twofaCode = container.querySelector("#twofa").value;
                 TRequest.request("POST", `/api/users/enable_twofa/`, { "twofa": twofaCode })
                     .then((response) => {
+<<<<<<< HEAD
                         Alert.successMessage(this.messages.twofaSuccess);
                         Router.reroute("/profile");
                     })
                     .catch((error) => {
                         Alert.errorMessage(this.messages.twofaInvalid, error.message);
+=======
+                        Alert.successMessage("2FA code verified successfully");
+                        Router.reroute("/profile");
+                    })
+                    .catch((error) => {
+                        Alert.errorMessage("Invalid 2FA code", error.message);
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
                     });
                 }
             });

@@ -159,7 +159,11 @@ class LandingView extends AbstractView {
       Application.setUserInfos();
       Application.toggleSideBar();
       Application.toggleChat();
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);
@@ -233,10 +237,17 @@ class LandingView extends AbstractView {
         <div class="col-6 mx-auto">
           <div class="btn-group d-flex text-center" role="group" aria-label="toggle login register">
             <input type="radio" class="btn-check" name="btnradio" id="loginradio" autocomplete="off" checked>
+<<<<<<< HEAD
             <label class="btn btn-outline-primary btn-custom" for="loginradio">${this.domText.signInSubmit}</label>
 
             <input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
             <label class="btn btn-outline-primary btn-custom" for="registerradio">${this.domText.signUpSubmit}</label>
+=======
+            <label class="btn btn-outline-primary btn-custom" for="loginradio">Login</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
+            <label class="btn btn-outline-primary btn-custom" for="registerradio">Create an account</label>
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
           </div>
         </div>
 
@@ -244,6 +255,7 @@ class LandingView extends AbstractView {
           <div class="col-6 mx-auto mt-5">
             <form>
               <div class="form-group text-white ">
+<<<<<<< HEAD
                 <label for="InputLogin">${this.domText.loginLabel}</label>
                 <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
                   placeholder="${this.domText.enterLoginField}" required>
@@ -259,6 +271,23 @@ class LandingView extends AbstractView {
               </div>
               <div class="d-flex justify-content-center mt-3">
                 <button id="login-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signInSubmit}</button>
+=======
+                <label for="InputLogin">Login</label>
+                <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
+                  placeholder="Enter login" required>
+
+              </div>
+              <div class="form-group text-white ">
+                <label for="InputPassword">Password</label>
+                <input type="password" class="form-control" id="InputPassword" placeholder="Password required">
+              </div>
+              <div class="form-group text-white ">
+                <label for="InputPassword">2FA code (if activated)</label>
+                <input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
+              </div>
+              <div class="d-flex justify-content-center mt-3">
+                <button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
               </div>
             </form>
 
@@ -270,6 +299,7 @@ class LandingView extends AbstractView {
           <div class="col-6 mx-auto mt-5 ">
             <form>
               <div class="form-group text-white  ">
+<<<<<<< HEAD
                 <label for="RegisterLogin">${this.domText.loginLabel}</label>
                 <input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
                   placeholder="${this.domText.chooseLogin}" required>
@@ -285,6 +315,23 @@ class LandingView extends AbstractView {
               </div>
               <div class="d-flex justify-content-center mt-3">
                 <button id="register-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signUpSubmit}</button>
+=======
+                <label for="RegisterLogin">Choose your Login</label>
+                <input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
+                  placeholder="Choose a login" required>
+
+              </div>
+              <div class="form-group text-white mt-2 ">
+                <label for="RegisterPassword">Choose your Password</label>
+                <input type="password" class="form-control" id="RegisterPassword" placeholder="Password" required>
+              </div>
+              <div class="form-group text-white mt-2 ">
+                <label for="RegisterPasswordConfirm">Confirm your Password</label>
+                <input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
+              </div>
+              <div class="d-flex justify-content-center mt-3">
+                <button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
               </div>
             </form>
 

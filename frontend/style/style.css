@@ -92,6 +92,7 @@ i {
   pointer-events: none;
 }
 
+<<<<<<< HEAD
 #lang-select {
   appearance: none;
   -webkit-appearance: none;
@@ -123,6 +124,8 @@ i {
   pointer-events: none; 
 }
 
+=======
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
 #side-img {
   margin-left: 15px; /* Optional spacing adjustment */
   margin-right: 15px; /* Optional spacing adjustment */
