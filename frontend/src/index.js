@@ -1,6 +1,8 @@
 /**
  * The entrypoint of our great app
  */
+
+
 import RootView from "./views/RootView.js";
 import LandingView from "./views/LandingView.js";
 import HomeView from "./views/HomeView.js";
@@ -12,7 +14,39 @@ import TwofaView from "./views/TowfaView.js";
 import TournamentView from "./views/TournamentView.js";
 import LogoutView from "./views/LogoutView.js";
 import PongGameView from "./views/PongGameView.js";
+<<<<<<< HEAD
+import Application from "../Application.js";
+=======
+>>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
 
+
+async function initializeLanguageSelector() {
+  const langSelect = document.getElementById("lang-select");
+  if (!langSelect) {
+      console.error("Language selector not found.");
+      return;
+  }
+
+  langSelect.value = Application.lang;
+
+  //Listening to language changes on the index.html elements
+  langSelect.addEventListener("change", async (event) => {
+      const selectedLang = event.target.value;
+      const selectedOption = event.target.options[event.target.selectedIndex];
+      await Application.setLanguage(selectedLang);
+      await Application.applyTranslations();
+  });
+
+  await Application.setLanguage(Application.lang);
+  await Application.applyTranslations(); 
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log("DOM is loaded, applying translations");
+
+await Application.applyTranslations(); 
+
+  
 const router = new Router();
 router.addRoute("/", RootView);
 router.addRoute("/landing", LandingView);
@@ -28,3 +62,11 @@ router.addRoute("/twofa", TwofaView);
 router.addRoute("/tournaments", TournamentView);
 router.setListeners();
 router.route();
+
+initializeLanguageSelector();
+
+//Apply translation to the navigation history
+window.addEventListener("popstate", async () => {
+    await Application.applyTranslations();
+});
+});

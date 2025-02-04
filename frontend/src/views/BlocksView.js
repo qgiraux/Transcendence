@@ -10,7 +10,52 @@ class BlocksView extends AbstractView {
   userList = [];
   constructor(params) {
     super(params);
+    this.domText = {};
+    this.messages = {};
+    this.init();
+  }
+
+  async init() {
+    await this.loadMessages();
     this.onStart();
+  }
+
+  async loadMessages() {
+    this.domText.Title = await Application.localization.t("titles.block");
+    this.domText.viewProfile = await Application.localization.t("block.card.viewProfile");
+    this.domText.inviteGame = await Application.localization.t("block.card.inviteGame");
+    this.domText.unblock = await Application.localization.t("block.card.unblock");
+    this.domText.lookingForTxt = await Application.localization.t("block.lookingFor.text");
+    this.domText.lookingForField = await Application.localization.t("block.lookingFor.field");
+    this.domText.addBlockAction = await Application.localization.t("block.add.action");
+    this.domText.close = await Application.localization.t("block.close");
+    
+    this.messages.error = await Application.localization.t("block.errors.general");
+    this.messages.wentWrong = await Application.localization.t("block.errors.somethingWentWrong");
+    this.messages.getBlockErr = await Application.localization.t("block.errors.getBlockList");
+    this.messages.displayBlocksList = await Application.localization.t("block.errors.displayBlockList");
+    this.messages.modalNotFound = await Application.localization.t("block.errors.modalNotFound");
+    this.messages.idAttributeNotFound = await Application.localization.t("block.errors.idAttributeNotFound");
+    this.messages.addBlockFailure = await Application.localization.t("block.errors.addBlockFailure");
+    this.messages.removeBlockFailure = await Application.localization.t("block.remove.failure");
+    this.messages.addBlockSuccess = await Application.localization.t("block.success.addBlock");
+    
+  }
+
+
+  listenForLanguageChange() {
+    const languageSelector = document.getElementById("language-selector-container");
+    if (languageSelector) {
+      this.addEventListener(languageSelector, "change", async (event) => {
+        const selectedLanguage = event.target.value;
+        console.log(selectedLanguage);
+        await Application.setLanguage(selectedLanguage);
+        await this.loadMessages(); 
+        await Application.applyTranslations();
+        // this._setHtml();
+        Router.reroute("/blocks");
+      });
+    }
   }
 
   onStart() {
@@ -21,6 +66,8 @@ class BlocksView extends AbstractView {
       }, 50);
       return;
     }
+    this.listenForLanguageChange();
+
     Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
@@ -28,7 +75,7 @@ class BlocksView extends AbstractView {
         this._refreshBlocksList();
       })
       .catch((error) => {
-        Alert.errorMessage("Error", error.message);
+        Alert.errorMessage(this.messages.error, error.message);
       });
 
     this._setHtml();
@@ -121,7 +168,7 @@ class BlocksView extends AbstractView {
           modal.show();
         })
         .catch((error) => {
-          Alert.errorMessage("something went wrong", error.message);
+          Alert.errorMessage(this.messages.wentWrong, error.message);
         });
     }
   }
@@ -173,7 +220,7 @@ class BlocksView extends AbstractView {
       this.displayBlocksList(this.blockList);
     } catch (error) {
       Alert.errorMessage(
-        "get Blocks list : something went wrong",
+        this.messages.getBlockErr,
         error.message
       );
     }
@@ -192,7 +239,7 @@ class BlocksView extends AbstractView {
         this.addBlockCard(block);
       });
     } catch (error) {
-      Alert.errorMessage("displayBlocksList error", error.message);
+      Alert.errorMessage(this.messages.displayBlocksList, error.message);
     }
   }
 
@@ -226,13 +273,13 @@ class BlocksView extends AbstractView {
 					<ul class="dropdown-menu">
 					<li><button class="dropdown-item" data-id=${
             block.id
-          } data-action="view-profile">View profile</button></li>
+          } data-action="view-profile">${this.domText.viewProfile}</button></li>
                     <li><button class="dropdown-item" data-id=${
                       block.id
-                    } data-action="invite-game">Invite to a game</button></li>
+                    } data-action="invite-game">${this.domText.inviteGame}</button></li> 
                     <li><button class="dropdown-item" data-id=${
                       block.id
-                    } data-action="unblock">Unblock</button></li>
+                    } data-action="unblock">${this.domText.unblock}</button></li>
 					</ul>
 					</div>
 				</div>
@@ -246,11 +293,11 @@ class BlocksView extends AbstractView {
       const button = event.target;
       const modal = button.closest(".modal");
       if (!modal) {
-        throw new Error("Modal not found");
+        throw new Error(this.messages.modalNotFound);
       }
       const blockId = modal.getAttribute("data-id");
       if (!blockId) {
-        throw new Error("data-id attribute not found on modal");
+        throw new Error(this.messages.idAttributeNotFound);
       }
       const request = await TRequest.request(
         "POST",
@@ -260,11 +307,11 @@ class BlocksView extends AbstractView {
         }
       );
       if (request.message !== "Block added successfully")
-        throw new Error("The user couldn't be added as a block");
+        throw new Error(this.messages.addBlockFailure);
       await this._refreshBlocksList();
     } catch (error) {
-      Alert.errorMessage("something went wrong", error.message);
-    }
+      Alert.errorMessage(this.messages.wentWrong, error.message);
+        }
   }
 
   async _removeBlock(blockId) {
@@ -274,7 +321,7 @@ class BlocksView extends AbstractView {
       });
       this._refreshBlocksList();
     } catch (error) {
-      Alert.errorMessage("remove block error", error.message);
+      Alert.errorMessage(this.messages.removeBlockFailure, error.message);
     }
   }
 
@@ -296,8 +343,8 @@ class BlocksView extends AbstractView {
         <p id="modal-nickname">placeholder</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="add-block-button"  data-bs-dismiss="modal">Add to block list</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+        <button type="button" class="btn btn-primary" id="add-block-button"  data-bs-dismiss="modal">${this.domText.addBlockAction}</button>
       </div>
     </div>
   </div>
@@ -306,7 +353,7 @@ class BlocksView extends AbstractView {
 
 <div class="row">
 			<div class="col-12">
-				<h1 class="text-white display-1">Blocklist</h1>
+				<h1 class="text-white display-1">${this.domText.Title}</h1>
 			</div>
 		</div>
 		<div class="row g-2  p-2" id="blocks-container">
@@ -314,14 +361,14 @@ class BlocksView extends AbstractView {
 
 		<div class="row">
 			<div class="col-12">
-				<h3 class="text-white display-5 mt-5 mb-0">Still looking for users to block ?</h3>
+				<h3 class="text-white display-5 mt-5 mb-0">${this.domText.lookingForTxt}</h3>
 			</div>
 			<div class="row mt-0">
 				<div class="col-9 mx-auto">
 					<div class="container mt-5">
 						<div class="dropdown" mx-auto>
 							<input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
-								placeholder="Search a user" data-bs-toggle="dropdown" aria-expanded="false" />
+								placeholder="${this.domText.lookingForField}" data-bs-toggle="dropdown" aria-expanded="false" />
 							<ul class="dropdown-menu w-100" id="dropdownMenu">
 								<!-- Les options seront ajoutées ici dynamiquement -->
 							</ul>
@@ -330,8 +377,6 @@ class BlocksView extends AbstractView {
 					</div>
 				</div>
 			</div>
-
-
 					`;
     }
   }
