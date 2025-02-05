@@ -135,12 +135,6 @@ class LandingView extends AbstractView {
     return validatExpr.test(loginValue);
   }
 
-  // _toggleHandler(event) {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   Application.toggleSideBar();
-  // }
-
   _loginHandler(event) {
     event.preventDefault();
     event.stopPropagation();

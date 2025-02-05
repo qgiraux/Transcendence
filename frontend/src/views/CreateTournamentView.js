@@ -22,18 +22,65 @@ class CreateTournamentView extends AbstractView {
     //internal view states
     this.tournamentSize = 2;
 
-    this.messages = {};
-    this.messages.INVALID_TOURNAMENT_NAME =
-      "The tournament name must contains only alphabetical characters ";
-
     // set evet handlers
-    const size2Btn = document.querySelector("#size-2");
-    const size4Btn = document.querySelector("#size-4");
-    const size8Btn = document.querySelector("#size-8");
+
+    this.addEventListener(
+      document.querySelector("#size-2"),
+      "click",
+      this.sizeBtnHandler.bind(this)
+    );
+    this.addEventListener(
+      document.querySelector("#size-4"),
+      "click",
+      this.sizeBtnHandler.bind(this)
+    );
+    this.addEventListener(
+      document.querySelector("#size-8"),
+      "click",
+      this.sizeBtnHandler.bind(this)
+    );
+
+    this.addEventListener(
+      document.querySelector("#createbtn"),
+      "click",
+      this.createBtnHandler.bind(this)
+    );
   }
 
   sizeBtnHandler(event) {
+    const oldSize = this.tournamentSize;
     this.tournamentSize = event.target.dataset.size;
+    const newSize = event.target.dataset.size;
+    const btnSizeOld = document.querySelector(`#size-${oldSize}`);
+    const btnSizeNew = document.querySelector(`#size-${newSize}`);
+    btnSizeOld.classList.remove("active");
+    btnSizeNew.classList.add("active");
+  }
+
+  async createBtnHandler(event) {
+    const name = document.querySelector("#tournament_name").value;
+    if (!this.validateTournamentName(name)) {
+      Alert.errorMessage(
+        "Tournament",
+        "The tournament name must consist of alphanumeric characters and be between 5 and 8 characters long."
+      );
+      console.log("failed");
+      return;
+    }
+    const size = Number(this.tournamentSize);
+    console.log(size);
+    const resp = await TRequest.request("POST", "/api/tournament/create/", {
+      name: name,
+      size: size,
+    });
+    if (resp["tournament name"] === undefined) {
+      Alert.errorMessage("Tournament", "");
+    }
+  }
+
+  validateTournamentName(name) {
+    const validatExpr = new RegExp("^[a-zA-Z0-9]{5,16}$");
+    return validatExpr.test(name);
   }
 
   _setHtml() {
@@ -52,7 +99,7 @@ class CreateTournamentView extends AbstractView {
 
 				<input type="text" class="form-control text-center mt-3 w-75" maxlength="16" minlength="5" id="tournament_name" placeholder="Enter the tournament name">
 
-				<button class="btn btn-primary mt-3 w-75">Create</button>
+				<button id="createbtn" class="btn btn-primary mt-3 w-75">Create</button>
 			</div></div></div>`;
     }
   }
