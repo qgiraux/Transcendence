@@ -4,6 +4,7 @@
 import Avatar from "./Avatar.js";
 import Localization from "./Localization.js";
 import Router from "./Router.js";
+import LandingView from "./views/LandingView.js";
 
 class Application {
   /**
@@ -257,13 +258,22 @@ class Application {
     const selectedLanguage = event.target.value;
     console.log("Language change detected :", selectedLanguage);
     await Application.setLanguage(selectedLanguage);
-
-    // recuperer l'instance view courante
-    const currentView = Application.router.getCurrentView();
-    await currentView.loadMessages();
-    await Application.applyTranslations();
     Router.reroute(location.pathname);
   }
+
+  //Old version
+  // static async listenForLanguageChange(event) {
+  //   const selectedLanguage = event.target.value;
+  //   console.log("Language change detected :", selectedLanguage);
+  //   await Application.setLanguage(selectedLanguage);
+
+  //   // recuperer l'instance view courante
+  //   const currentView = await Application.router.getCurrentView();
+  //   console.log(currentView);
+  //   await currentView.loadMessages();
+  //   await Application.applyTranslations();
+  //   Router.reroute(location.pathname);
+  // }
 }
 
 export default Application;
