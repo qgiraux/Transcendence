@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-//npm install websocket
+//npm install ws
 
 const WebSocket = require('ws');
 
