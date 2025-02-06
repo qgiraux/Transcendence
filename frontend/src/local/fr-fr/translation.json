@@ -146,6 +146,8 @@
     "tournament": {
     "create": {
         "txt": "Créer un tournoi",
+        "cantFind": "Aucun tournoi disponible ?",
+        "yourOwn": "Creez le votre",
         "name": {
             "txt": "Nom du tournoi",
             "enter": "Entrez le nom du tournoi"
