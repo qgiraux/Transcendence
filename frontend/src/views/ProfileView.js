@@ -358,98 +358,26 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-		<p><a class="link-offset-2 link-underline link-underline-opacity-0" data-link href="/account">Manage Account</a></p>
-      <button class="btn btn-primary better-btn" id="manage-btn">${this.domText.manageAvatar}</button>
-    `;
-    const profileAlias = `
-      <button class="btn btn-primary better-btn" id="alias-btn">${this.domText.changeAlias}</button>
-    `;
-    const profileTwofa = `
-      <label class="btn btn-primary better-btn" id="twofa-better-btn">
-       ${this.domText.activate2FA}<a href="/twofa" data-link class="nav-link px-0 align-middle">Profile</a>
-      </label>
+		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">Manage Account</a>
     `;
     const container = document.querySelector("#view-container");
 
     if (container) {
       container.innerHTML = `
-        <!-- Alias Modal -->
-        <div class="modal fade text-white" id="aliasModal" tabindex="-1" aria-labelledby="aliasModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-              <div class="modal-header">
-                <h2>Change Alias</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=${
-                  this.domText.close
-                }></button>
-              </div>
-              <div class="modal-body">
-                <div class="form-group">
-                  <label for="newAliasInput" class="form-label">${
-                    this.domText.aliasLabel
-                  }</label>
-                  <input type="text" class="form-control" id="newAliasInput" placeholder="${
-                    this.domText.aliasField
-                  }">
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="update-alias-btn" data-bs-dismiss="modal">${
-                  this.domText.aliasUpdate
-                }</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- END Alias Modal -->
-
-        <!-- Avatar Modal -->
-        <div class="modal fade text-white" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-              <div class="modal-header">
-                <h2>Avatar Settings</h2>
-                <button type="button" class="btn-close" data-autobs-dismiss="modal" aria-label=${
-                  this.domText.close
-                }></button>
-              </div>
-              <div class="mt-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="avatarOption" id="resetDefault" value="reset" checked>
-                  <label class="form-check-label" for="resetDefault">${
-                    this.domText.avatarReset
-                  }</label>
-                </div>
-                <div class="form-check mb-3">
-                  <input class="form-check-input" type="radio" name="avatarOption" id="uploadFile" value="file">
-                  <label class="form-check-label" for="uploadFile">${
-                    this.domText.chooseFile
-                  }</label>
-                  <div class="input-group mb-3">
-                    <div class="custom-file">
-                      <input type="file" class="custom-file-input" accept="image/png,image/jpeg" id="fileInput" disabled>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="update-button" data-bs-dismiss="modal">${
-                  this.domText.avatarUpdate
-                }</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- END Avatar Modal -->
-
-        <div class="row p-1 mb-4 ">
-            <div class="row d-flex flex-row p-2">
+	  <div class="row"><h1>Profile</h1></div>
+		<div class="mt-4 row mx-auto" style="max-width:800px;">
+        <div class="row p-1 mb-4 mx-auto">
+            <div class="row d-flex flex-row p-2 ">
                 <div class="col-md-6">
+				<div class="row">
               <img id="profile-img" src="${Avatar.url(
                 this.currentUserInfos.id
               )}" width="300" height="300" data-avatar="${
         this.currentUserInfos.id
-      }" alt="user" class="rounded-circle">
+      }" alt="user" class="rounded-circle"></div>
+	  <div class="row mt-2">
+	  	${this.id === Application.getUserInfos().userId ? profileEdit : ""}
+	  </div>
             </div>
                 <div class="col-6 mb-3 p-2 border border-secondary rounded ">
                     <h1 class="text-primary display-6 fw-bold" id="nickname">${
@@ -506,7 +434,7 @@ class ProfileView extends AbstractView {
                     </table>
                 </div>
             </div>
-
+	</div>
       `;
     }
   }

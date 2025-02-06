@@ -45,6 +45,12 @@ class CreateTournamentView extends AbstractView {
       "click",
       this.createTournamentBtnHandler.bind(this)
     );
+
+    this.addEventListener(
+      document.querySelector("#nav-avatar"),
+      "click",
+      this.navHandler.bind(this)
+    );
   }
 
   sizeBtnHandler(event) {

@@ -47,3 +47,6 @@ initializeLanguageSelector();
 const langSelector = document.getElementById("lang-select");
 
 langSelector.addEventListener("change", Application.listenForLanguageChange);
+
+
+//test
