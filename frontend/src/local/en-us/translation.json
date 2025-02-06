@@ -16,6 +16,7 @@
       "profile": "Profile",
       "friends": "Friends",
       "tournament": "Tournament",
+      "createTournaments": "Create tournaments",
       "block": "Block list"
     },
   "landing": {
@@ -143,10 +144,18 @@
       }
     },
   "tournament": {
+      "tab": {
+        "open": "Open tournaments",
+        "inProgress": "Tournaments in progress",
+        "finished": "Finished"
+      },
       "create": {
           "txt": "Create tournament",
           "cantFind": "Can't find a tournament you like?",
           "yourOwn": "Create your own!",
+          "twoP": "2 players", 
+          "fourP": "4 players",
+          "eightP": "8 players",
           "name": {
             "txt": "Tournament name",
             "enter": "Enter tournament name"
@@ -157,13 +166,14 @@
           "action": {
             "txt": "Create"
           },
+
           "errors": {
             "fetchTournaments": "Error fetching tournaments",
             "displayTournaments": "Error displaying tournaments",
             "joinTournament": "Error joining tournament",
             "createTournament": "Error creating tournament",
             "invalidName": "Invalid tournament name",
-            "tourNameRequirements": "Tournament name must be 3-30 characters long and contain only letters and numbers"
+            "tourNameRequirements": "The tournament name must consist of alphanumeric characters and be between 5 and 8 characters long."
           }
       },
       "invite": {
@@ -185,7 +195,7 @@
         "players": "player", 
         "spots": " spots"
       }
-  },
+  },    
   "twofa": {
     "scanQR": "Scan this QR code with your authenticator app",
     "field" : "2FA code",

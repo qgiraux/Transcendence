@@ -38,6 +38,15 @@ class TournamentsView extends AbstractView {
     this.domText.tournamentNameTxt = await Application.localization.t(
       "tournament.create.name.txt"
     );
+    this.domText.tournamentsInProgress = await Application.localization.t(
+      "tournament.tab.inProgress"
+    );
+    this.domText.openTournaments = await Application.localization.t(
+      "tournament.tab.open"
+    );
+    this.domText.finishedTournaments = await Application.localization.t(
+      "tournament.tab.finished"
+    );
     this.domText.inviteFriend = await Application.localization.t(
       "tournament.invite.friend"
     );
@@ -50,15 +59,12 @@ class TournamentsView extends AbstractView {
     this.domText.spotsTxt = await Application.localization.t(
       "tournament.card.spots"
     );
-    this.domText.tournamentNameEnter = await Application.localization.t(
-      "tournament.create.name.enter"
-    );
-    this.domText.tournamentSizeTxt = await Application.localization.t(
-      "tournament.create.size.txt"
-    );
-    this.domText.createTournamentAction = await Application.localization.t(
-      "tournament.create.action.txt"
-    );
+    // this.domText.tournamentSizeTxt = await Application.localization.t(
+    //   "tournament.create.size.txt"
+    // );
+    // this.domText.createTournamentAction = await Application.localization.t(
+    //   "tournament.create.action.txt"
+    // );
     this.messages.fetchTournamentsErr = await Application.localization.t(
       "tournament.create.errors.fetchTournaments"
     );
@@ -195,7 +201,6 @@ class TournamentsView extends AbstractView {
           name: tournamentName,
         });
         Alert.successMessage(this.domText.title, `${this.messages.joinSuccess} ${tournamentName}`);
-          // `Successfully joined tournament ${tournamentName}`
         Application.joinedTournament = tournamentName;
       } catch (error) {
         Alert.errorMessage(this.messages.joinFailure);
@@ -541,15 +546,13 @@ Request API function
     if (container) {
       container.innerHTML = `
 			<div class=" mx-auto" style="max-width: 700px;">
-				<h1 class="text-white text-center mb-5">Tournaments</h1>
+				<h1 class="text-white text-center mb-5">${this.domText.title}</h1>
 
 				<div class="row">
 					<div class="btn-group mx-auto align-items-center">
-						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">Open
-							tournaments</button>
-						<button id="status-1" data-status="1" class="btn btn-primary">Tournaments in progress</button>
-						<button id="status-2" data-status="2" class="btn btn-primary">Finished
-							tournaments</button>
+						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">${this.domText.openTournaments}</button>
+						<button id="status-1" data-status="1" class="btn btn-primary">${this.domText.tournamentsInProgress}</button>
+						<button id="status-2" data-status="2" class="btn btn-primary">${this.domText.finishedTournaments}</button>
 					</div>
 
 				</div>

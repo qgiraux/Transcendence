@@ -144,41 +144,55 @@
       }
   },
     "tournament": {
+    "tab": {
+      "open": "Tournois ouverts",
+      "inProgress": "Tournois en cours",
+      "finished": "Terminé"
+    },
     "create": {
-        "txt": "Créer un tournoi",
-        "cantFind": "Aucun tournoi disponible ?",
-        "yourOwn": "Creez le votre",
-        "name": {
-            "txt": "Nom du tournoi",
-            "enter": "Entrez le nom du tournoi"
-        },
-        "size": {
-            "txt": "Nombre de joueurs"
-        },
-        "action": {
-            "txt": "Créer"
-        },
-        "errors": {
-            "fetchTournaments": "Erreur lors du chargement des tournois",
-            "displayTournaments": "Erreur lors de l'affichage des tournois",
-            "joinTournament": "Erreur lors de la participation au tournoi",
-            "createTournament": "Erreur lors de la création du tournoi",
-            "invalidName": "Nom du tournoi invalide",
-            "tourNameRequirements": "Le nom du tournoi doit comporter entre 3 et 30 caractères et ne contenir que des lettres et des chiffres"
-        }
+      "txt": "Créer un tournoi",
+      "cantFind": "Aucun tournoi ne vous tente ?",
+      "yourOwn": "Créez le vôtre !",
+      "twoP": "2 joueurs",
+      "fourP": "4 joueurs",
+      "eightP": "8 joueurs",
+      "name": {
+        "txt": "Nom du tournoi",
+        "enter": "Entrez le nom du tournoi"
+      },
+      "size": {
+        "txt": "Nombre de joueurs"
+      },
+      "action": {
+        "txt": "Créer"
+      },
+      "errors": {
+        "fetchTournaments": "Erreur lors de la récupération des tournois",
+        "displayTournaments": "Erreur lors de l'affichage des tournois",
+        "joinTournament": "Erreur lors de la participation au tournoi",
+        "createTournament": "Erreur lors de la création du tournoi",
+        "invalidName": "Nom du tournoi invalide",
+        "tourNameRequirements": "Le nom du tournoi doit contenir des caractères alphanumériques et comporter entre 5 et 8 caractères."
+      }
     },
     "invite": {
-        "title": "Ami invité",
-        "success": "Ami invité avec succès",
-        "failure": "Erreur lors de l'invitation de l'ami"
+      "friend": "Inviter un ami",
+      "title": "Ami invité",
+      "success": "Ami invité avec succès",
+      "failure": "Erreur lors de l'invitation de l'ami"
     },
-    "tournament": {
-      "card": {
-          "alreadyJoined": "Déjà rejoint",
-          "tournamentFull": "Tournoi complet",
-          "joinTournament": "Rejoindre le tournoi",
-          "deleteTournament": "Supprimer"
-      }
+    "join": {
+      "success": "Tournoi rejoint avec succès",
+      "failure": "Impossible de rejoindre le tournoi",
+      "true": "Rejoint"
+    },
+    "card": {
+      "alreadyJoined": "Déjà rejoint",
+      "tournamentFull": "Tournoi complet",
+      "joinTournament": "Rejoindre",
+      "deleteTournament": "Supprimer",
+      "players": "joueur",
+      "spots": " places"
     }
   },
   "twofa": {
