@@ -17,7 +17,7 @@ class LandingView extends AbstractView {
 
   async init() {
     Application.localization.loadTranslations();
-    await Application.setLanguage("en-us");
+    await Application.setLanguage(Application.lang);
     await this.loadMessages();
     await Application.applyTranslations();
     this.onStart();
