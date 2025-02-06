@@ -43,7 +43,7 @@ class CreateTournamentView extends AbstractView {
     this.addEventListener(
       document.querySelector("#createbtn"),
       "click",
-      this.createBtnHandler.bind(this)
+      this.createTournamentBtnHandler.bind(this)
     );
   }
 
@@ -57,24 +57,38 @@ class CreateTournamentView extends AbstractView {
     btnSizeNew.classList.add("active");
   }
 
-  async createBtnHandler(event) {
+  async createTournamentBtnHandler(event) {
     const name = document.querySelector("#tournament_name").value;
     if (!this.validateTournamentName(name)) {
       Alert.errorMessage(
         "Tournament",
-        "The tournament name must consist of alphanumeric characters and be between 5 and 8 characters long."
+        "The tournament name must consist of alphanumeric characters and be between 5 and 16 characters long."
       );
-      console.log("failed");
       return;
     }
     const size = Number(this.tournamentSize);
     console.log(size);
-    const resp = await TRequest.request("POST", "/api/tournament/create/", {
-      name: name,
-      size: size,
-    });
-    if (resp["tournament name"] === undefined) {
-      Alert.errorMessage("Tournament", "");
+    let resp;
+    try {
+      resp = await TRequest.request("POST", "/api/tournament/create/", {
+        name: name,
+        size: size,
+      });
+      if (resp["tournament name"] === undefined) {
+        Alert.errorMessage("Tournament", resp["error"]);
+        return;
+      }
+      Alert.successMessage("Tournament", "Tournament created successfully.");
+      Router.reroute("/tournaments");
+    } catch (error) {
+      if (error.message.includes("409"))
+        Alert.errorMessage(
+          "Tournament",
+          "A tournament with this name already exists"
+        );
+      else {
+        Alert.errorMessage("Tournament", "The tournament could not be created");
+      }
     }
   }
 

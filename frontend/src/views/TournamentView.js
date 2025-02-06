@@ -518,7 +518,7 @@ Request API function
     const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `
-			<div class=" mx-auto" style="max-width: 700px;">
+			<div class=" mx-auto" style="max-width: 800px;">
 				<h1 class="text-white text-center mb-5">Tournaments</h1>
 
 				<div class="row">
