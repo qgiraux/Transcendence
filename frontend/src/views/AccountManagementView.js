@@ -58,6 +58,11 @@ class AccountManagementView extends AbstractView {
     );
 
     this.addEventListener(
+      document.querySelector("#nav-avatar"),
+      "click",
+      this.navHandler.bind(this)
+    );
+    this.addEventListener(
       document.querySelector("#nav-alias"),
       "click",
       this.navHandler.bind(this)
@@ -89,7 +94,12 @@ Event handlers
   navHandler(event) {
     event.preventDefault();
     event.stopPropagation();
-	navButtons =
+    const navButtons = document.querySelectorAll(".nav-button");
+    navButtons.forEach((button) => {
+      button.classList.remove("active");
+    });
+    console.log(event.target);
+    event.target.classList.add("active");
     switch (event.target.id) {
       case "nav-avatar":
         this.setActiveView("avatar");
@@ -285,11 +295,11 @@ Set HTML
 
 				<div class="row mb-2">
 					<div class=" btn-group mx-auto align-items-center">
-						<button id="nav-avatar" data-status="1" class="btn btn-primary active">Change Avatar</button>
-						<button id="nav-alias" data-status="2" class="btn btn-primary">Change Alias</button>
-						<button id="nav-password" data-status="2" class="btn btn-primary">Change password</button>
-						<button id="nav-twofa" data-status="2" class="btn btn-primary">Manage Twofa</button>
-						<button id="nav-delete" data-status="2" class="btn btn-primary">Delete account</button>
+						<button id="nav-avatar" class="nav-button btn btn-primary active">Change Avatar</button>
+						<button id="nav-alias"  class="nav-button btn btn-primary">Change Alias</button>
+						<button id="nav-password"  class="nav-button btn btn-primary">Change password</button>
+						<button id="nav-twofa"  class="nav-button btn btn-primary">Manage Twofa</button>
+						<button id="nav-delete"  class="nav-button btn btn-primary">Delete account</button>
 					</div>
 				</div>
 			<div class=" row mx-auto p-2" style="max-width:800px;" id="scrollable-panel">
