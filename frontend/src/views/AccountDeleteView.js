@@ -30,7 +30,38 @@ class AccountDeleteView extends AbstractView {
     Router.reroute("/home");
   }
 
-  confirm() {}
+  async confirm() {
+    try {
+      const friendsList = await TRequest.request(
+        "GET",
+        "/api/friends/friendslist/"
+      );
+      for (const friendId of friendsList["friends"]) {
+        await TRequest.request("DELETE", "/api/friends/removefriend/", {
+          id: friendId,
+        });
+      }
+
+      const blocksList = await TRequest.request(
+        "GET",
+        "/api/friends/blocks/blockslist/"
+      );
+      for (const blockId of blocksList["blocks"]) {
+        await TRequest.request("DELETE", "/api/friends/blocks/removeblock/", {
+          id: blockId,
+        });
+      }
+      await TRequest.request("DELETE", "/api/avatar/delete/");
+
+      await TRequest.request("DELETE", "/api/users/deleteuser/");
+      console.log("I have to logout now");
+      Application.logout();
+      Application.hideSideBar();
+      Router.reroute("/landing");
+    } catch (error) {
+      Alert.errorMessage("Account Delete", "An error has occured");
+    }
+  }
 
   setHtml() {
     const viewContainer = document.getElementById("view-container");
