@@ -119,7 +119,7 @@
     },
     "delete": {
       "title": "Delete account",
-      "irreversible": "This action is irreversible",
+      "irreversible": "❗ This action is irreversible",
       "action": "Delete account"
     },
     "errors": {
@@ -246,5 +246,21 @@
       "players": "player",
       "spots": " spots"
     }
+  },
+  "twofa": {
+    "scanQR": "Scan this QR code with your authenticator app",
+    "field": "2FA code",
+    "enterActivation": "Enter your 2FA code to confirm activation",
+    "success": "2FA code verified successfully",
+    "invalid": "Invalid 2FA code",
+    "errors": {
+      "unexpected": "Something went wrong"
+    }
+  },
+  "deleteView": {
+    "title": "Delete account",
+    "confirmationText" : "Are you sure you want to delete your account?",
+    "confirmationNo": "😊 No I want to keep playing !",
+    "confirmationYes": "😔 Yes I want to delete my account"
   }
 }

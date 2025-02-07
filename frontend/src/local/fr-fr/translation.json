@@ -245,5 +245,21 @@
       "players": "joueur",
       "spots": " places"
     }
-  }
+  },
+  "twofa": {
+      "scanQR": "Scannez ce QR code avec votre application d'authentification",
+      "field": "Code 2FA",
+      "enterActivation": "Saisissez votre code 2FA pour confirmer l'activation",
+      "success": "Code 2FA vérifié avec succès",
+      "invalid": "Code 2FA invalide",
+      "errors": {
+        "unexpected": "Une erreur s'est produite"
+      }
+    },
+  "deleteView": {
+    "title": "Supprimer le compte",
+    "confirmationText": "Êtes-vous sûr de vouloir supprimer votre compte ?",
+    "confirmationNo": "😊 Non, je veux continuer à jouer !",
+    "confirmationYes": "😔 Oui, je veux supprimer mon compte"
+}
 }

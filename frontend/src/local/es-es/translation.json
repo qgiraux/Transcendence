@@ -245,5 +245,21 @@
       "players": "jugador",
       "spots": " plazas"
     }
-  }
+  },
+  "twofa": {
+      "scanQR": "Escanea este código QR con tu aplicación de autenticación",
+      "field": "Código 2FA",
+      "enterActivation": "Introduce tu código 2FA para confirmar la activación",
+      "success": "Código 2FA verificado con éxito",
+      "invalid": "Código 2FA inválido",
+      "errors": {
+        "unexpected": "Algo salió mal"
+      }
+  },
+  "deleteView": {
+    "title": "Eliminar cuenta",
+    "confirmationText": "¿Estás seguro de que quieres eliminar tu cuenta?",
+    "confirmationNo": "😊 No, quiero seguir jugando!",
+    "confirmationYes": "😔 Sí, quiero eliminar mi cuenta"
+} 
 }

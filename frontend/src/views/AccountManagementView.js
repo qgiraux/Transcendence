@@ -222,6 +222,7 @@ Event handlers
     navButtons.forEach((button) => {
       button.classList.remove("active");
     });
+    console.log("Clicked button ID:", event.target.id);
     console.log(event.target);
     event.target.classList.add("active");
     switch (event.target.id) {
@@ -280,13 +281,15 @@ Event handlers
     });
 
     const newCard = document.querySelector(`#${viewName}`);
+    console.log("New Card found:", newCard);
     newCard.classList.remove("d-none");
+        console.log("d-none removed from:", newCard);
     this.updateActiveNavButton(viewName);
     Application.activeProfileView = viewName;
-    // console.log(
-    //   "New view set in setActiveView: ",
-    //   Application.activeProfileView
-    // );
+    console.log(
+      "New view set in setActiveView: ",
+      Application.activeProfileView
+    );
   }
 
   _avataRadioHandler(event) {
@@ -446,172 +449,178 @@ Set HTML
       }
     }
   }
+    
 
-  _setHtml() {
-    const viewContainer = document.getElementById("view-container");
+  //AV : TO DO = activate 2FA (syntax?)
+_setHtml() {
+  const viewContainer = document.getElementById("view-container");
 
-    viewContainer.innerHTML = `
-		<div style="max-width: 800px;" class="mx-auto w-75 mw-75 align-item-center p-2 ">
-			<div class="row mx-auto">
-				<h1>${this.domText.title}</h1>
-			</div>
-
-
-		<div class="row d-flex flex-row">
-					<img id="profile-img" src="${Avatar.url(
-            this.id
-          )}" width="100" height="100" data-avatar=${
-      Application.getUserInfos().userId
-    } alt="user"
-						class="rounded-circle img-fluid">
-
-			<div class=" col mx-auto d-flex flex-column justify-content-center">
-				<h2 class="text-primary display-4" id="nickname">${
-          Application.getUserInfos().nickname
-        }</h2>
-				<h4 class="text-secondary" id="username">@${
-          Application.getUserInfos().userName
-        }</h4>
-			</div>
-
-				<div class="row mb-2">
-					<div class=" btn-group mx-auto align-items-center">
-						<button id="nav-avatar" class="nav-button btn btn-primary active">${
-              this.domText.manageAvatar
-            }</button>
-						<button id="nav-alias"  class="nav-button btn btn-primary">${
-              this.domText.changeAlias
-            }</button>
-						<button id="nav-password"  class="nav-button btn btn-primary">${
-              this.domText.changePassword
-            }</button>
-						<button id="nav-twofa"  class="nav-button btn btn-primary">${
-              this.domText.manage2FA
-            }</button>
-						<button id="nav-delete"  class="nav-button btn btn-primary">${
-              this.domText.deleteAccount
-            }</button>
-					</div>
-				</div>
-			<div class=" row mx-auto p-2 scrollable-panel" style="max-width:800px;" id="scrollable-panel">
+  viewContainer.innerHTML = `
+  <div style="max-width: 800px;" class="mx-auto w-75 mw-75 align-item-center p-2 ">
+    <div class="row mx-auto">
+      <h1>${this.domText.title}</h1>
+    </div>
 
 
-				<!-- Avatar Card -->
-				<div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center"
-					id="avatar">
-					<div class="row align-items-start w-100">
-						<h2 class="display-6 text-white fw-bold text-center w-100">${
-              this.domText.avatarTitle
-            }</h2>
-					</div>
-					<div class="row mt-3 w-100" id="avatar-radio">
-						<div class="form-check mx-auto">
-							<input class="form-check-input" type="radio" name="avatarOption" id="resetDefault"
-								value="reset" checked="">
-							<label class="form-check-label fs-5" for="resetDefault">${
-                this.domText.avatarResetDefault
-              }</label>
-						</div>
-						<div class="form-check mb-3 mx-auto">
-							<input class="form-check-input" type="radio" name="avatarOption" id="uploadFile"
-								value="file">
-							<label class="form-check-label fs-5" for="uploadFile">${
-                this.domText.chooseFile
-              }</label>
-							<div class="input-group mb-3 mx-auto" style="max-width: 300px;">
-								<input type="file" class="form-control" accept="image/png,image/jpeg" id="avatarInput"
-									disabled="">
-							</div>
-							<button type="button" class="btn btn-primary fs-5" id="avatar-update-button"
-								style="width: 200px;">${this.domText.avatarUpdate}</button>
-						</div>
-					</div>
-				</div>
+  <div class="row d-flex flex-row">
+        <img id="profile-img" src="${Avatar.url(
+          this.id
+        )}" width="100" height="100" data-avatar=${
+    Application.getUserInfos().userId
+  } alt="user"
+          class="rounded-circle img-fluid">
 
-				<!-- Alias Card -->
-				<div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
-					id="alias">
-					<div class="row align-items-start w-100">
-						<h2 class="display-6 text-white fw-bold text-center w-100">${
-              this.domText.aliasLabel
-            }</h2>
-					</div>
-					<div class="row mb-3 w-100">
-						<input type="text" class="form-control mx-auto" id="newAliasInput" minlength="1" maxlength="20"
-							placeholder="${this.domText.aliasField}" style="max-width: 300px;">
-					</div>
-					<div class="row w-100">
-						<button type="button" class="btn btn-primary fs-5 mx-auto" id="alias-update-button"
-							style="width: 200px;">${this.domText.aliasUpdate}</button>
-					</div>
-				</div>
+    <div class=" col mx-auto d-flex flex-column justify-content-center">
+      <h2 class="text-primary display-4" id="nickname">${
+        Application.getUserInfos().nickname
+      }</h2>
+      <h4 class="text-secondary" id="username">@${
+        Application.getUserInfos().userName
+      }</h4>
+    </div>
 
-				<!-- password Card -->
-				<div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
-					id="password">
-					<div class="row align-items-start w-100">
-						<h2 class="display-6 text-white fw-bold text-center w-100">${
-              this.domText.PwdLabel
-            }</h2>
-					</div>
-					<form>
-					<div class="row align-items-center w-100">
-						<h2 class="text-white fs-4 text-center w-100">${
-              this.domText.changePassword
-            }</h2>
-						<div class="row mb-3 w-100">
-							<input type="password"  current-password class="form-control mx-auto" id="oldpasswordinput" minlength="1"
-								maxlength="20" placeholder="${
-                  this.domText.enterOldPwd
-                }" style="max-width: 300px;">
-						</div>
-						<div class="row mb-3 w-100">
-							<input type="password" new-password class="form-control mx-auto" id="newPasswordInput1" minlength="1"
-								maxlength="20" placeholder="${
-                  this.domText.enterNewPwd
-                }" style="max-width: 300px;">
-						</div>
-						<div class="row mb-3 w-100">
-							<input type="password" new-password class="form-control mx-auto" id="newPasswordInput2" minlength="1"
-								maxlength="20" placeholder="${
-                  this.domText.confirmNewPwd
-                }" style="max-width: 300px;">
-						</div>
-						<div class="row w-100">
-							<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button"
-								style="width: 200px;">${this.domText.updatePwd}</button>
-						</div>
-					</form>
-						</div>
-				</div>
+      <div class="row mb-2">
+        <div class=" btn-group mx-auto align-items-center">
+          <button id="nav-avatar" class="nav-button btn btn-primary active">${
+            this.domText.manageAvatar
+          }</button>
+          <button id="nav-alias"  class="nav-button btn btn-primary">${
+            this.domText.changeAlias
+          }</button>
+          <button id="nav-password"  class="nav-button btn btn-primary">${
+            this.domText.changePassword
+          }</button>
+          <button id="nav-twofa"  class="nav-button btn btn-primary">${
+            this.domText.manage2FA
+          }</button>
+          <button id="nav-delete"  class="nav-button btn btn-primary">${
+            this.domText.deleteAccount
+          }</button>
+        </div>
+      </div>
+    <div class=" row mx-auto p-2 scrollable-panel" style="max-width:800px;" id="scrollable-panel">
 
-		<!-- Authentication Card -->
- 		<div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
- 			id="twofa">
- 			<div class="row align-items-start w-100">
- 				<h2 class="display-4 text-white fw-bold text-center w-100">${this.domText.twofaTitle}</h2>
-				${
-          Application.getUserInfos().twofa === false
-            ? `<a href="/twofa" data-link><h5 class="text-center fs-5">${this.domText.twofaActivate}</h5></a>`
-            : `<h5>${this.domText.twofaAlreadyActivated}</h5>`
-        }
- 		</div>
 
-		    <!-- Delete Account Card -->
-    		<div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
-    			id="delete">
-    			<div class="row align-items-start w-100">
-    				<h2 class="display-6 text-danger fw-bold text-center w-100">${this.domText.deleteTitle}</h2>
-    			</div>
-    			<div class="mx-auto text-center mb-2">
-    				<p class="text-danger">❗ ${this.domText.deleteIrreversible}</p>
-    			</div>
-    			<div class="row w-100">
-    				<a  data-link href="/delete" class="text-danger text-center fs-5 mx-auto" >${this.domText.deleteAction}</a>
-    			</div>
-    		</div>
-	</div>`;
-  }
+      <!-- Avatar Card -->
+      <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center"
+        id="avatar">
+        <div class="row align-items-start w-100">
+          <h2 class="display-6 text-white fw-bold text-center w-100">${
+            this.domText.avatarTitle
+          }</h2>
+        </div>
+        <div class="row mt-3 w-100" id="avatar-radio">
+          <div class="form-check mx-auto">
+            <input class="form-check-input" type="radio" name="avatarOption" id="resetDefault"
+              value="reset" checked="">
+            <label class="form-check-label fs-5" for="resetDefault">${
+              this.domText.avatarResetDefault
+            }</label>
+          </div>
+          <div class="form-check mb-3 mx-auto">
+            <input class="form-check-input" type="radio" name="avatarOption" id="uploadFile"
+              value="file">
+            <label class="form-check-label fs-5" for="uploadFile">${
+              this.domText.chooseFile
+            }</label>
+            <div class="input-group mb-3 mx-auto" style="max-width: 300px;">
+              <input type="file" class="form-control" accept="image/png,image/jpeg" id="avatarInput"
+                disabled="">
+            </div>
+            <button type="button" class="btn btn-primary fs-5" id="avatar-update-button"
+              style="width: 200px;">${this.domText.avatarUpdate}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alias Card -->
+      <div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+        id="alias">
+        <div class="row align-items-start w-100">
+          <h2 class="display-6 text-white fw-bold text-center w-100">${
+            this.domText.aliasLabel
+          }</h2>
+        </div>
+        <div class="row mb-3 w-100">
+          <input type="text" class="form-control mx-auto" id="newAliasInput" minlength="1" maxlength="20"
+            placeholder="${this.domText.aliasField}" style="max-width: 300px;">
+        </div>
+        <div class="row w-100">
+          <button type="button" class="btn btn-primary fs-5 mx-auto" id="alias-update-button"
+            style="width: 200px;">${this.domText.aliasUpdate}</button>
+        </div>
+      </div>
+
+      <!-- password Card -->
+      <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+        id="password">
+        <div class="row align-items-start w-100">
+          <h2 class="display-6 text-white fw-bold text-center w-100">${
+            this.domText.PwdLabel
+          }</h2>
+        </div>
+        <form>
+        <div class="row align-items-center w-100">
+          <h2 class="text-white fs-4 text-center w-100">${
+            this.domText.changePassword
+          }</h2>
+          <div class="row mb-3 w-100">
+            <input type="password"  current-password class="form-control mx-auto" id="oldpasswordinput" minlength="1"
+              maxlength="20" placeholder="${
+                this.domText.enterOldPwd
+              }" style="max-width: 300px;">
+          </div>
+          <div class="row mb-3 w-100">
+            <input type="password" new-password class="form-control mx-auto" id="newPasswordInput1" minlength="1"
+              maxlength="20" placeholder="${
+                this.domText.enterNewPwd
+              }" style="max-width: 300px;">
+          </div>
+          <div class="row mb-3 w-100">
+            <input type="password" new-password class="form-control mx-auto" id="newPasswordInput2" minlength="1"
+              maxlength="20" placeholder="${
+                this.domText.confirmNewPwd
+              }" style="max-width: 300px;">
+          </div>
+          <div class="row w-100">
+            <button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button"
+              style="width: 200px;">${this.domText.updatePwd}</button>
+          </div>
+        </form>
+          </div>
+      </div>
+
+  <!-- Authentication Card -->
+   <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+     id="twofa">
+     <div class="row align-items-start w-100">
+       <h2 class="display-4 text-white fw-bold text-center w-100">${this.domText.twofaTitle}</h2>
+      ${
+        Application.getUserInfos().twofa === false
+          ? '<a href="/twofa" data-link ><h5 class="text-center fs-5">Activate 2FA</h5></a></div>'
+          : `<h5>${this.domText.twofaAlreadyActivated}</h5>`
+      }
+   </div>
+
+      <!-- Delete Account Card -->
+      <div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+        id="delete">
+        <div class="row align-items-start w-100">
+          <h2 class="display-6 text-danger fw-bold text-center w-100">${this.domText.deleteTitle}</h2>
+        </div>
+        <div class="mx-auto text-center mb-2">
+          <p class="text-danger">${this.domText.deleteIrreversible}</p>
+        </div>
+        <div class="row w-100">
+          <a  data-link href="/delete" class="text-danger text-center fs-5 mx-auto" >Delete
+            Account</a>
+        </div>
+      </div>
+</div>`;
 }
+}
+
+
+
 
 export default AccountManagementView;
