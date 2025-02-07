@@ -5,108 +5,141 @@
     "friends": "Amis",
     "blocks": "Liste de blocage",
     "tournaments": "Tournois"
-  },  
+  },
   "chat": {
     "message": "Entrez votre message",
     "group": "Entrez un groupe (optionnel)",
     "send": "Envoyer"
   },
   "titles": {
-      "home": "Accueil",
-      "profile": "Profil",
-      "friends": "Amis",
-      "tournament": "Tournoi",
-      "block": "Liste de blocage"
+    "home": "Accueil",
+    "profile": "Profil",
+    "friends": "Amis",
+    "tournament": "Tournoi",
+    "block": "Liste de blocage",
+    "account": "Gestion du compte"
+  },
+  "landing": {
+    "login": {
+      "label": "Identifiant",
+      "enterField": "Renseignez votre identifiant",
+      "choose": "Choisissez votre identifiant"
     },
-    "landing": {
-      "login": {
-        "label": "Identifiant",
-        "enterField": "Renseignez votre identifiant",
-        "choose": "Choisissez votre identifiant"
+    "password": {
+      "label": "Mot de passe",
+      "field": "Mot de passe requis",
+      "choose": "Choisissez votre mot de passe",
+      "confirm": "Confirmez votre mot de passe"
+    },
+    "twofa": {
+      "label": "Code 2FA (si activé)",
+      "field": "2FA (optionnel)"
+    },
+    "signup": {
+      "submit": "Créer un compte"
+    },
+    "signin": {
+      "submit": "Se connecter"
+    },
+    "messages": {
+      "loginErrorTitle": "Erreur de connexion",
+      "registerErrorTitle": "Erreur d'inscription",
+      "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide",
+      "wrongCredentialsFormat": "Vous devez fournir un nom d'utilisateur et un mot de passe valides.\nL'identifiant doit contenir uniquement des lettres ou des chiffres et avoir entre 5 et 20 caractères.<br>Le mot de passe doit contenir au moins 8 caractères, un chiffre,\nune lettre majuscule et au moins un caractère spécial : !@#$%^&*",
+      "serverError": "Le serveur n'a pas pu traiter votre demande. Veuillez réessayer plus tard",
+      "userAlreadyExist": "Un utilisateur avec cet identifiant existe déjà.",
+      "passwordsDontMatch": "Les deux champs de mot de passe doivent être identiques"
+    }
+  },
+  "home": {
+    "welcome": "Bienvenue sur la page d'accueil",
+    "friends": "Voir mes amis",
+    "tournaments": "Gérer les tournois"
+  },
+  "accountMgmt": {
+    "wrongCredentialsFormat": "Vous devez fournir un nom d'utilisateur et un mot de passe valides. Le nom d'utilisateur ne doit contenir que des lettres ou des chiffres et doit comporter entre 5 et 20 caractères. Le mot de passe doit contenir au moins 8 caractères, dont un chiffre, une lettre majuscule et au moins un caractère spécial : !@#$%^&*",
+    "actions": {
+      "manageAvatar": "Avatar",
+      "changeAlias": "Alias",
+      "manage2FA": "2FA",
+      "changePassword": "Mot de passe",
+      "deleteAccount": "Désinscription",
+      "closeBtn": "Fermer"
+    },
+    "alias": {
+      "label": "Nouvel alias",
+      "field": "Entrez un nouvel alias",
+      "update": "Mettre à jour l'alias",
+      "empty": "L'alias ne peut pas être vide",
+      "requirements": "L'alias doit contenir au maximum 20 caractères",
+      "updateSuccess": "L'alias a été mis à jour avec succès.",
+      "updateFailure": "Échec de la mise à jour de l'alias : "
+    },
+    "password": {
+      "label": "Mot de passe",
+      "field": "Mot de passe requis",
+      "old": "Entrez votre ancien mot de passe",
+      "new": "Choisissez votre nouveau mot de passe",
+      "confirmNew": "Confirmez votre nouveau mot de passe",
+      "update": "Mettre à jour le mot de passe",
+      "empty": "Le champ ne doit pas être vide",
+      "error": "Une erreur est survenue, le mot de passe n'a pas pu être changé",
+      "mismatch": "Les champs du mot de passe doivent correspondre",
+      "oldError": "Ancien mot de passe invalide",
+      "success": "Mot de passe modifié avec succès"
+    },
+    "avatar": {
+      "title": "Avatar",
+      "label": "Paramètres de l'avatar",
+      "resetDefault": "Réinitialiser par défaut",
+      "chooseFile": "Choisir un fichier",
+      "selectFile": "Vous devez sélectionner un fichier",
+      "update": {
+        "action": "Mettre à jour l'avatar",
+        "updateSuccess": "L'image de l'avatar a été mise à jour avec succès.",
+        "uploadFailure": "L'image n'a pas pu être téléchargée.",
+        "uploadFileCheck": "Veuillez vérifier qu'il s'agit d'un fichier jpeg ou png valide, d'une taille inférieure ou égale à 5 Mo"
       },
-      "password": {
-        "label": "Mot de passe",
-        "field": "Mot de passe requis",
-        "choose": "Choisissez votre mot de passe",
-        "confirm": "Confirmez votre mot de passe"
-      },
-      "twofa": {
-        "label": "Code 2FA (si activé)",
-        "field": "2FA (optionnel)"
-      },
-      "signup": {
-        "submit": "Créer un compte"
-      },
-      "signin": {
-        "submit": "Se connecter"
-      },
-      "messages": {
-        "loginErrorTitle": "Erreur de connexion",
-        "registerErrorTitle": "Erreur d'inscription",
-        "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide",
-        "wrongCredentialsFormat": "Vous devez fournir un nom d'utilisateur et un mot de passe valides.\nL'identifiant doit contenir uniquement des lettres ou des chiffres et avoir entre 5 et 20 caractères.<br>Le mot de passe doit contenir au moins 8 caractères, un chiffre,\nune lettre majuscule et au moins un caractère spécial : !@#$%^&*",
-        "serverError": "Le serveur n'a pas pu traiter votre demande. Veuillez réessayer plus tard",
-        "userAlreadyExist": "Un utilisateur avec cet identifiant existe déjà.",
-        "passwordsDontMatch": "Les deux champs de mot de passe doivent être identiques"
+      "reset": {
+        "action": "Réinitialisation de l'avatar"
       }
     },
-    "home": {
-      "welcome": "Bienvenue sur la page d'accueil",
-      "friends": "Voir mes amis", 
-      "tournaments": "Gérer les tournois"
-
-    },
-    "profile": {
-      "actions": {
-        "manageAvatar" : "Gérer l'avatar",
-        "changeAlias" : "Changer d'alias",
-        "activate2FA" : "Activer la 2FA",
-        "closeBtn" : "Fermer"
-      },
-      "alias": {
-        "label" : "Nouvel alias", 
-        "field" : "Entrez un nouvel alias",
-        "update" : "Mettre à jour l'alias"
-      },
-      "avatar": {
-        "label": "Paramètres de l'avatar", 
-        "resetDefault": "Réinitialiser par défaut", 
-        "chooseFile": "Choisir un fichier", 
-        "update": "Mettre à jour l'avatar"
-      }
-    },
-    "friends": {
-      "card": {
-      "viewProfile": "Voir le profil de l'ami", 
+    "errors": {
+      "unexpected": "Une erreur s'est produite : "
+    }
+  },
+  "friends": {
+    "card": {
+      "viewProfile": "Voir le profil de l'ami",
       "inviteGame": "Inviter à une partie",
       "unfriend": "Retirer de la liste d'amis"
-      },
-      "looking:for": {
-        "text": "A la recherche d'un nouvel ami?",
-        "field": "Rechercher un ami"
-      },
-      "add": {
-        "action": "Ajouter en ami",
-        "success": "Ami ajouté avec succès",
-        "failure": "L'utilisateur n'a pas pu être ajouté comme ami"
-      },
-      "remove": {
-        "failure": "L'utilisateur n'a pas pu être retiré de la liste d'amis"
-      },
-      "errors": {
-        "general": "Erreur",
-        "unexpected": "Une erreur s'est produite",
-        "list": {
-          "get": "Erreur lors de la récupération de la liste d'amis",
-          "display": "Erreur lors de l'affichage de la liste d'amis"
-        }
+    },
+    "looking:for": {
+      "text": "A la recherche d'un nouvel ami?",
+      "field": "Rechercher un ami"
+    },
+    "add": {
+      "action": "Ajouter en ami",
+      "success": "Ami ajouté avec succès",
+      "failure": "L'utilisateur n'a pas pu être ajouté comme ami"
+    },
+    "remove": {
+      "failure": "L'utilisateur n'a pas pu être retiré de la liste d'amis"
+    },
+    "errors": {
+      "general": "Erreur",
+      "unexpected": "Une erreur s'est produite",
+      "list": {
+        "get": "Erreur lors de la récupération de la liste d'amis",
+        "display": "Erreur lors de l'affichage de la liste d'amis"
+      }
     },
     "close": "Fermer",
     "modal": {
-        "notFound": "Erreur : modale introuvable",
-        "idAttributeMissing": "Erreur : l'attribut data-id est manquant sur la modale"
+      "notFound": "Erreur : modale introuvable",
+      "idAttributeMissing": "Erreur : l'attribut data-id est manquant sur la modale"
     }
-    },
+  },
   "block": {
     "card": {
       "viewProfile": "Voir le profil de l'utilisateur",
@@ -141,21 +174,11 @@
     "modal": {
       "notFound": "Erreur : modale introuvable",
       "idAttributeMissing": "Erreur : l'attribut data-id est manquant sur la modale"
-      }
+    }
   },
-    "tournament": {
-    "tab": {
-      "open": "Tournois ouverts",
-      "inProgress": "Tournois en cours",
-      "finished": "Terminé"
-    },
+  "tournament": {
     "create": {
       "txt": "Créer un tournoi",
-      "cantFind": "Aucun tournoi ne vous tente ?",
-      "yourOwn": "Créez le vôtre !",
-      "twoP": "2 joueurs",
-      "fourP": "4 joueurs",
-      "eightP": "8 joueurs",
       "name": {
         "txt": "Nom du tournoi",
         "enter": "Entrez le nom du tournoi"
@@ -167,44 +190,36 @@
         "txt": "Créer"
       },
       "errors": {
-        "fetchTournaments": "Erreur lors de la récupération des tournois",
+        "fetchTournaments": "Erreur lors du chargement des tournois",
         "displayTournaments": "Erreur lors de l'affichage des tournois",
         "joinTournament": "Erreur lors de la participation au tournoi",
         "createTournament": "Erreur lors de la création du tournoi",
         "invalidName": "Nom du tournoi invalide",
-        "tourNameRequirements": "Le nom du tournoi doit contenir des caractères alphanumériques et comporter entre 5 et 8 caractères."
+        "tourNameRequirements": "Le nom du tournoi doit comporter entre 3 et 30 caractères et ne contenir que des lettres et des chiffres"
       }
     },
     "invite": {
-      "friend": "Inviter un ami",
       "title": "Ami invité",
       "success": "Ami invité avec succès",
       "failure": "Erreur lors de l'invitation de l'ami"
     },
-    "join": {
-      "success": "Tournoi rejoint avec succès",
-      "failure": "Impossible de rejoindre le tournoi",
-      "true": "Rejoint"
-    },
-    "card": {
-      "alreadyJoined": "Déjà rejoint",
-      "tournamentFull": "Tournoi complet",
-      "joinTournament": "Rejoindre",
-      "deleteTournament": "Supprimer",
-      "players": "joueur",
-      "spots": " places"
+    "tournament": {
+      "card": {
+        "alreadyJoined": "Déjà rejoint",
+        "tournamentFull": "Tournoi complet",
+        "joinTournament": "Rejoindre le tournoi",
+        "deleteTournament": "Supprimer"
+      }
     }
   },
   "twofa": {
     "scanQR": "Scannez ce code QR avec votre application d'authentification",
     "enterActivation": "Entrez votre code 2FA pour confirmer l'activation",
-    "field" : "Code 2FA",
+    "field": "Code 2FA",
     "success": "Code 2FA vérifié avec succès",
     "invalid": "Code 2FA invalide",
     "errors": {
-    "unexpected": "Quelque chose s'est mal passé"
+      "unexpected": "Quelque chose s'est mal passé"
     }
   }
 }
-
-  
