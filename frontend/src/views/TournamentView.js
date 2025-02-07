@@ -557,7 +557,7 @@ Request API function
 					</div>
 
 				</div>
-				<div class="row  mt-3 p-3 gap-3 justify-content-center align-items-center  border  overflow-auto" id="scrollable-panel">
+				<div class="row  mt-3 p-3 gap-3 justify-content-center align-items-center  border  overflow-auto scrollable-panel" id="scrollable-panel">
 						</div>
 			</div>
 				</div>

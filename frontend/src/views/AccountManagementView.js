@@ -294,7 +294,7 @@ Set HTML
 		<div class="row d-flex flex-row">
 					<img id="profile-img" src="${Avatar.url(
             this.id
-          )}" width="150" height="150" data-avatar=${
+          )}" width="100" height="100" data-avatar=${
       Application.getUserInfos().userId
     } alt="user"
 						class="rounded-circle img-fluid">
@@ -317,7 +317,7 @@ Set HTML
 						<button id="nav-delete"  class="nav-button btn btn-primary">Unsubscribe</button>
 					</div>
 				</div>
-			<div class=" row mx-auto p-2" style="max-width:800px;" id="scrollable-panel">
+			<div class=" row mx-auto p-2 scrollable-panel" style="max-width:800px;" id="scrollable-panel">
 
 
 				<!-- Avatar Card -->
@@ -398,174 +398,27 @@ Set HTML
  				<h2 class="display-4 text-white fw-bold text-center w-100">Two factor Authentification</h2>
 				${
           Application.getUserInfos().twofa === false
-            ? '<a href="/twofa" data-link ><h5>Activate 2FA</h5></a></div>'
+            ? '<a href="/twofa" data-link ><h5 class="text-center fs-5">Activate 2FA</h5></a></div>'
             : "<h5>2FA already activated</h5>"
         }
  		</div>
 
-
-
+		    <!-- Delete Account Card -->
+    		<div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+    			id="delete">
+    			<div class="row align-items-start w-100">
+    				<h2 class="display-6 text-danger fw-bold text-center w-100">Delete account</h2>
+    			</div>
+    			<div class="mx-auto text-center mb-2">
+    				<p class="text-danger">❗ This action is irreversible</p>
+    			</div>
+    			<div class="row w-100">
+    				<a  data-link href="/delete" class="text-danger text-center fs-5 mx-auto" >Delete
+    					Account</a>
+    			</div>
+    		</div>
 	</div>`;
-    // 		<!-- Authentication Card -->
-    // 		<div class="setting-card row  w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
-    // 			id="auth">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Double Authentification</h2>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- Delete Account Card -->
-    // 		<div class="setting-card row  w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
-    // 			id="delete">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-danger fw-bold text-center w-100">Delete account</h2>
-    // 			</div>
-    // 			<div class="mx-auto text-center">
-    // 				<p class="text-danger">❗ This action is irreversible</p>
-    // 			</div>
-    // 			<div class="row w-100">
-    // 				<button type="button" class="btn btn-danger fs-5 mx-auto" style="width: 200px;">Delete
-    // 					Account</button>
-    // 			</div>
-    // 		</div>
-
-    // 	</div>
-
-    // </div>
-
-    //     viewContainer.innerHTML = `
-
-    // <div style="max-width: 800px;" class="  mx-auto w-75 mw-75 align-item-center ">
-    // 	<div class="row p-1 mb-4 ">
-    // 	<div class="row align-items-start">
-    // 		<div class="col-md-6">
-    // 				<img id="profile-img" src="${Avatar.url(this.id)}"
-    // 				width="300" height="300" data-avatar="${
-    //           this.id
-    //         }" alt="user" class="rounded-circle">
-    // 		</div>
-    // 		<div class="col-6 mb-3 p-2 ">
-    // 			<h1 class="text-primary display-1 " id="nickname">${
-    //         Application.getUserInfos().nickname
-    //       }</h1>
-    // 			<h2 class="text-secondary " id="username">@${
-    //         Application.getUserInfos().userName
-    //       }</h2>
-    // 		</div>
-    // 	</div>
-
-    // 			<!-- Navigation Card -->
-    // 	<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center">
-
-    // 	<div class="list-group">
-    // 	<a href="#avatar" class="list-group-item list-group-item-action bg-dark text-white">Change my profile picture</a>
-    // 	<a href="#alias" class="list-group-item list-group-item-action bg-dark text-white">Change my alias</a>
-    // 	<a href="#auth" class="list-group-item list-group-item-action bg-dark text-white">Change my password</a>
-    // 	<a href="#auth" class="list-group-item list-group-item-action bg-dark text-white">Manage Double authentification</a>
-    // 	<a href="#delete" class="list-group-item list-group-item-action bg-dark text-white">Delete my account</a>
-    // 	</div>
-    // 	</div>
-
-    // 	<div class="mx-auto wh-100" style="max-width:800px;" id="scrollable-panel">
-
-    // 		<!-- Avatar Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="avatar">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Avatar</h2>
-    // 			</div>
-    // 			<div class="row mt-3 w-100" id="avatar-radio">
-    // 				<div class="form-check mx-auto">
-    // 					<input class="form-check-input" type="radio" name="avatarOption" id="resetDefault" value="reset" checked>
-    // 					<label class="form-check-label fs-5" for="resetDefault">Reset to Default</label>
-    // 				</div>
-    // 				<div class="form-check mb-3 mx-auto">
-    // 					<input class="form-check-input" type="radio" name="avatarOption" id="uploadFile" value="file">
-    // 					<label class="form-check-label fs-5" for="uploadFile">Choose from File</label>
-    // 					<div class="input-group mb-3 mx-auto" style="max-width: 300px;">
-    // 						<input type="file" class="form-control" accept="image/png,image/jpeg" id="avatarInput" disabled>
-    // 					</div>
-    // 					<button type="button" class="btn btn-primary fs-5" id="avatar-update-button" style="width: 200px;">Update Avatar</button>
-    // 				</div>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- Alias Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="alias">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Alias</h2>
-    // 			</div>
-    // 			<div class="row mb-3 w-100">
-    // 				<input type="text" class="form-control mx-auto" id="newAliasInput" minlength="1" maxlength="20" placeholder="Enter new alias" style="max-width: 300px;">
-    // 			</div>
-    // 			<div class="row w-100">
-    // 				<button type="button" class="btn btn-primary fs-5 mx-auto" id="alias-update-button" style="width: 200px;">Update Alias</button>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- password Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="password">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Password</h2>
-    // 			</div>
-    // 			<div class="row align-items-center w-100">
-    // 				<h2 class="text-white fs-4 text-center w-100">Change password</h2>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="oldpasswordinput" minlength="1" maxlength="20" placeholder="Enter old password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput1" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput2" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row w-100">
-    // 					<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button" style="width: 200px;">Update Password</button>
-    // 				</div>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- Authentication Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="auth">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Double Authentification</h2>
-    // 			</div>
-    // 			<div class="row align-items-center w-100">
-    // 				<h2 class="text-white fs-4 text-center w-100">Change password</h2>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="oldpasswordinput" minlength="1" maxlength="20" placeholder="Enter old password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput1" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput2" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row w-100">
-    // 					<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button" style="width: 200px;">Update Password</button>
-    // 				</div>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- Delete Account Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="delete">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-danger fw-bold text-center w-100">Delete account</h2>
-    // 			</div>
-    // 			<div class="mx-auto text-center">
-    // 				<p class="text-danger">❗ This action is irreversible</p>
-    // 			</div>
-    // 			<div class="row w-100">
-    // 				<button type="button" class="btn btn-danger fs-5 mx-auto" style="width: 200px;">Delete Account</button>
-    // 			</div>
-    // 		</div>
-
-    // 				</div>
-
-    // 	</div>
-
-    // </div>
-
-    // 	`;
   }
 }
+
 export default AccountManagementView;

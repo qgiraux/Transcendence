@@ -135,7 +135,7 @@ class CreateTournamentView extends AbstractView {
 						<div class="row mt-5">
 			<h1 class="text-white text-center mt-5">${this.domText.createTournamentTxt}</h1>
 		</div>
-			<div class=" p-4 d-flex flex-column align-items-center justify-content-center" id="scrollable-panel">
+			<div class=" p-4 d-flex flex-column align-items-center justify-content-center scrollable-panel" id="scrollable-panel">
                 <div class="btn-group mx-auto align-items-center w-75">
 						<button id="size-2" data-size="2" class="btn btn-primary active" aria-current="page">${this.domText.twoPlayers}</button>
 						<button id="size-4" data-size="4" class="btn btn-primary">${this.domText.fourPlayers}</button>

@@ -16,6 +16,7 @@ import LogoutView from "./views/LogoutView.js";
 import PongGameView from "./views/PongGameView.js";
 import CreateTournamentView from "./views/CreateTournamentView.js";
 import Application from "./Application.js";
+import AccountDeleteView from "./views/AccountDeleteView.js";
 
 async function initializeLanguageSelector() {
   await Application.setLanguage(Application.lang);
@@ -36,6 +37,7 @@ router.addRoute("/blocks", BlocksView);
 router.addRoute("/twofa", TwofaView);
 router.addRoute("/tournaments", TournamentView);
 router.addRoute("/create-tournament", CreateTournamentView);
+router.addRoute("/delete", AccountDeleteView);
 
 router.setListeners();
 router.route();
@@ -47,6 +49,5 @@ initializeLanguageSelector();
 const langSelector = document.getElementById("lang-select");
 
 langSelector.addEventListener("change", Application.listenForLanguageChange);
-
 
 //test

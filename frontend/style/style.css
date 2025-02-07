@@ -480,7 +480,7 @@ p {
   border-radius: 5px;
 }
 
-#scrollable-panel {
+.scrollable-panel {
   max-height: 600px;
   overflow-y: auto;
   min-height: 0;

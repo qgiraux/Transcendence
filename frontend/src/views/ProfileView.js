@@ -368,13 +368,13 @@ class ProfileView extends AbstractView {
 		<div class="mt-4 row mx-auto" style="max-width:800px;">
         <div class="row p-1 mb-4 mx-auto">
             <div class="row d-flex flex-row p-2 ">
-                <div class="col-md-6">
+                <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
 				<div class="row">
               <img id="profile-img" src="${Avatar.url(
                 this.currentUserInfos.id
               )}" width="300" height="300" data-avatar="${
         this.currentUserInfos.id
-      }" alt="user" class="rounded-circle"></div>
+      }" alt="user" class="rounded-circle img-fluid"></div>
 	  <div class="row mt-2">
 	  	${this.id === Application.getUserInfos().userId ? profileEdit : ""}
 	  </div>
@@ -421,10 +421,10 @@ class ProfileView extends AbstractView {
                 <br>
             </div>
 
-            <div id="history-container" class="row">
+            <div id="history-container" class="row scrollable-panel p-3">
                 <div class="user-stats">
-                    <table class="table table-dark  table-striped" id="table-history">
-                        <tr class="text-center">
+                    <table class="table table-dark  table-striped " id="table-history">
+                        <tr class="text-center mb-2">
                             <th>${this.domText.table.result}</th>
                             <th>${this.domText.table.date}</th>
                             <th>${this.domText.table.score}</th>
