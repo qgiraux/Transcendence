@@ -86,7 +86,7 @@
       "error": "An error has occurred, the password could not be changed",
       "mismatch": "Password fields must match",
       "oldError": "Invalid old password",
-      "success":"Password changed successfully"
+      "success": "Password changed successfully"
     },
     "avatar": {
       "title": "Avatar",
@@ -177,8 +177,18 @@
     }
   },
   "tournament": {
+    "tab": {
+      "open": "Open tournaments",
+      "inProgress": "Tournaments in progress",
+      "finished": "Finished"
+    },
     "create": {
       "txt": "Create tournament",
+      "cantFind": "Can't find a tournament you like?",
+      "yourOwn": "Create your own!",
+      "twoP": "2 players",
+      "fourP": "4 players",
+      "eightP": "8 players",
       "name": {
         "txt": "Tournament name",
         "enter": "Enter tournament name"
@@ -189,25 +199,34 @@
       "action": {
         "txt": "Create"
       },
+
       "errors": {
         "fetchTournaments": "Error fetching tournaments",
         "displayTournaments": "Error displaying tournaments",
         "joinTournament": "Error joining tournament",
         "createTournament": "Error creating tournament",
         "invalidName": "Invalid tournament name",
-        "tourNameRequirements": "Tournament name must be 3-30 characters long and contain only letters and numbers"
+        "tourNameRequirements": "The tournament name must consist of alphanumeric characters and be between 5 and 8 characters long."
       }
     },
     "invite": {
+      "friend": "Invite a friend",
       "title": "Friend Invited",
       "success": "Successfully invited friend",
       "failure": "Error inviting friend"
     },
+    "join": {
+      "success": "Successfully joined tournament ",
+      "failure": "Could not join tournament",
+      "true": "Joined"
+    },
     "card": {
       "alreadyJoined": "Already joined",
       "tournamentFull": "Tournament full",
-      "joinTournament": "Join Tournament",
-      "deleteTournament": "Delete"
+      "joinTournament": "Join",
+      "deleteTournament": "Delete",
+      "players": "player",
+      "spots": " spots"
     }
   },
   "twofa": {

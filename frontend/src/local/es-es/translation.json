@@ -177,11 +177,21 @@
     }
   },
   "tournament": {
+    "tab": {
+      "open": "Torneos abiertos",
+      "inProgress": "Torneos en progreso",
+      "finished": "Finalizado"
+    },
     "create": {
-      "txt": "Crear un torneo",
+      "txt": "Crear torneo",
+      "cantFind": "¿No encuentras un torneo que te guste?",
+      "yourOwn": "¡Crea el tuyo!",
+      "twoP": "2 jugadores",
+      "fourP": "4 jugadores",
+      "eightP": "8 jugadores",
       "name": {
         "txt": "Nombre del torneo",
-        "enter": "Introduce el nombre del torneo"
+        "enter": "Ingresa el nombre del torneo"
       },
       "size": {
         "txt": "Número de jugadores"
@@ -190,26 +200,32 @@
         "txt": "Crear"
       },
       "errors": {
-        "fetchTournaments": "Error al cargar los torneos",
-        "displayTournaments": "Error al mostrar los torneos",
+        "fetchTournaments": "Error al recuperar torneos",
+        "displayTournaments": "Error al mostrar torneos",
         "joinTournament": "Error al unirse al torneo",
         "createTournament": "Error al crear el torneo",
-        "invalidName": "Nombre del torneo no válido",
-        "tourNameRequirements": "El nombre del torneo debe tener entre 3 y 30 caracteres y contener solo letras y números"
+        "invalidName": "Nombre de torneo no válido",
+        "tourNameRequirements": "El nombre del torneo debe contener caracteres alfanuméricos y tener entre 5 y 8 caracteres de longitud."
       }
     },
     "invite": {
+      "friend": "Invitar a un amigo",
       "title": "Amigo invitado",
       "success": "Amigo invitado con éxito",
       "failure": "Error al invitar al amigo"
     },
-    "tournament": {
-      "card": {
-        "alreadyJoined": "Ya inscrito",
-        "tournamentFull": "Torneo completo",
-        "joinTournament": "Unirse al torneo",
-        "deleteTournament": "Eliminar"
-      }
+    "join": {
+      "success": "Te has unido al torneo con éxito",
+      "failure": "No se pudo unir al torneo",
+      "true": "Unido"
+    },
+    "card": {
+      "alreadyJoined": "Ya unido",
+      "tournamentFull": "Torneo lleno",
+      "joinTournament": "Unirse",
+      "deleteTournament": "Eliminar",
+      "players": "jugador",
+      "spots": " plazas"
     }
   },
   "twofa": {
