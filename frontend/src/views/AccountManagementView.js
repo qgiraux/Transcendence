@@ -4,12 +4,132 @@ import Alert from "../Alert.js";
 import Application from "../Application.js";
 import Router from "../Router.js";
 import Avatar from "../Avatar.js";
+import Localization from "../Localization.js";
 
 class AccountManagementView extends AbstractView {
   constructor(params) {
     super(params);
+    this.domText = {};
+    this.messages = {};
+    this.init();
+  }
+
+  async init() {
+    await this.loadMessages();
     this.onStart();
   }
+
+  async loadMessages() {
+    await Application.localization.loadTranslations();
+    await Application.setLanguage(Application.lang);
+    this.messages.wrongCredentialsFormat = await Application.localization.t(
+      "accountMgmt.wrongCredentialsFormat"
+    );
+    this.messages.wentWrong = await Application.localization.t(
+      "accountMgmt.errors.unexpected"
+    );
+    this.messages.aliasEmpty = await Application.localization.t(
+      "accountMgmt.alias.empty"
+    );
+    this.messages.aliasRequirements = await Application.localization.t(
+      "accountMgmt.alias.requirements"
+    );
+    this.messages.aliasUpdateSuccess = await Application.localization.t(
+      "accountMgmt.alias.updateSuccess"
+    );
+    this.messages.aliasUpdateFailure = await Application.localization.t(
+      "accountMgmt.alias.updateFailure"
+    );
+    this.messages.avatarUploadFailure = await Application.localization.t(
+      "accountMgmt.avatar.update.uploadFailure"
+    );
+    this.messages.avatarUploadFileCheck = await Application.localization.t(
+      "accountMgmt.avatar.update.uploadFileCheck"
+    );
+    this.messages.avatarUpdateSuccess = await Application.localization.t(
+      "accountMgmt.avatar.update.updateSuccess"
+    );
+    console.log("Avatar update = ", this.messages.avatarUpdateSuccess);
+    this.messages.pwdError = await Application.localization.t(
+      "accountMgmt.password.error"
+    );
+    this.messages.oldPwdInvalid = await Application.localization.t(
+      "accountMgmt.password.oldError"
+    );
+    this.messages.pwdEmpty = await Application.localization.t(
+      "accountMgmt.password.empty"
+    );
+    this.messages.pwdMismatch = await Application.localization.t(
+      "accountMgmt.password.mismatch"
+    );
+    this.messages.pwdSuccess = await Application.localization.t(
+      "accountMgmt.password.success"
+    );
+    this.domText.title = await Application.localization.t(
+      "titles.account"
+    );
+    this.domText.manageAvatar = await Application.localization.t(
+      "accountMgmt.actions.manageAvatar"
+    );
+    this.domText.changeAlias = await Application.localization.t(
+      "accountMgmt.actions.changeAlias"
+    );
+    this.domText.changePassword = await Application.localization.t(
+      "accountMgmt.actions.changePassword"
+    );
+    this.domText.manage2FA = await Application.localization.t(
+      "accountMgmt.actions.manage2FA"
+    );
+    this.domText.deleteAccount = await Application.localization.t(
+      "accountMgmt.actions.deleteAccount"
+    );
+    this.domText.close = await Application.localization.t(
+      "accountMgmt.actions.closeBtn"
+    );
+    this.domText.aliasLabel = await Application.localization.t(
+      "accountMgmt.alias.label"
+    );
+    this.domText.aliasField = await Application.localization.t(
+      "accountMgmt.alias.field"
+    );
+    this.domText.aliasUpdate = await Application.localization.t(
+      "accountMgmt.alias.update"
+    );
+    this.domText.avatarTitle = await Application.localization.t(
+      "accountMgmt.avatar.title"
+    );
+    this.messages.avatarSelectFile = await Application.localization.t(
+      "accountMgmt.avatar.selectFile"
+    );
+    this.domText.avatarResetDefault = await Application.localization.t(
+      "accountMgmt.avatar.resetDefault"
+    );
+    this.domText.avatarReset = await Application.localization.t(
+      "accountMgmt.avatar.reset.action"
+    );
+    this.domText.chooseFile = await Application.localization.t(
+      "accountMgmt.avatar.chooseFile"
+    );
+    this.domText.avatarUpdate = await Application.localization.t(
+      "accountMgmt.avatar.update.action"
+    );
+    this.domText.PwdLabel = await Application.localization.t(
+      "accountMgmt.password.label"
+    );
+    this.domText.enterOldPwd = await Application.localization.t(
+      "accountMgmt.password.old"
+    );
+    this.domText.enterNewPwd = await Application.localization.t(
+      "accountMgmt.password.new"
+    );
+    this.domText.confirmNewPwd = await Application.localization.t(
+      "accountMgmt.password.confirmNew"
+    );
+    this.domText.updatePwd = await Application.localization.t(
+      "accountMgmt.password.update"
+    );
+  }
+
   onStart() {
     if (Application.getAccessToken() === null) {
       setTimeout(() => {
@@ -18,22 +138,14 @@ class AccountManagementView extends AbstractView {
       return;
     }
     console.log("infos", Application.getUserInfos());
+
     /*
 	View initialization
 	*/
-    this._setTitle("Account management");
+    this._setTitle(this.domText.title);
     this.id = this.params["id"] || Application.getUserInfos().userId;
 
     this.avatarChoice = "reset";
-    /*
-        Localization placeholders
-    */
-    this.messages = {};
-    this.messages.wrongCredentialsFormat = `You must provide a valid username and password.
-		The login must contains only letters or digits and be between 5-20 characters long <br>
-	   The password must be contains at least 8 characters and contains one digit,
-	   one uppercase letter and at least one special character : !@#$%^&* `;
-
     this._setHtml();
     /*
 	Event listeners
@@ -58,11 +170,6 @@ class AccountManagementView extends AbstractView {
     );
 
     this.addEventListener(
-      document.querySelector("#nav-avatar"),
-      "click",
-      this.navHandler.bind(this)
-    );
-    this.addEventListener(
       document.querySelector("#nav-alias"),
       "click",
       this.navHandler.bind(this)
@@ -85,45 +192,39 @@ class AccountManagementView extends AbstractView {
       "click",
       this.navHandler.bind(this)
     );
-
-    this.addEventListener(
-      document.querySelector("#password-update-button"),
-      "click",
-      this.passwordButtonHandler.bind(this)
-    );
   }
 
   /*
 Event handlers
 */
 
-  navHandler(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const navButtons = document.querySelectorAll(".nav-button");
-    navButtons.forEach((button) => {
-      button.classList.remove("active");
-    });
-    console.log(event.target);
-    event.target.classList.add("active");
-    switch (event.target.id) {
-      case "nav-avatar":
-        this.setActiveView("avatar");
-        break;
-      case "nav-alias":
-        this.setActiveView("alias");
-        break;
-      case "nav-password":
-        this.setActiveView("password");
-        break;
-      case "nav-twofa":
-        this.setActiveView("twofa");
-        break;
-      case "nav-delete":
-        this.setActiveView("delete");
-        break;
-    }
+navHandler(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const navButtons = document.querySelectorAll(".nav-button");
+  navButtons.forEach((button) => {
+    button.classList.remove("active");
+  });
+  console.log(event.target);
+  event.target.classList.add("active");
+  switch (event.target.id) {
+    case "nav-avatar":
+      this.setActiveView("avatar");
+      break;
+    case "nav-alias":
+      this.setActiveView("alias");
+      break;
+    case "nav-password":
+      this.setActiveView("password");
+      break;
+    case "nav-twofa":
+      this.setActiveView("twofa");
+      break;
+    case "nav-delete":
+      this.setActiveView("delete");
+      break;
   }
+}
 
   setActiveView(viewName) {
     const cards = document.querySelectorAll(".setting-card");
@@ -155,18 +256,18 @@ Event handlers
       TRequest.request("DELETE", "/api/avatar/delete/")
         .then(() => {
           Avatar.refreshAvatars();
-          Alert.successMessage(
-            "Avatar",
-            "The avatar picture has been updated successfully."
+          Alert.classicMessage(
+            this.domText.avatarTitle,
+            `${this.messages.avatarUpdateSuccess}`
           );
         })
         .catch((error) => {
-          Alert.errorMessage("Avatar reset", `Something went wrong: ${error}`);
+          Alert.errorMessage(this.domText.avatarReset, `${this.messages.wentWrong} ${error}`);
         });
     } else if (this.avatarChoice === "update") {
       const fileInput = document.getElementById("avatarInput");
       if (!fileInput || fileInput.files.length === 0) {
-        Alert.errorMessage("Avatar", "You must select a file");
+        Alert.errorMessage(this.domText.avatarTitle, this.domText.avatarSelectFile);
         return;
       }
 
@@ -179,20 +280,19 @@ Event handlers
           "/api/avatar/upload/",
           formData
         );
-        if (typeof r != "object") throw new Error("upload error");
+        if (typeof r != "object") throw new Error(this.messages.avatarUploadFailure);
         if (r.hasOwnProperty("error")) {
-          throw new Error("upload error");
+          throw new Error(this.messages.avatarUploadFailure);
         }
         await Avatar.refreshAvatars();
-        Alert.successMessage(
-          "Avatar",
-          "The avatar picture has been updated successfully."
+        Alert.classicMessage(
+          this.domText.avatarTitle,
+          `${this.messages.avatarUpdateSuccess}`
         );
       } catch (error) {
         Alert.errorMessage(
-          "Avatar",
-          `The picture could't be uploaded.
-            Please check that it is a valid jpeg or png file, less or equal than 5MB`
+          this.domText.avatarTitle,
+          `${this.messages.avatarUploadFailure} ${this.messages.avatarUploadFileCheck}`
         );
       }
     }
@@ -206,13 +306,13 @@ Event handlers
 
     const newAlias = aliasInput.value.trim();
     if (!newAlias) {
-      Alert.errorMessage("Alias", "Alias cannot be empty.");
+      Alert.errorMessage(this.domText.aliasLabel, this.messages.aliasEmpty);
       return;
     }
     if (newAlias.length > 20) {
       Alert.errorMessage(
-        "Alias",
-        "Alias must be less or equal than 20 characters"
+        this.domText.aliasLabel,
+        this.messages.aliasRequirements
       );
       aliasInput.value = "";
       return;
@@ -227,10 +327,10 @@ Event handlers
       );
       Application.setUserInfos(newInfos);
 
-      Alert.successMessage("Alias", "The alias has been updated successfully.");
+      Alert.successMessage(this.domText.aliasLabel, this.messages.aliasUpdateSuccess);
       Router.reroute("/account");
     } catch (error) {
-      Alert.errorMessage("Alias", `Failed to update alias: ${error.message}`);
+      Alert.errorMessage(this.domText.aliasLabel, `${this.messages.aliasUpdateFailure} ${error.message}`);
     }
   }
 
@@ -250,15 +350,15 @@ Set HTML
     const input2 = document.querySelector("#newPasswordInput2");
 
     if (!input1.value || !input2.value || !oldPassword.value) {
-      Alert.errorMessage("Password", "field must not be empty");
+      Alert.errorMessage(this.domText.PwdLabel, this.messages.pwdEmpty);
       return;
     }
     if (!this._validatePass(input1.value)) {
-      Alert.errorMessage("Password", this.messages.wrongCredentialsFormat);
+      Alert.errorMessage(this.domText.PwdLabel, this.messages.wrongCredentialsFormat);
       return;
     }
     if (input1.value !== input2.value) {
-      Alert.errorMessage("Password", "New Password fields must match");
+      Alert.errorMessage(this.domText.PwdLabel, this.messages.pwdMismatch);
       return;
     }
     try {
@@ -267,19 +367,22 @@ Set HTML
         newpassword: input1.value,
       });
       if (req["success"] !== undefined) {
-        Alert.successMessage("Password", "Password changed successfully.");
+        Alert.successMessage(this.domText.PwdLabel, this.messages.pwdSuccess);
       }
     } catch (error) {
       if (error.message.includes("401")) {
-        Alert.errorMessage("Password", "Invalid old password");
+        Alert.errorMessage(this.domText.PwdLabel, this.messages.oldPwdInvalid);
       } else {
         Alert.errorMessage(
-          "Password",
-          "An error has occured, the password could not be changed"
+          this.domText.PwdLabel,
+          this.messages.pwdError
         );
       }
     }
   }
+
+  //New version
+
 
   _setHtml() {
     const viewContainer = document.getElementById("view-container");
@@ -287,7 +390,7 @@ Set HTML
     viewContainer.innerHTML = `
 		<div style="max-width: 800px;" class="mx-auto w-75 mw-75 align-item-center p-2 ">
 			<div class="row mx-auto">
-				<h1>Account</h1>
+				<h1>${this.domText.title}</h1>
 			</div>
 
 
@@ -310,11 +413,11 @@ Set HTML
 
 				<div class="row mb-2">
 					<div class=" btn-group mx-auto align-items-center">
-						<button id="nav-avatar" class="nav-button btn btn-primary active">Avatar</button>
-						<button id="nav-alias"  class="nav-button btn btn-primary">Alias</button>
-						<button id="nav-password"  class="nav-button btn btn-primary">Password</button>
-						<button id="nav-twofa"  class="nav-button btn btn-primary">Twofa</button>
-						<button id="nav-delete"  class="nav-button btn btn-primary">Unsubscribe</button>
+						<button id="nav-avatar" class="nav-button btn btn-primary active">${this.domText.manageAvatar}</button>
+						<button id="nav-alias"  class="nav-button btn btn-primary">${this.domText.changeAlias}</button>
+						<button id="nav-password"  class="nav-button btn btn-primary">${this.domText.changePassword}</button>
+						<button id="nav-twofa"  class="nav-button btn btn-primary">${this.domText.manage2FA}</button>
+						<button id="nav-delete"  class="nav-button btn btn-primary">${this.domText.deleteAccount}</button>
 					</div>
 				</div>
 			<div class=" row mx-auto p-2" style="max-width:800px;" id="scrollable-panel">
@@ -324,24 +427,24 @@ Set HTML
 				<div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center"
 					id="avatar">
 					<div class="row align-items-start w-100">
-						<h2 class="display-6 text-white fw-bold text-center w-100">Avatar</h2>
+						<h2 class="display-6 text-white fw-bold text-center w-100">${this.domText.avatarTitle}</h2>
 					</div>
 					<div class="row mt-3 w-100" id="avatar-radio">
 						<div class="form-check mx-auto">
 							<input class="form-check-input" type="radio" name="avatarOption" id="resetDefault"
 								value="reset" checked="">
-							<label class="form-check-label fs-5" for="resetDefault">Reset to Default</label>
+							<label class="form-check-label fs-5" for="resetDefault">${this.domText.avatarResetDefault}</label>
 						</div>
 						<div class="form-check mb-3 mx-auto">
 							<input class="form-check-input" type="radio" name="avatarOption" id="uploadFile"
 								value="file">
-							<label class="form-check-label fs-5" for="uploadFile">Choose from File</label>
+							<label class="form-check-label fs-5" for="uploadFile">${this.domText.chooseFile}</label>
 							<div class="input-group mb-3 mx-auto" style="max-width: 300px;">
 								<input type="file" class="form-control" accept="image/png,image/jpeg" id="avatarInput"
 									disabled="">
 							</div>
 							<button type="button" class="btn btn-primary fs-5" id="avatar-update-button"
-								style="width: 200px;">Update Avatar</button>
+								style="width: 200px;">${this.domText.avatarUpdate}</button>
 						</div>
 					</div>
 				</div>
@@ -350,15 +453,15 @@ Set HTML
 				<div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
 					id="alias">
 					<div class="row align-items-start w-100">
-						<h2 class="display-6 text-white fw-bold text-center w-100">Alias</h2>
+						<h2 class="display-6 text-white fw-bold text-center w-100">${this.domText.aliasLabel}</h2>
 					</div>
 					<div class="row mb-3 w-100">
 						<input type="text" class="form-control mx-auto" id="newAliasInput" minlength="1" maxlength="20"
-							placeholder="Enter new alias" style="max-width: 300px;">
+							placeholder="${this.domText.aliasField}" style="max-width: 300px;">
 					</div>
 					<div class="row w-100">
 						<button type="button" class="btn btn-primary fs-5 mx-auto" id="alias-update-button"
-							style="width: 200px;">Update Alias</button>
+							style="width: 200px;">${this.domText.aliasUpdate}</button>
 					</div>
 				</div>
 
@@ -366,26 +469,26 @@ Set HTML
 				<div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
 					id="password">
 					<div class="row align-items-start w-100">
-						<h2 class="display-6 text-white fw-bold text-center w-100">Password</h2>
+						<h2 class="display-6 text-white fw-bold text-center w-100">${this.domText.PwdLabel}</h2>
 					</div>
 					<form>
 					<div class="row align-items-center w-100">
-						<h2 class="text-white fs-4 text-center w-100">Change password</h2>
+						<h2 class="text-white fs-4 text-center w-100">${this.domText.changePassword}</h2>
 						<div class="row mb-3 w-100">
 							<input type="password"  current-password class="form-control mx-auto" id="oldpasswordinput" minlength="1"
-								maxlength="20" placeholder="Enter current password" style="max-width: 300px;">
+								maxlength="20" placeholder="${this.domText.enterOldPwd}" style="max-width: 300px;">
 						</div>
 						<div class="row mb-3 w-100">
 							<input type="password" new-password class="form-control mx-auto" id="newPasswordInput1" minlength="1"
-								maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
+								maxlength="20" placeholder="${this.domText.enterNewPwd}" style="max-width: 300px;">
 						</div>
 						<div class="row mb-3 w-100">
 							<input type="password" new-password class="form-control mx-auto" id="newPasswordInput2" minlength="1"
-								maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
+								maxlength="20" placeholder="${this.domText.confirmNewPwd}" style="max-width: 300px;">
 						</div>
 						<div class="row w-100">
 							<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button"
-								style="width: 200px;">Update Password</button>
+								style="width: 200px;">${this.domText.updatePwd}</button>
 						</div>
 					</form>
 						</div>
@@ -411,161 +514,7 @@ Set HTML
     // 			id="auth">
     // 			<div class="row align-items-start w-100">
     // 				<h2 class="display-6 text-white fw-bold text-center w-100">Double Authentification</h2>
-    // 			</div>
-    // 		</div>
 
-    // 		<!-- Delete Account Card -->
-    // 		<div class="setting-card row  w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
-    // 			id="delete">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-danger fw-bold text-center w-100">Delete account</h2>
-    // 			</div>
-    // 			<div class="mx-auto text-center">
-    // 				<p class="text-danger">❗ This action is irreversible</p>
-    // 			</div>
-    // 			<div class="row w-100">
-    // 				<button type="button" class="btn btn-danger fs-5 mx-auto" style="width: 200px;">Delete
-    // 					Account</button>
-    // 			</div>
-    // 		</div>
-
-    // 	</div>
-
-    // </div>
-
-    //     viewContainer.innerHTML = `
-
-    // <div style="max-width: 800px;" class="  mx-auto w-75 mw-75 align-item-center ">
-    // 	<div class="row p-1 mb-4 ">
-    // 	<div class="row align-items-start">
-    // 		<div class="col-md-6">
-    // 				<img id="profile-img" src="${Avatar.url(this.id)}"
-    // 				width="300" height="300" data-avatar="${
-    //           this.id
-    //         }" alt="user" class="rounded-circle">
-    // 		</div>
-    // 		<div class="col-6 mb-3 p-2 ">
-    // 			<h1 class="text-primary display-1 " id="nickname">${
-    //         Application.getUserInfos().nickname
-    //       }</h1>
-    // 			<h2 class="text-secondary " id="username">@${
-    //         Application.getUserInfos().userName
-    //       }</h2>
-    // 		</div>
-    // 	</div>
-
-    // 			<!-- Navigation Card -->
-    // 	<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center">
-
-    // 	<div class="list-group">
-    // 	<a href="#avatar" class="list-group-item list-group-item-action bg-dark text-white">Change my profile picture</a>
-    // 	<a href="#alias" class="list-group-item list-group-item-action bg-dark text-white">Change my alias</a>
-    // 	<a href="#auth" class="list-group-item list-group-item-action bg-dark text-white">Change my password</a>
-    // 	<a href="#auth" class="list-group-item list-group-item-action bg-dark text-white">Manage Double authentification</a>
-    // 	<a href="#delete" class="list-group-item list-group-item-action bg-dark text-white">Delete my account</a>
-    // 	</div>
-    // 	</div>
-
-    // 	<div class="mx-auto wh-100" style="max-width:800px;" id="scrollable-panel">
-
-    // 		<!-- Avatar Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="avatar">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Avatar</h2>
-    // 			</div>
-    // 			<div class="row mt-3 w-100" id="avatar-radio">
-    // 				<div class="form-check mx-auto">
-    // 					<input class="form-check-input" type="radio" name="avatarOption" id="resetDefault" value="reset" checked>
-    // 					<label class="form-check-label fs-5" for="resetDefault">Reset to Default</label>
-    // 				</div>
-    // 				<div class="form-check mb-3 mx-auto">
-    // 					<input class="form-check-input" type="radio" name="avatarOption" id="uploadFile" value="file">
-    // 					<label class="form-check-label fs-5" for="uploadFile">Choose from File</label>
-    // 					<div class="input-group mb-3 mx-auto" style="max-width: 300px;">
-    // 						<input type="file" class="form-control" accept="image/png,image/jpeg" id="avatarInput" disabled>
-    // 					</div>
-    // 					<button type="button" class="btn btn-primary fs-5" id="avatar-update-button" style="width: 200px;">Update Avatar</button>
-    // 				</div>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- Alias Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="alias">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Alias</h2>
-    // 			</div>
-    // 			<div class="row mb-3 w-100">
-    // 				<input type="text" class="form-control mx-auto" id="newAliasInput" minlength="1" maxlength="20" placeholder="Enter new alias" style="max-width: 300px;">
-    // 			</div>
-    // 			<div class="row w-100">
-    // 				<button type="button" class="btn btn-primary fs-5 mx-auto" id="alias-update-button" style="width: 200px;">Update Alias</button>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- password Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="password">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Password</h2>
-    // 			</div>
-    // 			<div class="row align-items-center w-100">
-    // 				<h2 class="text-white fs-4 text-center w-100">Change password</h2>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="oldpasswordinput" minlength="1" maxlength="20" placeholder="Enter old password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput1" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput2" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row w-100">
-    // 					<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button" style="width: 200px;">Update Password</button>
-    // 				</div>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- Authentication Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="auth">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-white fw-bold text-center w-100">Double Authentification</h2>
-    // 			</div>
-    // 			<div class="row align-items-center w-100">
-    // 				<h2 class="text-white fs-4 text-center w-100">Change password</h2>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="oldpasswordinput" minlength="1" maxlength="20" placeholder="Enter old password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput1" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput2" minlength="1" maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row w-100">
-    // 					<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button" style="width: 200px;">Update Password</button>
-    // 				</div>
-    // 			</div>
-    // 		</div>
-
-    // 		<!-- Delete Account Card -->
-    // 		<div class="row mb-4 w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center" id="delete">
-    // 			<div class="row align-items-start w-100">
-    // 				<h2 class="display-6 text-danger fw-bold text-center w-100">Delete account</h2>
-    // 			</div>
-    // 			<div class="mx-auto text-center">
-    // 				<p class="text-danger">❗ This action is irreversible</p>
-    // 			</div>
-    // 			<div class="row w-100">
-    // 				<button type="button" class="btn btn-danger fs-5 mx-auto" style="width: 200px;">Delete Account</button>
-    // 			</div>
-    // 		</div>
-
-    // 				</div>
-
-    // 	</div>
-
-    // </div>
-
-    // 	`;
   }
 }
 export default AccountManagementView;
