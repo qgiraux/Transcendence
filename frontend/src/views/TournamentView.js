@@ -23,24 +23,46 @@ class TournamentsView extends AbstractView {
   async loadMessages() {
     await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
-    this.domText.Title = await Application.localization.t(
-      "tournament.create.txt"
-    );
+    this.domText.title = await Application.localization.t("titles.tournament");
     this.domText.createTournamentTxt = await Application.localization.t(
       "tournament.create.txt"
+    );
+    this.domText.cantFind = await Application.localization.t(
+      "tournament.create.cantFind"
+    );
+    this.domText.yourOwn = await Application.localization.t(
+      "tournament.create.yourOwn"
     );
     this.domText.tournamentNameTxt = await Application.localization.t(
       "tournament.create.name.txt"
     );
-    this.domText.tournamentNameEnter = await Application.localization.t(
-      "tournament.create.name.enter"
+    this.domText.tournamentsInProgress = await Application.localization.t(
+      "tournament.tab.inProgress"
     );
-    this.domText.tournamentSizeTxt = await Application.localization.t(
-      "tournament.create.size.txt"
+    this.domText.openTournaments = await Application.localization.t(
+      "tournament.tab.open"
     );
-    this.domText.createTournamentAction = await Application.localization.t(
-      "tournament.create.action.txt"
+    this.domText.finishedTournaments = await Application.localization.t(
+      "tournament.tab.finished"
     );
+    this.domText.inviteFriend = await Application.localization.t(
+      "tournament.invite.friend"
+    );
+    this.domText.joined = await Application.localization.t(
+      "tournament.join.true"
+    );
+    this.domText.playerTxt = await Application.localization.t(
+      "tournament.card.players"
+    );
+    this.domText.spotsTxt = await Application.localization.t(
+      "tournament.card.spots"
+    );
+    // this.domText.tournamentSizeTxt = await Application.localization.t(
+    //   "tournament.create.size.txt"
+    // );
+    // this.domText.createTournamentAction = await Application.localization.t(
+    //   "tournament.create.action.txt"
+    // );
     this.messages.fetchTournamentsErr = await Application.localization.t(
       "tournament.create.errors.fetchTournaments"
     );
@@ -68,22 +90,28 @@ class TournamentsView extends AbstractView {
     this.messages.inviteFriendFailure = await Application.localization.t(
       "tournament.invite.failure"
     );
+    this.messages.joinSuccess = await Application.localization.t(
+      "tournament.join.success"
+    );
+    this.messages.joinFailure = await Application.localization.t(
+      "tournament.join.failure"
+    );
     this.messages.alreadyJoined = await Application.localization.t(
       "tournament.card.alreadyJoined"
     );
     this.messages.tournamentFull = await Application.localization.t(
       "tournament.card.tournamentFull"
     );
-    this.messages.joinTournament = await Application.localization.t(
+    this.domText.joinTournament = await Application.localization.t(
       "tournament.card.joinTournament"
     );
-    this.messages.deleteTournament = await Application.localization.t(
+    this.domText.deleteTournament = await Application.localization.t(
       "tournament.card.deleteTournament"
     );
   }
 
   onStart() {
-    this._setTitle("Tournaments");
+    this._setTitle(this.domText.title);
     if (Application.getAccessToken() === null) {
       setTimeout(() => {
         Router.reroute("/landing");
@@ -171,12 +199,12 @@ class TournamentsView extends AbstractView {
           name: tournamentName,
         });
         Alert.successMessage(
-          "Tournament",
-          `Successfully joined tournament ${tournamentName}`
+          this.domText.title,
+          `${this.messages.joinSuccess} ${tournamentName}`
         );
         Application.joinedTournament = tournamentName;
       } catch (error) {
-        Alert.errorMessage("Tournament", "Could not join tournament");
+        Alert.errorMessage(this.messages.joinFailure);
       }
       Router.reroute("/tournaments");
     }
@@ -307,12 +335,12 @@ Request API function
   createNewTournamentHeaderPanel() {
     const link = document.createElement("a");
     link.href = "/create-tournament";
-    link.text = "Create your own!";
+    link.text = this.domText.yourOwn;
     link.dataset.link = 1;
     link.classList.add("text-white", "text-center");
     const header = document.createElement("div");
     header.classList.add("row", "p-2", "w-75");
-    header.innerHTML = `<h4 class="text-white text-center">Can't find a tournament you like?</h4>`;
+    header.innerHTML = `<h4 class="text-white text-center">${this.domText.cantFind}</h4>`;
     header.appendChild(link);
     return header;
   }
@@ -333,10 +361,10 @@ Request API function
 		<div class="row d-flex justify-self-center">
 			<div class="col">
 				<h4 class="text-white">${tournament["tournament name"]}
-				<span class="badge bg-success joined-badge" style="display: none;">Joined</span>
+				<span class="badge bg-success joined-badge" style="display: none;">${this.domText.joined}</span>
 				</h4>
-				<h4 class="text-secondary" id="size">${tournament["size"]} players</h4>
-				<h5 class="text-secondary " id="spot-left">${freeSpots} spot left</h5>
+				<h4 class="text-secondary" id="size">${tournament["size"]} ${this.domText.playerTxt}</h4>
+				<h5 class="text-secondary " id="spot-left">${freeSpots} ${this.domText.spotsTxt}</h5>
 				<div class="row d-flex justify-content-center justify-self-center mt-2" id="action"></div>
 			</div>
 		<div class="players-avatars col d-flex flex-column justify-content-center align-items-center gap-2 p-1 border  "
@@ -374,7 +402,7 @@ Request API function
     if (!this.joined) {
       // add the joined button if no tournament has been joined yet
       actionDiv.innerHTML = `<button type="button" class="btn btn-primary w-50
-	  justify-self-center join-tournament-btn" data-tournament="${tournament["tournament name"]}">Join</button>`;
+	  justify-self-center join-tournament-btn" data-tournament="${tournament["tournament name"]}">${this.domText.joinTournament}</button>`;
     } else if (
       tournament["players"].includes(Application.getUserInfos().userId)
     ) {
@@ -384,7 +412,7 @@ Request API function
       }
       actionDiv.innerHTML = `<div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Invite a friend
+    ${this.domText.inviteFriend}
   </button>
   			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
 	</div>`;
@@ -518,16 +546,14 @@ Request API function
     const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `
-			<div class=" mx-auto" style="max-width: 800px;">
-				<h1 class="text-white text-center mb-5">Tournaments</h1>
+			<div class=" mx-auto" style="max-width: 700px;">
+				<h1 class="text-white text-center mb-5">${this.domText.title}</h1>
 
 			<div class="row">
 					<div class="btn-group mx-auto align-items-center">
-						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">Open
-							tournaments</button>
-						<button id="status-1" data-status="1" class="btn btn-primary">Tournaments in progress</button>
-						<button id="status-2" data-status="2" class="btn btn-primary">Finished
-							tournaments</button>
+						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">${this.domText.openTournaments}</button>
+						<button id="status-1" data-status="1" class="btn btn-primary">${this.domText.tournamentsInProgress}</button>
+						<button id="status-2" data-status="2" class="btn btn-primary">${this.domText.finishedTournaments}</button>
 					</div>
 
 				</div>

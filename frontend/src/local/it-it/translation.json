@@ -144,41 +144,57 @@
       }
     },
     "tournament": {
-      "create": {
-        "txt": "Crea un torneo",
-        "name": {
-          "txt": "Nome del torneo",
-          "enter": "Inserisci il nome del torneo"
-        },
-        "size": {
-          "txt": "Numero di giocatori"
-        },
-        "action": {
-          "txt": "Crea"
-        },
-        "errors": {
-          "fetchTournaments": "Errore durante il caricamento dei tornei",
-          "displayTournaments": "Errore durante la visualizzazione dei tornei",
-          "joinTournament": "Errore durante la partecipazione al torneo",
-          "createTournament": "Errore durante la creazione del torneo",
-          "invalidName": "Nome del torneo non valido",
-          "tourNameRequirements": "Il nome del torneo deve contenere tra 3 e 30 caratteri e includere solo lettere e numeri"
-        }
+    "tab": {
+      "open": "Tornei aperti",
+      "inProgress": "Tornei in corso",
+      "finished": "Terminato"
+    },
+    "create": {
+      "txt": "Crea torneo",
+      "cantFind": "Non trovi un torneo che ti piace?",
+      "yourOwn": "Crea il tuo!",
+      "twoP": "2 giocatori",
+      "fourP": "4 giocatori",
+      "eightP": "8 giocatori",
+      "name": {
+        "txt": "Nome del torneo",
+        "enter": "Inserisci il nome del torneo"
       },
-      "invite": {
-        "title": "Amico invitato",
-        "success": "Amico invitato con successo",
-        "failure": "Errore durante l'invito dell'amico"
+      "size": {
+        "txt": "Numero di giocatori"
       },
-      "tournament": {
-        "card": {
-          "alreadyJoined": "Già iscritto",
-          "tournamentFull": "Torneo pieno",
-          "joinTournament": "Partecipa al torneo",
-          "deleteTournament": "Elimina"
-        }
+      "action": {
+        "txt": "Crea"
+      },
+      "errors": {
+        "fetchTournaments": "Errore durante il recupero dei tornei",
+        "displayTournaments": "Errore durante la visualizzazione dei tornei",
+        "joinTournament": "Errore durante la partecipazione al torneo",
+        "createTournament": "Errore durante la creazione del torneo",
+        "invalidName": "Nome del torneo non valido",
+        "tourNameRequirements": "Il nome del torneo deve contenere caratteri alfanumerici e avere una lunghezza compresa tra 5 e 8 caratteri."
       }
     },
+    "invite": {
+      "friend": "Invita un amico",
+      "title": "Amico invitato",
+      "success": "Amico invitato con successo",
+      "failure": "Errore durante l'invito dell'amico"
+    },
+    "join": {
+      "success": "Torneo unito con successo",
+      "failure": "Impossibile unirsi al torneo",
+      "true": "Unito"
+    },
+    "card": {
+      "alreadyJoined": "Già unito",
+      "tournamentFull": "Torneo completo",
+      "joinTournament": "Unisciti",
+      "deleteTournament": "Elimina",
+      "players": "giocatore",
+      "spots": " posti"
+    }
+  },
     "twofa": {
       "scanQR": "Scansiona questo codice QR con la tua app di autenticazione",
       "enterActivation": "Inserisci il tuo codice 2FA per confermare l'attivazione",
