@@ -104,6 +104,24 @@
         "action": "Avatar reset"
       }
     },
+    "twofa": {
+      "title": "Two-factor authentification",
+      "activate": "Activate 2FA",
+      "alreadyActivated": "2FA already activated",
+      "scanQR": "Scan this QR code with your authenticator app",
+      "field": "2FA code",
+      "enterActivation": "Enter your 2FA code to confirm activation",
+      "success": "2FA code verified successfully",
+      "invalid": "Invalid 2FA code",
+      "errors": {
+        "unexpected": "Something went wrong"
+      }
+    },
+    "delete": {
+      "title": "Delete account",
+      "irreversible": "This action is irreversible",
+      "action": "Delete account"
+    },
     "errors": {
       "unexpected": "Something went wrong : "
     }
@@ -227,16 +245,6 @@
       "deleteTournament": "Delete",
       "players": "player",
       "spots": " spots"
-    }
-  },
-  "twofa": {
-    "scanQR": "Scan this QR code with your authenticator app",
-    "field": "2FA code",
-    "enterActivation": "Enter your 2FA code to confirm activation",
-    "success": "2FA code verified successfully",
-    "invalid": "Invalid 2FA code",
-    "errors": {
-      "unexpected": "Something went wrong"
     }
   }
 }

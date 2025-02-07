@@ -15,6 +15,7 @@ class AccountManagementView extends AbstractView {
   }
 
   async init() {
+    // console.log("View loaded on start", Application.activeProfileView);
     await this.loadMessages();
     this.onStart();
   }
@@ -49,7 +50,6 @@ class AccountManagementView extends AbstractView {
     this.messages.avatarUpdateSuccess = await Application.localization.t(
       "accountMgmt.avatar.update.updateSuccess"
     );
-    console.log("Avatar update = ", this.messages.avatarUpdateSuccess);
     this.messages.pwdError = await Application.localization.t(
       "accountMgmt.password.error"
     );
@@ -126,6 +126,24 @@ class AccountManagementView extends AbstractView {
     this.domText.updatePwd = await Application.localization.t(
       "accountMgmt.password.update"
     );
+    this.domText.twofaTitle = await Application.localization.t(
+      "accountMgmt.twofa.title"
+    );
+    this.domText.twofaActivate = await Application.localization.t(
+      "accountMgmt.twofa.activate"
+    );
+    this.domText.twofaAlreadyActivated = await Application.localization.t(
+      "accountMgmt.twofa.alreadyActivated"
+    );
+    this.domText.deleteTitle = await Application.localization.t(
+      "accountMgmt.delete.title"
+    );
+    this.domText.deleteIrreversible = await Application.localization.t(
+      "accountMgmt.delete.irreversible"
+    );
+    this.domText.deleteAction = await Application.localization.t(
+      "accountMgmt.delete.action"
+    );
   }
 
   onStart() {
@@ -145,6 +163,7 @@ class AccountManagementView extends AbstractView {
 
     this.avatarChoice = "reset";
     this._setHtml();
+    this.setActiveView(Application.activeProfileView);
     /*
 	Event listeners
 	*/
@@ -224,7 +243,37 @@ Event handlers
     }
   }
 
+//Method to change the active button if the view is reloaded after a language change
+  updateActiveNavButton(viewName) {
+    document.querySelectorAll(".nav-button").forEach((button) => {
+      button.classList.remove("active");
+    });
+    let navButtonId = "";
+    switch (viewName) {
+      case "avatar":
+        navButtonId = "nav-avatar";
+        break;
+      case "alias":
+        navButtonId = "nav-alias";
+        break;
+      case "password":
+        navButtonId = "nav-password";
+        break;
+      case "twofa":
+        navButtonId = "nav-twofa";
+        break;
+      case "delete":
+        navButtonId = "nav-delete";
+        break;
+    }
+    const navButton = document.getElementById(navButtonId);
+    if (navButton) {
+      navButton.classList.add("active");
+    }
+  }
+
   setActiveView(viewName) {
+    if (!this.messages || !this.domText) this.loadMessages();
     const cards = document.querySelectorAll(".setting-card");
     cards.forEach((card) => {
       if (!card.classList.contains("d-none")) card.classList.add("d-none");
@@ -232,6 +281,12 @@ Event handlers
 
     const newCard = document.querySelector(`#${viewName}`);
     newCard.classList.remove("d-none");
+    this.updateActiveNavButton(viewName);
+    Application.activeProfileView = viewName;
+    // console.log(
+    //   "New view set in setActiveView: ",
+    //   Application.activeProfileView
+    // );
   }
 
   _avataRadioHandler(event) {
@@ -392,8 +447,6 @@ Set HTML
     }
   }
 
-  //New version
-
   _setHtml() {
     const viewContainer = document.getElementById("view-container");
 
@@ -536,11 +589,11 @@ Set HTML
  		<div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
  			id="twofa">
  			<div class="row align-items-start w-100">
- 				<h2 class="display-4 text-white fw-bold text-center w-100">Two factor Authentification</h2>
+ 				<h2 class="display-4 text-white fw-bold text-center w-100">${this.domText.twofaTitle}</h2>
 				${
           Application.getUserInfos().twofa === false
-            ? '<a href="/twofa" data-link ><h5 class="text-center fs-5">Activate 2FA</h5></a></div>'
-            : "<h5>2FA already activated</h5>"
+            ? `<a href="/twofa" data-link><h5 class="text-center fs-5">${this.domText.twofaActivate}</h5></a>`
+            : `<h5>${this.domText.twofaAlreadyActivated}</h5>`
         }
  		</div>
 
@@ -548,14 +601,13 @@ Set HTML
     		<div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
     			id="delete">
     			<div class="row align-items-start w-100">
-    				<h2 class="display-6 text-danger fw-bold text-center w-100">Delete account</h2>
+    				<h2 class="display-6 text-danger fw-bold text-center w-100">${this.domText.deleteTitle}</h2>
     			</div>
     			<div class="mx-auto text-center mb-2">
-    				<p class="text-danger">❗ This action is irreversible</p>
+    				<p class="text-danger">❗ ${this.domText.deleteIrreversible}</p>
     			</div>
     			<div class="row w-100">
-    				<a  data-link href="/delete" class="text-danger text-center fs-5 mx-auto" >Delete
-    					Account</a>
+    				<a  data-link href="/delete" class="text-danger text-center fs-5 mx-auto" >${this.domText.deleteAction}</a>
     			</div>
     		</div>
 	</div>`;

@@ -106,7 +106,25 @@
     },
     "errors": {
       "unexpected": "Une erreur s'est produite : "
-    }
+    },
+    "twofa": {
+      "title": "Authentification à deux facteurs",
+      "activate": "Activer 2FA",
+      "alreadyActivated": "2FA déjà activée",
+      "scanQR": "Scannez ce QR code avec votre application d'authentification",
+      "field": "Code 2FA",
+      "enterActivation": "Saisissez votre code 2FA pour confirmer l'activation",
+      "success": "Code 2FA vérifié avec succès",
+      "invalid": "Code 2FA invalide",
+      "errors": {
+        "unexpected": "Une erreur s'est produite"
+      }
+    },
+  "delete": {
+    "title": "Supprimer le compte",
+    "irreversible": "Cette action est irréversible",
+    "action": "Supprimer le compte"
+  }
   },
   "friends": {
     "card": {
@@ -226,16 +244,6 @@
       "deleteTournament": "Supprimer",
       "players": "joueur",
       "spots": " places"
-    }
-  },
-  "twofa": {
-    "scanQR": "Scannez ce code QR avec votre application d'authentification",
-    "enterActivation": "Entrez votre code 2FA pour confirmer l'activation",
-    "field": "Code 2FA",
-    "success": "Code 2FA vérifié avec succès",
-    "invalid": "Code 2FA invalide",
-    "errors": {
-      "unexpected": "Quelque chose s'est mal passé"
     }
   }
 }
