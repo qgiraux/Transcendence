@@ -44,7 +44,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 def get_jwt_token(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    
+
     try:
         user = User.objects.get(username=body['username'])
     except User.DoesNotExist:
@@ -58,7 +58,7 @@ def get_jwt_token(request):
     user = authenticate(username=body['username'], password=password)
     if user is None:
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+
     # If 2FA is enabled, proceed with the two-factor authentication process
     if user.twofa_enabled:
         try:
@@ -78,7 +78,8 @@ def get_jwt_token(request):
                 # Add custom claims to the access token
                 access_token = refresh.access_token
                 access_token['username'] = user.username
-                # access_token['nickname'] = user.nickname
+                access_token['nickname'] = user.nickname
+                access_token['twofa'] = user.twofa_enabled
                 access = str(access_token)
 
                 return Response({
@@ -86,7 +87,7 @@ def get_jwt_token(request):
                     'access': access
                 })
 
-            return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_401_UNAUTHORIZED)
 
         except json.JSONDecodeError:
             return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
@@ -97,6 +98,8 @@ def get_jwt_token(request):
     access_token = refresh.access_token
     access_token['username'] = user.username
     access_token['nickname'] = user.nickname
+    access_token['twofa'] = user.twofa_enabled
+
     access = str(access_token)
 
     return Response({
@@ -109,7 +112,7 @@ def get_jwt_token(request):
 def refresh_jwt_token(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    
+
     try:
         refresh = RefreshToken(body['refresh'])
         user = User.objects.get(id=refresh['user_id'])
@@ -128,7 +131,7 @@ def refresh_jwt_token(request):
     })
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def Get_my_infos(request):
     # Use the authenticated user from request.user
     user = request.user
@@ -136,10 +139,10 @@ def Get_my_infos(request):
     return Response(serializer.data, status=200)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def Get_user_stats(request, user_id):
     # Use the authenticated user from request.user
-    user = get_object_or_404(User, id=user_id)    
+    user = get_object_or_404(User, id=user_id)
     return Response(user.stats , status=200)
 
 @csrf_exempt
@@ -148,7 +151,7 @@ def Get_user_stats(request, user_id):
 def Add_user_stats(request, user_id):
     logger.error(f"adduserstats - Request body: {request.body}")
     # Use the authenticated user from request.user
-    user = get_object_or_404(User, id=user_id) 
+    user = get_object_or_404(User, id=user_id)
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     logger.error(body)
@@ -162,7 +165,7 @@ def Add_user_stats(request, user_id):
     return Response(user.stats , status=201)
 
 @api_view(['GET'])
-@permission_classes([AllowAny]) 
+@permission_classes([AllowAny])
 def Get_user_infos(request, user_id):
     logger.error(user_id)
     if user_id == 0:
@@ -173,7 +176,7 @@ def Get_user_infos(request, user_id):
         "2fa": "false",
         }
         logger.error(user_info)
-        return JsonResponse(user_info) 
+        return JsonResponse(user_info)
     user = get_object_or_404(User, id=user_id)
     user_info = {
         "id": user.id,
@@ -183,18 +186,18 @@ def Get_user_infos(request, user_id):
     return JsonResponse(user_info)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def Get_user_id(request):
     if not request.body:
         logger.error("Missing body")
         return Response({"error":'Missing username'}, status=400)
-    
+
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     if 'username' not in body:
         logger.error("Missing username")
         return Response({"error": 'Missing username'}, status=400)
-    
+
     username = body['username']
     logger.error(username)
     if username == 'system':
@@ -205,7 +208,7 @@ def Get_user_id(request):
         "2fa": "false",
         }
         logger.error(user_info)
-        return JsonResponse(user_info) 
+        return JsonResponse(user_info)
     user = get_object_or_404(User, username=username)
     user_info = {
         "id": user.id,
@@ -217,7 +220,7 @@ def Get_user_id(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def Enable_Twofa(request):
     user = request.user
     body_unicode = request.body.decode('utf-8')
@@ -241,7 +244,7 @@ def Enable_Twofa(request):
         return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def ChangeLogin(request):
     user = request.user
     body_unicode = request.body.decode('utf-8')
@@ -257,7 +260,7 @@ def ChangeLogin(request):
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def ChangeNickname(request):
     user = request.user
     body_unicode = request.body.decode('utf-8')
@@ -272,7 +275,7 @@ def ChangeNickname(request):
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def DeleteUser(request):
     user = request.user
     id = user.id
@@ -280,7 +283,7 @@ def DeleteUser(request):
     return Response({"deleted":id}, status=200)
 
 @api_view(['POST'])
-@permission_classes([AllowAny]) 
+@permission_classes([AllowAny])
 def RegisterUser(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
@@ -292,7 +295,7 @@ def RegisterUser(request):
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def ChangePassword(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
@@ -331,15 +334,15 @@ class TOTPCreateView(views.APIView):
     """
     Use this endpoint to set up a new TOTP device
     """
-    permission_classes = [permissions.IsAuthenticated] 
-    
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request, format=None):
         user = request.user
         # Check if the user already has a TOTP device
         device = get_user_totp_device(user)
         if not device:
             device = user.totpdevice_set.create(confirmed=False)
-        
+
         # Extract the secret and encode it in Base32
         raw_secret = device.key  # Assuming `key` is the raw secret (binary or hex)
         if not isinstance(raw_secret, bytes):
@@ -360,4 +363,4 @@ class TOTPCreateView(views.APIView):
         totp_url = f"otpauth://totp/{label}?{urlencode(params)}"
         return generate_qr_code(totp_url)
 
-    
+

@@ -159,9 +159,20 @@ class LandingView extends AbstractView {
         body: JSON.stringify(credentials),
       });
       if (!response.ok) {
-        if (response.status === 500) throw new Error(this.messages.serverError);
-        throw new Error(this.messages.invalidCredentials);
+        if (response.status === 401) {
+          const message = await response.json();
+          if (message["2FA"] !== undefined) {
+            if (message["2FA"].includes("required"))
+              throw new Error("2FA token required");
+          } else if (message["error"] !== undefined)
+            if (message["error"].includes("2FA"))
+              throw new Error("Invalid or expired 2FA code");
+            else throw new Error(this.messages.invalidCredentials);
+        } else {
+          throw new Error(this.messages.serverError);
+        }
       }
+
       const json = await response.json();
       Application.setToken(json);
       Application.setUserInfosFromToken();

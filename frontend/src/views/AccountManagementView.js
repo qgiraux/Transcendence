@@ -17,7 +17,7 @@ class AccountManagementView extends AbstractView {
       }, 50);
       return;
     }
-
+    console.log("infos", Application.getUserInfos());
     /*
 	View initialization
 	*/
@@ -85,6 +85,12 @@ class AccountManagementView extends AbstractView {
       "click",
       this.navHandler.bind(this)
     );
+
+    this.addEventListener(
+      document.querySelector("#password-update-button"),
+      "click",
+      this.passwordButtonHandler.bind(this)
+    );
   }
 
   /*
@@ -149,7 +155,7 @@ Event handlers
       TRequest.request("DELETE", "/api/avatar/delete/")
         .then(() => {
           Avatar.refreshAvatars();
-          Alert.classicMessage(
+          Alert.successMessage(
             "Avatar",
             "The avatar picture has been updated successfully."
           );
@@ -178,7 +184,7 @@ Event handlers
           throw new Error("upload error");
         }
         await Avatar.refreshAvatars();
-        Alert.classicMessage(
+        Alert.successMessage(
           "Avatar",
           "The avatar picture has been updated successfully."
         );
@@ -206,7 +212,7 @@ Event handlers
     if (newAlias.length > 20) {
       Alert.errorMessage(
         "Alias",
-        "Alias must be equal or less than 20 characters"
+        "Alias must be less or equal than 20 characters"
       );
       aliasInput.value = "";
       return;
@@ -221,7 +227,7 @@ Event handlers
       );
       Application.setUserInfos(newInfos);
 
-      Alert.classicMessage("Alias", "The alias has been updated successfully.");
+      Alert.successMessage("Alias", "The alias has been updated successfully.");
       Router.reroute("/account");
     } catch (error) {
       Alert.errorMessage("Alias", `Failed to update alias: ${error.message}`);
@@ -239,10 +245,12 @@ Set HTML
   }
 
   async passwordButtonHandler() {
+    const oldPassword = document.querySelector("#oldpasswordinput");
     const input1 = document.querySelector("#newPasswordInput1");
     const input2 = document.querySelector("#newPasswordInput2");
-    if (!input1 || !input2) {
-      Alert.errorMessage("Password", "An error has occured");
+
+    if (!input1.value || !input2.value || !oldPassword.value) {
+      Alert.errorMessage("Password", "field must not be empty");
       return;
     }
     if (!this._validatePass(input1.value)) {
@@ -250,12 +258,27 @@ Set HTML
       return;
     }
     if (input1.value !== input2.value) {
-      Alert.errorMessage("Password", "Password fields must match");
+      Alert.errorMessage("Password", "New Password fields must match");
+      return;
     }
-    Alert.errorMessage(
-      "TODO",
-      "TODO  route user_management pour changer password"
-    );
+    try {
+      const req = await TRequest.request("POST", "/api/users/newpassword/", {
+        oldpassword: oldPassword.value,
+        newpassword: input1.value,
+      });
+      if (req["success"] !== undefined) {
+        Alert.successMessage("Password", "Password changed successfully.");
+      }
+    } catch (error) {
+      if (error.message.includes("401")) {
+        Alert.errorMessage("Password", "Invalid old password");
+      } else {
+        Alert.errorMessage(
+          "Password",
+          "An error has occured, the password could not be changed"
+        );
+      }
+    }
   }
 
   _setHtml() {
@@ -268,21 +291,16 @@ Set HTML
 			</div>
 
 
-
-		<div class="row">
-	<div class="col mt-2 align-items-center  p-2 mb-3 gap-4">
-				<div class="col-3 ">
+		<div class="row d-flex flex-row">
 					<img id="profile-img" src="${Avatar.url(
             this.id
           )}" width="150" height="150" data-avatar=${
       Application.getUserInfos().userId
     } alt="user"
-						class="rounded-circle">
-				</div>
-				</div>
+						class="rounded-circle img-fluid">
 
-			<div class="col mx-auto">
-				<h2 class="text-primary display-5" id="nickname">${
+			<div class=" col mx-auto d-flex flex-column justify-content-center">
+				<h2 class="text-primary display-4" id="nickname">${
           Application.getUserInfos().nickname
         }</h2>
 				<h4 class="text-secondary" id="username">@${
@@ -290,16 +308,13 @@ Set HTML
         }</h4>
 			</div>
 
-				</div>
-
-
 				<div class="row mb-2">
 					<div class=" btn-group mx-auto align-items-center">
-						<button id="nav-avatar" class="nav-button btn btn-primary active">Change Avatar</button>
-						<button id="nav-alias"  class="nav-button btn btn-primary">Change Alias</button>
-						<button id="nav-password"  class="nav-button btn btn-primary">Change password</button>
-						<button id="nav-twofa"  class="nav-button btn btn-primary">Manage Twofa</button>
-						<button id="nav-delete"  class="nav-button btn btn-primary">Delete account</button>
+						<button id="nav-avatar" class="nav-button btn btn-primary active">Avatar</button>
+						<button id="nav-alias"  class="nav-button btn btn-primary">Alias</button>
+						<button id="nav-password"  class="nav-button btn btn-primary">Password</button>
+						<button id="nav-twofa"  class="nav-button btn btn-primary">Twofa</button>
+						<button id="nav-delete"  class="nav-button btn btn-primary">Unsubscribe</button>
 					</div>
 				</div>
 			<div class=" row mx-auto p-2" style="max-width:800px;" id="scrollable-panel">
@@ -353,51 +368,49 @@ Set HTML
 					<div class="row align-items-start w-100">
 						<h2 class="display-6 text-white fw-bold text-center w-100">Password</h2>
 					</div>
+					<form>
 					<div class="row align-items-center w-100">
 						<h2 class="text-white fs-4 text-center w-100">Change password</h2>
 						<div class="row mb-3 w-100">
-							<input type="password" class="form-control mx-auto" id="oldpasswordinput" minlength="1"
-								maxlength="20" placeholder="Enter old password" style="max-width: 300px;">
+							<input type="password"  current-password class="form-control mx-auto" id="oldpasswordinput" minlength="1"
+								maxlength="20" placeholder="Enter current password" style="max-width: 300px;">
 						</div>
 						<div class="row mb-3 w-100">
-							<input type="password" class="form-control mx-auto" id="newPasswordInput1" minlength="1"
+							<input type="password" new-password class="form-control mx-auto" id="newPasswordInput1" minlength="1"
 								maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
 						</div>
 						<div class="row mb-3 w-100">
-							<input type="password" class="form-control mx-auto" id="newPasswordInput2" minlength="1"
+							<input type="password" new-password class="form-control mx-auto" id="newPasswordInput2" minlength="1"
 								maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
 						</div>
 						<div class="row w-100">
 							<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button"
 								style="width: 200px;">Update Password</button>
 						</div>
-					</div>
+					</form>
+						</div>
 				</div>
+
+		<!-- Authentication Card -->
+ 		<div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+ 			id="twofa">
+ 			<div class="row align-items-start w-100">
+ 				<h2 class="display-4 text-white fw-bold text-center w-100">Two factor Authentification</h2>
+				${
+          Application.getUserInfos().twofa === false
+            ? '<a href="/twofa" data-link ><h5>Activate 2FA</h5></a></div>'
+            : "<h5>2FA already activated</h5>"
+        }
+ 		</div>
+
+
+
 	</div>`;
     // 		<!-- Authentication Card -->
     // 		<div class="setting-card row  w-75 mw-75 mx-auto bg-dark text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
     // 			id="auth">
     // 			<div class="row align-items-start w-100">
     // 				<h2 class="display-6 text-white fw-bold text-center w-100">Double Authentification</h2>
-    // 			</div>
-    // 			<div class="row align-items-center w-100">
-    // 				<h2 class="text-white fs-4 text-center w-100">Change password</h2>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="oldpasswordinput" minlength="1"
-    // 						maxlength="20" placeholder="Enter old password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput1" minlength="1"
-    // 						maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row mb-3 w-100">
-    // 					<input type="password" class="form-control mx-auto" id="newPasswordInput2" minlength="1"
-    // 						maxlength="20" placeholder="Enter new password" style="max-width: 300px;">
-    // 				</div>
-    // 				<div class="row w-100">
-    // 					<button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button"
-    // 						style="width: 200px;">Update Password</button>
-    // 				</div>
     // 			</div>
     // 		</div>
 

@@ -17,6 +17,7 @@ class Application {
     userId: null,
     userName: null,
     nickname: null,
+    twofa: null,
   };
   static mainSocket = null;
   static gameSocket = null;
@@ -73,6 +74,7 @@ class Application {
         Application.#userInfos.userId = token.payload.user_id;
         Application.#userInfos.userName = token.payload.username;
         Application.#userInfos.nickname = token.payload.nickname;
+        Application.#userInfos.twofa = token.payload.twofa;
       } catch (error) {
         console.error(`Application: Error during userInfos setting : ${error}`);
       }
