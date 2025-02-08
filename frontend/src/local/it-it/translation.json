@@ -56,6 +56,20 @@
     "friends": "Vedere i miei amici",
     "tournaments": "Gestire i tornei"
   },
+  "profile": {
+    "level": "Livello",
+    "gamePlayedNumber": "Partite giocate",
+    "victoryNumber": "Vittorie",
+    "oneWinRemains": "partita rimanente per raggiungere il prossimo livello!",
+    "multipleWinsRemain": "partite rimanenti per raggiungere il prossimo livello!",
+    "table": {
+      "result": "Risultato",
+      "date": "Data",
+      "score": "Punteggio"
+    },
+    "errorInitTitle": "Qualcosa è andato storto",
+    "errorInitBody": "Abbiamo problemi di comunicazione con il server. Per favore, riprova più tardi."
+  },
   "accountMgmt": {
     "wrongCredentialsFormat": "Devi fornire un nome utente e una password validi. Il nome utente deve contenere solo lettere o numeri e avere una lunghezza compresa tra 5 e 20 caratteri. La password deve contenere almeno 8 caratteri, di cui almeno un numero, una lettera maiuscola e un carattere speciale: !@#$%^&*",
     "actions": {
@@ -122,7 +136,7 @@
     },
     "delete": {
       "title": "Elimina account",
-      "irreversible": "Questa azione è irreversibile",
+      "irreversible": "❗Questa azione è irreversibile",
       "action": "Elimina account"
     }
   },

@@ -56,6 +56,20 @@
     "friends": "See my friends",
     "tournaments": "Manage tournaments"
   },
+  "profile": {
+    "level": "Level",
+    "gamePlayedNumber": "Games played",
+    "victoryNumber": "Victories",
+    "oneWinRemains": "more game to reach next level!",
+    "multipleWinsRemain": "more games to reach next level!",
+    "table": {
+      "result": "Result",
+      "date": "Date",
+      "score": "Score"
+    },
+    "errorInitTitle": "Something went wrong",
+    "errorInitBody": "We have issue communicating to the server. Please try again later."
+  },
   "accountMgmt": {
     "wrongCredentialsFormat": "You must provide a valid username and password. The login must contains only letters or digits and be between 5-20 characters long. The password must be contains at least 8 characters and contains one digit, one uppercase letter and at least one special character : !@#$%^&*",
     "actions": {

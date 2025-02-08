@@ -23,6 +23,7 @@ class AccountManagementView extends AbstractView {
   async loadMessages() {
     await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
+    await Application.applyTranslations();
     this.messages.wrongCredentialsFormat = await Application.localization.t(
       "accountMgmt.wrongCredentialsFormat"
     );
@@ -163,7 +164,6 @@ class AccountManagementView extends AbstractView {
 
     this.avatarChoice = "reset";
     this._setHtml();
-    this.setActiveView(Application.activeProfileView);
     /*
 	Event listeners
 	*/
@@ -185,7 +185,12 @@ class AccountManagementView extends AbstractView {
       "click",
       this._aliasButtonHandler.bind(this)
     );
-
+    //AV = added an event listener for the avatar btn so we can navigate back to avatar from another view
+    this.addEventListener(
+      document.querySelector("#nav-avatar"),
+      "click",
+      this.navHandler.bind(this)
+    );
     this.addEventListener(
       document.querySelector("#nav-alias"),
       "click",
@@ -197,18 +202,17 @@ class AccountManagementView extends AbstractView {
       "click",
       this.navHandler.bind(this)
     );
-
     this.addEventListener(
       document.querySelector("#nav-twofa"),
       "click",
       this.navHandler.bind(this)
     );
-
     this.addEventListener(
       document.querySelector("#nav-delete"),
       "click",
       this.navHandler.bind(this)
     );
+    this.setActiveView(Application.activeProfileView);
   }
 
   /*
@@ -222,7 +226,7 @@ Event handlers
     navButtons.forEach((button) => {
       button.classList.remove("active");
     });
-    console.log("Clicked button ID:", event.target.id);
+    console.log("Clicked button :", event.target.id);
     console.log(event.target);
     event.target.classList.add("active");
     switch (event.target.id) {
@@ -244,7 +248,7 @@ Event handlers
     }
   }
 
-//Method to change the active button if the view is reloaded after a language change
+  //Method to change the active button if the view is reloaded after a language change
   updateActiveNavButton(viewName) {
     document.querySelectorAll(".nav-button").forEach((button) => {
       button.classList.remove("active");
@@ -281,9 +285,9 @@ Event handlers
     });
 
     const newCard = document.querySelector(`#${viewName}`);
-    console.log("New Card found:", newCard);
+    console.log("NewCard found:", newCard);
     newCard.classList.remove("d-none");
-        console.log("d-none removed from:", newCard);
+    console.log("d-none removed from:", newCard);
     this.updateActiveNavButton(viewName);
     Application.activeProfileView = viewName;
     console.log(
@@ -449,13 +453,12 @@ Set HTML
       }
     }
   }
-    
 
-  //AV : TO DO = activate 2FA (syntax?)
-_setHtml() {
-  const viewContainer = document.getElementById("view-container");
+  //AV : I removed the ternary in 2FA to integrate the translation of activate2FA
+  _setHtml() {
+    const viewContainer = document.getElementById("view-container");
 
-  viewContainer.innerHTML = `
+    viewContainer.innerHTML = `
   <div style="max-width: 800px;" class="mx-auto w-75 mw-75 align-item-center p-2 ">
     <div class="row mx-auto">
       <h1>${this.domText.title}</h1>
@@ -466,8 +469,8 @@ _setHtml() {
         <img id="profile-img" src="${Avatar.url(
           this.id
         )}" width="100" height="100" data-avatar=${
-    Application.getUserInfos().userId
-  } alt="user"
+      Application.getUserInfos().userId
+    } alt="user"
           class="rounded-circle img-fluid">
 
     <div class=" col mx-auto d-flex flex-column justify-content-center">
@@ -590,37 +593,56 @@ _setHtml() {
           </div>
       </div>
 
-  <!-- Authentication Card -->
-   <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
-     id="twofa">
-     <div class="row align-items-start w-100">
-       <h2 class="display-4 text-white fw-bold text-center w-100">${this.domText.twofaTitle}</h2>
-      ${
-        Application.getUserInfos().twofa === false
-          ? '<a href="/twofa" data-link ><h5 class="text-center fs-5">Activate 2FA</h5></a></div>'
-          : `<h5>${this.domText.twofaAlreadyActivated}</h5>`
-      }
-   </div>
+      <!-- Authentication Card -->
+    <div class="setting-card row w-75 mw-75 mx-auto text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+      id="twofa">
+      <div class="row align-items-start w-100">
+        <h2 class="display-4 text-white fw-bold text-center w-100">
+          ${this.domText.twofaTitle}
+        </h2>
+
+      <div id="twofa-disabled" ${
+        Application.getUserInfos().twofa === false ? "" : 'style="display:none;"'
+        }>
+        <a href="/twofa" data-link>
+          <h5 class="text-center fs-5" data-i18n="accountMgmt.twofa.activate">
+            ${this.domText.twofaActivate}
+         </h5>
+        </a>
+      </div>
+
+      <div id="twofa-enabled" ${
+        Application.getUserInfos().twofa === true ? "" : 'style="display:none;"'
+      }>
+        <h5 data-i18n="accountMgmt.twofa.alreadyActivated">
+          ${this.domText.twofaAlreadyActivated}
+        </h5>
+      </div>
+      </div>
+    </div>
+
+
 
       <!-- Delete Account Card -->
       <div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
         id="delete">
         <div class="row align-items-start w-100">
-          <h2 class="display-6 text-danger fw-bold text-center w-100">${this.domText.deleteTitle}</h2>
+          <h2 class="display-6 text-danger fw-bold text-center w-100">${
+            this.domText.deleteTitle
+          }</h2>
         </div>
         <div class="mx-auto text-center mb-2">
           <p class="text-danger">${this.domText.deleteIrreversible}</p>
         </div>
+        
         <div class="row w-100">
-          <a  data-link href="/delete" class="text-danger text-center fs-5 mx-auto" >Delete
-            Account</a>
+        <a data-link href="/delete" class="text-danger text-center fs-5 mx-auto"> ${
+          this.domText.deleteAction
+        } </a>
         </div>
       </div>
 </div>`;
+  }
 }
-}
-
-
-
 
 export default AccountManagementView;

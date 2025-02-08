@@ -72,11 +72,11 @@ class AccountDeleteView extends AbstractView {
 			<div class="row mx-auto m-5">
 				<h2> <strong> ${
           Application.getUserInfos().userName
-        }</strong>${this.domText.confirmationText}</h2>
+        }</strong> ${this.domText.confirmationText}</h2>
 			</div>
 			<div class="row  mx-auto d-flex flex-column justify-content-center gap-5 m-5">
 			<button  class="btn btn-success w-50 align-self-center" id="abort-btn" >${this.domText.confirmationNo}</button>
-			<button  class="btn btn-danger w-50 align-self-center" id="confirm-btn" > ${this.domText.confirmationYes}</button>
+			<button  class="btn btn-danger w-50 align-self-center" id="confirm-btn" >${this.domText.confirmationYes}</button>
 			</div>
 
 </div>

@@ -56,6 +56,20 @@
     "friends": "Ver a mis amigos",
     "tournaments": "Gestionar torneos"
   },
+  "profile": {
+    "level": "Nivel",
+    "gamePlayedNumber": "Juegos jugados",
+    "victoryNumber": "Victorias",
+    "oneWinRemains": "más juego para alcanzar el próximo nivel",
+    "multipleWinsRemain": "más juegos para alcanzar el próximo nivel",
+    "table": {
+      "result": "Resultado",
+      "date": "Fecha",
+      "score": "Puntuación"
+    },
+    "errorInitTitle": "Algo salió mal",
+    "errorInitBody": "Tenemos problemas de comunicación con el servidor. Por favor, inténtelo de nuevo más tarde."
+  },
   "accountMgmt": {
     "wrongCredentialsFormat": "Debe proporcionar un nombre de usuario y una contraseña válidos. El nombre de usuario solo puede contener letras o dígitos y debe tener entre 5 y 20 caracteres. La contraseña debe contener al menos 8 caracteres, incluyendo un número, una letra mayúscula y al menos un carácter especial: !@#$%^&*",
     "actions": {
@@ -122,7 +136,7 @@
     },
     "delete": {
       "title": "Eliminar cuenta",
-      "irreversible": "Esta acción es irreversible",
+      "irreversible": "❗Esta acción es irreversible",
       "action": "Eliminar cuenta"
     }
   },
