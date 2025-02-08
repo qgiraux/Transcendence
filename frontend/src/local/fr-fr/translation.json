@@ -57,6 +57,7 @@
     "tournaments": "Gérer les tournois"
   },
   "profile": {
+    "manageAccount": "Gérer le compte",
     "level": "Niveau",
     "gamePlayedNumber": "Parties jouées",
     "victoryNumber": "Victoires",

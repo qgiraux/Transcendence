@@ -57,6 +57,7 @@
     "tournaments": "Manage tournaments"
   },
   "profile": {
+    "manageAccount": "Manage account",
     "level": "Level",
     "gamePlayedNumber": "Games played",
     "victoryNumber": "Victories",

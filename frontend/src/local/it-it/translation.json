@@ -57,6 +57,7 @@
     "tournaments": "Gestire i tornei"
   },
   "profile": {
+    "manageAccount": "Gestici account",
     "level": "Livello",
     "gamePlayedNumber": "Partite giocate",
     "victoryNumber": "Vittorie",

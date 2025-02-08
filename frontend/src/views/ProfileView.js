@@ -25,6 +25,7 @@ class ProfileView extends AbstractView {
 
   async loadMessages() {
     this.domText = {};
+    this.domText.title = await Application.localization.t("titles.profile");
     this.domText.level = await Application.localization.t("profile.level");
     this.domText.gamePlayedNumber = await Application.localization.t("profile.gamePlayedNumber");
     this.domText.victoryNumber = await Application.localization.t("profile.victoryNumber");
@@ -42,6 +43,7 @@ class ProfileView extends AbstractView {
     this.messages = {};
     this.messages.errorInitTitle = await Application.localization.t("profile.errorInitTitle");
     this.messages.errorInitBody = await Application.localization.t("profile.errorInitBody");
+    this.domText.manageAccount = await Application.localization.t("profile.manageAccount");
   }
 
   onStart() {
@@ -322,13 +324,13 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">Manage Account</a>
+		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">${this.domText.manageAccount}</a>
     `;
     const container = document.querySelector("#view-container");
 
     if (container) {
       container.innerHTML = `
-	  <div class="row"><h1>Profile</h1></div>
+	  <div class="row"><h1>${this.domText.title}</h1></div>
 		<div class="mt-4 row mx-auto" style="max-width:800px;">
         <div class="row p-1 mb-4 mx-auto">
             <div class="row d-flex flex-row p-2 ">
