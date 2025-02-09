@@ -213,7 +213,9 @@
     "tab": {
       "open": "Tournois ouverts",
       "inProgress": "Tournois en cours",
-      "finished": "Terminé"
+      "finished": "Terminé", 
+      "alreadyJoinedTxt": "Terminez vos parties en cours ou annulez votre participation pour créer ou rejoindre un autre tournoi !",
+      "noTournamentToDisplay": "Aucun tournoi à afficher"
     },
     "create": {
       "txt": "Créer un tournoi",
@@ -232,6 +234,8 @@
       "action": {
         "txt": "Créer"
       },
+      "success": "Tournoi créé avec succès : ",
+      "failure": "Erreur lors de la création du tournoi",
       "errors": {
         "fetchTournaments": "Erreur lors de la récupération des tournois",
         "displayTournaments": "Erreur lors de l'affichage des tournois",
@@ -253,11 +257,13 @@
       "true": "Rejoint"
     },
     "card": {
-      "alreadyJoined": "Déjà rejoint",
+      "alreadyJoined": "Vous avez déjà rejoint un tournoi",
       "tournamentFull": "Tournoi complet",
       "joinTournament": "Rejoindre",
       "deleteTournament": "Supprimer",
-      "players": "joueur",
+      "players": "joueurs",
+      "player": "joueur",
+      "spot": " place",
       "spots": " places"
     }
   },

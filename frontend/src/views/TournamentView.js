@@ -57,12 +57,15 @@ class TournamentsView extends AbstractView {
     this.domText.spotsTxt = await Application.localization.t(
       "tournament.card.spots"
     );
-    // this.domText.tournamentSizeTxt = await Application.localization.t(
-    //   "tournament.create.size.txt"
-    // );
-    // this.domText.createTournamentAction = await Application.localization.t(
-    //   "tournament.create.action.txt"
-    // );
+    this.domText.joinTournament = await Application.localization.t(
+      "tournament.card.joinTournament"
+    );
+    this.domText.deleteTournament = await Application.localization.t(
+      "tournament.card.deleteTournament"
+    );
+    this.domText.noTournamentToDisplay = await Application.localization.t(
+      "tournament.tab.noTournamentToDisplay"
+    );
     this.messages.fetchTournamentsErr = await Application.localization.t(
       "tournament.create.errors.fetchTournaments"
     );
@@ -99,14 +102,11 @@ class TournamentsView extends AbstractView {
     this.messages.alreadyJoined = await Application.localization.t(
       "tournament.card.alreadyJoined"
     );
+    this.messages.alreadyJoinedTxt = await Application.localization.t(
+      "tournament.tab.alreadyJoinedTxt"
+    );
     this.messages.tournamentFull = await Application.localization.t(
       "tournament.card.tournamentFull"
-    );
-    this.domText.joinTournament = await Application.localization.t(
-      "tournament.card.joinTournament"
-    );
-    this.domText.deleteTournament = await Application.localization.t(
-      "tournament.card.deleteTournament"
     );
   }
 
@@ -118,11 +118,15 @@ class TournamentsView extends AbstractView {
       }, 50);
       return;
     }
+    console.log("PANEL STATUS = ", this.panel_status);
     //internal state variables
-    this.panel_status = 0; // toggle for the panel open/in progress/ finished
+    
+    //AV = saved panel status in a global var in Application to reload the page upon translation on the proper tab
+    this.panel_status = Application.tournamentPanelStatus; // toggle for the panel open/in progress/ finished
     this.joined = false; // did the user already joined a tournament
 
     this._setHtml();
+    this.restoreStatus();
 
     TRequest.request("GET", "/api/friends/friendslist/")
       .then((result) => {
@@ -178,10 +182,20 @@ class TournamentsView extends AbstractView {
 
   */
 
+//AV = method to restore the buttons upon reloading of a page following language change 
+  restoreStatus() {
+    const newStatus = Application.tournamentPanelStatus;
+    const btnStatusOld = document.querySelector(`#status-0`);
+    const btnStatusNew = document.querySelector(`#status-${newStatus}`);
+    btnStatusOld.classList.remove("active");
+    btnStatusNew.classList.add("active");
+  }
+
   switchStatus(event) {
     const oldStatus = this.panel_status;
     const newStatus = Number(event.target.dataset.status);
     this.panel_status = newStatus;
+    Application.tournamentPanelStatus = this.panel_status;
     const btnStatusOld = document.querySelector(`#status-${oldStatus}`);
     const btnStatusNew = document.querySelector(`#status-${newStatus}`);
     btnStatusOld.classList.remove("active");
@@ -270,21 +284,36 @@ Request API function
             this.joined = true;
           }
         });
-        if (!this.joined)
+        if (!this.joined) {
           panel.appendChild(this.createNewTournamentHeaderPanel());
+        }
+        else {
+          panel.appendChild(this.createNewTournamentHeaderCannotJoin()); //AV (suggestion to be discussed) : another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
+        };
         selectedTournaments.forEach((tournament) => {
           panel.appendChild(this.createOpenTournamentCard(tournament));
         });
         break;
       case 1:
-        selectedTournaments.forEach((tournament) => {
-          panel.appendChild(this.createTournamentCard(tournament));
+        if (selectedTournaments.length > 0) {
+          selectedTournaments.forEach((tournament) => {
+            panel.appendChild(this.createTournamentCard(tournament));
         });
+      }
+      else {
+        panel.appendChild(this.createNewNoTournamentHeader());
+        break;
+      };
         break;
       case 2:
-        selectedTournaments.forEach((tournament) => {
-          panel.appendChild(this.createTournamentCard(tournament));
+        if (selectedTournaments.length > 0) {
+          selectedTournaments.forEach((tournament) => {
+            panel.appendChild(this.createTournamentCard(tournament));
         });
+      }
+      else {
+        panel.appendChild(this.createNewNoTournamentHeader());
+      }
         break;
     }
   }
@@ -345,9 +374,59 @@ Request API function
     return header;
   }
 
+  //AV (suggestion to be discussed) : another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
+  createNewTournamentHeaderCannotJoin() {
+    const header = document.createElement("div");
+    header.classList.add("row", "p-2", "w-75");
+    header.innerHTML = `
+    <h2 class="text-white text-center fs-5">${this.messages.alreadyJoined}</h2>
+    <h4 class="text-white text-center fs-6">
+      ${this.messages.alreadyJoinedTxt}
+    </h4>
+  `
+    return header;
+}
+
+//AV (suggestion to be discussed) : header to display a message in case no tournament is to be displayed in the view 
+  createNewNoTournamentHeader() {
+    const header = document.createElement("div");
+    header.classList.add("row", "p-2", "w-75");
+    header.innerHTML = `
+    <h2 class="text-white text-center fs-5">${this.domText.noTournamentToDisplay}</h2>`
+    return header;
+}
+
+  //Updating proper messages depending on the value of freespots and players
+  async updateMessages(tournament) {
+    return new Promise(async (resolve) => {
+    const freeSpots = tournament["size"] - tournament["players"].length;
+    let playerTxt = "";
+    let spotsTxt = "";
+
+    if (tournament["size"] > 1) {
+      playerTxt = await Application.localization.t("tournament.card.players");
+    }
+    else {
+      playerTxt = await Application.localization.t("tournament.card.player");
+    };
+    console.log(freeSpots);
+    if (freeSpots > 1) {
+      spotsTxt = await Application.localization.t("tournament.card.spots");
+    }
+    else {
+      spotsTxt = await Application.localization.t("tournament.card.spot");
+    };
+    resolve({ playerTxt, spotsTxt });
+  });
+
+  }
+
   createOpenTournamentCard(tournament) {
     const card = document.createElement("div");
     const freeSpots = tournament["size"] - tournament["players"].length;
+    this.updateMessages(tournament).then((messages) => {
+
+
     card.classList.add(
       "tournament-card",
       "w-75",
@@ -363,8 +442,8 @@ Request API function
 				<h4 class="text-white">${tournament["tournament name"]}
 				<span class="badge bg-success joined-badge" style="display: none;">${this.domText.joined}</span>
 				</h4>
-				<h4 class="text-secondary" id="size">${tournament["size"]} ${this.domText.playerTxt}</h4>
-				<h5 class="text-secondary " id="spot-left">${freeSpots} ${this.domText.spotsTxt}</h5>
+				<h4 class="text-secondary" id="size">${tournament["size"]} ${messages.playerTxt}</h4>
+				<h5 class="text-secondary " id="spot-left">${freeSpots} ${messages.spotsTxt}</h5>
 				<div class="row d-flex justify-content-center justify-self-center mt-2" id="action"></div>
 			</div>
 		<div class="players-avatars col d-flex flex-column justify-content-center align-items-center gap-2 p-1 border  "
@@ -428,6 +507,7 @@ Request API function
         );
       });
     }
+  });
     return card;
   }
 

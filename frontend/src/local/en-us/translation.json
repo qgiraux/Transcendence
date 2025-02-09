@@ -213,7 +213,9 @@
     "tab": {
       "open": "Open tournaments",
       "inProgress": "Tournaments in progress",
-      "finished": "Finished"
+      "finished": "Finished",
+      "alreadyJoinedTxt": "Complete your current games or cancel your participation to create or join another tournament!",
+      "noTournamentToDisplay": "No tournament to display"
     },
     "create": {
       "txt": "Create tournament",
@@ -232,7 +234,8 @@
       "action": {
         "txt": "Create"
       },
-
+      "success": "Tournament created successfully : ", 
+      "failure": "Error creating tournament",
       "errors": {
         "fetchTournaments": "Error fetching tournaments",
         "displayTournaments": "Error displaying tournaments",
@@ -254,11 +257,13 @@
       "true": "Joined"
     },
     "card": {
-      "alreadyJoined": "Already joined",
+      "alreadyJoined": "You have already joined a tournament",
       "tournamentFull": "Tournament full",
       "joinTournament": "Join",
       "deleteTournament": "Delete",
-      "players": "player",
+      "player": "player",
+      "players": "players",
+      "spot": "spot",
       "spots": " spots"
     }
   },

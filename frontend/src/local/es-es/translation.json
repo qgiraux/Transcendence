@@ -213,7 +213,9 @@
     "tab": {
       "open": "Torneos abiertos",
       "inProgress": "Torneos en progreso",
-      "finished": "Finalizado"
+      "finished": "Finalizado", 
+      "alreadyJoinedTxt": "Completa tus partidas actuales o cancela tu participación para crear o unirte a otro torneo!",
+      "noTournamentToDisplay": "Ningún torneo para mostrar"
     },
     "create": {
       "txt": "Crear torneo",
@@ -232,6 +234,8 @@
       "action": {
         "txt": "Crear"
       },
+      "success": "Torneo creado con éxito : ",
+      "failure": "Error al crear el torneo",
       "errors": {
         "fetchTournaments": "Error al recuperar torneos",
         "displayTournaments": "Error al mostrar torneos",
@@ -253,12 +257,13 @@
       "true": "Unido"
     },
     "card": {
-      "alreadyJoined": "Ya unido",
+      "alreadyJoined": "Ya te has unido a un torneo",
       "tournamentFull": "Torneo lleno",
       "joinTournament": "Unirse",
       "deleteTournament": "Eliminar",
-      "players": "jugador",
-      "spots": " plazas"
+      "players": "jugadores",
+      "player": "jugador",
+      "spots": " plaza"
     }
   },
   "twofa": {

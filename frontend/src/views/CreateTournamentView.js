@@ -48,6 +48,12 @@ class CreateTournamentView extends AbstractView {
     this.domText.tournamentNameEnter = await Application.localization.t(
       "tournament.create.name.enter"
     );
+    this.messages.createSuccess = await Application.localization.t(
+      "tournament.create.success"
+    );
+    this.messages.createFailure = await Application.localization.t(
+      "tournament.create.failure"
+    );
     console.log("Messages loaded");
   }
 
@@ -86,12 +92,11 @@ class CreateTournamentView extends AbstractView {
       "click",
       this.createTournamentBtnHandler.bind(this)
     );
-
-    this.addEventListener(
-      document.querySelector("#nav-avatar"),
-      "click",
-      this.navHandler.bind(this)
-    );
+    // this.addEventListener(
+    //   document.querySelector("#nav-avatar"),
+    //   "click",
+    //   this.navHandler.bind(this)
+    // );
   }
 
   sizeBtnHandler(event) {
@@ -119,7 +124,12 @@ class CreateTournamentView extends AbstractView {
       size: size,
     });
     if (resp["tournament name"] === undefined) {
-      Alert.errorMessage(this.domText.tournament, "");
+      Alert.errorMessage(this.domText.tournament, this.messages.createFailure);
+    }
+    //AV : I added the else to display a success message and (suggestion to be discussed) reroute to the main tournament page
+    else {
+      Alert.successMessage(this.domText.tournament, `${this.messages.createSuccess} ${name}`);
+      Router.reroute("/tournaments");
     }
   }
 
