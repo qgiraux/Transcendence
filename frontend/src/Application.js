@@ -24,22 +24,12 @@ class Application {
   static lang = localStorage.getItem("selectedLang") || "en-us";
   static localization = new Localization(Application.lang);
   static translationsCache = {};
-  static activeProfileView= "avatar"; //test to make the view in account mgmt ersistant upon language change
+  static activeProfileView = "avatar"; //test to make the view in account mgmt ersistant upon language change
   static navButtonProfile = "nav-avatar";
   static tournamentPanelStatus = 0;
-  
+
   constructor() {
     throw new Error("Application class must not be instantiated.");
-  }
-
-  logout() {
-    Application.#token = null;
-    Application.#userInfos = {
-      userId: null,
-      userName: null,
-      nickname: null,
-      twofa: null,
-    };
   }
 
   static setToken(newtoken) {

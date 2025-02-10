@@ -6,7 +6,6 @@ import Router from "../Router.js";
 import Avatar from "../Avatar.js";
 import Localization from "../Localization.js";
 
-
 class AccountDeleteView extends AbstractView {
   constructor(params) {
     super(params);
@@ -25,9 +24,7 @@ class AccountDeleteView extends AbstractView {
   }
 
   async loadMessages() {
-    this.domText.title = await Application.localization.t(
-      "deleteView.title"
-    );
+    this.domText.title = await Application.localization.t("deleteView.title");
     this.domText.confirmationText = await Application.localization.t(
       "deleteView.confirmationText"
     );
@@ -38,7 +35,6 @@ class AccountDeleteView extends AbstractView {
       "deleteView.confirmationNo"
     );
   }
-
 
   onStart() {
     this.setHtml();
@@ -83,12 +79,9 @@ class AccountDeleteView extends AbstractView {
       await TRequest.request("DELETE", "/api/avatar/delete/");
 
       await TRequest.request("DELETE", "/api/users/deleteuser/");
-      console.log("I have to logout now");
-      Application.logout();
-      Application.hideSideBar();
-      Router.reroute("/landing");
+      Router.reroute("/logout");
     } catch (error) {
-      Alert.errorMessage("Account Delete", "An error has occured");
+      Alert.errorMessage("Account Delete", error.message);
     }
   }
 
@@ -101,13 +94,17 @@ class AccountDeleteView extends AbstractView {
 				<h1>${this.domText.title}</h1>
 			</div>
 			<div class="row mx-auto m-5">
-				<h2> <strong> ${
-          Application.getUserInfos().userName
-        }</strong> ${this.domText.confirmationText}</h2>
+				<h2> <strong> ${Application.getUserInfos().userName}</strong> ${
+      this.domText.confirmationText
+    }</h2>
 			</div>
 			<div class="row  mx-auto d-flex flex-column justify-content-center gap-5 m-5">
-			<button  class="btn btn-success w-50 align-self-center" id="abort-btn" >${this.domText.confirmationNo}</button>
-			<button  class="btn btn-danger w-50 align-self-center" id="confirm-btn" >${this.domText.confirmationYes}</button>
+			<button  class="btn btn-success w-50 align-self-center" id="abort-btn" >${
+        this.domText.confirmationNo
+      }</button>
+			<button  class="btn btn-danger w-50 align-self-center" id="confirm-btn" >${
+        this.domText.confirmationYes
+      }</button>
 			</div>
 
 </div>
