@@ -347,8 +347,10 @@ class UserDeleteView(APIView):
             user = User.objects.get(id=user_id)
             logger.info(f"deleting account for id {user_id}")
             user.account_deleted = True
-            user.username = f"DELETED_{user.username}"
+            user.username = f"DELETED_{user_id}"
             user.nickname = "ACCOUNT DELETED"
+            user.password = ""
+            user.stats = {}
             user.save()
             return Response({"deleted":user_id}, status=200)
 
