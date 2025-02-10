@@ -158,8 +158,8 @@ class TournamentsView extends AbstractView {
           `Please try again later `
         );
       });
-      //AV = I added this to refresh the page every 20s but there is an ugly glitch?
-      setTimeout(() => {
+      //AV = I added this to refresh the page every 20s but there is an ugly glitch
+      Application.timeoutId = setTimeout(() => {
         Router.reroute("/tournaments");
         this.restoreStatus();
       }, 20000);
