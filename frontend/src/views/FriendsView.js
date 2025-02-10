@@ -72,15 +72,6 @@ class FriendsView extends AbstractView {
     );
   }
 
-  // _rebindEventListeners() {
-  //   this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
-  //   this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
-  //   this.addEventListener(document.querySelector("#searchInput"), "click", this._updateDropdown.bind(this));
-  //   this.addEventListener(document.querySelector("#dropdownMenu"), "click", this._dropDownClickHandler.bind(this));
-  //   this.addEventListener(document.querySelector("#add-friend-button"), "click", this._addFriend.bind(this));
-  //   this.addEventListener(document.getElementById("UserSelectModal"), "hide.bs.modal", this._modalSafeClose.bind(this));
-  // }
-
   onStart() {
     this._setTitle("Friends");
     if (Application.getAccessToken() === null) {

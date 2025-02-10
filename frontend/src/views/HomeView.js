@@ -205,14 +205,12 @@ class HomeView extends AbstractView {
       `;
 
       // Instantiate PongGame and start the game loop
-      const pongGame = new PongGame("pongCanvas");
-      pongGame.gameLoop();
+      this.pongGame = new PongGame("pongCanvas");
+      this.pongGame.gameLoop();
     } else {
       console.error("#view-container not found in the DOM.");
     }
   }
-
-  childOnDestroy() {}
 }
 
 export default HomeView;

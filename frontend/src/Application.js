@@ -24,10 +24,10 @@ class Application {
   static lang = localStorage.getItem("selectedLang") || "en-us";
   static localization = new Localization(Application.lang);
   static translationsCache = {};
-  static activeProfileView= "avatar"; //test to make the view in account mgmt ersistant upon language change
+  static activeProfileView = "avatar"; //test to make the view in account mgmt ersistant upon language change
   static navButtonProfile = "nav-avatar";
   static tournamentPanelStatus = 0;
-  
+
   constructor() {
     throw new Error("Application class must not be instantiated.");
   }
@@ -265,20 +265,6 @@ class Application {
     await Application.setLanguage(selectedLanguage);
     Router.reroute(location.pathname);
   }
-
-  //Old version
-  // static async listenForLanguageChange(event) {
-  //   const selectedLanguage = event.target.value;
-  //   console.log("Language change detected :", selectedLanguage);
-  //   await Application.setLanguage(selectedLanguage);
-
-  //   // recuperer l'instance view courante
-  //   const currentView = await Application.router.getCurrentView();
-  //   console.log(currentView);
-  //   await currentView.loadMessages();
-  //   await Application.applyTranslations();
-  //   Router.reroute(location.pathname);
-  // }
 }
 
 export default Application;

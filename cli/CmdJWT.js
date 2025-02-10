@@ -21,12 +21,14 @@ const TLK_PROMPT_PWD_RE = "cli.prompt.pwd:re";
 const TLK_PROMPT_PWD = "cli.prompt.pwd";
 const TLK_PROMPT_LOGIN = "cli.prompt.login";
 //const TLK_API_SIGNUP = "api.signup";
+const TL_API_LOGIN = "/api/users/login/";
 
-class CmdRegister extends Command {
-	constructor() {
-		
-		super(l.t(TLK_CMD_DESC), l.t(TLK_CMD_SHELL));
-
+class CmdJWT extends Command {
+	constructor(onLoggedin = (jwt)=>{console.log(JSON.stringify(jwt))},
+		beforeLogin = () => {return 0},
+		usage = ""
+	) {
+		super(l.t(TLK_CMD_DESC), usage);
 		const opts = l.source.cli.signup.cmd["opts[]"];
 		const callbacks = [
 			()=>{this.parser.displayHelp = true;}, 
@@ -34,18 +36,19 @@ class CmdRegister extends Command {
 			(match)=>{this.login = Parser.getOptionValue(match);}, 
 			(match)=>{this.password = Parser.getOptionValue(match);}
 		];
-		this.name = "signup";
 		this.parser.setOptions(opts, callbacks);
-		this.parser.defaultCallback = () => {this.#stepEnterLogin()};
+		this.parser.defaultCallback = () => {this.#stepLogin()};
 		this.host = "";
 		this.hostDefault = l.source.sys.host;
 		this.login = "";
 		this.password = "";
-		this.passwordConfirm = "";
+		this.jwt = {refresh: "", access: ""};
+		this.onLoggedin = onLoggedin;
+		this.beforeLogin = beforeLogin;
 		this.editor = undefined;
 	}
 
-	#getValue(prompt = "", callbackUpdate, callbackNext, hidden){
+	#getValue(prompt = "", callbackUpdate, callbackNext, hidden) {
 		process.stdout.write(prompt);
 		if (!this.editor) {
 			this.editor = new TextEditor();
@@ -71,65 +74,59 @@ class CmdRegister extends Command {
 		};
 	}
 
-	static _printSuccess(text)
-	{
-		process.stdout.write(`\x1b[32m${text}\x1b[0m\n`);
-	}
-
-	static _printError(text)
+	static #printError(text)
 	{
 		process.stderr.write(`\x1b[31m${l.t(TLK_SYS_ERR)}: ${text}\x1b[0m\n`);
 	}
 
-	static _printResult(ret){
+	// retryRefreshJwt(getOptions, retryCallback, onFailure) {
+	// 	HttpsClient.refreshJwt(
+	// 		getOptions, 
+	// 		this.jwt, 
+	// 		(jwt) => {this.jwt = jwt; retryCallback()}, 
+	// 		onFailure
+	// 	)
+	// }
+
+	#stepJWT(ret){
 		const statusCode = Number(ret.statusCode);
 
 		if (200 <= statusCode && 300 > statusCode)
-			CmdRegister._printSuccess(l.t(TLK_OK));
+		{
+			this.jwt = ret.message;
+			this.onLoggedin(this.jwt); //
+		}
 		else
-			CmdRegister._printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
+			CmdJWT.#printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
 	}
 
-	#stepPost(){
-		if (this.editor) {
-			this.editor.stop();
-			this.editor = undefined;
-		}
-		if (this.password != this.passwordConfirm)
-		{
-			CmdRegister._printError(l.t(TLK_ERR_PWD_MATCH));
-			return ;
-		}		
+	#stepAPILogin(){	
 		if (!this.host)
 			this.host = this.hostDefault;
 		const hostInfo = this.host.split(":");
-		if (2 != hostInfo.length)
-		{
-			CmdRegister._printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
+
+		if (this.editor) {
+			this.editor.stop();
+			this.editor = undefined;
+		} else if (2 != hostInfo.length) {
+			CmdJWT.#printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
+			this.password = "";
 			return ;
 		}	
 		const hostname = hostInfo[0];
 		const port = Number(hostInfo[1]);
 
-		
-		HttpsClient.allowSelfSigned(); //
+		//HttpsClient.allowSelfSigned(); //
 		HttpsClient.post(
-			{hostname: hostname, port:port, path: l.source.api.signup},
+			{hostname: hostname, port:port, path: TL_API_LOGIN}, //
 			JSON.stringify({username: this.login, password: this.password}),
-			CmdRegister._printResult
+			(ret) => {this.#stepJWT(ret);}
 		);
-	}
-
-	#stepConfirmPassword(){
-		const update = (line) => {this.passwordConfirm = line};
-		const nextStep = () => {this.#stepPost();};
-
-		this.#getValue(l.t(TLK_PROMPT_PWD_RE), update, nextStep, true);
 	}
 
 	#stepEnterPassword(){
 		const update = (line) => {this.password = line};
-		const nextStep = () => {this.#stepConfirmPassword();};
+		const nextStep = () => {this.#stepAPILogin();};
 
 		if (!this.password)
 			this.#getValue(l.t(TLK_PROMPT_PWD), update, nextStep, true);
@@ -146,11 +143,20 @@ class CmdRegister extends Command {
 		else
 			nextStep();
 	}
+
+	#stepLogin(){
+		if (0 != this.beforeLogin())
+			return ;
+		if (!this.jwt || !this.jwt.refresh || !this.jwt.access)
+			this.#stepEnterLogin();
+		else
+			this.#stepJWT();
+	}
 }
 
 module.exports = {
-	"CmdRegister": CmdRegister
+	"CmdJWT": CmdJWT
 }
 
-// const r = new CmdRegister();
+// const r = new CmdJWT();
 // r.parser.eval();

@@ -178,7 +178,6 @@ class LandingView extends AbstractView {
       Application.setUserInfosFromToken();
       await Application.toggleSideBar();
       Application.toggleChat();
-
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);
@@ -311,14 +310,6 @@ class LandingView extends AbstractView {
         </div>
       </div>
 `;
-      // const loginRadio = document.getElementById("loginradio");
-      // const registerRadio = document.getElementById("registerradio");
-
-      // if (loginRadio && registerRadio) {
-      //   loginRadio.addEventListener("change", this._handleToggle.bind(this));
-      //   registerRadio.addEventListener("change", this._handleToggle.bind(this));
-      // }
-      //Change the forms
       this._handleToggle(new Event("change"));
     }
   }
