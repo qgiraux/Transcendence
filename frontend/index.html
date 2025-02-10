@@ -3,104 +3,90 @@
 
 <head>
 	<link rel="shortcut icon" href="favicon.ico" />
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transcendence</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Transcendence</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Audiowide&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+		rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 </head>
 
 <body>
-<<<<<<< HEAD
 
-    <!-- language selector -->
-    <div id="language-selector-container" style="position: absolute; top: 35px; right: 220px; z-index: 9999;">
-	    <select id="lang-select" class="form-select">
-        <option value="en-us">English</option>
-        <option value="fr-fr">Français</option>
-        <option value="it-it">Italiano</option>
-        <option value="es-es">Español</option>
-	    </select>
-    </div>
+	<!-- language selector -->
+	<div id="language-selector-container" style="position: absolute; top: 35px; right: 220px; z-index: 9999;">
+		<select id="lang-select" class="form-select">
+			<option value="en-us">English</option>
+			<option value="fr-fr">Français</option>
+			<option value="it-it">Italiano</option>
+			<option value="es-es">Español</option>
+		</select>
+	</div>
 
-    <!-- sidebar html -->
-    <nav class="navbar navbar-expand-lg d-none" id="sidebar">
-        <div class="container-fluid">
-            <a class="navbar-brand" data-link href="/">PONG</a>
-            <img id="side-img" src="" alt="user" width="40" height="40" class="rounded-circle me-2">
-            <!-- <a  data-link class="nav-link px-0 align-middle" href="/"><i class="bi bi-house"></i></a> -->
+	<!-- sidebar html -->
+	<nav class="navbar navbar-expand-lg d-none" id="sidebar">
+		<div class="container-fluid">
+			<a class="navbar-brand" data-link href="/">PONG</a>
+			<img id="side-img" src="" alt="user" width="40" height="40" class="rounded-circle me-2">
+			<!-- <a  data-link class="nav-link px-0 align-middle" href="/"><i class="bi bi-house"></i></a> -->
 
-            <div class="d-flex align-items-center ms-auto">
-                <div class="dropdown me-3">
-                    <button class="btn btn-link dropdown-toggle p-0" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/profile" data-i18n="sidebar.profile">View profile</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/friends" data-i18n="sidebar.friends">Friends List</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks" data-i18n="sidebar.blocks">Blocking List</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/tournaments" data-i18n="sidebar.tournaments">Tournaments</a></li>
-                    </ul>
-                </div>
+			<div class="d-flex align-items-center ms-auto">
+				<div class="dropdown me-3">
+					<button class="btn btn-link dropdown-toggle p-0" type="button" id="settingsDropdown"
+						data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button>
+					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/profile"
+								data-i18n="sidebar.profile">View profile</a></li>
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/friends"
+								data-i18n="sidebar.friends">Friends List</a></li>
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks"
+								data-i18n="sidebar.blocks">Blocking List</a></li>
+						<li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/tournaments"
+								data-i18n="sidebar.tournaments">Tournaments</a></li>
+					</ul>
+				</div>
 
-=======
-    <!-- sidebar html -->
-    <nav class="navbar navbar-expand-lg d-none" id="sidebar">
-        <div class="container-fluid">
-            <a class="navbar-brand" data-link href="/">PONG</a>
-            <img id="side-img" src="" alt="user" width="40" height="40" class="rounded-circle me-2">
-            <!-- <a  data-link class="nav-link px-0 align-middle" href="/"><i class="bi bi-house"></i></a> -->
-        
-            <div class="d-flex align-items-center ms-auto">
-                <div class="dropdown me-3">
-                    <button class="btn btn-link dropdown-toggle p-0" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-gear"></i></button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/profile">View Profile</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/friends">Friends List</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/blocks">Blocking List</a></li>
-                    <li><a data-link class="nav-link px-0 align-middle dropdown-item" href="/switch-language">Switch to French</a></li>
-                    </ul>
-                </div>
+			</div>
 
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
-            </div>
+			<a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+		</div>
+	</nav>
 
-            <a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
-        </div>
-    </nav>
+	<!--  alert container html -->
+	<div id="alert-container" class="position-fixed top-0 start-0 w-100 p-3">
 
-    <!--  alert container html -->
-    <div id="alert-container" class="position-fixed top-0 start-0 w-100 p-3">
+	</div>
 
-    </div>
-
-    <!--  view  container this div is programmatically updated by
+	<!--  view  container this div is programmatically updated by
 	  the View classes instantiated by the Router  -->
-    <div id="view-container" class="container-fluid col py-3">
-    </div>
+	<div id="view-container" class="container-fluid col py-3">
+	</div>
 
-    <!-- The code of our app  is called below -->
-    <script type="module" src="/index.js"></script>
-    <!-- Bootsrap js loading-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- The code of our app  is called below -->
+	<script type="module" src="/index.js"></script>
+	<!-- Bootsrap js loading-->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
-    <div id="chat-popup">
-        <div id="chat-header">
-            <span>Chat</span>
-            <button id="close-chat">&times;</button>
-        </div>
-        <div id="chat-body">
-            <div id="chat-messages"></div>
-            <input type="text" id="messageInput" placeholder="Enter your message" data-i18n="chat.message"/>
-            <input type="text" id="groupInput" placeholder="Enter group (optional)" data-i18n="chat.group" />
-            <button id="send-btn" data-i18n="chat.send"></button>
-        </div>
-    </div>
-    <button id="chat-btn" class="d-none">Chat</button>
-    <script type="module" src="/popupchat.js"></script>
+	<div id="chat-popup">
+		<div id="chat-header">
+			<span>Chat</span>
+			<button id="close-chat">&times;</button>
+		</div>
+		<div id="chat-body">
+			<div id="chat-messages"></div>
+			<input type="text" id="messageInput" placeholder="Enter your message" data-i18n="chat.message" />
+			<input type="text" id="groupInput" placeholder="Enter group (optional)" data-i18n="chat.group" />
+			<button id="send-btn" data-i18n="chat.send"></button>
+		</div>
+	</div>
+	<button id="chat-btn" class="d-none">Chat</button>
+	<script type="module" src="/popupchat.js"></script>
 </body>
 
 </html>

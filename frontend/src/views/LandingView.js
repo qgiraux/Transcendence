@@ -9,51 +9,88 @@ class LandingView extends AbstractView {
   constructor(params) {
     super(params);
     this._setTitle("Login");
-    
+
     this.domText = {};
     this.messages = {};
     this.init();
   }
 
-  async init(){
+  async init() {
     Application.localization.loadTranslations();
     await Application.setLanguage("en-us");
     await this.loadMessages();
     await Application.applyTranslations();
-    this.onStart()
+    this.onStart();
   }
 
   async loadMessages() {
-
     await Application.applyTranslations();
-    this.domText.loginLabel = await Application.localization.t("landing.login.label");
-    this.domText.enterLoginField = await Application.localization.t("landing.login.enterField");
-    this.domText.passwordLabel = await Application.localization.t("landing.password.label");
-    this.domText.passwordField = await Application.localization.t("landing.password.field");
-    this.domText.twofaLabel = await Application.localization.t("landing.twofa.label");
-    this.domText.twofaField = await Application.localization.t("landing.twofa.field");
-    this.domText.signInSubmit = await Application.localization.t("landing.signin.submit");
-    this.domText.chooseLogin = await Application.localization.t("landing.login.choose");
-    this.domText.choosePassword = await Application.localization.t("landing.password.choose");
-    this.domText.confirmPassword = await Application.localization.t("landing.password.confirm");
-    this.domText.signUpSubmit = await Application.localization.t("landing.signup.submit");
-    this.messages.loginAlertTitle = await Application.localization.t("landing.messages.loginErrorTitle");
-    this.messages.registerAlertTitle = await Application.localization.t("landing.messages.registerErrorTitle");
-    this.messages.invalidCredentials = await Application.localization.t("landing.messages.invalidCredentials");
-    this.messages.wrongCredentialsFormat = await Application.localization.t("landing.messages.wrongCredentialsFormat");
-    this.messages.serverError = await Application.localization.t("landing.messages.serverError");
-    this.messages.userAlreadyExist = await Application.localization.t("landing.messages.userAlreadyExist");
-    this.messages.PasswordsDontMatch = await Application.localization.t("landing.messages.passwordsDontMatch");
+    this.domText.loginLabel = await Application.localization.t(
+      "landing.login.label"
+    );
+    this.domText.enterLoginField = await Application.localization.t(
+      "landing.login.enterField"
+    );
+    this.domText.passwordLabel = await Application.localization.t(
+      "landing.password.label"
+    );
+    this.domText.passwordField = await Application.localization.t(
+      "landing.password.field"
+    );
+    this.domText.twofaLabel = await Application.localization.t(
+      "landing.twofa.label"
+    );
+    this.domText.twofaField = await Application.localization.t(
+      "landing.twofa.field"
+    );
+    this.domText.signInSubmit = await Application.localization.t(
+      "landing.signin.submit"
+    );
+    this.domText.chooseLogin = await Application.localization.t(
+      "landing.login.choose"
+    );
+    this.domText.choosePassword = await Application.localization.t(
+      "landing.password.choose"
+    );
+    this.domText.confirmPassword = await Application.localization.t(
+      "landing.password.confirm"
+    );
+    this.domText.signUpSubmit = await Application.localization.t(
+      "landing.signup.submit"
+    );
+    this.messages.loginAlertTitle = await Application.localization.t(
+      "landing.messages.loginErrorTitle"
+    );
+    this.messages.registerAlertTitle = await Application.localization.t(
+      "landing.messages.registerErrorTitle"
+    );
+    this.messages.invalidCredentials = await Application.localization.t(
+      "landing.messages.invalidCredentials"
+    );
+    this.messages.wrongCredentialsFormat = await Application.localization.t(
+      "landing.messages.wrongCredentialsFormat"
+    );
+    this.messages.serverError = await Application.localization.t(
+      "landing.messages.serverError"
+    );
+    this.messages.userAlreadyExist = await Application.localization.t(
+      "landing.messages.userAlreadyExist"
+    );
+    this.messages.PasswordsDontMatch = await Application.localization.t(
+      "landing.messages.passwordsDontMatch"
+    );
   }
 
   listenForLanguageChange() {
-    const languageSelector = document.getElementById("language-selector-container");
+    const languageSelector = document.getElementById(
+      "language-selector-container"
+    );
     if (languageSelector) {
       this.addEventListener(languageSelector, "change", async (event) => {
         const selectedLanguage = event.target.value;
         console.log(selectedLanguage);
         await Application.setLanguage(selectedLanguage);
-        await this.loadMessages(); 
+        await this.loadMessages();
         await Application.applyTranslations();
         this.setHtml();
         // Router.reroute("/landing");
@@ -134,10 +171,10 @@ class LandingView extends AbstractView {
     const password = document.querySelector("#InputPassword");
     const twofa = document.querySelector("#InputTwofa");
     this.loginRequest({
-        username: login.value,
-        password: password.value,
-        twofa: twofa.value,
-      });
+      username: login.value,
+      password: password.value,
+      twofa: twofa.value,
+    });
   }
 
   async loginRequest(credentials) {
@@ -159,11 +196,6 @@ class LandingView extends AbstractView {
       Application.setUserInfos();
       Application.toggleSideBar();
       Application.toggleChat();
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);
@@ -237,17 +269,10 @@ class LandingView extends AbstractView {
         <div class="col-6 mx-auto">
           <div class="btn-group d-flex text-center" role="group" aria-label="toggle login register">
             <input type="radio" class="btn-check" name="btnradio" id="loginradio" autocomplete="off" checked>
-<<<<<<< HEAD
             <label class="btn btn-outline-primary btn-custom" for="loginradio">${this.domText.signInSubmit}</label>
 
             <input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
             <label class="btn btn-outline-primary btn-custom" for="registerradio">${this.domText.signUpSubmit}</label>
-=======
-            <label class="btn btn-outline-primary btn-custom" for="loginradio">Login</label>
-
-            <input type="radio" class="btn-check" name="btnradio" id="registerradio" autocomplete="off">
-            <label class="btn btn-outline-primary btn-custom" for="registerradio">Create an account</label>
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
           </div>
         </div>
 
@@ -255,7 +280,6 @@ class LandingView extends AbstractView {
           <div class="col-6 mx-auto mt-5">
             <form>
               <div class="form-group text-white ">
-<<<<<<< HEAD
                 <label for="InputLogin">${this.domText.loginLabel}</label>
                 <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
                   placeholder="${this.domText.enterLoginField}" required>
@@ -271,23 +295,6 @@ class LandingView extends AbstractView {
               </div>
               <div class="d-flex justify-content-center mt-3">
                 <button id="login-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signInSubmit}</button>
-=======
-                <label for="InputLogin">Login</label>
-                <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
-                  placeholder="Enter login" required>
-
-              </div>
-              <div class="form-group text-white ">
-                <label for="InputPassword">Password</label>
-                <input type="password" class="form-control" id="InputPassword" placeholder="Password required">
-              </div>
-              <div class="form-group text-white ">
-                <label for="InputPassword">2FA code (if activated)</label>
-                <input type="twofa" class="form-control" id="InputTwofa" placeholder="2FA if required">
-              </div>
-              <div class="d-flex justify-content-center mt-3">
-                <button id="login-btn" type="submit" class="btn btn-primary mt-3">Log In</button>
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
               </div>
             </form>
 
@@ -299,7 +306,6 @@ class LandingView extends AbstractView {
           <div class="col-6 mx-auto mt-5 ">
             <form>
               <div class="form-group text-white  ">
-<<<<<<< HEAD
                 <label for="RegisterLogin">${this.domText.loginLabel}</label>
                 <input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
                   placeholder="${this.domText.chooseLogin}" required>
@@ -315,23 +321,6 @@ class LandingView extends AbstractView {
               </div>
               <div class="d-flex justify-content-center mt-3">
                 <button id="register-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signUpSubmit}</button>
-=======
-                <label for="RegisterLogin">Choose your Login</label>
-                <input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
-                  placeholder="Choose a login" required>
-
-              </div>
-              <div class="form-group text-white mt-2 ">
-                <label for="RegisterPassword">Choose your Password</label>
-                <input type="password" class="form-control" id="RegisterPassword" placeholder="Password" required>
-              </div>
-              <div class="form-group text-white mt-2 ">
-                <label for="RegisterPasswordConfirm">Confirm your Password</label>
-                <input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="Password" required>
-              </div>
-              <div class="d-flex justify-content-center mt-3">
-                <button id="register-btn" type="submit" class="btn btn-primary mt-3">Create your account</button>
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
               </div>
             </form>
 
@@ -339,15 +328,15 @@ class LandingView extends AbstractView {
         </div>
       </div>
 `;
-    // const loginRadio = document.getElementById("loginradio");
-    // const registerRadio = document.getElementById("registerradio");
+      // const loginRadio = document.getElementById("loginradio");
+      // const registerRadio = document.getElementById("registerradio");
 
-    // if (loginRadio && registerRadio) {
-    //   loginRadio.addEventListener("change", this._handleToggle.bind(this));
-    //   registerRadio.addEventListener("change", this._handleToggle.bind(this));
-    // }
-    //Change the forms 
-    this._handleToggle(new Event("change"));
+      // if (loginRadio && registerRadio) {
+      //   loginRadio.addEventListener("change", this._handleToggle.bind(this));
+      //   registerRadio.addEventListener("change", this._handleToggle.bind(this));
+      // }
+      //Change the forms
+      this._handleToggle(new Event("change"));
     }
   }
 }

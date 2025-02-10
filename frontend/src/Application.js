@@ -4,7 +4,6 @@
 import Avatar from "./Avatar.js";
 import Localization from "./Localization.js";
 
-
 class Application {
   /**
    * A placeholder class, I'm not really sure for what
@@ -19,12 +18,9 @@ class Application {
   };
   static mainSocket = null;
   static gameSocket = null;
-<<<<<<< HEAD
   static lang = localStorage.getItem("selectedLang") || "en-us";
   static localization = new Localization(Application.lang);
   static translationsCache = {};
-=======
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -208,19 +204,12 @@ class Application {
     return Application.gameSocket;
   }
 
-<<<<<<< HEAD
-//Slight modifications to correct the d-none of the sidebar after log in
-=======
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
   static toggleSideBar() {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
     const userId = Application.getUserInfos().userId;
-<<<<<<< HEAD
-=======
     // document.querySelector("#side-username").textContent =
     //   Application.getUserInfos().userName;
->>>>>>> b0e99fafb394e907ae552a14b670019ae31b6898
     avatarImg.setAttribute("data-avatar", userId);
     Avatar.refreshAvatars().then(() => {
       sideBar.classList.remove("d-none");
@@ -234,31 +223,29 @@ class Application {
 
   static async setLanguage(lang) {
     Application.lang = lang;
-    if (lang !== this.localization.lang)
-    {
+    if (lang !== this.localization.lang) {
       this.localization.lang = this.lang;
     }
     await this.localization.loadTranslations();
     await Application.applyTranslations();
   }
 
-static async applyTranslations() {
-  const elements = document.querySelectorAll("[data-i18n]");
+  static async applyTranslations() {
+    const elements = document.querySelectorAll("[data-i18n]");
 
-  elements.forEach(async (el) => {
+    elements.forEach(async (el) => {
       const translationKey = el.getAttribute("data-i18n");
       const translation = await Application.localization.t(translationKey);
 
       if (translation) {
-          if (el.hasAttribute("placeholder")) {
-              el.setAttribute("placeholder", translation);
-          } else {
-              el.textContent = translation;
-          }
+        if (el.hasAttribute("placeholder")) {
+          el.setAttribute("placeholder", translation);
+        } else {
+          el.textContent = translation;
+        }
       }
-  });
-}
-
+    });
+  }
 }
 
 export default Application;

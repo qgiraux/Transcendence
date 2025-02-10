@@ -2,3 +2,4 @@ node_modules
 __pycache__
 *.pyc
 test-images
+cli/package-lock.json
