@@ -72,15 +72,6 @@ class FriendsView extends AbstractView {
     );
   }
 
-  // _rebindEventListeners() {
-  //   this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
-  //   this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
-  //   this.addEventListener(document.querySelector("#searchInput"), "click", this._updateDropdown.bind(this));
-  //   this.addEventListener(document.querySelector("#dropdownMenu"), "click", this._dropDownClickHandler.bind(this));
-  //   this.addEventListener(document.querySelector("#add-friend-button"), "click", this._addFriend.bind(this));
-  //   this.addEventListener(document.getElementById("UserSelectModal"), "hide.bs.modal", this._modalSafeClose.bind(this));
-  // }
-
   onStart() {
     this._setTitle("Friends");
     if (Application.getAccessToken() === null) {
@@ -92,7 +83,9 @@ class FriendsView extends AbstractView {
     Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
-        this.userList = result;
+        this.userList = result.filter((user) => {
+          return user["account_deleted"] !== true;
+        });
         this._refreshFriendsList();
       })
       .catch((error) => {
@@ -287,7 +280,7 @@ class FriendsView extends AbstractView {
           <span id="status-${friend.id}" style="color: grey;">Checking...</span>
           <span class="dropdown-toggle-split" style="color: inherit;"></span>
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu" style="max-width: 500px;">
           <li><button class="dropdown-item" data-id="${
             friend.id
           }" data-action="view-profile">${
@@ -407,7 +400,7 @@ class FriendsView extends AbstractView {
 						<div class="dropdown" mx-auto>
 							<input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
 								placeholder="${this.domText.lookingForField}" data-bs-toggle="dropdown" aria-expanded="false" />
-							<ul class="dropdown-menu w-100" id="dropdownMenu">
+							<ul class="dropdown-menu w-100"  style="max-width: 500px;" id="dropdownMenu">
 								<!-- Les options seront ajoutées ici dynamiquement -->
 							</ul>
 						</div>

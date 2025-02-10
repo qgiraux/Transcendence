@@ -282,23 +282,6 @@ def ChangeNickname(request):
         return Response(serializer.data, status=200)
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['DELETE'])
-# @permission_classes([IsAuthenticated])
-# def DeleteUser(request):
-#     logger.error(f"deleting fonction called with {request} ")
-#     logger.log(f"user {request.user}")
-#     user = request.user
-#     id = user.id
-#     # user.delete()
-#     # change the status to deleted
-#     # change the username etc.. to delete
-#     logger.log(f"deleting account for id {id}")
-#     user.account_deleted = True
-#     user.username = "ACCOUNTDELETED"
-#     user.nickname = "ACCOUNT DELETED"
-#     user.save()
-#     return Response({"deleted":id}, status=200)
-
 def validate_jwt_token(request):
     """
     Custom JWT token validation method.
