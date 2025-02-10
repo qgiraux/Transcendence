@@ -189,6 +189,7 @@ def Get_user_infos(request, user_id):
         "id": user.id,
         "username": user.username,
         "nickname": user.nickname,
+        "deleted": user.account_deleted
     }
     return JsonResponse(user_info)
 

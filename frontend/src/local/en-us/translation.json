@@ -56,6 +56,21 @@
     "friends": "See my friends",
     "tournaments": "Manage tournaments"
   },
+  "profile": {
+    "manageAccount": "Manage account",
+    "level": "Level",
+    "gamePlayedNumber": "Games played",
+    "victoryNumber": "Victories",
+    "oneWinRemains": "more game to reach next level!",
+    "multipleWinsRemain": "more games to reach next level!",
+    "table": {
+      "result": "Result",
+      "date": "Date",
+      "score": "Score"
+    },
+    "errorInitTitle": "Something went wrong",
+    "errorInitBody": "We have issue communicating to the server. Please try again later."
+  },
   "accountMgmt": {
     "wrongCredentialsFormat": "You must provide a valid username and password. The login must contains only letters or digits and be between 5-20 characters long. The password must be contains at least 8 characters and contains one digit, one uppercase letter and at least one special character : !@#$%^&*",
     "actions": {
@@ -86,7 +101,7 @@
       "error": "An error has occurred, the password could not be changed",
       "mismatch": "Password fields must match",
       "oldError": "Invalid old password",
-      "success":"Password changed successfully"
+      "success": "Password changed successfully"
     },
     "avatar": {
       "title": "Avatar",
@@ -103,6 +118,24 @@
       "reset": {
         "action": "Avatar reset"
       }
+    },
+    "twofa": {
+      "title": "Two-factor authentification",
+      "activate": "Activate 2FA",
+      "alreadyActivated": "2FA already activated",
+      "scanQR": "Scan this QR code with your authenticator app",
+      "field": "2FA code",
+      "enterActivation": "Enter your 2FA code to confirm activation",
+      "success": "2FA code verified successfully",
+      "invalid": "Invalid 2FA code",
+      "errors": {
+        "unexpected": "Something went wrong"
+      }
+    },
+    "delete": {
+      "title": "Delete account",
+      "irreversible": "❗ This action is irreversible",
+      "action": "Delete account"
     },
     "errors": {
       "unexpected": "Something went wrong : "
@@ -177,8 +210,20 @@
     }
   },
   "tournament": {
+    "tab": {
+      "open": "Open tournaments",
+      "inProgress": "Tournaments in progress",
+      "finished": "Finished",
+      "alreadyJoinedTxt": "Complete your current games or cancel your participation to create or join another tournament!",
+      "noTournamentToDisplay": "No tournament to display"
+    },
     "create": {
       "txt": "Create tournament",
+      "cantFind": "Can't find a tournament you like?",
+      "yourOwn": "Create your own!",
+      "twoP": "2 players",
+      "fourP": "4 players",
+      "eightP": "8 players",
       "name": {
         "txt": "Tournament name",
         "enter": "Enter tournament name"
@@ -189,25 +234,37 @@
       "action": {
         "txt": "Create"
       },
+      "success": "Tournament created successfully : ", 
+      "failure": "Error creating tournament",
       "errors": {
         "fetchTournaments": "Error fetching tournaments",
         "displayTournaments": "Error displaying tournaments",
         "joinTournament": "Error joining tournament",
         "createTournament": "Error creating tournament",
         "invalidName": "Invalid tournament name",
-        "tourNameRequirements": "Tournament name must be 3-30 characters long and contain only letters and numbers"
+        "tourNameRequirements": "The tournament name must consist of alphanumeric characters and be between 5 and 8 characters long."
       }
     },
     "invite": {
+      "friend": "Invite a friend",
       "title": "Friend Invited",
       "success": "Successfully invited friend",
       "failure": "Error inviting friend"
     },
+    "join": {
+      "success": "Successfully joined tournament ",
+      "failure": "Could not join tournament",
+      "true": "Joined"
+    },
     "card": {
-      "alreadyJoined": "Already joined",
+      "alreadyJoined": "You have already joined a tournament",
       "tournamentFull": "Tournament full",
-      "joinTournament": "Join Tournament",
-      "deleteTournament": "Delete"
+      "joinTournament": "Join",
+      "deleteTournament": "Delete",
+      "player": "player",
+      "players": "players",
+      "spot": "spot",
+      "spots": " spots"
     }
   },
   "twofa": {
@@ -219,5 +276,11 @@
     "errors": {
       "unexpected": "Something went wrong"
     }
+  },
+  "deleteView": {
+    "title": "Delete account",
+    "confirmationText" : "Are you sure you want to delete your account?",
+    "confirmationNo": "😊 No I want to keep playing !",
+    "confirmationYes": "😔 Yes I want to delete my account"
   }
 }

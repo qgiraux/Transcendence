@@ -4,6 +4,7 @@ import Router from "../Router.js";
 import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
 import Avatar from "../Avatar.js";
+import Localization from "../Localization.js";
 
 class ProfileView extends AbstractView {
   constructor(params) {
@@ -19,49 +20,30 @@ class ProfileView extends AbstractView {
     Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
-    // await Application.applyTranslations();
     this.onStart();
   }
 
   async loadMessages() {
-    this.messages.error = "Error";
-    this.messages.wentWrong = "Something went wrong";
-    this.messages.userStatsErr = "Error getting user stats";
-    this.messages.avatarResetErr = "Error resetting avatar";
-    this.messages.avatarUpdateErr = "Error updating avatar";
-    this.messages.avatarRefreshErr = "Error refreshing avatar";
-    this.messages.fileSelectFalse = "You must select a file";
-    this.messages.aliasUpdateErr = "Error updating alias";
-    this.messages.errUpload =
-      "The picture could't be uploaded. Please check that it is a valid jpeg or png file";
-    this.messages.aliasEmptyErr = "Alias cannot be empty.";
-    this.domText.manageAvatar = await Application.localization.t(
-      "profile.actions.manageAvatar"
-    );
-    this.domText.changeAlias = await Application.localization.t(
-      "profile.actions.changeAlias"
-    );
-    this.domText.activate2FA = await Application.localization.t(
-      "profile.actions.activate2FA"
-    );
-    this.domText.close = await Application.localization.t(
-      "profile.actions.closeBtn"
-    );
-    this.domText.aliasLabel = await Application.localization.t(
-      "profile.alias.label"
-    );
-    this.domText.aliasField = await Application.localization.t(
-      "profile.alias.field"
-    );
-    this.domText.avatarReset = await Application.localization.t(
-      "profile.avatar.resetDefault"
-    );
-    this.domText.chooseFile = await Application.localization.t(
-      "profile.avatar.chooseFile"
-    );
-    this.domText.avatarUpdate = await Application.localization.t(
-      "profile.avatar.update"
-    );
+    this.domText = {};
+    this.domText.title = await Application.localization.t("titles.profile");
+    this.domText.level = await Application.localization.t("profile.level");
+    this.domText.gamePlayedNumber = await Application.localization.t("profile.gamePlayedNumber");
+    this.domText.victoryNumber = await Application.localization.t("profile.victoryNumber");
+    if (this.playerVictoryRemain === 1) {
+      this.domText.winRemain = await Application.localization.t("profile.oneWinRemains");
+    }
+    else if (this.playerVictoryRemain > 1) {
+      this.domText.winRemain = await Application.localization.t("profile.multipleWinsRemain");
+    } 
+    this.domText.table = {};
+    this.domText.table.result = await Application.localization.t("profile.table.result");
+    this.domText.table.date = await Application.localization.t("profile.table.date");
+    this.domText.table.score = await Application.localization.t("profile.table.score");
+
+    this.messages = {};
+    this.messages.errorInitTitle = await Application.localization.t("profile.errorInitTitle");
+    this.messages.errorInitBody = await Application.localization.t("profile.errorInitBody");
+    this.domText.manageAccount = await Application.localization.t("profile.manageAccount");
   }
 
   onStart() {
@@ -73,23 +55,6 @@ class ProfileView extends AbstractView {
       return;
     }
     this.id = this.params["id"] || Application.getUserInfos().userId;
-    /*
-        Localization placeholders
-    */
-    this.domText = {};
-    this.domText.level = "Level";
-    this.domText.gamePlayedNumber = "Games played";
-    this.domText.victoryNumber = "Victories";
-    this.domText.winRemain = "more games to reach next level!";
-    this.domText.table = {};
-    this.domText.table.result = "Result";
-    this.domText.table.date = "Date";
-    this.domText.table.score = "Score";
-
-    this.messages = {};
-    this.messages.errorInitTitle = "Something went wrong";
-    this.messages.errorInitBody =
-      "We have issue communicating to the server. Please try again later.";
 
     TRequest.request("GET", `/api/users/userinfo/${this.id}`)
       .then((result) => {
@@ -143,6 +108,7 @@ class ProfileView extends AbstractView {
       }, 0);
       this.playerLevel = Math.floor(this.playerMatchWon / 5);
       this.playerVictoryRemain = 5 - (this.playerMatchWon % 5);
+      this.loadMessages(); //Quick fix to update the messages; need to be improved (AV)
     } catch (error) {
       Alert.errorMessage(
         "User Stats",
@@ -358,13 +324,13 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">Manage Account</a>
+		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">${this.domText.manageAccount}</a>
     `;
     const container = document.querySelector("#view-container");
 
     if (container) {
       container.innerHTML = `
-	  <div class="row"><h1>Profile</h1></div>
+	  <div class="row"><h1>${this.domText.title}</h1></div>
 		<div class="mt-4 row mx-auto" style="max-width:800px;">
         <div class="row p-1 mb-4 mx-auto">
             <div class="row d-flex flex-row p-2 ">
@@ -412,7 +378,7 @@ class ProfileView extends AbstractView {
                                 aria-valuemax="100">
                             </div>
                         </div>
-                        <div class="text-white" id="victories-left-text">Win ${
+                        <div class="text-white" id="victories-left-text">${
                           this.playerVictoryRemain
                         } ${this.domText.winRemain}
                         </div>

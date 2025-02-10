@@ -56,6 +56,21 @@
     "friends": "Ver a mis amigos",
     "tournaments": "Gestionar torneos"
   },
+  "profile": {
+    "manageAccount": "Administra account",
+    "level": "Nivel",
+    "gamePlayedNumber": "Juegos jugados",
+    "victoryNumber": "Victorias",
+    "oneWinRemains": "más juego para alcanzar el próximo nivel",
+    "multipleWinsRemain": "más juegos para alcanzar el próximo nivel",
+    "table": {
+      "result": "Resultado",
+      "date": "Fecha",
+      "score": "Puntuación"
+    },
+    "errorInitTitle": "Algo salió mal",
+    "errorInitBody": "Tenemos problemas de comunicación con el servidor. Por favor, inténtelo de nuevo más tarde."
+  },
   "accountMgmt": {
     "wrongCredentialsFormat": "Debe proporcionar un nombre de usuario y una contraseña válidos. El nombre de usuario solo puede contener letras o dígitos y debe tener entre 5 y 20 caracteres. La contraseña debe contener al menos 8 caracteres, incluyendo un número, una letra mayúscula y al menos un carácter especial: !@#$%^&*",
     "actions": {
@@ -106,6 +121,24 @@
     },
     "errors": {
       "unexpected": "Algo salió mal: "
+    },
+    "twofa": {
+      "title": "Autenticación de dos factores",
+      "activate": "Activar 2FA",
+      "alreadyActivated": "2FA ya activado",
+      "scanQR": "Escanea este código QR con tu aplicación de autenticación",
+      "field": "Código 2FA",
+      "enterActivation": "Introduce tu código 2FA para confirmar la activación",
+      "success": "Código 2FA verificado con éxito",
+      "invalid": "Código 2FA inválido",
+      "errors": {
+        "unexpected": "Algo salió mal"
+      }
+    },
+    "delete": {
+      "title": "Eliminar cuenta",
+      "irreversible": "❗Esta acción es irreversible",
+      "action": "Eliminar cuenta"
     }
   },
   "friends": {
@@ -177,11 +210,23 @@
     }
   },
   "tournament": {
+    "tab": {
+      "open": "Torneos abiertos",
+      "inProgress": "Torneos en progreso",
+      "finished": "Finalizado", 
+      "alreadyJoinedTxt": "Completa tus partidas actuales o cancela tu participación para crear o unirte a otro torneo!",
+      "noTournamentToDisplay": "Ningún torneo para mostrar"
+    },
     "create": {
-      "txt": "Crear un torneo",
+      "txt": "Crear torneo",
+      "cantFind": "¿No encuentras un torneo que te guste?",
+      "yourOwn": "¡Crea el tuyo!",
+      "twoP": "2 jugadores",
+      "fourP": "4 jugadores",
+      "eightP": "8 jugadores",
       "name": {
         "txt": "Nombre del torneo",
-        "enter": "Introduce el nombre del torneo"
+        "enter": "Ingresa el nombre del torneo"
       },
       "size": {
         "txt": "Número de jugadores"
@@ -189,37 +234,52 @@
       "action": {
         "txt": "Crear"
       },
+      "success": "Torneo creado con éxito : ",
+      "failure": "Error al crear el torneo",
       "errors": {
-        "fetchTournaments": "Error al cargar los torneos",
-        "displayTournaments": "Error al mostrar los torneos",
+        "fetchTournaments": "Error al recuperar torneos",
+        "displayTournaments": "Error al mostrar torneos",
         "joinTournament": "Error al unirse al torneo",
         "createTournament": "Error al crear el torneo",
-        "invalidName": "Nombre del torneo no válido",
-        "tourNameRequirements": "El nombre del torneo debe tener entre 3 y 30 caracteres y contener solo letras y números"
+        "invalidName": "Nombre de torneo no válido",
+        "tourNameRequirements": "El nombre del torneo debe contener caracteres alfanuméricos y tener entre 5 y 8 caracteres de longitud."
       }
     },
     "invite": {
+      "friend": "Invitar a un amigo",
       "title": "Amigo invitado",
       "success": "Amigo invitado con éxito",
       "failure": "Error al invitar al amigo"
     },
-    "tournament": {
-      "card": {
-        "alreadyJoined": "Ya inscrito",
-        "tournamentFull": "Torneo completo",
-        "joinTournament": "Unirse al torneo",
-        "deleteTournament": "Eliminar"
-      }
+    "join": {
+      "success": "Te has unido al torneo con éxito",
+      "failure": "No se pudo unir al torneo",
+      "true": "Unido"
+    },
+    "card": {
+      "alreadyJoined": "Ya te has unido a un torneo",
+      "tournamentFull": "Torneo lleno",
+      "joinTournament": "Unirse",
+      "deleteTournament": "Eliminar",
+      "players": "jugadores",
+      "player": "jugador",
+      "spots": " plaza"
     }
   },
   "twofa": {
-    "scanQR": "Escanea este código QR con tu aplicación de autenticación",
-    "enterActivation": "Introduce tu código 2FA para confirmar la activación",
-    "field": "Código 2FA",
-    "success": "Código 2FA verificado con éxito",
-    "invalid": "Código 2FA no válido",
-    "errors": {
-      "unexpected": "Algo salió mal"
-    }
-  }
+      "scanQR": "Escanea este código QR con tu aplicación de autenticación",
+      "field": "Código 2FA",
+      "enterActivation": "Introduce tu código 2FA para confirmar la activación",
+      "success": "Código 2FA verificado con éxito",
+      "invalid": "Código 2FA inválido",
+      "errors": {
+        "unexpected": "Algo salió mal"
+      }
+  },
+  "deleteView": {
+    "title": "Eliminar cuenta",
+    "confirmationText": "¿Estás seguro de que quieres eliminar tu cuenta?",
+    "confirmationNo": "😊 No, quiero seguir jugando!",
+    "confirmationYes": "😔 Sí, quiero eliminar mi cuenta"
+} 
 }
