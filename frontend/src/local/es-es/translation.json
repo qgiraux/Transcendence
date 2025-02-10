@@ -8,7 +8,7 @@
   },
   "chat": {
     "message": "Ingrese su mensaje",
-    "group": "Ingrese un grupo (opcional)",
+    "group": "Ingrese un usuario (opcional)",
     "send": "Enviar"
   },
   "titles": {
@@ -242,7 +242,7 @@
         "joinTournament": "Error al unirse al torneo",
         "createTournament": "Error al crear el torneo",
         "invalidName": "Nombre de torneo no válido",
-        "tourNameRequirements": "El nombre del torneo debe contener caracteres alfanuméricos y tener entre 5 y 8 caracteres de longitud."
+        "tourNameRequirements": "El nombre del torneo debe contener caracteres alfanuméricos y tener entre 5 y 16 caracteres de longitud."
       }
     },
     "invite": {

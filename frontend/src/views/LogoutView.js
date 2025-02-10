@@ -16,6 +16,7 @@ class LogoutView extends AbstractView {
             Application.deleteRefreshToken();
             Application.deleteAccessToken();
             Router.reroute('/landing');
+            console.log("ON LOGOUT VIEW")
 
     }
 }

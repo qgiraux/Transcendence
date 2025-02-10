@@ -290,9 +290,12 @@ Request API function
         else {
           panel.appendChild(this.createNewTournamentHeaderCannotJoin()); //AV (suggestion to be discussed) : another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
         };
+        //AV = Modification to fix the undefined error (createOpenHeader not displayed)= added the if
+        if (selectedTournaments.length > 0){
         selectedTournaments.forEach((tournament) => {
           panel.appendChild(this.createOpenTournamentCard(tournament));
         });
+      }
         break;
       case 1:
         if (selectedTournaments.length > 0) {
