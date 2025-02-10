@@ -17,9 +17,12 @@
 </head>
 
 <body>
+	<!--  alert container html -->
+	<div id="alert-container" class="position-fixed top-0 start-0 w-100 p-3">
 
+	</div>
 	<!-- language selector -->
-	<div id="language-selector-container" style="position: absolute; top: 35px; right: 220px; z-index: 9999;">
+	<div id="language-selector-container" style="position: absolute; top: 35px; right: 220px; z-index: 100;">
 		<select id="lang-select" class="form-select">
 			<option value="en-us">English</option>
 			<option value="fr-fr">Français</option>
@@ -28,7 +31,7 @@
 		</select>
 	</div>
 
-	<!-- sidebar html -->
+	<!-- navbar html -->
 	<nav class="navbar navbar-expand-lg d-none" id="sidebar">
 		<div class="container-fluid">
 			<a class="navbar-brand" data-link href="/">PONG</a>
@@ -53,14 +56,13 @@
 
 			</div>
 
-			<a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+		</div>
+
+		<a class="btn btn-link p-0" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
 		</div>
 	</nav>
 
-	<!--  alert container html -->
-	<div id="alert-container" class="position-fixed top-0 start-0 w-100 p-3">
 
-	</div>
 
 	<!--  view  container this div is programmatically updated by
 	  the View classes instantiated by the Router  -->

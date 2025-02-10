@@ -38,26 +38,6 @@ class TwofaView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log("Changement de langue détecté :", selectedLanguage);
-
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-
-        Router.reroute("/profile");
-
-        // this._setHtml();
-      });
-    }
-  }
-
   onStart() {
     this._setTitle("Profile");
     if (Application.getAccessToken() === null) {
@@ -76,7 +56,6 @@ class TwofaView extends AbstractView {
       .catch((error) => {
         Alert.errorMessage(this.messages.wentWrong, error.message);
       });
-    this.listenForLanguageChange();
   }
 
   _setHtml() {
@@ -87,18 +66,19 @@ class TwofaView extends AbstractView {
       const imageUrl = URL.createObjectURL(this.imageBlob);
 
       container.innerHTML = `
-                <h1 class="text-white display-4">${this.domText.scanQR}</h1>
-                <div class="row p-2 mb-0">
-                    <div class="col-3 mx-1">
-
-                        <img src="${imageUrl}" alt="QR Code" class="img-fluid">
-                    </div>
+		<div style="max-width: 800px;" class="mx-auto w-75 mw-75 align-item-center p-2 ">
+			<div class="row mx-auto">
+				<h1 class="text-center">TWOFA</h1>
+			</div>
+				<div class="mt-2"><h3>${this.domText.scanQR}</h3></div>
+                <div class="row p-2 d-flex justify-content-center mb-1">
+                        <img src="${imageUrl}" class="d-block mx-auto" style="width: 400px; height: 400px; object-fit: contain;" alt="QR Code">
                 </div>
-                <h1 class="text-white display-4">${this.domText.confirmActivation}</h1>
-                <div class="row p-2 mb-0">
-                    <div class="col-3 mx-1">
+                <h3 class="text-white mt-2">${this.domText.confirmActivation}</h3>
+                    <div class="row p-2 d-flex justify-content-center mb-1">
                         <input type="text" id="twofa" class="form-control" placeholder="${this.domText.twofaField}">
-                    </div>
+					</div>
+			</div>
             `;
       container
         .querySelector("#twofa")

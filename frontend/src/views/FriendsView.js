@@ -72,31 +72,6 @@ class FriendsView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log("Language change detected :", selectedLanguage);
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-        Router.reroute("/friends");
-      });
-    }
-  }
-
-  // _rebindEventListeners() {
-  //   this.addEventListener(document.querySelector("#friends-container"), "click", this._friendDropDownhandler.bind(this));
-  //   this.addEventListener(document.querySelector("#searchInput"), "input", this._updateDropdown.bind(this));
-  //   this.addEventListener(document.querySelector("#searchInput"), "click", this._updateDropdown.bind(this));
-  //   this.addEventListener(document.querySelector("#dropdownMenu"), "click", this._dropDownClickHandler.bind(this));
-  //   this.addEventListener(document.querySelector("#add-friend-button"), "click", this._addFriend.bind(this));
-  //   this.addEventListener(document.getElementById("UserSelectModal"), "hide.bs.modal", this._modalSafeClose.bind(this));
-  // }
-
   onStart() {
     this._setTitle("Friends");
     if (Application.getAccessToken() === null) {
@@ -106,7 +81,6 @@ class FriendsView extends AbstractView {
       return;
     }
     Avatar.getUUid();
-    this.listenForLanguageChange();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
         this.userList = result;
@@ -326,10 +300,8 @@ class FriendsView extends AbstractView {
 
     // Asynchronously fetch the friend's status
     const statusElement = document.getElementById(`status-${friend.id}`);
-    console.log("Checking status for friend ", friend.id);
     TRequest.request("GET", `/api/users/userstatus/${friend.id}`)
       .then((result) => {
-        console.log("resuls is ", result);
         if (result.online === 1) {
           statusElement.style.color = "rgb(0, 255, 149)";
           statusElement.textContent = "Online";

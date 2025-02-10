@@ -17,7 +17,7 @@ class LandingView extends AbstractView {
 
   async init() {
     Application.localization.loadTranslations();
-    await Application.setLanguage("en-us");
+    await Application.setLanguage(Application.lang);
     await this.loadMessages();
     await Application.applyTranslations();
     this.onStart();
@@ -81,23 +81,6 @@ class LandingView extends AbstractView {
     );
   }
 
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log(selectedLanguage);
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-        this.setHtml();
-        // Router.reroute("/landing");
-      });
-    }
-  }
-
   onStart() {
     this.setHtml();
     const loginRadio = document.getElementById("loginradio");
@@ -109,12 +92,6 @@ class LandingView extends AbstractView {
       this._handleToggle.bind(this)
     );
     document.getElementById("register-form").style.display = "none";
-    this.addEventListener(
-      document.getElementById("login-btn"),
-      "click",
-      this._loginHandler.bind(this)
-    );
-    this.listenForLanguageChange();
   }
 
   _handleToggle(event) {
@@ -158,12 +135,6 @@ class LandingView extends AbstractView {
     return validatExpr.test(loginValue);
   }
 
-  // _toggleHandler(event) {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   Application.toggleSideBar();
-  // }
-
   _loginHandler(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -188,13 +159,24 @@ class LandingView extends AbstractView {
         body: JSON.stringify(credentials),
       });
       if (!response.ok) {
-        if (response.status === 500) throw new Error(this.messages.serverError);
-        throw new Error(this.messages.invalidCredentials);
+        if (response.status === 401) {
+          const message = await response.json();
+          if (message["2FA"] !== undefined) {
+            if (message["2FA"].includes("required"))
+              throw new Error("2FA token required");
+          } else if (message["error"] !== undefined)
+            if (message["error"].includes("2FA"))
+              throw new Error("Invalid or expired 2FA code");
+            else throw new Error(this.messages.invalidCredentials);
+        } else {
+          throw new Error(this.messages.serverError);
+        }
       }
+
       const json = await response.json();
       Application.setToken(json);
-      Application.setUserInfos();
-      Application.toggleSideBar();
+      Application.setUserInfosFromToken();
+      await Application.toggleSideBar();
       Application.toggleChat();
       Router.reroute("/home");
     } catch (error) {
@@ -328,14 +310,6 @@ class LandingView extends AbstractView {
         </div>
       </div>
 `;
-      // const loginRadio = document.getElementById("loginradio");
-      // const registerRadio = document.getElementById("registerradio");
-
-      // if (loginRadio && registerRadio) {
-      //   loginRadio.addEventListener("change", this._handleToggle.bind(this));
-      //   registerRadio.addEventListener("change", this._handleToggle.bind(this));
-      // }
-      //Change the forms
       this._handleToggle(new Event("change"));
     }
   }

@@ -22,41 +22,63 @@ class BlocksView extends AbstractView {
 
   async loadMessages() {
     this.domText.Title = await Application.localization.t("titles.block");
-    this.domText.viewProfile = await Application.localization.t("block.card.viewProfile");
-    this.domText.inviteGame = await Application.localization.t("block.card.inviteGame");
-    this.domText.unblock = await Application.localization.t("block.card.unblock");
-    this.domText.lookingForTxt = await Application.localization.t("block.lookingFor.text");
-    this.domText.lookingForField = await Application.localization.t("block.lookingFor.field");
-    this.domText.addBlockAction = await Application.localization.t("block.add.action");
+    this.domText.viewProfile = await Application.localization.t(
+      "block.card.viewProfile"
+    );
+    this.domText.inviteGame = await Application.localization.t(
+      "block.card.inviteGame"
+    );
+    this.domText.unblock = await Application.localization.t(
+      "block.card.unblock"
+    );
+    this.domText.lookingForTxt = await Application.localization.t(
+      "block.lookingFor.text"
+    );
+    this.domText.lookingForField = await Application.localization.t(
+      "block.lookingFor.field"
+    );
+    this.domText.addBlockAction = await Application.localization.t(
+      "block.add.action"
+    );
     this.domText.close = await Application.localization.t("block.close");
-    
-    this.messages.error = await Application.localization.t("block.errors.general");
-    this.messages.wentWrong = await Application.localization.t("block.errors.somethingWentWrong");
-    this.messages.getBlockErr = await Application.localization.t("block.errors.getBlockList");
-    this.messages.displayBlocksList = await Application.localization.t("block.errors.displayBlockList");
-    this.messages.modalNotFound = await Application.localization.t("block.errors.modalNotFound");
-    this.messages.idAttributeNotFound = await Application.localization.t("block.errors.idAttributeNotFound");
-    this.messages.addBlockFailure = await Application.localization.t("block.errors.addBlockFailure");
-    this.messages.removeBlockFailure = await Application.localization.t("block.remove.failure");
-    this.messages.addBlockSuccess = await Application.localization.t("block.success.addBlock");
-    
+
+    this.messages.error = await Application.localization.t(
+      "block.errors.general"
+    );
+    this.messages.wentWrong = await Application.localization.t(
+      "block.errors.somethingWentWrong"
+    );
+    this.messages.getBlockErr = await Application.localization.t(
+      "block.errors.getBlockList"
+    );
+    this.messages.displayBlocksList = await Application.localization.t(
+      "block.errors.displayBlockList"
+    );
+    this.messages.modalNotFound = await Application.localization.t(
+      "block.errors.modalNotFound"
+    );
+    this.messages.idAttributeNotFound = await Application.localization.t(
+      "block.errors.idAttributeNotFound"
+    );
+    this.messages.addBlockFailure = await Application.localization.t(
+      "block.errors.addBlockFailure"
+    );
+    this.messages.removeBlockFailure = await Application.localization.t(
+      "block.remove.failure"
+    );
+    this.messages.addBlockSuccess = await Application.localization.t(
+      "block.success.addBlock"
+    );
   }
 
-
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById("language-selector-container");
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log(selectedLanguage);
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages(); 
-        await Application.applyTranslations();
-        // this._setHtml();
-        Router.reroute("/blocks");
-      });
-    }
-  }
+  //   async listenForLanguageChange(event) {
+  //     const selectedLanguage = event.target.value;
+  //     console.log("Language change detected :", selectedLanguage);
+  //     await Application.setLanguage(selectedLanguage);
+  //     await this.loadMessages();
+  //     await Application.applyTranslations();
+  //     Router.reroute("/blocks");
+  //   }
 
   onStart() {
     this._setTitle("Blocks");
@@ -66,7 +88,6 @@ class BlocksView extends AbstractView {
       }, 50);
       return;
     }
-    this.listenForLanguageChange();
 
     Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
@@ -219,10 +240,7 @@ class BlocksView extends AbstractView {
       this.blockList = blocksList.blocks;
       this.displayBlocksList(this.blockList);
     } catch (error) {
-      Alert.errorMessage(
-        this.messages.getBlockErr,
-        error.message
-      );
+      Alert.errorMessage(this.messages.getBlockErr, error.message);
     }
   }
 
@@ -276,10 +294,14 @@ class BlocksView extends AbstractView {
           } data-action="view-profile">${this.domText.viewProfile}</button></li>
                     <li><button class="dropdown-item" data-id=${
                       block.id
-                    } data-action="invite-game">${this.domText.inviteGame}</button></li> 
+                    } data-action="invite-game">${
+      this.domText.inviteGame
+    }</button></li>
                     <li><button class="dropdown-item" data-id=${
                       block.id
-                    } data-action="unblock">${this.domText.unblock}</button></li>
+                    } data-action="unblock">${
+      this.domText.unblock
+    }</button></li>
 					</ul>
 					</div>
 				</div>
@@ -311,7 +333,7 @@ class BlocksView extends AbstractView {
       await this._refreshBlocksList();
     } catch (error) {
       Alert.errorMessage(this.messages.wentWrong, error.message);
-        }
+    }
   }
 
   async _removeBlock(blockId) {

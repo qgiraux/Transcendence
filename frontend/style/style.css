@@ -479,3 +479,28 @@ p {
   text-decoration: none;
   border-radius: 5px;
 }
+
+.scrollable-panel {
+  max-height: 600px;
+  overflow-y: auto;
+  min-height: 0;
+  border-color: #90fce1 !important;
+  box-shadow: 0 0 10px #90fce1, 0 0 20px #90fce1;
+  scrollbar-color: #000000 #90fce1;
+}
+
+.tournament-card {
+  border-color: #b7b7b7 !important;
+}
+
+.players-avatars {
+  border-color: #ffffff !important;
+}
+
+.joined-badge {
+  background-color: #f037a5 !important;
+}
+
+.match {
+  border-color: #b7b7b7 !important;
+}

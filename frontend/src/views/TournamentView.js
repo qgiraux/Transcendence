@@ -23,308 +23,627 @@ class TournamentsView extends AbstractView {
   async loadMessages() {
     await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
-    this.domText.Title = await Application.localization.t("tournament.create.txt");
-    this.domText.createTournamentTxt = await Application.localization.t("tournament.create.txt");
-    this.domText.tournamentNameTxt = await Application.localization.t("tournament.create.name.txt");
-    this.domText.tournamentNameEnter = await Application.localization.t("tournament.create.name.enter");
-    this.domText.tournamentSizeTxt = await Application.localization.t("tournament.create.size.txt");
-    this.domText.createTournamentAction = await Application.localization.t("tournament.create.action.txt");
-    this.messages.fetchTournamentsErr = await Application.localization.t("tournament.create.errors.fetchTournaments");
-    this.messages.displayTournamentsErr = await Application.localization.t("tournament.create.errors.displayTournaments");
-    this.messages.joinTournamentErr = await Application.localization.t("tournament.create.errors.joinTournament");
-    this.messages.createTournamentErr = await Application.localization.t("tournament.create.errors.createTournament");
-    this.messages.invalidName = await Application.localization.t("tournament.create.errors.invalidName");
-    this.messages.tourNameRequirements = await Application.localization.t("tournament.create.errors.tourNameRequirements");
-    this.messages.inviteFriendTitle = await Application.localization.t("tournament.invite.title");
-    this.messages.inviteFriendSuccess = await Application.localization.t("tournament.invite.success");
-    this.messages.inviteFriendFailure = await Application.localization.t("tournament.invite.failure");
-    this.messages.alreadyJoined = await Application.localization.t("tournament.card.alreadyJoined");
-    this.messages.tournamentFull = await Application.localization.t("tournament.card.tournamentFull");
-    this.messages.joinTournament = await Application.localization.t("tournament.card.joinTournament");
-    this.messages.deleteTournament = await Application.localization.t("tournament.card.deleteTournament");
+    this.domText.title = await Application.localization.t("titles.tournament");
+    this.domText.createTournamentTxt = await Application.localization.t(
+      "tournament.create.txt"
+    );
+    this.domText.cantFind = await Application.localization.t(
+      "tournament.create.cantFind"
+    );
+    this.domText.yourOwn = await Application.localization.t(
+      "tournament.create.yourOwn"
+    );
+    this.domText.tournamentNameTxt = await Application.localization.t(
+      "tournament.create.name.txt"
+    );
+    this.domText.tournamentsInProgress = await Application.localization.t(
+      "tournament.tab.inProgress"
+    );
+    this.domText.openTournaments = await Application.localization.t(
+      "tournament.tab.open"
+    );
+    this.domText.finishedTournaments = await Application.localization.t(
+      "tournament.tab.finished"
+    );
+    this.domText.inviteFriend = await Application.localization.t(
+      "tournament.invite.friend"
+    );
+    this.domText.joined = await Application.localization.t(
+      "tournament.join.true"
+    );
+    this.domText.playerTxt = await Application.localization.t(
+      "tournament.card.players"
+    );
+    this.domText.spotsTxt = await Application.localization.t(
+      "tournament.card.spots"
+    );
+    this.domText.joinTournament = await Application.localization.t(
+      "tournament.card.joinTournament"
+    );
+    this.domText.deleteTournament = await Application.localization.t(
+      "tournament.card.deleteTournament"
+    );
+    this.domText.noTournamentToDisplay = await Application.localization.t(
+      "tournament.tab.noTournamentToDisplay"
+    );
+    this.messages.fetchTournamentsErr = await Application.localization.t(
+      "tournament.create.errors.fetchTournaments"
+    );
+    this.messages.displayTournamentsErr = await Application.localization.t(
+      "tournament.create.errors.displayTournaments"
+    );
+    this.messages.joinTournamentErr = await Application.localization.t(
+      "tournament.create.errors.joinTournament"
+    );
+    this.messages.createTournamentErr = await Application.localization.t(
+      "tournament.create.errors.createTournament"
+    );
+    this.messages.invalidName = await Application.localization.t(
+      "tournament.create.errors.invalidName"
+    );
+    this.messages.tourNameRequirements = await Application.localization.t(
+      "tournament.create.errors.tourNameRequirements"
+    );
+    this.messages.inviteFriendTitle = await Application.localization.t(
+      "tournament.invite.title"
+    );
+    this.messages.inviteFriendSuccess = await Application.localization.t(
+      "tournament.invite.success"
+    );
+    this.messages.inviteFriendFailure = await Application.localization.t(
+      "tournament.invite.failure"
+    );
+    this.messages.joinSuccess = await Application.localization.t(
+      "tournament.join.success"
+    );
+    this.messages.joinFailure = await Application.localization.t(
+      "tournament.join.failure"
+    );
+    this.messages.alreadyJoined = await Application.localization.t(
+      "tournament.card.alreadyJoined"
+    );
+    this.messages.alreadyJoinedTxt = await Application.localization.t(
+      "tournament.tab.alreadyJoinedTxt"
+    );
+    this.messages.tournamentFull = await Application.localization.t(
+      "tournament.card.tournamentFull"
+    );
   }
-  
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById("language-selector-container");
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log(selectedLanguage);
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages(); 
-        await Application.applyTranslations();
-        // this._setHtml();
-        Router.reroute("/tournaments");
-      });
-    }
-  }
+
   onStart() {
-    this._setTitle("Tournaments");
+    this._setTitle(this.domText.title);
     if (Application.getAccessToken() === null) {
       setTimeout(() => {
         Router.reroute("/landing");
       }, 50);
       return;
     }
-    this.listenForLanguageChange();
-    Avatar.getUUid();
-    this._fetchTournaments();
+    console.log("PANEL STATUS = ", this.panel_status);
+    //internal state variables
+    
+    //AV = saved panel status in a global var in Application to reload the page upon translation on the proper tab
+    this.panel_status = Application.tournamentPanelStatus; // toggle for the panel open/in progress/ finished
+    this.joined = false; // did the user already joined a tournament
+
     this._setHtml();
-    this.createNewTournamentForm();
-    this._setupNewTournamentListener();
-  }
+    this.restoreStatus();
 
-  async _fetchTournaments() {
-    try {
-      const response = await TRequest.request("GET", "/api/tournament/list/");
-      this.tournamentsList = response.tournaments || [];
-      this.displayTournamentsList(this.tournamentsList);
-    } catch (error) {
-      Alert.errorMessage(this.messages.fetchTournamentsErr, error.message);
-
-    }
-  }
-
-  async displayTournamentsList(tournamentsList) {
-    const tournamentsContainer = document.querySelector("#tournaments-container");
-    tournamentsContainer.innerHTML = "";
-    try {
-      for (const tournament of tournamentsList) {
-        await this.addTournamentCard(tournament);
-      }
-    } catch (error) {
-      Alert.errorMessage(this.messages.displayTournamentsErr, error.message);
-
-    }
-  }
-
-  async _refresh_cards(tournament) {
-    const tournamentsContainer = document.querySelector("#tournaments-container");
-    tournamentsContainer.innerHTML = "";
-    try {
-      await this._fetchTournaments()
-    } catch (error) {
-      Alert.errorMessage(this.messages.displayTournamentsErr, error.message);
-
-    }
-  }
-
-  async addTournamentCard(tournament) {
-    const tournamentsContainer = document.querySelector("#tournaments-container");
-    const div = document.createElement("div");
-    div.className = "col-md-4 col-lg-3";
-    div.style.maxWidth = "200px";
-  
-    try {
-      // Fetch tournament details
-      const details = await TRequest.request("GET", `/api/tournament/details/${tournament}`);
-      const { "tournament name": name, players, size } = details;
-  
-      // Check if the current user is part of the tournament
-      await this.loadMessages();
-      
-      const userId = Application.getUserInfos().userId;
-      const isPlayerInTournament = players.includes(userId);
-      const isTournamentFull = players.length >= size;
-  
-      // Fetch the friend list
-      const friendIdList = await this._refreshFriendsList();
-      const friendList = await Promise.all(
-        friendIdList.map(async (friendID) => {
-              try {
-                const user = await TRequest.request("GET", `/api/users/userinfo/${friendID}`);
-                return user.username; // Return the username for the friend
-              } catch (err) {
-                console.error("Failed to fetch user info:", err);
-                return null; // Return null for failed requests to avoid breaking Promise.all
-              }
-            })
-          );
-
-
-
-      // Set the card content
-      div.innerHTML = `
-        <div class="card shadow border-secondary p-2 text-white">
-          <div class="card-body">
-            <h7 class="card-title">${name.length > 14 ? name.substring(0, 11) + '...' : name}</h7>
-            <p class="card-text">${players.length} / ${size}</p>
-            <button 
-              class="btn btn-primary" 
-              id="join-${tournament}" 
-              data-tournament="${tournament}"
-              ${isPlayerInTournament || isTournamentFull ? "disabled" : ""}
-              style="${isPlayerInTournament || isTournamentFull ? "background-color: grey; cursor: not-allowed;" : ""}">
-              ${isPlayerInTournament ? this.messages.alreadyJoined : isTournamentFull ? this.messages.tournamentFull : this.messages.joinTournament}
-            </button>
-            <button 
-              class="btn btn-secondary" 
-              id="delete-${tournament}" 
-              data-tournament="${tournament}"
-              ${!isPlayerInTournament ? "disabled" : ""}
-              style="${!isPlayerInTournament ? "background-color: grey; cursor: not-allowed;" : ""}">
-              ${this.messages.deleteTournament}
-            </button>
-          </div>
-
-          <div class="btn-group">
-            <button class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              Invite a friend
-            </button>
-            <ul class="dropdown-menu">
-              ${friendIdList
-                .map((friendId, index) => {
-                  const friendName = friendList[index]; // Get the corresponding username
-                  if (friendName) { // Ensure the username is not null
-                    return `<li><a class="dropdown-item" href="#" data-friend-id="${friendId}">${friendName}</a></li>`;
-                  } else {
-                    return ''; // Skip if username is null
-                  }
-                })
-                .join('')}
-            </ul>
-          </div>
-        </div>
-      `;
-  
-      // Add event listener for the "Join Tournament" button
-      const joinButton = div.querySelector(`#join-${tournament}`);
-      if (!isPlayerInTournament) {
-        joinButton.addEventListener("click", async () => {
-          try {
-            // Join the tournament
-            await TRequest.request("POST", "/api/tournament/join/", { name: tournament });
-            joinButton.disabled = true;
-            joinButton.innerText = "Joined";
-            joinButton.style.backgroundColor = "grey";
-            joinButton.style.cursor = "not-allowed";
-          } catch (error) {
-            Alert.errorMessage(this.messages.joinTournamentErr, error.message);
-
-          }
-        });
-      }
-
-      // Add event listener for the "Join Tournament" button
-      const deleteButton = div.querySelector(`#delete-${tournament}`);
-      if (isPlayerInTournament) {
-        deleteButton.addEventListener("click", async () => {
-          try {
-            // Join the tournament
-            await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament });
-            await this._refresh_cards(tournament);
-          } catch (error) {
-            Alert.errorMessage(this.messages.joinTournamentErr, error.message);
-          }
-        });
-      }
-  
-      // Add event listeners for friend invitation dropdown
-      const dropdownItems = div.querySelectorAll(".dropdown-item");
-      dropdownItems.forEach(item => {
-        item.addEventListener("click", async (event) => {
-          event.preventDefault();
-          const friendId = item.getAttribute("data-friend-id");
-          try {
-            // Send the friend invitation
-            await TRequest.request("POST", "/api/tournament/invite/", {
-              friend_id: friendId,
-              tournament_name: tournament,
-            });
-            const username = await TRequest.request("GET", `/api/users/userinfo/${friendId}`);
-            console.log(friendList[friendId])
-            Alert.successMessage(this.messages.inviteFriendTitle, `${this.messages.inviteFriendSuccess} ${username.username}`);
-          } catch (error) {
-            Alert.errorMessage(this.messages.inviteFriendFailure, error.message);
-          }
-        });
+    TRequest.request("GET", "/api/friends/friendslist/")
+      .then((result) => {
+        return result["friends"];
+      })
+      .then((friends) => {
+        return this.fetchFriendsDetails(friends);
+      })
+      .then((details) => {
+        this.friendsDetails = details;
+      })
+      .then(() => {
+        return TRequest.request("GET", "/api/tournament/list/");
+      })
+      .then((result) => {
+        return this.fetchTournamentDetails(result["tournaments"]);
+      })
+      .then((tournaments) => {
+        this.tournaments = tournaments;
+      })
+      .then(() => {
+        this.refreshPanel();
+        Avatar.refreshAvatars();
+      })
+      .catch((error) => {
+        Alert.errorMessage(
+          `Something went wrong : ${error}`,
+          `Please try again later `
+        );
       });
-  
-      tournamentsContainer.appendChild(div);
-    } catch (error) {
-      console.error("Error fetching tournament details:", error);
-      div.innerHTML = `
-        <div class="text-danger">Failed to load tournament details</div>
-      `;
-      tournamentsContainer.appendChild(div);
-    }
-  }
-  
 
-  async _refreshFriendsList() {
-    try {
-      const response = await TRequest.request("GET", "/api/friends/friendslist/");
-  
-      // Ensure the response contains a "friends" array
-      if (!response || !Array.isArray(response.friends)) {
-        console.error("Invalid friends list response:", response);
-        throw new Error("Friends list is not in the expected format."); //BACK ?>
-      }
-      return response.friends;
-    } catch (error) {
-      Alert.errorMessage(this.messages.fetchTournamentsErr, error.message);
-      return []; // Return an empty array if there's an error
-    }
-  }
-  
-  
+    //                  Event listeners
+    // state panel
+    const btnStatus0 = document.querySelector("#status-0");
+    const btnStatus1 = document.querySelector("#status-1");
+    const btnStatus2 = document.querySelector("#status-2");
+    this.addEventListener(btnStatus0, "click", this.switchStatus.bind(this));
+    this.addEventListener(btnStatus1, "click", this.switchStatus.bind(this));
+    this.addEventListener(btnStatus2, "click", this.switchStatus.bind(this));
 
-  createNewTournamentForm() {
-    const tournamentsContainer = document.querySelector("#new-tournament-container");
-    tournamentsContainer.innerHTML = `
-      <h5 class="text-white">${this.domText.createTournamentTxt}</h5>
-      <form id="create-tournament-form" class="d-flex align-items-center">
-        <div class="form-group mr-2">
-          <label for="tournament-name" class="text-white">${this.domText.tournamentNameTxt}</label>
-          <input type="text" class="form-control" id="tournament-name" placeholder="${this.domText.tournamentNameEnter}" required>
-        </div>
-        <div class="form-group mr-2">
-          <label for="tournament-size" class="text-white">${this.domText.tournamentSizeTxt}</label>
-          <select class="form-control" id="tournament-size" required>
-            <option value="2">2</option>
-            <option value="4">4</option>
-            <option value="8">8</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary mt-4">${this.domText.createTournamentAction}</button>
-      </form>
-    `;
+    //join tournament event delegation
+    const scrollablePanel = document.querySelector("#scrollable-panel");
+    this.addEventListener(
+      scrollablePanel,
+      "click",
+      this.joinTournamentHandler.bind(this)
+    );
   }
 
-  async _setupNewTournamentListener() {
-    const form = document.querySelector("#create-tournament-form");
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const tournamentName = document.querySelector("#tournament-name").value;
-      const tournamentSize = document.querySelector("#tournament-size").value;
+  /*
 
-      if (!/^[a-zA-Z0-9]{3,30}$/.test(tournamentName)) {
-        Alert.errorMessage(this.messages.invalidName, this.messages.tourNameRequirements);
+  Event listeners
 
-        return;
-      }
+  */
+
+//AV = method to restore the buttons upon reloading of a page following language change 
+  restoreStatus() {
+    const newStatus = Application.tournamentPanelStatus;
+    const btnStatusOld = document.querySelector(`#status-0`);
+    const btnStatusNew = document.querySelector(`#status-${newStatus}`);
+    btnStatusOld.classList.remove("active");
+    btnStatusNew.classList.add("active");
+  }
+
+  switchStatus(event) {
+    const oldStatus = this.panel_status;
+    const newStatus = Number(event.target.dataset.status);
+    this.panel_status = newStatus;
+    Application.tournamentPanelStatus = this.panel_status;
+    const btnStatusOld = document.querySelector(`#status-${oldStatus}`);
+    const btnStatusNew = document.querySelector(`#status-${newStatus}`);
+    btnStatusOld.classList.remove("active");
+    btnStatusNew.classList.add("active");
+    this.refreshPanel();
+    Avatar.refreshAvatars();
+  }
+
+  async joinTournamentHandler(event) {
+    if (event.target.classList.contains("join-tournament-btn")) {
+      const tournamentName = event.target.getAttribute("data-tournament");
+      console.log("trying to join", tournamentName);
       try {
-        await TRequest.request("POST", "/api/tournament/create/", { name: tournamentName, size: tournamentSize });
-        this._fetchTournaments();
+        const req = await TRequest.request("POST", "/api/tournament/join/", {
+          name: tournamentName,
+        });
+        Alert.successMessage(
+          this.domText.title,
+          `${this.messages.joinSuccess} ${tournamentName}`
+        );
+        Application.joinedTournament = tournamentName;
       } catch (error) {
-        Alert.errorMessage(this.messages.createTournamentErr, error.message);
+        Alert.errorMessage(this.messages.joinFailure);
       }
-    });
+      Router.reroute("/tournaments");
+    }
   }
+
+  /*
+Request API function
+*/
+
+  async fetchTournamentDetails(names) {
+    const details = await Promise.all(
+      names.map(async (name) => {
+        try {
+          const response = await TRequest.request(
+            "GET",
+            `/api/tournament/details/${name}`
+          );
+          return response;
+        } catch (error) {
+          return null;
+        }
+      })
+    );
+    return details;
+  }
+
+  async fetchFriendsDetails(friends) {
+    const details = await Promise.all(
+      friends.map(async (friend) => {
+        try {
+          const response = await TRequest.request(
+            "GET",
+            `/api/users/userinfo/${friend}`
+          );
+          return response;
+        } catch (error) {
+          return null;
+        }
+      })
+    );
+    return details;
+  }
+
+  /*
+
+  	View state handler
+
+*/
+
+  refreshPanel() {
+    const panel = document.getElementById("scrollable-panel");
+    if (!panel) return;
+    panel.innerHTML = "";
+    const selectedTournaments = this.tournaments.filter((tournament) => {
+      return tournament["status"] === this.panel_status;
+    });
+    switch (this.panel_status) {
+      case 0:
+        selectedTournaments.forEach((tournament) => {
+          if (
+            tournament["players"].includes(Application.getUserInfos().userId)
+          ) {
+            this.joined = true;
+          }
+        });
+        if (!this.joined) {
+          panel.appendChild(this.createNewTournamentHeaderPanel());
+        }
+        else {
+          panel.appendChild(this.createNewTournamentHeaderCannotJoin()); //AV (suggestion to be discussed) : another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
+        };
+        selectedTournaments.forEach((tournament) => {
+          panel.appendChild(this.createOpenTournamentCard(tournament));
+        });
+        break;
+      case 1:
+        if (selectedTournaments.length > 0) {
+          selectedTournaments.forEach((tournament) => {
+            panel.appendChild(this.createTournamentCard(tournament));
+        });
+      }
+      else {
+        panel.appendChild(this.createNewNoTournamentHeader());
+        break;
+      };
+        break;
+      case 2:
+        if (selectedTournaments.length > 0) {
+          selectedTournaments.forEach((tournament) => {
+            panel.appendChild(this.createTournamentCard(tournament));
+        });
+      }
+      else {
+        panel.appendChild(this.createNewNoTournamentHeader());
+      }
+        break;
+    }
+  }
+
+  /*
+  HTML Elements creation helpers fucntcions :
+
+*/
+
+  getIdfromTournament(tournament, round, index) {
+    if (!tournament["rounds"][round]) return 0;
+    if (tournament["rounds"][round].length <= index) return 0;
+    return tournament["rounds"][round][index];
+  }
+
+  getProfileLinkformId(id) {
+    if (id === 0) return "";
+    return `/profile/${id}`;
+  }
+
+  createAvatarElementFromId(id, size, winner) {
+    const img = document.createElement("img");
+    img.classList.add("rounded", "rounded-circle");
+    if (winner) {
+      img.classList.add(
+        "rounded",
+        "rounded-circle",
+        "border",
+        "border-warning"
+      );
+    }
+    img.width = size;
+    img.height = size;
+    if (id !== 0) {
+      img.src = Avatar.url(id);
+      img.dataset.avatar = id;
+      const link = document.createElement("a");
+      link.dataset.link = 1;
+      link.href = this.getProfileLinkformId(id);
+      link.appendChild(img);
+      return link;
+    } else {
+      img.src = "/img/question_mark_icon.png";
+      return img;
+    }
+  }
+
+  createNewTournamentHeaderPanel() {
+    const link = document.createElement("a");
+    link.href = "/create-tournament";
+    link.text = this.domText.yourOwn;
+    link.dataset.link = 1;
+    link.classList.add("text-white", "text-center");
+    const header = document.createElement("div");
+    header.classList.add("row", "p-2", "w-75");
+    header.innerHTML = `<h4 class="text-white text-center">${this.domText.cantFind}</h4>`;
+    header.appendChild(link);
+    return header;
+  }
+
+  //AV (suggestion to be discussed) : another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
+  createNewTournamentHeaderCannotJoin() {
+    const header = document.createElement("div");
+    header.classList.add("row", "p-2", "w-75");
+    header.innerHTML = `
+    <h2 class="text-white text-center fs-5">${this.messages.alreadyJoined}</h2>
+    <h4 class="text-white text-center fs-6">
+      ${this.messages.alreadyJoinedTxt}
+    </h4>
+  `
+    return header;
+}
+
+//AV (suggestion to be discussed) : header to display a message in case no tournament is to be displayed in the view 
+  createNewNoTournamentHeader() {
+    const header = document.createElement("div");
+    header.classList.add("row", "p-2", "w-75");
+    header.innerHTML = `
+    <h2 class="text-white text-center fs-5">${this.domText.noTournamentToDisplay}</h2>`
+    return header;
+}
+
+  //Updating proper messages depending on the value of freespots and players
+  async updateMessages(tournament) {
+    return new Promise(async (resolve) => {
+    const freeSpots = tournament["size"] - tournament["players"].length;
+    let playerTxt = "";
+    let spotsTxt = "";
+
+    if (tournament["size"] > 1) {
+      playerTxt = await Application.localization.t("tournament.card.players");
+    }
+    else {
+      playerTxt = await Application.localization.t("tournament.card.player");
+    };
+    console.log(freeSpots);
+    if (freeSpots > 1) {
+      spotsTxt = await Application.localization.t("tournament.card.spots");
+    }
+    else {
+      spotsTxt = await Application.localization.t("tournament.card.spot");
+    };
+    resolve({ playerTxt, spotsTxt });
+  });
+
+  }
+
+  createOpenTournamentCard(tournament) {
+    const card = document.createElement("div");
+    const freeSpots = tournament["size"] - tournament["players"].length;
+    this.updateMessages(tournament).then((messages) => {
+
+
+    card.classList.add(
+      "tournament-card",
+      "w-75",
+      "text-white",
+      "border",
+      "p-3"
+    );
+    card.dataset.tournament = tournament["tournament name"];
+    card.innerHTML = `
+	<div class="row d-flex justify-content-center">
+		<div class="row d-flex justify-self-center">
+			<div class="col">
+				<h4 class="text-white">${tournament["tournament name"]}
+				<span class="badge bg-success joined-badge" style="display: none;">${this.domText.joined}</span>
+				</h4>
+				<h4 class="text-secondary" id="size">${tournament["size"]} ${messages.playerTxt}</h4>
+				<h5 class="text-secondary " id="spot-left">${freeSpots} ${messages.spotsTxt}</h5>
+				<div class="row d-flex justify-content-center justify-self-center mt-2" id="action"></div>
+			</div>
+		<div class="players-avatars col d-flex flex-column justify-content-center align-items-center gap-2 p-1 border  "
+			>
+			<div class="d-flex flex-row gap-2  align-self-center" id="row1">
+			</div>
+			<div class="d-flex flex-row gap-2 align-self-center" id="row2">
+			</div>
+		</div>
+	</div>
+	`;
+
+    const row1Div = card.querySelector("#row1");
+    const row2Div = card.querySelector("#row2");
+    let i = 0;
+    for (; i < 4; i++) {
+      if (i < tournament["players"].length) {
+        row1Div.appendChild(
+          this.createAvatarElementFromId(tournament["players"][i], 60, false)
+        );
+      } else if (i < tournament["size"]) {
+        row1Div.appendChild(this.createAvatarElementFromId(0, 60, false));
+      }
+    }
+    for (; i < tournament["size"]; i++) {
+      if (i < tournament["players"].length) {
+        row2Div.appendChild(
+          this.createAvatarElementFromId(tournament["players"][i], 60, false)
+        );
+      } else {
+        row2Div.appendChild(this.createAvatarElementFromId(0, 60, false));
+      }
+    }
+    const actionDiv = card.querySelector("#action");
+    if (!this.joined) {
+      // add the joined button if no tournament has been joined yet
+      actionDiv.innerHTML = `<button type="button" class="btn btn-primary w-50
+	  justify-self-center join-tournament-btn" data-tournament="${tournament["tournament name"]}">${this.domText.joinTournament}</button>`;
+    } else if (
+      tournament["players"].includes(Application.getUserInfos().userId)
+    ) {
+      const badge = card.querySelector(".joined-badge");
+      if (badge) {
+        badge.style.display = "inline-block";
+      }
+      actionDiv.innerHTML = `<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    ${this.domText.inviteFriend}
+  </button>
+  			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
+	</div>`;
+      const dropdownMenu = actionDiv.querySelector(".dropdown-menu");
+      this.friendsDetails.forEach((friend) => {
+        dropdownMenu.appendChild(
+          this.createDropdownFriendElement(
+            tournament["tournament name"],
+            friend.id,
+            friend.username,
+            friend.nickname
+          )
+        );
+      });
+    }
+  });
+    return card;
+  }
+
+  createTournamentCard(tournament) {
+    let roundNumber = tournament["size"];
+    //create the tournament card div
+    const card = document.createElement("div");
+    card.classList.add(
+      "tournament-card",
+      "w-75",
+      "text-white",
+      "border",
+      "p-3"
+    );
+    card.innerHTML = `
+				<div class="row mt-1 d-flex  justify-content-center align-items-center mx-auto">
+  				<h4>${tournament["tournament name"]}</h4>
+				<div class="row d-flex mx-auto justify-content-center align-items-center p-1" id="rounds-container"></div>
+				`;
+    const roundsContainer = card.querySelector("#rounds-container");
+
+    for (; roundNumber >= 1; roundNumber = roundNumber / 2) {
+      let roundDiv = document.createElement("div");
+      roundDiv.classList.add(
+        "col",
+        "d-flex",
+        "flex-column",
+        "justify-content-center"
+      );
+      roundDiv.id = `round-${roundNumber}`;
+      roundDiv = this.populateRound(tournament, roundDiv, roundNumber);
+      roundsContainer.appendChild(roundDiv);
+    }
+
+    return card;
+  }
+
+  createRoundMatchHTML(tournament, round, indexPlayerOne, indexPlayertwo) {
+    const match = document.createElement("div");
+    match.classList.add(
+      "match",
+      "d-flex",
+      "justify-content-center",
+      "align-items-center",
+      "mb-2",
+      "p-1",
+      "border",
+      "gap-1"
+    );
+    const idPlayerOne = this.getIdfromTournament(
+      tournament,
+      round,
+      indexPlayerOne
+    );
+    const idPlayerTwo = this.getIdfromTournament(
+      tournament,
+      round,
+      indexPlayertwo
+    );
+    match.appendChild(this.createAvatarElementFromId(idPlayerOne, 50, false));
+    match.appendChild(this.createAvatarElementFromId(idPlayerTwo, 50, false));
+    return match;
+  }
+
+  createDropdownFriendElement(
+    tournamentName,
+    friendId,
+    friendUserName,
+    friendNickName
+  ) {
+    const div = document.createElement("div");
+    div.dataset.id = friendId;
+    div.dataset.tournament = tournamentName;
+    div.classList.add(
+      "dropdown-item",
+      "d-flex",
+      "flex-row",
+      "w-100",
+      "w-0",
+      "bg-warning"
+    );
+    div.innerHTML = `
+			<img data-avatar="${friendId}" src="${Avatar.url(
+      friendId
+    )}" alt="${friendUserName}" width="30" height="30" class="rounded-circle"><h5>${friendNickName}</h5>`;
+    return div;
+  }
+
+  populateRound(tournament, roundDiv, roundNumber) {
+    if (roundNumber == 1) {
+      roundDiv.appendChild(
+        this.createAvatarElementFromId(
+          this.getIdfromTournament(tournament, "1", 0),
+          90,
+          true
+        )
+      );
+    }
+    let secondPlayer = roundNumber - 1;
+    for (secondPlayer = 1; secondPlayer < roundNumber; secondPlayer += 2) {
+      roundDiv.appendChild(
+        this.createRoundMatchHTML(
+          tournament,
+          String(roundNumber),
+          secondPlayer - 1,
+          secondPlayer
+        )
+      );
+    }
+    return roundDiv;
+  }
+
+  /// SET THE LAYOUT FOR THE VIEW
 
   _setHtml() {
     const container = document.querySelector("#view-container");
     if (container) {
       container.innerHTML = `
-        <div class="row">
-          <div class="col-12">
-            <h1 class="text-white display-1">${this.domText.Title}</h1>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 border border-secondary p-2 rounded" id="new-tournament-container"></div>
-        </div>
-        <div class="row g-2 border border-secondary p-2 rounded" id="tournaments-container"></div>
+			<div class=" mx-auto" style="max-width: 700px;">
+				<h1 class="text-white text-center mb-5">${this.domText.title}</h1>
+
+			<div class="row">
+					<div class="btn-group mx-auto align-items-center">
+						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">${this.domText.openTournaments}</button>
+						<button id="status-1" data-status="1" class="btn btn-primary">${this.domText.tournamentsInProgress}</button>
+						<button id="status-2" data-status="2" class="btn btn-primary">${this.domText.finishedTournaments}</button>
+					</div>
+
+				</div>
+				<div class="row  mt-3 p-3 gap-3 justify-content-center align-items-center  border  overflow-auto scrollable-panel" id="scrollable-panel">
+						</div>
+			</div>
+				</div>
+			</div>
+
+
       `;
     }
   }

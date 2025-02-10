@@ -3,6 +3,8 @@
  */
 import Avatar from "./Avatar.js";
 import Localization from "./Localization.js";
+import Router from "./Router.js";
+import LandingView from "./views/LandingView.js";
 
 class Application {
   /**
@@ -15,12 +17,16 @@ class Application {
     userId: null,
     userName: null,
     nickname: null,
+    twofa: null,
   };
   static mainSocket = null;
   static gameSocket = null;
   static lang = localStorage.getItem("selectedLang") || "en-us";
   static localization = new Localization(Application.lang);
   static translationsCache = {};
+  static activeProfileView = "avatar"; //test to make the view in account mgmt ersistant upon language change
+  static navButtonProfile = "nav-avatar";
+  static tournamentPanelStatus = 0;
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -64,17 +70,24 @@ class Application {
     return null;
   }
 
-  static setUserInfos() {
+  static setUserInfosFromToken() {
     if (Application.#token !== null) {
       try {
         const token = Application.#_parseToken(Application.#token.access);
         Application.#userInfos.userId = token.payload.user_id;
         Application.#userInfos.userName = token.payload.username;
         Application.#userInfos.nickname = token.payload.nickname;
+        Application.#userInfos.twofa = token.payload.twofa;
       } catch (error) {
         console.error(`Application: Error during userInfos setting : ${error}`);
       }
     }
+  }
+
+  static setUserInfos(infos) {
+    Application.#userInfos.userId = infos.id;
+    Application.#userInfos.userName = infos.username;
+    Application.#userInfos.nickname = infos.nickname;
   }
 
   static getUserInfos() {
@@ -204,16 +217,15 @@ class Application {
     return Application.gameSocket;
   }
 
-  static toggleSideBar() {
+  static async toggleSideBar() {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
     const userId = Application.getUserInfos().userId;
     // document.querySelector("#side-username").textContent =
     //   Application.getUserInfos().userName;
     avatarImg.setAttribute("data-avatar", userId);
-    Avatar.refreshAvatars().then(() => {
-      sideBar.classList.remove("d-none");
-    });
+    await Avatar.refreshAvatars();
+    sideBar.classList.remove("d-none");
   }
 
   static toggleChat() {
@@ -245,6 +257,13 @@ class Application {
         }
       }
     });
+  }
+
+  static async listenForLanguageChange(event) {
+    const selectedLanguage = event.target.value;
+    console.log("Language change detected :", selectedLanguage);
+    await Application.setLanguage(selectedLanguage);
+    Router.reroute(location.pathname);
   }
 }
 

@@ -12,182 +12,275 @@
     "send": "Invia"
   },
   "titles": {
-      "home": "Home",
-      "profile": "Profilo",
-      "friends": "Amici",
-      "tournament": "Torneo",
-      "block": "Lista di blocco"
+    "home": "Home",
+    "profile": "Profilo",
+    "friends": "Amici",
+    "tournament": "Torneo",
+    "block": "Lista di blocco",
+    "account": "Gestione dell'account"
+  },
+  "landing": {
+    "login": {
+      "label": "Nome utente",
+      "enterField": "Inserisci il tuo nome utente",
+      "choose": "Scegli il tuo nome utente"
     },
-    "landing": {
-      "login": {
-        "label": "Nome utente",
-        "enterField": "Inserisci il tuo nome utente",
-        "choose": "Scegli il tuo nome utente"
-      },
-      "password": {
-        "label": "Password",
-        "field": "Password richiesta",
-        "choose": "Scegli la tua password",
-        "confirm": "Conferma la tua password"
-      },
-      "twofa": {
-        "label": "Codice 2FA (se attivato)",
-        "field": "2FA (opzionale)"
-      },
-      "signup": {
-        "submit": "Crea un account"
-      },
-      "signin": {
-        "submit": "Accedi"
-      },
-      "messages": {
-        "loginErrorTitle": "Errore di accesso",
-        "registerErrorTitle": "Errore di registrazione",
-        "invalidCredentials": "Nome utente o password non validi",
-        "wrongCredentialsFormat": "Devi fornire un nome utente e una password validi.\nIl nome utente deve contenere solo lettere o numeri e avere tra 5 e 20 caratteri.<br>La password deve contenere almeno 8 caratteri, un numero, una lettera maiuscola e almeno un carattere speciale: !@#$%^&*",
-        "serverError": "Il server non è stato in grado di elaborare la tua richiesta. Riprova più tardi",
-        "userAlreadyExist": "Esiste già un utente con questo nome utente.",
-        "passwordsDontMatch": "I due campi password devono essere identici"
-      }
-    },
-    "home": {
-      "welcome": "Benvenuto nella pagina principale", 
-      "friends": "Vedere i miei amici", 
-      "tournaments": "Gestire i tornei"
-
-    },
-    "profile": {
-    "actions": {
-      "manageAvatar" : "Gestisci avatar",
-      "changeAlias" : "Cambia alias",
-      "activate2FA" : "Attiva 2FA",
-      "closeBtn" : "Chiudi"
-    },
-    "alias": {
-      "label" : "Nuovo alias", 
-      "field" : "Inserisci nuovo alias",
-      "update" : "Aggiorna alias"
-    },
-    "avatar": {
-      "label": "Impostazioni avatar", 
-      "resetDefault": "Ripristina predefinito", 
-      "chooseFile": "Scegli da file", 
-      "update": "Aggiorna avatar"
-     }
-    },
-    "friends": {
-      "card": {
-        "viewProfile": "Visualizza il profilo dell'amico",
-        "inviteGame": "Invita a una partita",
-        "unfriend": "Rimuovi dagli amici"
-      },
-      "looking:for": {
-        "text": "Cerchi un nuovo amico?",
-        "field": "Cerca un amico"
-      },
-      "add": {
-        "action": "Aggiungi agli amici",
-        "success": "Amico aggiunto con successo",
-        "failure": "Impossibile aggiungere l'utente come amico"
-      },
-      "remove": {
-        "failure": "Impossibile rimuovere l'utente dagli amici"
-      },
-      "errors": {
-        "general": "Errore",
-        "unexpected": "Si è verificato un errore",
-        "list": {
-          "get": "Errore durante il recupero della lista degli amici",
-          "display": "Errore durante la visualizzazione della lista degli amici"
-        }
-      },
-      "close": "Chiudi",
-      "modal": {
-        "notFound": "Errore: modale non trovata",
-        "idAttributeMissing": "Errore: attributo data-id mancante nella modale"
-      }
-    },
-    "block": {
-      "card": {
-        "viewProfile": "Visualizza il profilo dell'utente",
-        "inviteGame": "Invita a una partita",
-        "unblock": "Rimuovi dalla lista di blocco"
-      },
-      "lookingFor": {
-        "text": "Cerchi un utente da bloccare?",
-        "field": "Cerca un utente"
-      },
-      "add": {
-        "action": "Aggiungi alla lista di blocco",
-        "success": "Utente bloccato con successo",
-        "failure": "Impossibile aggiungere l'utente alla lista di blocco"
-      },
-      "remove": {
-        "failure": "Impossibile rimuovere l'utente dalla lista di blocco"
-      },
-      "errors": {
-        "general": "Errore",
-        "somethingWentWrong": "Si è verificato un problema",
-        "getBlockList": "Errore durante il recupero della lista di blocco",
-        "displayBlockList": "Errore durante la visualizzazione della lista di blocco",
-        "modalNotFound": "Errore: modale non trovata",
-        "idAttributeNotFound": "Errore: attributo data-id non trovato",
-        "addBlockFailure": "Impossibile aggiungere l'utente alla lista di blocco"
-      },
-      "success": {
-        "addBlock": "Utente bloccato con successo"
-      },
-      "close": "Chiudi",
-      "modal": {
-        "notFound": "Errore: modale non trovata",
-        "idAttributeMissing": "Errore: attributo data-id mancante nella modale"
-      }
-    },
-    "tournament": {
-      "create": {
-        "txt": "Crea un torneo",
-        "name": {
-          "txt": "Nome del torneo",
-          "enter": "Inserisci il nome del torneo"
-        },
-        "size": {
-          "txt": "Numero di giocatori"
-        },
-        "action": {
-          "txt": "Crea"
-        },
-        "errors": {
-          "fetchTournaments": "Errore durante il caricamento dei tornei",
-          "displayTournaments": "Errore durante la visualizzazione dei tornei",
-          "joinTournament": "Errore durante la partecipazione al torneo",
-          "createTournament": "Errore durante la creazione del torneo",
-          "invalidName": "Nome del torneo non valido",
-          "tourNameRequirements": "Il nome del torneo deve contenere tra 3 e 30 caratteri e includere solo lettere e numeri"
-        }
-      },
-      "invite": {
-        "title": "Amico invitato",
-        "success": "Amico invitato con successo",
-        "failure": "Errore durante l'invito dell'amico"
-      },
-      "tournament": {
-        "card": {
-          "alreadyJoined": "Già iscritto",
-          "tournamentFull": "Torneo pieno",
-          "joinTournament": "Partecipa al torneo",
-          "deleteTournament": "Elimina"
-        }
-      }
+    "password": {
+      "label": "Password",
+      "field": "Password richiesta",
+      "choose": "Scegli la tua password",
+      "confirm": "Conferma la tua password"
     },
     "twofa": {
+      "label": "Codice 2FA (se attivato)",
+      "field": "2FA (opzionale)"
+    },
+    "signup": {
+      "submit": "Crea un account"
+    },
+    "signin": {
+      "submit": "Accedi"
+    },
+    "messages": {
+      "loginErrorTitle": "Errore di accesso",
+      "registerErrorTitle": "Errore di registrazione",
+      "invalidCredentials": "Nome utente o password non validi",
+      "wrongCredentialsFormat": "Devi fornire un nome utente e una password validi.\nIl nome utente deve contenere solo lettere o numeri e avere tra 5 e 20 caratteri.<br>La password deve contenere almeno 8 caratteri, un numero, una lettera maiuscola e almeno un carattere speciale: !@#$%^&*",
+      "serverError": "Il server non è stato in grado di elaborare la tua richiesta. Riprova più tardi",
+      "userAlreadyExist": "Esiste già un utente con questo nome utente.",
+      "passwordsDontMatch": "I due campi password devono essere identici"
+    }
+  },
+  "home": {
+    "welcome": "Benvenuto nella pagina principale",
+    "friends": "Vedere i miei amici",
+    "tournaments": "Gestire i tornei"
+  },
+  "profile": {
+    "manageAccount": "Gestici account",
+    "level": "Livello",
+    "gamePlayedNumber": "Partite giocate",
+    "victoryNumber": "Vittorie",
+    "oneWinRemains": "partita rimanente per raggiungere il prossimo livello!",
+    "multipleWinsRemain": "partite rimanenti per raggiungere il prossimo livello!",
+    "table": {
+      "result": "Risultato",
+      "date": "Data",
+      "score": "Punteggio"
+    },
+    "errorInitTitle": "Qualcosa è andato storto",
+    "errorInitBody": "Abbiamo problemi di comunicazione con il server. Per favore, riprova più tardi."
+  },
+  "accountMgmt": {
+    "wrongCredentialsFormat": "Devi fornire un nome utente e una password validi. Il nome utente deve contenere solo lettere o numeri e avere una lunghezza compresa tra 5 e 20 caratteri. La password deve contenere almeno 8 caratteri, di cui almeno un numero, una lettera maiuscola e un carattere speciale: !@#$%^&*",
+    "actions": {
+      "manageAvatar": "Avatar",
+      "changeAlias": "Alias",
+      "manage2FA": "2FA",
+      "changePassword": "Password",
+      "deleteAccount": "Elimina account",
+      "closeBtn": "Chiudi"
+    },
+    "alias": {
+      "label": "Nuovo alias",
+      "field": "Inserisci un nuovo alias",
+      "update": "Aggiorna alias",
+      "empty": "L'alias non può essere vuoto",
+      "requirements": "L'alias deve contenere al massimo 20 caratteri",
+      "updateSuccess": "L'alias è stato aggiornato con successo.",
+      "updateFailure": "Aggiornamento dell'alias non riuscito: "
+    },
+    "password": {
+      "label": "Password",
+      "field": "Password richiesta",
+      "old": "Inserisci la tua vecchia password",
+      "new": "Scegli la tua nuova password",
+      "confirmNew": "Conferma la tua nuova password",
+      "update": "Aggiorna la password",
+      "empty": "Il campo non può essere vuoto",
+      "error": "Si è verificato un errore, la password non è stata cambiata",
+      "mismatch": "I campi della password devono corrispondere",
+      "oldError": "Password vecchia non valida",
+      "success": "Password cambiata con successo"
+    },
+    "avatar": {
+      "title": "Avatar",
+      "label": "Impostazioni avatar",
+      "resetDefault": "Ripristina predefinito",
+      "chooseFile": "Scegli dal file",
+      "selectFile": "Devi selezionare un file",
+      "update": {
+        "action": "Aggiorna avatar",
+        "updateSuccess": "L'immagine dell'avatar è stata aggiornata con successo.",
+        "uploadFailure": "L'immagine non può essere caricata.",
+        "uploadFileCheck": "Verifica che sia un file jpeg o png valido, con dimensione inferiore o uguale a 5 MB"
+      },
+      "reset": {
+        "action": "Reimpostazione avatar"
+      }
+    },
+    "errors": {
+      "unexpected": "Si è verificato un errore: "
+    },
+    "twofa": {
+      "title": "Autenticazione a due fattori",
+      "activate": "Attiva 2FA",
+      "alreadyActivated": "2FA già attivato",
       "scanQR": "Scansiona questo codice QR con la tua app di autenticazione",
-      "enterActivation": "Inserisci il tuo codice 2FA per confermare l'attivazione",
       "field": "Codice 2FA",
+      "enterActivation": "Inserisci il tuo codice 2FA per confermare l'attivazione",
       "success": "Codice 2FA verificato con successo",
       "invalid": "Codice 2FA non valido",
       "errors": {
-        "unexpected": "Qualcosa è andato storto"
+        "unexpected": "Si è verificato un errore"
       }
+    },
+    "delete": {
+      "title": "Elimina account",
+      "irreversible": "❗Questa azione è irreversibile",
+      "action": "Elimina account"
     }
+  },
+  "friends": {
+    "card": {
+      "viewProfile": "Visualizza il profilo dell'amico",
+      "inviteGame": "Invita a una partita",
+      "unfriend": "Rimuovi dagli amici"
+    },
+    "looking:for": {
+      "text": "Cerchi un nuovo amico?",
+      "field": "Cerca un amico"
+    },
+    "add": {
+      "action": "Aggiungi agli amici",
+      "success": "Amico aggiunto con successo",
+      "failure": "Impossibile aggiungere l'utente come amico"
+    },
+    "remove": {
+      "failure": "Impossibile rimuovere l'utente dagli amici"
+    },
+    "errors": {
+      "general": "Errore",
+      "unexpected": "Si è verificato un errore",
+      "list": {
+        "get": "Errore durante il recupero della lista degli amici",
+        "display": "Errore durante la visualizzazione della lista degli amici"
+      }
+    },
+    "close": "Chiudi",
+    "modal": {
+      "notFound": "Errore: modale non trovata",
+      "idAttributeMissing": "Errore: attributo data-id mancante nella modale"
+    }
+  },
+  "block": {
+    "card": {
+      "viewProfile": "Visualizza il profilo dell'utente",
+      "inviteGame": "Invita a una partita",
+      "unblock": "Rimuovi dalla lista di blocco"
+    },
+    "lookingFor": {
+      "text": "Cerchi un utente da bloccare?",
+      "field": "Cerca un utente"
+    },
+    "add": {
+      "action": "Aggiungi alla lista di blocco",
+      "success": "Utente bloccato con successo",
+      "failure": "Impossibile aggiungere l'utente alla lista di blocco"
+    },
+    "remove": {
+      "failure": "Impossibile rimuovere l'utente dalla lista di blocco"
+    },
+    "errors": {
+      "general": "Errore",
+      "somethingWentWrong": "Si è verificato un problema",
+      "getBlockList": "Errore durante il recupero della lista di blocco",
+      "displayBlockList": "Errore durante la visualizzazione della lista di blocco",
+      "modalNotFound": "Errore: modale non trovata",
+      "idAttributeNotFound": "Errore: attributo data-id non trovato",
+      "addBlockFailure": "Impossibile aggiungere l'utente alla lista di blocco"
+    },
+    "success": {
+      "addBlock": "Utente bloccato con successo"
+    },
+    "close": "Chiudi",
+    "modal": {
+      "notFound": "Errore: modale non trovata",
+      "idAttributeMissing": "Errore: attributo data-id mancante nella modale"
+    }
+  },
+  "tournament": {
+    "tab": {
+      "open": "Tornei aperti",
+      "inProgress": "Tornei in corso",
+      "finished": "Terminato", 
+      "alreadyJoinedTxt": "Completa le tue partite in corso o annulla la tua partecipazione per creare o unirti a un altro torneo!",
+      "noTournamentToDisplay": "Nessun torneo da mostrare"
+    },
+    "create": {
+      "txt": "Crea torneo",
+      "cantFind": "Non trovi un torneo che ti piace?",
+      "yourOwn": "Crea il tuo!",
+      "twoP": "2 giocatori",
+      "fourP": "4 giocatori",
+      "eightP": "8 giocatori",
+      "name": {
+        "txt": "Nome del torneo",
+        "enter": "Inserisci il nome del torneo"
+      },
+      "size": {
+        "txt": "Numero di giocatori"
+      },
+      "action": {
+        "txt": "Crea"
+      },
+      "success": "Torneo creato con successo : ",
+      "failure": "Errore durante la creazione del torneo",
+      "errors": {
+        "fetchTournaments": "Errore durante il recupero dei tornei",
+        "displayTournaments": "Errore durante la visualizzazione dei tornei",
+        "joinTournament": "Errore durante la partecipazione al torneo",
+        "createTournament": "Errore durante la creazione del torneo",
+        "invalidName": "Nome del torneo non valido",
+        "tourNameRequirements": "Il nome del torneo deve contenere caratteri alfanumerici e avere una lunghezza compresa tra 5 e 8 caratteri."
+      }
+    },
+    "invite": {
+      "friend": "Invita un amico",
+      "title": "Amico invitato",
+      "success": "Amico invitato con successo",
+      "failure": "Errore durante l'invito dell'amico"
+    },
+    "join": {
+      "success": "Torneo unito con successo",
+      "failure": "Impossibile unirsi al torneo",
+      "true": "Unito"
+    },
+    "card": {
+      "alreadyJoined": "Ti sei già iscritto a un torneo",
+      "tournamentFull": "Torneo completo",
+      "joinTournament": "Unisciti",
+      "deleteTournament": "Elimina",
+      "player": "giocatore",
+      "players": "giocatori",
+      "spot": "posto",
+      "spots": " posti"
+    }
+  },
+  "twofa": {
+    "scanQR": "Scansiona questo codice QR con la tua app di autenticazione",
+    "field": "Codice 2FA",
+    "enterActivation": "Inserisci il tuo codice 2FA per confermare l'attivazione",
+    "success": "Codice 2FA verificato con successo",
+    "invalid": "Codice 2FA non valido",
+    "errors": {
+      "unexpected": "Si è verificato un errore"
+    }
+  },
+  "deleteView": {
+    "title": "Elimina account",
+    "confirmationText": "Sei sicuro di voler eliminare il tuo account?",
+    "confirmationNo": "😊 No, voglio continuare a giocare!",
+    "confirmationYes": "😔 Sì, voglio eliminare il mio account"
   }
-  
+}

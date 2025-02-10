@@ -23,6 +23,10 @@ class Router {
     this._matchRoute.bind(this);
   }
 
+  getCurrentView() {
+    return this.#currentView;
+  }
+
   setListeners() {
     window.addEventListener("popstate", this.route.bind(this));
     document.addEventListener("click", this._handleLinkClick.bind(this));
@@ -30,9 +34,12 @@ class Router {
   }
 
   _handleLinkClick(event) {
-    if (event.target.matches("[data-link]")) {
+    const link = event.target.closest("a[data-link]");
+
+    if (link) {
       event.preventDefault();
-      history.pushState(null, null, event.target.href);
+      const href = link.getAttribute("href");
+      history.pushState(null, null, href);
       this.route();
     }
   }
@@ -114,8 +121,10 @@ class Router {
     history.pushState(null, null, event.detail.route);
     this.route();
   }
+
+  //AV = I added the hyphen because this rule blocked the rerouting to /create-tournaments in case of a language change
   static reroute(uri) {
-    const regex = /^\/[a-zA-Z0-9\/]*$/;
+    const regex = /^\/[a-zA-Z0-9\/-]*$/;
     if (!regex.test(uri)) throw new Error("Router::reroute : invalid route");
     const event = new CustomEvent("redirect", {
       detail: {

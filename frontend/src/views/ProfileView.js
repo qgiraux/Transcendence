@@ -4,6 +4,7 @@ import Router from "../Router.js";
 import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
 import Avatar from "../Avatar.js";
+import Localization from "../Localization.js";
 
 class ProfileView extends AbstractView {
   constructor(params) {
@@ -19,67 +20,49 @@ class ProfileView extends AbstractView {
     Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
-    // await Application.applyTranslations();
     this.onStart();
   }
 
   async loadMessages() {
-    this.messages.error = "Error";
-    this.messages.wentWrong = "Something went wrong";
-    this.messages.userStatsErr = "Error getting user stats";
-    this.messages.avatarResetErr = "Error resetting avatar";
-    this.messages.avatarUpdateErr = "Error updating avatar";
-    this.messages.avatarRefreshErr = "Error refreshing avatar";
-    this.messages.fileSelectFalse = "You must select a file";
-    this.messages.aliasUpdateErr = "Error updating alias";
-    this.messages.errUpload =
-      "The picture could't be uploaded. Please check that it is a valid jpeg or png file";
-    this.messages.aliasEmptyErr = "Alias cannot be empty.";
-    this.domText.manageAvatar = await Application.localization.t(
-      "profile.actions.manageAvatar"
+    this.domText = {};
+    this.domText.title = await Application.localization.t("titles.profile");
+    this.domText.level = await Application.localization.t("profile.level");
+    this.domText.gamePlayedNumber = await Application.localization.t(
+      "profile.gamePlayedNumber"
     );
-    this.domText.changeAlias = await Application.localization.t(
-      "profile.actions.changeAlias"
+    this.domText.victoryNumber = await Application.localization.t(
+      "profile.victoryNumber"
     );
-    this.domText.activate2FA = await Application.localization.t(
-      "profile.actions.activate2FA"
-    );
-    this.domText.close = await Application.localization.t(
-      "profile.actions.closeBtn"
-    );
-    this.domText.aliasLabel = await Application.localization.t(
-      "profile.alias.label"
-    );
-    this.domText.aliasField = await Application.localization.t(
-      "profile.alias.field"
-    );
-    this.domText.avatarReset = await Application.localization.t(
-      "profile.avatar.resetDefault"
-    );
-    this.domText.chooseFile = await Application.localization.t(
-      "profile.avatar.chooseFile"
-    );
-    this.domText.avatarUpdate = await Application.localization.t(
-      "profile.avatar.update"
-    );
-  }
-
-  listenForLanguageChange() {
-    const languageSelector = document.getElementById(
-      "language-selector-container"
-    );
-    if (languageSelector) {
-      this.addEventListener(languageSelector, "change", async (event) => {
-        const selectedLanguage = event.target.value;
-        console.log("Changement de langue détecté :", selectedLanguage);
-
-        await Application.setLanguage(selectedLanguage);
-        await this.loadMessages();
-        await Application.applyTranslations();
-
-        Router.reroute("/profile");
-      });
+    if (this.playerVictoryRemain === 1) {
+      this.domText.winRemain = await Application.localization.t(
+        "profile.oneWinRemains"
+      );
+    } else if (this.playerVictoryRemain > 1) {
+      this.domText.winRemain = await Application.localization.t(
+        "profile.multipleWinsRemain"
+      );
     }
+    this.domText.table = {};
+    this.domText.table.result = await Application.localization.t(
+      "profile.table.result"
+    );
+    this.domText.table.date = await Application.localization.t(
+      "profile.table.date"
+    );
+    this.domText.table.score = await Application.localization.t(
+      "profile.table.score"
+    );
+
+    this.messages = {};
+    this.messages.errorInitTitle = await Application.localization.t(
+      "profile.errorInitTitle"
+    );
+    this.messages.errorInitBody = await Application.localization.t(
+      "profile.errorInitBody"
+    );
+    this.domText.manageAccount = await Application.localization.t(
+      "profile.manageAccount"
+    );
   }
 
   onStart() {
@@ -90,93 +73,109 @@ class ProfileView extends AbstractView {
       }, 50);
       return;
     }
-    this.listenForLanguageChange();
     this.id = this.params["id"] || Application.getUserInfos().userId;
+
     TRequest.request("GET", `/api/users/userinfo/${this.id}`)
       .then((result) => {
         this.currentUserInfos = result;
-
-        Avatar.refreshAvatars().then(() => {
-          this._setHtml();
-          this._attachEventHandlers();
-          this._userStats();
-        });
+        return this._getUserStats();
+      })
+      .then(() => {
+        return TRequest.request("GET", "/api/users/userlist/");
+      })
+      .then((result) => {
+        this.userList = result;
+        this._setHtml();
+        this._displayHistory();
+        Avatar.refreshAvatars();
+        this._attachEventHandlers();
+        setTimeout(() => {
+          const bar = document.getElementById("progress-bar");
+          bar.style.width = `${(5 - this.playerVictoryRemain) * 20}%`;
+        }, 300);
       })
       .catch((error) => {
-        Alert.errorMessage(this.messages.wentWrong, error.message);
+        Alert.errorMessage(
+          this.messages.errorInitTitle,
+          this.messages.errorInitBody
+        );
       });
   }
 
-  _userStats() {
-    TRequest.request("GET", `/api/users/userstats/${this.id}`)
-      .then((result) => {
-        // Assuming result is an object like { "001": { ...stats } }
-        const statsContainer = document.createElement("div");
-        statsContainer.className = "user-stats";
-        let stats;
+  async _getUserStats() {
+    try {
+      const stats = await TRequest.request(
+        "GET",
+        `/api/users/userstats/${this.id}`
+      );
 
-        // Create the table with headers and rows
-        const table = document.createElement("table");
-        table.className = "table table-dark table-striped";
-
-        // Create the table header row with fixed order 'date', 'win', 'score', 'opponent'
-        const headerRow = document.createElement("tr");
-
-        // Create the headers in the correct order
-        const headers = ["date", "win", "score", "opponent"];
-        headers.forEach((header) => {
-          const th = document.createElement("th");
-          th.textContent = header.charAt(0).toUpperCase() + header.slice(1); // Capitalize first letter
-          headerRow.appendChild(th);
-        });
-
-        table.appendChild(headerRow); // Append the header row
-
-        // Sort the result based on the 'date' field in descending order (most recent first)
-        const sortedStats = Object.values(result).sort((a, b) => {
-          const dateA = new Date(a.date); // Convert 'date' string to Date object
-          const dateB = new Date(b.date); // Convert 'date' string to Date object
-          return dateB - dateA; // Sort in descending order (most recent first)
-        });
-
-        // Create the table body, where each row corresponds to a stat (e.g., "001", "002")
-        sortedStats.forEach((stat) => {
-          const row = document.createElement("tr");
-
-          // For each stat, create a table cell (td) in the correct order: date, win, score, opponent
-          const cells = ["date", "win", "score", "opponent"];
-          cells.forEach((key) => {
-            const td = document.createElement("td");
-            td.textContent = stat[key]; // Use the value of the field
-            row.appendChild(td);
-          });
-
-          table.appendChild(row); // Append each row to the table
-        });
-
-        // Append the table to the container
-        statsContainer.appendChild(table);
-
-        // Append the stats container to the main container (where it should appear in the DOM)
-        const container = document.querySelector("#stat-container");
-        if (container) {
-          container.appendChild(statsContainer);
-        }
-      })
-      .catch((error) => {
-        Alert.errorMessage(this.messages.userStatsErr, error.message);
+      const entries = Object.entries(stats);
+      this.playerHistory = entries.map(([k, v]) => ({
+        match_id: k,
+        ...v,
+      }));
+      this.playerHistory = this.playerHistory.map((match) => ({
+        ...match,
+        date: new Date(match.date),
+      }));
+      this.playerHistory = this.playerHistory.sort((a, b) => {
+        return a.date - b.date;
       });
+      this.playerMatchPlayed = this.playerHistory.length;
+      this.playerMatchWon = this.playerHistory.reduce((victories, current) => {
+        return current.win == "yes" ? victories + 1 : victories;
+      }, 0);
+      this.playerLevel = Math.floor(this.playerMatchWon / 5);
+      this.playerVictoryRemain = 5 - (this.playerMatchWon % 5);
+      this.loadMessages(); //Quick fix to update the messages; need to be improved (AV)
+    } catch (error) {
+      Alert.errorMessage(
+        "User Stats",
+        `Something went wrong: ${error.message}`
+      );
+    }
+  }
+  _displayHistory() {
+    const table = document.getElementById("table-history");
+    this.playerHistory.forEach((match) => {
+      const tr = document.createElement("tr");
+      const nickname = this.userList.filter((user) => {
+        return user.id === Number(match.opponent);
+      })[0].nickname;
+
+      tr.innerHTML = `
+      <th class="d-flex justify-content-center align-items-center"> ${
+        match.win === "yes"
+          ? '<img src="/img/winning-cup.png" width="40" height="40" alt="winner"  style="padding: 0;margin: 0; background-color: transparent;">'
+          : '<img src="/img/loser.png" width="40" height="40" alt="loser"  style="padding: 0;margin: 0; background-color: transparent;">'
+      }</th>
+            <td class="text-center">${match.date.toLocaleDateString(
+              "fr-FR"
+            )}</td>
+          <td class="text-center">${match.score}</td>
+          <td class="text-center d-flex align-items-start justify-content-start gap-2"><img src="${Avatar.url(
+            match.opponent
+          )}" class="rounded-circle border-0" width="40" height="40" alt="${
+        match.opponent
+      }" style="padding: 0;margin: 0;" data-avatar="${
+        match.opponent
+      }"> <a href="/profile/${
+        match.opponent
+      }"  class="text-decoration-none" data-link style="padding: 0;margin: 0;background-color: transparent;" >${nickname}</a></td>`;
+
+      table.appendChild(tr);
+    });
   }
 
   _attachEventHandlers() {
-    const manageBtn = document.querySelector("#manage-btn");
-    if (manageBtn) {
-      this.addEventListener(
-        manageBtn,
-        "click",
-        this._manageProfileClickHandler.bind(this)
-      );
-    }
+    // const manageBtn = document.querySelector("#manage-btn");
+    // if (manageBtn) {
+    //   this.addEventListener(
+    //     manageBtn,
+    //     "click",
+    //     this._manageProfileClickHandler.bind(this)
+    //   );
+    // }
 
     const aliasBtn = document.querySelector("#alias-btn");
     if (aliasBtn) {
@@ -235,7 +234,6 @@ class ProfileView extends AbstractView {
       formData.append("image", fileInput.files[0]);
 
       try {
-        console.log("starting the request");
         const r = await TRequest.request(
           "POST",
           "/api/avatar/upload/",
@@ -243,12 +241,10 @@ class ProfileView extends AbstractView {
         );
         if (typeof r != "object") throw new Error("upload error");
         if (r.hasOwnProperty("error")) {
-          console.log(r.error);
           throw new Error("upload error");
         }
         await Avatar.refreshAvatars();
       } catch (error) {
-        console.log("an error has occured");
         Alert.errorMessage(
           this.messages.avatarRefreshErr,
           this.messages.errUpload
@@ -347,142 +343,83 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-      <button class="btn btn-primary better-btn" id="manage-btn">${this.domText.manageAvatar}</button>
-    `;
-    const profileAlias = `
-      <button class="btn btn-primary better-btn" id="alias-btn">${this.domText.changeAlias}</button>
-    `;
-    const profileTwofa = `
-      <label class="btn btn-primary better-btn" id="twofa-better-btn">
-       ${this.domText.activate2FA}<a href="/twofa" data-link class="nav-link px-0 align-middle">Profile</a>
-      </label>
+		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">${this.domText.manageAccount}</a>
     `;
     const container = document.querySelector("#view-container");
 
     if (container) {
       container.innerHTML = `
-        <!-- Alias Modal -->
-        <div class="modal fade text-white" id="aliasModal" tabindex="-1" aria-labelledby="aliasModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-              <div class="modal-header">
-                <h2>Change Alias</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=${
-                  this.domText.close
-                }></button>
-              </div>
-              <div class="modal-body">
-                <div class="form-group">
-                  <label for="newAliasInput" class="form-label">${
-                    this.domText.aliasLabel
-                  }</label>
-                  <input type="text" class="form-control" id="newAliasInput" placeholder="${
-                    this.domText.aliasField
-                  }">
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="update-alias-btn" data-bs-dismiss="modal">${
-                  this.domText.aliasUpdate
-                }</button>
-              </div>
+	  <div class="row"><h1>${this.domText.title}</h1></div>
+		<div class="mt-4 row mx-auto" style="max-width:800px;">
+        <div class="row p-1 mb-4 mx-auto">
+            <div class="row d-flex flex-row p-2 ">
+                <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
+				<div class="row">
+              <img id="profile-img" src="${Avatar.url(
+                this.currentUserInfos.id
+              )}" width="300" height="300" data-avatar="${
+        this.currentUserInfos.id
+      }" alt="user" class="rounded-circle img-fluid"></div>
+	  <div class="row mt-2">
+	  	${this.id === Application.getUserInfos().userId ? profileEdit : ""}
+	  </div>
             </div>
-          </div>
-        </div>
-        <!-- END Alias Modal -->
-
-        <!-- Avatar Modal -->
-        <div class="modal fade text-white" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content bg-dark">
-              <div class="modal-header">
-                <h2>Avatar Settings</h2>
-                <button type="button" class="btn-close" data-autobs-dismiss="modal" aria-label=${
-                  this.domText.close
-                }></button>
-              </div>
-              <div class="mt-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="avatarOption" id="resetDefault" value="reset" checked>
-                  <label class="form-check-label" for="resetDefault">${
-                    this.domText.avatarReset
-                  }</label>
-                </div>
-                <div class="form-check mb-3">
-                  <input class="form-check-input" type="radio" name="avatarOption" id="uploadFile" value="file">
-                  <label class="form-check-label" for="uploadFile">${
-                    this.domText.chooseFile
-                  }</label>
-                  <div class="input-group mb-3">
-                    <div class="custom-file">
-                      <input type="file" class="custom-file-input" accept="image/png,image/jpeg" id="fileInput" disabled>
+                <div class="col-6 mb-3 p-2 border border-secondary rounded ">
+                    <h1 class="text-primary display-6 fw-bold" id="nickname">${
+                      this.currentUserInfos.nickname
+                    }</h1>
+                    <p class="text-secondary " id="username">@${
+                      this.currentUserInfos.username
+                    }</p>
+                    <div class="card bg-dark text-white p-4 rounded shadow">
+                        <h2 class="text-center text-white mb-4">${
+                          this.domText.level
+                        } <strong>${this.playerLevel}</strong></h2>
+                        <div class="row mb-3 d-flex justify-content-center align-items-center">
+                            <div class="col-6 text-primary">${
+                              this.domText.gamePlayedNumber
+                            }</div>
+                            <div class="col-6 text-end text-white fw-bold fs-3">${
+                              this.playerMatchPlayed
+                            }</div>
+                        </div>
+                        <div class="row mb-3 d-flex justify-content-center align-items-center">
+                            <div class="col-6 text-primary">${
+                              this.domText.victoryNumber
+                            }</div>
+                            <div class="col-6 text-end text-white fw-bold fs-4">${
+                              this.playerMatchWon
+                            }</div>
+                        </div>
+                        <div class="progress " style="height: 10px; border-radius: 5px;">
+                            <div id="progress-bar" class="progress-bar" role="progressbar"
+                                style="width: 0%; background-color: #76c7c0;" aria-valuenow="50" aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="text-white" id="victories-left-text">${
+                          this.playerVictoryRemain
+                        } ${this.domText.winRemain}
+                        </div>
                     </div>
-                  </div>
                 </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="update-button" data-bs-dismiss="modal">${
-                  this.domText.avatarUpdate
-                }</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- END Avatar Modal -->
-
-        <div class="row p-3 justify-content-center">
-          <div class="row">
-            <div class="col-md-6">
-              <img
-                id="profile-img"
-                src="${Avatar.url(this.currentUserInfos.id)}"
-                data-avatar="${this.currentUserInfos.id}"
-                alt="user"
-                class="rounded-circle">
-            </div>
-            <div class="col-md-6">
-              <h1 class="text-white display-1">${
-                this.currentUserInfos.username
-              }</h1>
-              ${
-                this.currentUserInfos.nickname !==
-                this.currentUserInfos.username
-                  ? `<p class="text-white display-5" id="nickname">aka ${this.currentUserInfos.nickname}</p>`
-                  : ""
-              }
-              <div class="row justify-content-center">
-                <div class="col-12 col-md-auto d-flex align-items-stretch">
-                  ${
-                    this.currentUserInfos.id ===
-                    Application.getUserInfos().userId
-                      ? profileEdit
-                      : ""
-                  }
-                </div>
-                <div class="col-12 col-md-auto d-flex align-items-stretch">
-                  ${
-                    this.currentUserInfos.id ===
-                    Application.getUserInfos().userId
-                      ? profileAlias
-                      : ""
-                  }
-                </div>
-                <div class="col-12 col-md-auto d-flex align-items-stretch">
-                  ${
-                    this.currentUserInfos.id ===
-                    Application.getUserInfos().userId
-                      ? profileTwofa
-                      : ""
-                  }
-                </div>
-              </div>
-            </div>
-            <div id="stat-container">
+                <br>
             </div>
 
+            <div id="history-container" class="row scrollable-panel p-3">
+                <div class="user-stats">
+                    <table class="table table-dark  table-striped " id="table-history">
+                        <tr class="text-center mb-2">
+                            <th>${this.domText.table.result}</th>
+                            <th>${this.domText.table.date}</th>
+                            <th>${this.domText.table.score}</th>
+                            <th></th>
 
-          </div>
-        </div>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+	</div>
       `;
     }
   }
