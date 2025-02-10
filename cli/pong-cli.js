@@ -12,4 +12,7 @@ callbacks = [()=>{p.displayHelp = true}, ()=>{process.stdout.write("pong-cli ver
 p.setOptions(patterns, callbacks);
 p.commands = [new CmdRegister(), new CmdChat(), new CmdGame()];
 p.defaultCallback = ()=>{p.printHelp()};
+
+//HttpsClient.enableDebug(); //
+
 p.eval();

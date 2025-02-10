@@ -1,10 +1,11 @@
-const {Parser} = require("./Parser")
-const {HttpsClient} = require("./HttpsClient")
-const {Command} = require("./Command")
+const {Parser} = require("./Parser");
+const {HttpsClient} = require("./HttpsClient");
+const {Command} = require("./Command");
 //const {Controller} = require("./Controller")
 //const assert = require('node:assert')
-const {TextEditor} = require("./TextEditor")
-const {Localization} = require("./Localization")
+const {TextEditor} = require("./TextEditor");
+const {Localization} = require("./Localization");
+const {ApiPong} = require("./ApiPong");
 
 let l = new Localization(); //
 
@@ -39,8 +40,11 @@ class CmdRegister extends Command {
 		this.parser.defaultCallback = () => {this.#stepEnterLogin()};
 		this.host = "";
 		this.hostDefault = l.source.sys.host;
+		/**@type {String} */
 		this.login = "";
+		/**@type {String} */
 		this.password = "";
+		/**@type {String} */
 		this.passwordConfirm = "";
 		this.editor = undefined;
 	}
@@ -111,11 +115,9 @@ class CmdRegister extends Command {
 		const hostname = hostInfo[0];
 		const port = Number(hostInfo[1]);
 
-		//HttpsClient.allowSelfSigned(); //
-		HttpsClient.post(
-			{hostname: hostname, port:port, path: l.source.api.signup},
-			JSON.stringify({username: this.login, password: this.password}),
-			CmdRegister._printResult
+		ApiPong.register(
+			{hostname: hostname, port:port}, 
+			this.login, this.password, CmdRegister._printResult
 		);
 	}
 

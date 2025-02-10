@@ -3,6 +3,7 @@ const {Localization} = require("./Localization");
 const WebSocket = require('ws'); //npm install ws
 const {HttpsClient} = require("./HttpsClient");
 const {TextEditor} = require("./TextEditor");
+const {ApiPong} = require("./ApiPong");
 //const {Controller} = require("./Controller");
 
 let l = new Localization(); //
@@ -137,12 +138,12 @@ class CmdChat extends CmdJWT {
 			} else {
 				if (false == this.blocklist.includes(userId))
 					this.blocklist.push(userId);
-				HttpsClient.reqWithJwt(
-					HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/friends/blocks/addblock/"}), 
-					JSON.stringify({id: userId}), 
-					(ret)=>{CmdChat.#writeResponse(ret)},
+				ApiPong.block(
+					HttpsClient.setUrlInOptions(this.host),
+					userId, 
+					(ret)=>{CmdChat.#writeResponse(ret)}, 
 					this.jwt, (access) => {this.jwt.access = access}
-				);
+				)
 			}
 		}
 	}
@@ -158,12 +159,12 @@ class CmdChat extends CmdJWT {
 
 			if (-1 != index > -1)
 				this.blocklist.splice(index, 1);
-			HttpsClient.reqWithJwt(
-				HttpsClient.setUrlInOptions(this.host, {method: "DELETE", path: "/api/friends/blocks/removeblock/"}), 
-				JSON.stringify({id: userId}), 
-				(ret)=>{CmdChat.#writeResponse(ret)},
+			ApiPong.unblock(
+				HttpsClient.setUrlInOptions(this.host),
+				userId, 
+				(ret)=>{CmdChat.#writeResponse(ret)}, 
 				this.jwt, (access) => {this.jwt.access = access}
-			);
+			)
 		}
 	}
 
@@ -376,24 +377,21 @@ class CmdChat extends CmdJWT {
 			CmdChat.formatChat(this.nicknames[userId], data.message, userId, messageQualifier);
 			process.stdout.write(userInput);
 		} else {
-			this.getUserInfo(userId, (ret)=>{
-				if (200 == ret.statusCode) {
-						const nickname_ = ret.message.nickname;
-
-						this.nicknames[String(userId)] = nickname_;
-						CmdChat.formatChat(nickname_, data.message, userId, messageQualifier);
-				} else
-					CmdChat.formatChat(userId, data.message, "unknown", messageQualifier);
-				process.stdout.write(userInput);
-			});
+			ApiPong.getUserInfo(
+				HttpsClient.setUrlInOptions(this.host),
+				user,
+				(ret) => {
+					if (200 == ret.statusCode) {
+							const nickname_ = ret.message.nickname;
+	
+							this.nicknames[String(userId)] = nickname_;
+							CmdChat.formatChat(nickname_, data.message, userId, messageQualifier);
+					} else
+						CmdChat.formatChat(userId, data.message, "unknown", messageQualifier);
+					process.stdout.write(userInput);
+				}, this.jwt, (access) => {this.jwt.access = access}
+			);
 		}
-	}
-
-	getUserInfo(user, callback=console.log) {
-		HttpsClient.reqWithJwt(
-			HttpsClient.setUrlInOptions(this.host, {method: "GET", path: `/api/users/userinfo/${user}`}), 
-			null, callback, this.jwt, (access) => {this.jwt.access = access}
-		);
 	}
 
 	#onBlocklist(ret) {
@@ -412,12 +410,10 @@ class CmdChat extends CmdJWT {
 
 	#onLogin(jwt) {
 		CmdChat.writeSystem(`Obtaining block list...\n`);
-		HttpsClient.reqWithJwt(
-			HttpsClient.setUrlInOptions(this.host, {method: "GET", path: "/api/friends/blocks/blockslist/"}), 
-			null, 
+		ApiPong.getBlockList(
+			HttpsClient.setUrlInOptions(this.host),
 			(ret) => {this.#onBlocklist(ret)}, 
-			jwt, 
-			(access) => {this.jwt.access = access}
+			jwt, (access) => {this.jwt.access = access}
 		);
 	}
 
@@ -439,8 +435,8 @@ class CmdChat extends CmdJWT {
 	}
 
 	onOpen() {
-		HttpsClient.reqWithJwt(
-			HttpsClient.setUrlInOptions(this.host, {method: "GET", path: "/api/users/userinfo/"}), 
+		ApiPong.getUserInfo(
+			HttpsClient.setUrlInOptions(this.host), 
 			null, 
 			(ret) => {
 				if (HttpsClient.isStatusOk(ret.statusCode)) {

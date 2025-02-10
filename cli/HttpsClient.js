@@ -1,6 +1,18 @@
 const https = require('node:https');
 
 class HttpsClient{
+	static enableDebug(log = (...args) => {console.log(args)}) {
+		HttpsClient.request_ = HttpsClient.request;
+		HttpsClient.request = (options, jsonData, callback) => {
+			log("I:", options, jsonData, callback);
+			const callback_ = (ret) => {
+				log("O:", ret, options, jsonData);
+				callback(ret);
+			}
+			HttpsClient.request_(options, jsonData, callback_);
+		}
+	}
+
 	static allowSelfSigned(){
 		process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 	}
@@ -12,6 +24,8 @@ class HttpsClient{
 	static setUrlInOptions(url, options) {
 		const data = url.split(":");
 
+		if (!options)
+			options = {};
 		if (data[0])
 			options.host = data[0];
 		if (data[1])
@@ -19,104 +33,13 @@ class HttpsClient{
 		return options;
 	}
 
-	static get(url, callback, jwt){
-		const options = {};
-
-		options.headers = {
-			'Accept': "application/json",
-		};
-		if (jwt && jwt.access)
-			options.headers.Authorization = `Bearer ${jwt.access}`;
-		return https.get(url, options, (res) => {
-			const { statusCode } = res;
-			const contentType = res.headers['content-type'];
-
-			if (!/^application\/json/.test(contentType)) {
-				callback({"statusCode": 500, "message": 
-					'Invalid content-type.\n'
-					+ `Expected application/json but received ${contentType}`
-				});
-				res.resume();
-				return ;
-			}
-			res.setEncoding('utf8');
-			let rawData = '';
-
-			res.on('data', (chunk) => { rawData += chunk; });
-			res.on('end', () => {
-				try {
-					const parsedData = JSON.parse(rawData);
-
-					callback({"statusCode": statusCode, "message": parsedData});
-				} catch (e) {
-					callback({"statusCode": statusCode, "message": rawData});
-				}
-			});
-		}).on('error', (e) => {
-			callback({"statusCode": 500, "message": e.message});
-		});
-	}
-
-
 	/**
-	 * 
 	 * @param {https.RequestOptions} options 
+	 * @param {String} options.hostname
+	 * @param {Number} options.port
+	 * @param {String} options.path
 	 * @param {String} jsonData 
 	 * @param {Function} callback 
-	 * @param {Object} jwt
-	 * @param {String} jwt.access
-	 * @param {String} jwt.refresh
-	 * @returns 
-	 */
-	static post(options={hostname:"localhost", port:443, path:"/"}, jsonData, callback, jwt) {
-		options.method = "POST";
-		options.headers = {
-			'Accept': "application/json",
-			'Content-Type': 'application/json',
-			'Content-Length': jsonData.length
-		}
-		if (jwt && jwt.access)
-			options.headers.Authorization = `Bearer ${jwt.access}`;
-		const req = https.request(options, (res) => {
-			const { statusCode } = res;
-			const contentType = res.headers['content-type'];
-
-			if (!/^application\/json/.test(contentType)) {
-				callback({"statusCode": 500, "message": 
-					'Invalid content-type.\n'
-					+ `Expected application/json but received ${contentType}`
-				});
-				res.resume();
-				return ;
-			}
-			res.setEncoding('utf8');
-			let rawData = '';
-
-			res.on('data', (chunk) => { rawData += chunk; });
-			res.on('end', () => {
-				try {
-					const parsedData = JSON.parse(rawData);
-
-					callback({"statusCode": statusCode, "message": parsedData});
-				} catch (e) {
-					callback({"statusCode": statusCode, "message": rawData});
-				}
-			});
-		}).on('error', (e) => {
-			callback({"statusCode": 500, "message": e.message});
-		});
-		req.end(jsonData);
-	}
-
-
-	/**
-	 * 
-	 * @param {https.RequestOptions} options 
-	 * @param {String} jsonData 
-	 * @param {Function} callback 
-	 * @param {Object} jwt
-	 * @param {String} jwt.access
-	 * @param {String} jwt.refresh
 	 * @returns 
 	 */
 	static request(options={hostname:"localhost", port:443, path:"/"}, jsonData, callback) {
@@ -160,8 +83,20 @@ class HttpsClient{
 		req.end(jsonData);
 	}
 
+	/**
+	 * 
+	 * @param {https.RequestOptions} options 
+	 * @param {String} options.hostname
+	 * @param {Number} options.port
+	 * @param {String} options.path
+	 * @param {String} jsonData 
+	 * @param {Function} callback 
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} onRefresh 
+	 */
 	static reqWithJwt(options, jsonData, callback, jwt, onRefresh) {
-		//jwt.access = "Patate"; //
 		if (!options.headers)
 			options.headers = {}
 		options.headers.Authorization = `Bearer ${jwt.access}`;
@@ -194,22 +129,6 @@ class HttpsClient{
 
 		HttpsClient.request(Object.assign({}, options), jsonData, onRet);
 	}
-
-	// static refreshJwt(options, jwt, callback) {
-	// 	const refreshCallback = (ret) => {
-	// 		if (
-	// 			401 == ret.statusCode 
-	// 			&& ret.message 
-	// 			&& "token_not_valid" == ret.message.code
-	// 		) {
-	// 			HttpsClient.post(options, JSON.stringify({refresh: jwt.refresh}), callback);
-	// 		} else {
-	// 			callback(ret);
-	// 		}
-	// 	}
-
-	// 	callback()
-	// }
 }
 
 module.exports = {
