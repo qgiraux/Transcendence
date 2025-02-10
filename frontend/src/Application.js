@@ -217,6 +217,16 @@ class Application {
     return Application.gameSocket;
   }
 
+  static toggleLangSelectorHide() {
+    const langSelect = document.querySelector("#language-selector-container");
+    langSelect.classList.add("d-none");
+  }
+
+  static toggleLangSelectorShow() {
+    const langSelect = document.querySelector("#language-selector-container");
+    langSelect.classList.remove("d-none");
+  }
+
   static async toggleSideBar() {
     const sideBar = document.querySelector("#sidebar");
     const avatarImg = document.querySelector("#side-img");
