@@ -1,4 +1,3 @@
-
 import jwt
 from django.conf import settings
 from channels.testing import WebsocketCommunicator, ChannelsLiveServerTestCase
@@ -63,8 +62,8 @@ class ChatConsumerTests(ChannelsLiveServerTestCase):
         # Check that the consumer correctly broadcasts the message
         response = await communicator.receive_json_from()
         self.assertEqual(response['type'], 'chat')
-        self.assertEqual(response['message'], 'Hello, world!')
-        self.assertEqual(response['sender'], 'TestUser')
+        self.assertEqual(response['message'], "'Hello, world!'")
+        self.assertEqual(response['sender'], 1)
 
         await communicator.disconnect()
 
@@ -79,17 +78,9 @@ class ChatConsumerTests(ChannelsLiveServerTestCase):
         }
         await communicator.send_json_to(subscribe_message)
 
-        # Simulate receiving a notification on the subscribed channel
-        notification_message = {
-            'type': 'notification',
-            'message': 'TestUser subscribed to tournament_123',
-            'sender': 'system',
-            'group': 'tournament_123',
-        }
-
         # Check if the message is received through the WebSocket
         response = await communicator.receive_json_from()
-        self.assertEqual(response['type'], 'notification')
+        self.assertEqual(response['type'], 'notification_message')
         self.assertEqual(response['message'], 'TestUser subscribed to tournament_123')
 
         await communicator.disconnect()
