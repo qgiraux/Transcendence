@@ -71,14 +71,6 @@ class BlocksView extends AbstractView {
     );
   }
 
-  //   async listenForLanguageChange(event) {
-  //     const selectedLanguage = event.target.value;
-  //     console.log("Language change detected :", selectedLanguage);
-  //     await Application.setLanguage(selectedLanguage);
-  //     await this.loadMessages();
-  //     await Application.applyTranslations();
-  //     Router.reroute("/blocks");
-  //   }
 
   onStart() {
     this._setTitle("Blocks");
@@ -268,45 +260,21 @@ class BlocksView extends AbstractView {
     div.classList.add("col-lg-3");
     div.style.maxWidth = "160px";
     div.innerHTML = `
-	<div class="col-md-4 col-lg-3 " style="width: 150px;">
-		<div class="card shadow  border-secondary p-2 fixed-width-card   text-white"
-		style="background-color: #303030;">
-			<img class="card-img-top rounded" src="${Avatar.url(
-        block.id
-      )}" alt="Card image cap">
-				<div class="card-body">
-					<h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
-					${block.nickname}
-					</h5>
-					<p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${
-            block.username
-          })</p>
-
-					<div class="btn-group">
-					<button  style=" font-size: 0.8rem;font-weight: bold; color: rgb(0, 255, 149);"
-					class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
-					aria-expanded="false">
-					Online
-					</button>
-					<ul class="dropdown-menu">
-					<li><button class="dropdown-item" data-id=${
-            block.id
-          } data-action="view-profile">${this.domText.viewProfile}</button></li>
-                    <li><button class="dropdown-item" data-id=${
-                      block.id
-                    } data-action="invite-game">${
-      this.domText.inviteGame
-    }</button></li>
-                    <li><button class="dropdown-item" data-id=${
-                      block.id
-                    } data-action="unblock">${
-      this.domText.unblock
-    }</button></li>
-					</ul>
-					</div>
-				</div>
-			</div>
-	</div>`;
+    <div class="col-md-4 col-lg-3 " style="width: 150px;">
+      <div class="card shadow border-secondary p-2 fixed-width-card text-white" style="background-color: #303030;">
+        <img class="card-img-top rounded" src="${Avatar.url(block.id)}" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
+            ${block.nickname}
+          </h5>
+          <p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${block.username})</p>
+          <button style="font-size: 0.8rem; font-weight: bold; color: rgb(255, 0, 0);"
+            class="btn btn-secondary btn-sm" data-id="${block.id}" data-action="unblock">
+            ${this.domText.unblock}
+          </button>
+        </div>
+      </div>
+    </div>`;
     blocksContainer.appendChild(div);
   }
 
