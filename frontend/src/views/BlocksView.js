@@ -116,12 +116,6 @@ class BlocksView extends AbstractView {
     );
 
     this.addEventListener(
-      document.querySelector("#blocks-container"),
-      "click",
-      this._blockDropDownhandler.bind(this)
-    );
-
-    this.addEventListener(
       document.getElementById("UserSelectModal"),
       "hide.bs.modal",
       this._modalSafeClose.bind(this)
@@ -135,28 +129,6 @@ class BlocksView extends AbstractView {
       search.value = "";
       search.focus();
     }, 10);
-  }
-
-  async _blockDropDownhandler(event) {
-    const target = event.target;
-    if (target.matches(".dropdown-item[data-action]")) {
-      const action = target.getAttribute("data-action");
-      const id = target.getAttribute("data-id");
-
-      switch (action) {
-        case "view-profile":
-          Router.reroute(`/profile/${id}`);
-          break;
-        case "invite-game":
-          console.log(`placeHolder Inviting to a game for ID: ${id}`);
-          break;
-        case "unblock":
-          this._removeBlock(id);
-          break;
-        default:
-          console.warn(`Unknown action: ${action} for ID : ${id}`);
-      }
-    }
   }
 
   _dropDownClickHandler(event) {
@@ -262,19 +234,23 @@ class BlocksView extends AbstractView {
     div.innerHTML = `
     <div class="col-md-4 col-lg-3 " style="width: 150px;">
       <div class="card shadow border-secondary p-2 fixed-width-card text-white" style="background-color: #303030;">
-        <img class="card-img-top rounded" src="${Avatar.url(block.id)}" alt="Card image cap">
-        <div class="card-body">
-          <h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
-            ${block.nickname}
-          </h5>
-          <p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${block.username})</p>
-          <button style="font-size: 0.8rem; font-weight: bold; color: rgb(255, 0, 0);"
-            class="btn btn-secondary btn-sm" data-id="${block.id}" data-action="unblock">
-            ${this.domText.unblock}
-          </button>
-        </div>
+      <img class="card-img-top rounded" src="${Avatar.url(block.id)}" alt="Card image cap">
+      <div class="card-body">
+      <h5 class="card-title my-0 mb-0" style="font-size: 0.9rem;font-weight: bold;">
+      ${block.nickname}
+      </h5>
+      <p class="card-text my-0 mb-0" style="font-size: 0.7rem;">(${block.username})</p>
+      <button style="font-size: 0.8rem; font-weight: bold; color: rgb(0, 0, 0);"
+      class="btn btn-primary unblock-button" data-id="${block.id}">
+      ${this.domText.unblock}
+      </button>
+      </div>
       </div>
     </div>`;
+
+    div.querySelector('.unblock-button').addEventListener('click', () => {
+      this._removeBlock(block.id);
+    });
     blocksContainer.appendChild(div);
   }
 
