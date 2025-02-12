@@ -1,3 +1,5 @@
+import Application from "./Application.js";
+
 class PongRenderer {
   constructor(canvas) {
     this.canvas = canvas;
@@ -107,6 +109,11 @@ class PongRenderer {
     this.ctx.font = "20px Arial";
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = "white";
+    this.ctx.fillText(
+      Application.joinedTournament,
+      this.canvas.width /2,
+      this.canvas.height -50
+    );
     this.ctx.fillText(
       "press space to start",
       this.canvas.width / 2,

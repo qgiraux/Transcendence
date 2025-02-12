@@ -82,7 +82,7 @@ class HomeView extends AbstractView {
                 const textmessage = `your game is starting!`;
                 const link = message;
                 Router.reroute("/pong");
-                Alert.inviteMessage(type, textmessage, link);
+                // Alert.inviteMessage(type, textmessage, link);
                 Application.gameSocket.send(
                   JSON.stringify({
                     type: "join",

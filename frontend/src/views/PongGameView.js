@@ -27,12 +27,12 @@ class PongGameView extends AbstractView {
         this.onStart();
     }
 
-    // childOnDestroy() {
-    //     console.log("Destroying PongGameView");
-    //     if (this.isGameOver === false)
-    //         Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
+    childOnDestroy() {
+        console.log("Destroying PongGameView");
+        if (this.isGameOver === false)
+            Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
         
-    // }
+    }
     onStart() {
         
         document.addEventListener('keydown', (event) => this.handleKeyDown(event));
