@@ -92,6 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
         elif message_type == 'notification' and sender_name == 'system':
             # Send the message directly to the specified user
+            logger.error(f"Notification message: {data['message']}")
             await self.channel_layer.group_send(
                 group,
                 {
@@ -128,11 +129,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Handle subscription to additional channels (e.g., tournament channels)
             channel_name = data.get('channel')
             if channel_name:
-                await self.channel_layer.group_add(
-                    channel_name,
-                    self.channel_name
-                )
-                await self.redis_pubsub.subscribe(self.channel_name, 'global_chat')
+                await self.channel_layer.group_add(channel_name, self.channel_name)
+                await self.redis_pubsub.subscribe(channel_name)
                 await self.channel_layer.group_send(
                     f'user_{self.user_id}',
                     {
@@ -141,11 +139,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'group': channel_name,
                     'message': f'{self.nickname} subscribed to {channel_name}'
                 })
-                # logger.error(f"User {self.nickname} subscribed to {channel_name}")
 
     async def chat_message(self, event):
         """Send the chat message to the WebSocket."""
-        logger.error(f"Chat message: {event['message']}")
         if event['message'].startswith("'!invite") and event['group'] != 'global_chat':
             tmp = event['message'][9: -1].strip()
             logger.error(f"Invite message: {tmp}")
@@ -194,6 +190,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Send the game message to the WebSocket."""
         await self.send(text_data=json.dumps({
             'type': 'game',
+            'message': event['message'],
+            'group': event['group'],
+            'sender': event['sender'],
+        }))
+    
+    async def winner_message(self, event):
+        """Send the game message to the WebSocket."""
+        await self.send(text_data=json.dumps({
+            'type': 'winner',
+            'message': event['message'],
+            'group': event['group'],
+            'sender': event['sender'],
+        }))
+    
+    async def deleted_message(self, event):
+        """Send the game message to the WebSocket."""
+        await self.send(text_data=json.dumps({
+            'type': 'delete',
             'message': event['message'],
             'group': event['group'],
             'sender': event['sender'],

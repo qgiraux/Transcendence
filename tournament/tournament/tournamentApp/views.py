@@ -159,6 +159,47 @@ def JoinTournament(request):
 
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
 
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def LeaveTournament(request):
+    if request.method != 'POST':
+        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
+    try:
+        tmp = request.headers.get('Authorization')
+        if not tmp:
+            return JsonResponse({'detail': 'Authorization header missing', 'code': 'missing_header'}, status=401)
+        auth_header = tmp.split()[1]
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+    except InvalidTokenError:
+        return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+    user_id = decoded.get('user_id')
+    if not user_id:
+        return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
+        
+    data = json.loads(request.body)
+    if not data.get('name'):
+        return JsonResponse({'detail': 'missing tournament name in body', 'code': 'incomplete_body'}, status=400)
+    tournament_name = data.get('name')
+    if not tournament_name or not re.match(r'^[a-zA-Z0-9]{5,16}$', tournament_name):
+        return JsonResponse({'detail': 'invalid tournament name', 'code': 'error_occurred'}, status=400)
+
+    try:
+        tournament = Tournament.objects.get(tournament_name=tournament_name)
+    except ObjectDoesNotExist:
+        return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
+    
+    # Add a player to the list
+    if user_id not in tournament.player_list:
+        return JsonResponse({'detail': 'User not subscribed', 'code': 'conflict'}, status=409)
+
+    tournament.player_list.append(user_id)  # Add player ID
+    tournament.save()
+    if len(tournament.player_list) == 0:
+        tournament.delete()
+        tournament.save()
+    return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
+
+
 
 @csrf_exempt
 @permission_classes([IsAuthenticated])
@@ -230,4 +271,15 @@ def DeleteTournament(request):
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
     tournament.delete()
+    for id in tournament.player_list:
+        notification = {
+            'type': 'deleted_message',
+            'group': f'user_{id}',
+            'message': name,
+            'sender': '0',
+        }
+        redis_client.publish('global_chat', json.dumps(notification))
+
+        # Publish the notification
+        redis_client.publish('global_chat', json.dumps(notification))
     return JsonResponse({'detail': 'Tournament deleted', 'name' : name}, status=200)

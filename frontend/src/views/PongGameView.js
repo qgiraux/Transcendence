@@ -27,12 +27,12 @@ class PongGameView extends AbstractView {
         this.onStart();
     }
 
-    // childOnDestroy() {
-    //     console.log("Destroying PongGameView");
-    //     if (this.isGameOver === false)
-    //         Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
+    childOnDestroy() {
+        console.log("Destroying PongGameView");
+        if (this.isGameOver === false)
+            Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
         
-    // }
+    }
     onStart() {
         
         document.addEventListener('keydown', (event) => this.handleKeyDown(event));
@@ -53,14 +53,14 @@ class PongGameView extends AbstractView {
         // Initialize paddles and ball
         this.paddle1 = {
             x: this.canvas.width / 80,
-            y: this.canvas.height / 2 - this.canvas.height / 8,
+            y: this.canvas.height / 2,
             width: this.canvas.width / 80,
             height: this.canvas.height / 5,
             dy: this.canvas.height / 40,
         };
         this.paddle2 = {
             x: this.canvas.width - this.canvas.width / 40,
-            y: this.canvas.height / 2 - this.canvas.height / 8,
+            y: this.canvas.height / 2,
             width: this.canvas.width / 80,
             height: this.canvas.height / 5,
             dy: this.canvas.height / 40,
@@ -83,6 +83,7 @@ class PongGameView extends AbstractView {
                     const data = JSON.parse(event.data);
 
                     if (data.type === "game_over") {
+                        console.log("Game Over: ", data);
                         this.score1 = data.state.player_left.score;
                         this.score2 = data.state.player_right.score;
 
@@ -109,11 +110,15 @@ class PongGameView extends AbstractView {
                             this.paddle1,
                             this.paddle2,
                             this.score1,
-                            this.score2, 
+                            this.score2,
                             data.data,
                             this.p1name,
                             this.p2name
-                    );
+                        );
+                    }
+                    else if (data.type === "ping" ) {
+                        console.log("ping");
+                        Application.gameSocket.send(JSON.stringify({ type: 'pong', data: "" }));
                     } 
                     else if (data.type === "game_init" ) {
                         // this.p1name = data.state.player_left.playerid;

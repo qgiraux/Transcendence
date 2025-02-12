@@ -27,6 +27,7 @@ class Application {
   static activeProfileView = "avatar"; //test to make the view in account mgmt ersistant upon language change
   static navButtonProfile = "nav-avatar";
   static tournamentPanelStatus = 0;
+  static joinedTournament = "";
   //Placeholder to store timeouts to clear them nicely in onDestroy()
   static timeoutId = null;
 
@@ -53,6 +54,8 @@ class Application {
   static setAccessToken(newAccesstoken) {
     Application.#token.access = newAccesstoken;
   }
+
+  
 
   static deleteAccessToken() {
     Application.#token = null;
