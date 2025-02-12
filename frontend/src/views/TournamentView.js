@@ -64,9 +64,22 @@ class TournamentsView extends AbstractView {
     this.domText.deleteTournament = await Application.localization.t(
       "tournament.card.deleteTournament"
     );
+    this.domText.quitTournament = await Application.localization.t(
+      "tournament.quit.quitBttn"
+    );
+    this.domText.confirmQuitTxt = await Application.localization.t(
+      "tournament.quit.confirmTxt"
+    );
+    this.domText.confirmYes = await Application.localization.t(
+      "tournament.quit.confirmYes"
+    );
+    this.domText.confirmNo = await Application.localization.t(
+      "tournament.quit.confirmNo"
+    );
     this.domText.noTournamentToDisplay = await Application.localization.t(
       "tournament.tab.noTournamentToDisplay"
     );
+    this.domText.close = await Application.localization.t("friends.close");
     this.messages.fetchTournamentsErr = await Application.localization.t(
       "tournament.create.errors.fetchTournaments"
     );
@@ -105,6 +118,9 @@ class TournamentsView extends AbstractView {
     );
     this.messages.alreadyJoinedTxt = await Application.localization.t(
       "tournament.tab.alreadyJoinedTxt"
+    );
+    this.messages.friendInTournament = await Application.localization.t(
+      "tournament.card.join.true"
     );
     this.messages.tournamentFull = await Application.localization.t(
       "tournament.card.tournamentFull"
@@ -180,6 +196,7 @@ class TournamentsView extends AbstractView {
       "click",
       this.joinTournamentHandler.bind(this)
     );
+
   }
 
   /*
@@ -488,7 +505,7 @@ Request API function
     }
     const actionDiv = card.querySelector("#action");
     if (!this.joined) {
-      // add the joined button if no tournament has been joined yet
+      // add the joined button if no tournament has been joined yet + manage tournament button 
       actionDiv.innerHTML = `<button type="button" class="btn btn-primary w-50
 	  justify-self-center join-tournament-btn" data-tournament="${tournament["tournament name"]}">${this.domText.joinTournament}</button>`;
     } else if (
@@ -498,23 +515,221 @@ Request API function
       if (badge) {
         badge.style.display = "inline-block";
       }
-      actionDiv.innerHTML = `<div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    ${this.domText.inviteFriend}
-  </button>
-  			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton"></div>
-	</div>`;
-      const dropdownMenu = actionDiv.querySelector(".dropdown-menu");
-      this.friendsDetails.forEach((friend) => {
-        dropdownMenu.appendChild(
-          this.createDropdownFriendElement(
-            tournament["tournament name"],
-            friend.id,
-            friend.username,
-            friend.nickname
-          )
-        );
+
+      const userId = Application.getUserInfos().userId;
+      console.log(tournament["players"][0]);
+      const isCreator = (userId === tournament["players"][0]) ? true : false;
+      console.log("Is Creator", isCreator);
+
+      const isTournamentFull = tournament["players"].length >= tournament["size"];
+      console.log(isTournamentFull);
+
+      //DROPDOWN ACTIONS
+      
+      actionDiv.innerHTML = `<div class="btn-group">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Manage tournament
+      </button>
+        <ul class="dropdown-menu">
+          <li>
+            <button 
+              class="dropdown-item" 
+              data-action="open-invite-modal" 
+              data-tournament="${tournament["tournament name"]}"
+              ${isTournamentFull ? "disabled" : ""}
+              style=${isTournamentFull ? "background-color: grey; cursor: not-allowed color: grey;" : ""}>
+              ${this.domText.inviteFriend}
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item" data-action="open-quit-modal" data-tournament="${tournament["tournament name"]}">
+              ${this.domText.quitTournament}
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item text-danger" data-action="delete-tournament" data-tournament="${tournament["tournament name"]}"
+            style="${!isCreator ? 'display: none;' : ''}">
+            ${this.domText.deleteTournament}
+            </button>
+          </li>
+        </ul>
+      </div>`
+      ;
+
+      //QUIT MODALE
+
+      const quitButton = actionDiv.querySelector(`[data-action="open-quit-modal"]`);
+      quitButton.addEventListener("click", async () => {
+        const modal = document.createElement("div");
+        modal.classList.add("modal", "fade", "show");
+        modal.style.display = "block";
+        modal.setAttribute("tabindex", "-1");
+        modal.setAttribute("aria-labelledby", "quitTournamentModalLabel");
+
+        modal.innerHTML = `
+          <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+              <div class="modal-header">
+                <h5 class="modal-title" id="inviteFriendsModalLabel">${this.domText.quitTournament}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <div class="modal-body">
+			          <div class="row mx-auto m-5">
+                  <h5>${this.domText.confirmQuitTxt}</h5>
+			          </div>
+			          <div class="row  mx-auto d-flex flex-column justify-content-center gap-5 m-5">
+			            <button  class="btn btn-success w-50 align-self-center" id="abort-btn" >${this.domText.confirmNo}</button>
+			            <button  class="btn btn-danger w-50 align-self-center" id="confirm-btn" >${this.domText.confirmYes}</button>
+			          </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+
+
+        modal.querySelector("#abort-btn").addEventListener("click", () => {
+          modal.remove();
+        });
+        
+  
+
+        modal.querySelector("#confirm-btn").addEventListener("click", async () => {
+          try {
+            const userId = Application.getUserInfos().userId
+            console.log("USER ID = ", userId);
+            console.log("Sent parameter :", tournament);
+            const response = await TRequest.request("POST", "/api/tournament/leave/", 
+              { 
+                name: tournament["tournament name"],
+               });
+              console.log(response);
+              modal.remove();
+              Router.reroute("/tournaments");
+          } catch (error) {
+            modal.remove();
+            Alert.errorMessage("Error", error.message);
+          }
+        });
+        
+        modal.querySelector(`[data-bs-dismiss="modal"]`).addEventListener("click", () => {
+          modal.remove();
+        });
+      })
+
+      //DELETE MODALE 
+
+      const deleteButton = actionDiv.querySelector(`[data-action='delete-tournament']`);
+      // if (isPlayerInTournament) {
+        deleteButton.addEventListener("click", async () => {
+          try {
+            console.log("Sent parameter :", tournament);
+            await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament["tournament name"] });
+            Alert.successMessage("Tournaments", "Tournament deleted successfully");
+            Router.reroute("/tournaments")
+          } catch (error) {
+            Alert.errorMessage("Error deleting tournament", error.message);
+          }
+        });
+      // }
+      
+      const hasFriends = (this.friendsDetails.length === 0) ? false : true;
+      console.log("The user has friends", hasFriends);
+      console.log("Friend number = ", this.friendsDetails.length);
+      const openInviteModalButton = actionDiv.querySelector("[data-action='open-invite-modal']");
+      openInviteModalButton.addEventListener("click", () => {
+        const modal = document.createElement("div");
+        modal.classList.add("modal", "fade", "show");
+        modal.style.display = "block";
+        modal.setAttribute("tabindex", "-1");
+        modal.setAttribute("aria-labelledby", "inviteFriendsModalLabel");
+
+        modal.innerHTML = `
+        <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+          <div class="modal-header">
+            <h5 class="modal-title" id="inviteFriendsModalLabel">${this.domText.inviteFriend}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ${!hasFriends ? 
+            `<p class="text-white text-center">No friends in the list</p>` : 
+            `
+            <div id="friendsList" class="list-group" style="max-height: 300px; overflow-y: auto;">
+              ${this.friendsDetails.map(friend => `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <img src="${Avatar.url(friend.id)}" class="rounded-circle me-2" width="40" height="40" alt="Avatar">
+                    <span>${friend.username}</span>
+                  </div>
+
+                      <button class="btn btn-sm ${tournament.players.includes(friend.id) ? 'btn-secondary' : 'btn-primary'}" 
+                      ${tournament.players.includes(friend.id) ? 'disabled' : ''}
+                      data-action="invite-friend" 
+                      data-friend-id="${friend.id}">
+                      ${tournament.players.includes(friend.id) ? 'Already in tournament' : this.domText.inviteFriend}
+                      </button>
+
+
+
+                </div>
+              `).join('')}
+            </div>
+            `
+            }
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+          </div>
+        </div>
+      </div>
+       `;
+
+        document.body.appendChild(modal);
+
+        //Handling event listeners on the invite_buttons
+        modal.querySelectorAll("[data-action='invite-friend']").forEach(button => {
+          button.addEventListener("click", async (event) => {
+            const friendId = event.target.getAttribute("data-friend-id");
+            if (!friendId) return Alert.errorMessage("Error", "Friend ID not found");
+            if (isTournamentFull) return;
+            if (tournament.players.includes(friendId)) {
+              return Alert.errorMessage("Tournament", friendId + "Already in tournament");
+            }
+            try {
+              console.log("FRIEND ID = ", friendId);
+              const response = await TRequest.request("POST", "/api/tournament/invite/", 
+                { 
+                  tournament_name: tournament["tournament name"],
+                  friend_id: friendId,
+                 });
+      
+              if (response.message === "An unexpected error occurred.") {
+                throw new Error(this.messages.addFriendFailure);
+              }
+      
+              // modal.remove();
+              // Alert.successMessage("Friend", "Invited successfully");
+              event.target.textContent = "Invited ✅";
+              event.target.disabled = true;
+            } catch (error) {
+              modal.remove();
+              Alert.errorMessage("Error", error.message);
+              console.error("In inviteFriend:", error.message);
+            }
+          });
+        });
+      
+        modal.querySelector("[data-bs-dismiss='modal']").addEventListener("click", () => {
+          modal.remove();
+        });
       });
+      
     }
   });
     return card;

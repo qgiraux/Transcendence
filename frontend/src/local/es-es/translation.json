@@ -256,6 +256,12 @@
       "failure": "No se pudo unir al torneo",
       "true": "Unido"
     },
+    "quit": {
+      "quitBttn": "Salir del torneo", 
+      "confirmTxt": "❗ ¿Estás seguro de que quieres salir del torneo?",
+      "confirmYes": "Sí",
+      "confirmNo": "No"
+    },
     "card": {
       "alreadyJoined": "Ya te has unido a un torneo",
       "tournamentFull": "Torneo lleno",

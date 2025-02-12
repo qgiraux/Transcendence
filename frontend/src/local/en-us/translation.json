@@ -256,6 +256,12 @@
       "failure": "Could not join tournament",
       "true": "Joined"
     },
+    "quit": {
+      "quitBttn": "Quit tournament", 
+      "confirmTxt": "❗ Are you sure you want to quit the tournament?",
+      "confirmYes": "Yes",
+      "confirmNo": "No"
+    },
     "card": {
       "alreadyJoined": "You have already joined a tournament",
       "tournamentFull": "Tournament full",

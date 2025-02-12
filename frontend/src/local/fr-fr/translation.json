@@ -256,6 +256,12 @@
       "failure": "Impossible de rejoindre le tournoi",
       "true": "Rejoint"
     },
+    "quit": {
+      "quitBttn": "Quitter le tournoi", 
+      "confirmTxt": "❗ Êtes-vous sûr de vouloir quitter le tournoi ?",
+      "confirmYes": "Oui",
+      "confirmNo": "Non"
+    },
     "card": {
       "alreadyJoined": "Vous avez déjà rejoint un tournoi",
       "tournamentFull": "Tournoi complet",
