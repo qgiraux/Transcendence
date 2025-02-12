@@ -6,7 +6,7 @@ class PongRenderer {
     this.ctx = this.canvas.getContext("2d");
   }
 
-  drawPaddle(paddle) {
+  drawPaddle1(paddle) {
     this.ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
     this.ctx.shadowBlur = 10;
     this.ctx.shadowOffsetX = 4;
@@ -22,7 +22,31 @@ class PongRenderer {
     gradient.addColorStop(1, "lightgrey");
     this.ctx.fillStyle = gradient;
     this.ctx.fillRect(
+      paddle.x + paddle.width / 2,
+      paddle.y - paddle.height / 2,
+      paddle.width,
+      paddle.height
+    );
+    this.ctx.shadowColor = "transparent";
+  }
+
+  drawPaddle2(paddle) {
+    this.ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    this.ctx.shadowBlur = 10;
+    this.ctx.shadowOffsetX = 4;
+    this.ctx.shadowOffsetY = 4;
+    let gradient = this.ctx.createLinearGradient(
+      paddle.x - paddle.width,
+      paddle.y,
       paddle.x,
+      paddle.y + paddle.height
+    );
+    gradient.addColorStop(0, "lightgrey");
+    gradient.addColorStop(0.5, "lightpink");
+    gradient.addColorStop(1, "lightgrey");
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(
+      paddle.x - paddle.width / 2,
       paddle.y - paddle.height / 2,
       paddle.width,
       paddle.height
@@ -75,27 +99,30 @@ class PongRenderer {
   }
 
   drawGameOverMessage(winner) {
+    this.ctx.textAlign = "center";
     this.ctx.fillText(
       `PLAYER ${winner} WON!!`,
-      (this.canvas.width * 1) / 3,
+      this.canvas.width / 2,
       this.canvas.height / 2
     );
     this.ctx.fillText(
       "press space for new game",
-      (this.canvas.width * 1) / 3 - 33,
+      this.canvas.width / 2,
       this.canvas.height / 2 + 30
     );
   }
 
+
   drawPauseMessage(winner) {
+    this.ctx.textAlign = "center";
     this.ctx.fillText(
       `PLAYER ${winner} SCORED!!`,
-      (this.canvas.width * 1) / 3,
+      (this.canvas.width * 1) / 2,
       this.canvas.height / 2
     );
     this.ctx.fillText(
       "press space for next game",
-      (this.canvas.width * 1) / 3 - 33,
+      (this.canvas.width * 1) / 2,
       this.canvas.height / 2 + 30
     );
   }
@@ -104,8 +131,8 @@ class PongRenderer {
     console.log("drawStartMessage", player1, player2);
     this.clearCanvas();
     this.drawScore(0, 0);
-    this.drawPaddle(paddle1);
-    this.drawPaddle(paddle2);
+    this.drawPaddle1(paddle1);
+    this.drawPaddle2(paddle2);
     this.ctx.font = "20px Arial";
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = "white";
@@ -134,8 +161,8 @@ class PongRenderer {
     this.clearCanvas();
     this.drawNames(player1, player2);
     this.drawScore(score1, score2);
-    this.drawPaddle(paddle1);
-    this.drawPaddle(paddle2);
+    this.drawPaddle1(paddle1);
+    this.drawPaddle2(paddle2);
     this.ctx.font = "20px Arial";
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = "white";
@@ -166,8 +193,8 @@ class PongRenderer {
     this.clearCanvas();
     this.drawNames(player1, player2);
     this.drawScore(score1, score2);
-    this.drawPaddle(paddle1);
-    this.drawPaddle(paddle2);
+    this.drawPaddle1(paddle1);
+    this.drawPaddle2(paddle2);
     this.drawBall(ball);
   }
 }

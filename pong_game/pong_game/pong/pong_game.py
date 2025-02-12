@@ -15,8 +15,8 @@ import httpx
 
 log = logging.getLogger(__name__)
 
-PADDLE_SPEED = 2 # 3 / canvasheight per tick
-BALL_SPEED = 1.25 # 2.5 / canvaswidth per tick
+PADDLE_SPEED = 2 # 4 / canvasheight per tick if 30 tick per second
+BALL_SPEED = 1.25 # 2.5 / canvaswidth per tick if 30 tick per second
 
 @unique
 class Direction(Enum):
