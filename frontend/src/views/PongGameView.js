@@ -82,6 +82,7 @@ class PongGameView extends AbstractView {
                     const data = JSON.parse(event.data);
 
                     if (data.type === "game_over") {
+                        console.log("Game Over: ", data);
                         this.score1 = data.state.player_left.score;
                         this.score2 = data.state.player_right.score;
 

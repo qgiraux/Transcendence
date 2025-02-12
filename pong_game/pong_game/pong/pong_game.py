@@ -318,7 +318,11 @@ class PongEngine(threading.Thread):
 
 	def player_ready(self, userid):
 		log.error("Player %s pressed READY", userid)
+		log.error(f"score is set to {self.score}")
 		self.ready_players.add(userid)
+		if self.score != 0:
+			self.ready_players.add(-1)
+
 
 	async def add_player(self, playerid):
 		log.error("Adding player %s to the game", playerid)
@@ -335,7 +339,7 @@ class PongEngine(threading.Thread):
 			self.state.player_left.player_left = True
 		elif self.state.player_right is None:
 			self.state.player_right = Player(playerid=playerid)
-			self.state.player_right.player_left = False
+			self.state.player_right.player_left = True
 		else:
 			log.error("Game is full, player %s cannot join", playerid)
 			return
@@ -376,14 +380,15 @@ class PongEngine(threading.Thread):
 			log.error("Player %s not in game", playerid)
 			# log.error("game state is %s", self.state)
 			return
-
-		if self.state.player_left is False or self.state.player_right is False:
-			log.error("Game %s is over", self.name)
-			self.end_game()
+		asyncio.create_task(self.end_game())
 
 	async def end_game(self):
+		log.error("Game %s is over, setting game_on to false...", self.name)
 		self.game_on = False
+		self.score = -1
+		log.error("Game %s is over, boradcasting...", self.name)
 		await self.broadcast_game_over()
+		log.error("game over message sent")
 		if self.game_task:
 			self.game_task.cancel()
 			try:
