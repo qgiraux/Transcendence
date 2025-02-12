@@ -3,6 +3,7 @@ import AbstractView from "./AbstractView.js";
 import PongRenderer from "../pongrenderer.js";
 import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
+import Avatar from "../Avatar.js";
 
 class PongGameView extends AbstractView {
     constructor(params) {
@@ -36,7 +37,6 @@ class PongGameView extends AbstractView {
     }
     onStart() {
         this._setHTML();
-        Alert.classicMessage("test", this.params[0]);
 
         document.addEventListener('keydown', (event) => this.handleKeyDown(event));
         document.addEventListener('keyup', (event) => this.handleKeyUp(event));
@@ -58,7 +58,10 @@ class PongGameView extends AbstractView {
 
         this.canvasContainer.classList.add("d-none");
         this.renderer = new PongRenderer(this.canvas);
-        this.displayTournamentProgression(Application.joinedTournament);
+        TRequest.request("GET", `/api/tournament/details/${Application.joinedTournament}`)
+            .then((tournament) => {
+                this.displayTournamentProgression(tournament);
+            })
 
         // Initialize paddles and ball
         this.paddle1 = {
@@ -89,7 +92,7 @@ class PongGameView extends AbstractView {
                 // };
 
                 Application.gameSocket.onmessage = (event) => {
-                    // console.log("DATA=== ", event.data);
+                    console.log("DATA=== ", event.data);
                     const data = JSON.parse(event.data);
 
                     if (data.type == "game_init") {
@@ -174,26 +177,26 @@ class PongGameView extends AbstractView {
       }    
 
     startGame(data) {
-        console.log("Game init: ", data);
+        console.log("IS STARTGAME CALLED", data);
         
-        this.canvas.style.display = "block";
-        console.log("🖥️ Pong canvas should now be visible.");
+        // this.canvas.style.display = "block";
+        // console.log("🖥️ Pong canvas should now be visible.");
 
-        let uri1 = "/api/users/userinfo/" + data.state.player_left.playerid;
+        let uri1 = "/api/users/userinfo/" + data.state.player_left.player_id;
         TRequest.request("GET", uri1)
         .then((result) => {
-            this.p1name = result.username;
+            this.p1name = result.name;
             console.log("p1name: ", this.p1name);
-            let uri2 = "/api/users/userinfo/" + data.state.player_right.playerid;
+            let uri2 = "/api/users/userinfo/" + data.state.player_right.player_id;
             TRequest.request("GET", uri2)
             .then((result) => {
-                this.p2name = result.username;
-                this.renderer.drawStartMessage(
-                    this.paddle1,
-                    this.paddle2,
-                    this.p1name,
-                    this.p2name
-                );
+                this.p2name = result.name;
+                // this.renderer.drawStartMessage(
+                //     this.paddle1,
+                //     this.paddle2,
+                //     this.p1name,
+                //     this.p2name
+                // );
             })
             .catch((error) => {
                 Alert.errorMessage("Error", error.message);
@@ -208,7 +211,9 @@ class PongGameView extends AbstractView {
         console.log("Countdown: ", data.data);
 
         this.messageContainer.classList.add("d-none");
+        this.tournamentContainer.classList.add("d-none");
         this.canvasContainer.classList.remove("d-none");
+
         if (data.data === 0) {
             console.log("Game started");
             this.paused = false;
@@ -218,6 +223,7 @@ class PongGameView extends AbstractView {
         else if (data.data > 0) {
             this.paused = true;
         }
+        console.log("THIS PLAYER NAME = ", this.p1name, this.p2name);
         this.renderer.drawCountdownMessage(
             this.paddle1,
             this.paddle2,
@@ -255,10 +261,16 @@ class PongGameView extends AbstractView {
         this.score1 = data.state.player_left.score;
         this.score2 = data.state.player_right.score;
     
-        // Draw final scores
-        this.renderer.clearCanvas();
-        this.renderer.drawScore(this.score1, this.score2);
-        this.renderer.drawGameOverMessage(data.state.winner);
+        this.canvasContainer.classList.add("d-none");
+        TRequest.request("GET", `/api/tournament/details/${Application.joinedTournament}`)
+            .then((tournament) => {
+                this.displayTournamentProgression(tournament);
+            })
+        this.tournamentContainer.classList.remove("d-none");
+        // // Draw final scores
+        // this.renderer.clearCanvas();
+        // this.renderer.drawScore(this.score1, this.score2);
+        // this.renderer.drawGameOverMessage(data.state.winner);
 
         console.log("Game Over");
         this.isGameOver = true; // Stop game loop when the game ends
@@ -286,20 +298,19 @@ class PongGameView extends AbstractView {
     displayTournamentProgression(tournament) {
         let roundNumber = tournament["size"];
         //create the tournament card div
-        const card = document.getElementById("tournament-data");
-        card.classList.add(
+        this.tournamentContainer.classList.add(
         "tournament-card",
         "w-75",
         "text-white",
         "border",
         "p-3"
         );
-        card.innerHTML = `
+        this.tournamentContainer.innerHTML = `
                     <div class="row mt-1 d-flex  justify-content-center align-items-center mx-auto">
                     <h4>${tournament["tournament name"]}</h4>
                     <div class="row d-flex mx-auto justify-content-center align-items-center p-1" id="rounds-container"></div>
                     `;
-        const roundsContainer = card.querySelector("#rounds-container");
+        const roundsContainer = this.tournamentContainer.querySelector("#rounds-container");
 
         for (; roundNumber >= 1; roundNumber = roundNumber / 2) {
         let roundDiv = document.createElement("div");
@@ -414,20 +425,18 @@ class PongGameView extends AbstractView {
                   display: block; /* Ensures the canvas behaves like a block-level element */
                   margin: auto; /* Centers horizontally */
               }
-              #view-container {
-                  display: flex;
-                  flex-direction: column;
-                  justify-content: center;
-                  align-items: center;
-                  height: 100vh; /* Full viewport height */
-              }
             </style>
-            <h1 class="text-white display-1">Tournament Game</h1>
-            <div id="canvas-container">
-                <canvas id="pongCanvas" width="800" height="400"></canvas>
+            <div class="mx-auto" style="max-width: 700px;">
+                <h1 class="text-white display-1">Tournament Game</h1>
+
+                <div class="row">
+                    <div id="canvas-container">
+                        <canvas id="pongCanvas" width="800" height="400"></canvas>
+                    </div>
+                    <div id="tournament-data"></div>
+                    <div id="message-container">Press SPACE to start...</div>
+                </div>
             </div>
-            <div id="tournament-data"></div>
-            <div id="message-container">Press SPACE to start...</div>
           `;
           const canvas = document.getElementById("pongCanvas");
           canvas.focus(); // Ensure the canvas is focusable
