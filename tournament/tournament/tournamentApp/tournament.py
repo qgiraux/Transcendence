@@ -32,6 +32,16 @@ def Tournament_operation(tournament):
         tournament.status = 1
         tournament.save()
         winner = organize_tournament(lineup, tournament)
+        notification = {
+        'type': 'winner_message',
+        'group': f'user_{winner}',
+        'message': f"'{winner}'",
+        'sender': "0",
+        }
+        try:
+            redis_client.publish("global_chat", json.dumps(notification))
+        except Exception as e:
+            logger.error(f"Error sending winner message: {e}")
         response = requests.post('http://web3-tournament/score/', data={'name': winner, "result": "win"})
         if response.status_code != 201:
             logger.error(f"Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")

@@ -198,6 +198,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'group': event['group'],
             'sender': event['sender'],
         }))
+    
+    async def game_message(self, event):
+        """Send the game message to the WebSocket."""
+        await self.send(text_data=json.dumps({
+            'type': 'game',
+            'message': event['message'],
+            'group': event['group'],
+            'sender': event['sender'],
+        }))
 
     async def add_channel(self, channel_name):
         """Dynamically add new Redis channels to listen to."""
