@@ -109,11 +109,15 @@ class PongGameView extends AbstractView {
                             this.paddle1,
                             this.paddle2,
                             this.score1,
-                            this.score2, 
+                            this.score2,
                             data.data,
                             this.p1name,
                             this.p2name
-                    );
+                        );
+                    }
+                    else if (data.type === "ping" ) {
+                        console.log("ping");
+                        Application.gameSocket.send(JSON.stringify({ type: 'pong', data: "" }));
                     } 
                     else if (data.type === "game_init" ) {
                         // this.p1name = data.state.player_left.playerid;

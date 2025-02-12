@@ -199,10 +199,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': event['sender'],
         }))
     
-    async def game_message(self, event):
+    async def winner_message(self, event):
         """Send the game message to the WebSocket."""
         await self.send(text_data=json.dumps({
-            'type': 'game',
+            'type': 'winner',
             'message': event['message'],
             'group': event['group'],
             'sender': event['sender'],

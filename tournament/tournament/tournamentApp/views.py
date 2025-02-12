@@ -196,6 +196,7 @@ def LeaveTournament(request):
     tournament.save()
     if len(tournament.player_list) == 0:
         tournament.delete()
+        tournament.save()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
 
 

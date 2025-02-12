@@ -97,6 +97,11 @@ class HomeView extends AbstractView {
                 console.error("Failed to fetch user info:", err);
               });
           }
+          if (type === "winner") {
+            // Display the invite
+            Application.joinedTournament = "";
+            console.log("winner message received");
+          }
           if (type === "GOTO") {
             // Display the alert
 

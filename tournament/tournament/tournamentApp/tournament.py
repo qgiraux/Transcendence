@@ -21,7 +21,15 @@ game_counter = 0
 def Tournament_operation(tournament):
     logger.error("trying to start tournament...")
     try:
+
         lineup = tournament.player_list
+        for id in lineup :
+            if not redis_client.sismember('online_users', id):
+                tournament.player_list.remove(id)
+                tournament.save()
+                logger.error(f"player {id} not online")
+                return
+
         random.shuffle(lineup)
         exp_size = tournament.tournament_size
         size = len(lineup)
