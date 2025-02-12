@@ -217,6 +217,12 @@ class HomeView extends AbstractView {
       console.error("#view-container not found in the DOM.");
     }
   }
+
+  childOnDestroy() {
+    if (this.pongGame) {
+      this.pongGame.destroy();
+    }
+  }
 }
 
 export default HomeView;

@@ -7,8 +7,8 @@ class PongGame {
             throw new Error(`Canvas element with id ${canvasId} not found`);
         }
         this.renderer = new PongRenderer(this.canvas);
-        this.paddle1 = { x: this.canvas.width / 80, y: this.canvas.height / 2 - this.canvas.height / 8, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
-        this.paddle2 = { x: this.canvas.width - this.canvas.width / 40, y: this.canvas.height / 2 - this.canvas.height / 8, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
+        this.paddle1 = { x: this.canvas.width / 80, y: this.canvas.height / 2, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
+        this.paddle2 = { x: this.canvas.width - this.canvas.width / 40, y: this.canvas.height / 2, width: this.canvas.width / 80, height: this.canvas.height / 4, dy: this.canvas.height / 40 };
         this.ball = { x: this.canvas.width / 2, y: this.canvas.height / 2, radius: 10, dx: 4, dy: 4 };
         this.endScore = 3;
         this.score1 = 0;
@@ -16,18 +16,24 @@ class PongGame {
         this.commands = { up: 0, down: 0, w: 0, s: 0 };
         this.reset = false;
 
-        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
-        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
-        document.addEventListener('keydown', (event) => this.resumeGame(event, this.reset));
+        this.boundHandleKeyDown = this.handleKeyDown.bind(this);
+        this.boundHandleKeyUp = this.handleKeyUp.bind(this);
+        this.boundResumeGame = (event) => this.resumeGame(event, this.reset);
+
+        document.addEventListener('keydown', this.boundHandleKeyDown);
+        document.addEventListener('keyup', this.boundHandleKeyUp);
+        document.addEventListener('keydown', this.boundResumeGame);
     }
 
     destroy() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-        document.removeEventListener('keyup', this.handleKeyUp);
-        document.removeEventListener('keydown', this.resumeGame);
+        console.log('Destroying PongGame');
+        document.removeEventListener('keydown', this.boundHandleKeyDown);
+        document.removeEventListener('keyup', this.boundHandleKeyUp);
+        document.removeEventListener('keydown', this.boundResumeGame);
     }
     
     handleKeyDown(event) {
+        console.log(event.key);
         switch (event.key) {
             case 'ArrowUp':
                 this.commands.up = 1;

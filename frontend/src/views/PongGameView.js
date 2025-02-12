@@ -52,14 +52,14 @@ class PongGameView extends AbstractView {
         // Initialize paddles and ball
         this.paddle1 = {
             x: this.canvas.width / 80,
-            y: this.canvas.height / 2 - this.canvas.height / 8,
+            y: this.canvas.height / 2,
             width: this.canvas.width / 80,
             height: this.canvas.height / 5,
             dy: this.canvas.height / 40,
         };
         this.paddle2 = {
             x: this.canvas.width - this.canvas.width / 40,
-            y: this.canvas.height / 2 - this.canvas.height / 8,
+            y: this.canvas.height / 2,
             width: this.canvas.width / 80,
             height: this.canvas.height / 5,
             dy: this.canvas.height / 40,
