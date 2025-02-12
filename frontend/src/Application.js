@@ -27,6 +27,7 @@ class Application {
   static activeProfileView = "avatar"; //test to make the view in account mgmt ersistant upon language change
   static navButtonProfile = "nav-avatar";
   static tournamentPanelStatus = 0;
+  static joinedTournament = "";
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -51,6 +52,8 @@ class Application {
   static setAccessToken(newAccesstoken) {
     Application.#token.access = newAccesstoken;
   }
+
+  
 
   static deleteAccessToken() {
     Application.#token = null;

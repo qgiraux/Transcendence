@@ -82,7 +82,7 @@ class HomeView extends AbstractView {
                 const textmessage = `your game is starting!`;
                 const link = message;
                 Router.reroute("/pong");
-                Alert.inviteMessage(type, textmessage, link);
+                // Alert.inviteMessage(type, textmessage, link);
                 Application.gameSocket.send(
                   JSON.stringify({
                     type: "join",
@@ -97,6 +97,12 @@ class HomeView extends AbstractView {
                 console.error("Failed to fetch user info:", err);
               });
           }
+          if (type === "winner" || type === "deleted") {
+            // Display the invite
+            Application.joinedTournament = "";
+            console.log("jointournament cleared");
+          }
+
           if (type === "GOTO") {
             // Display the alert
 
@@ -209,6 +215,12 @@ class HomeView extends AbstractView {
       this.pongGame.gameLoop();
     } else {
       console.error("#view-container not found in the DOM.");
+    }
+  }
+
+  childOnDestroy() {
+    if (this.pongGame) {
+      this.pongGame.destroy();
     }
   }
 }

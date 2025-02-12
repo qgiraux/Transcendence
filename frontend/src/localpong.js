@@ -39,18 +39,24 @@ class PongGame {
         this.waitingForServe = true;
         this.renderer.drawStartMessage(this.paddle1, this.paddle2);
 
-        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
-        document.addEventListener('keyup', (event) => this.handleKeyUp(event));
-        document.addEventListener('keydown', (event) => this.resumeGame(event));
+        this.boundHandleKeyDown = this.handleKeyDown.bind(this);
+        this.boundHandleKeyUp = this.handleKeyUp.bind(this);
+        this.boundResumeGame = (event) => this.resumeGame(event, this.reset);
+
+        document.addEventListener('keydown', this.boundHandleKeyDown);
+        document.addEventListener('keyup', this.boundHandleKeyUp);
+        document.addEventListener('keydown', this.boundResumeGame);
     }
 
     destroy() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-        document.removeEventListener('keyup', this.handleKeyUp);
-        document.removeEventListener('keydown', this.resumeGame);
+        console.log('Destroying PongGame');
+        document.removeEventListener('keydown', this.boundHandleKeyDown);
+        document.removeEventListener('keyup', this.boundHandleKeyUp);
+        document.removeEventListener('keydown', this.boundResumeGame);
     }
     
     handleKeyDown(event) {
+        console.log(event.key);
         switch (event.key) {
             case 'ArrowUp':
                 this.commands.up = 1;

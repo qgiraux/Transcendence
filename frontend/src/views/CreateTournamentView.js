@@ -129,6 +129,7 @@ class CreateTournamentView extends AbstractView {
     //AV : I added the else to display a success message and (suggestion to be discussed) reroute to the main tournament page
     else {
       Alert.successMessage(this.domText.tournament, `${this.messages.createSuccess} ${name}`);
+      Application.joinedTournament = name;
       Router.reroute("/tournaments");
     }
   }
