@@ -89,7 +89,10 @@ def organize_tournament(lineup, tournament):
 async def match(player1, player2, gamename):
     logger.error(f"Match {gamename} between {player1} and {player2}")
     channel_layer = get_channel_layer()
-
+    if not redis_client.sismember('online_users', player1):
+        return player2
+    if not redis_client.sismember('online_users', player2):
+        return player1
     # Simulate a channel name for this task
     channel_name = f"channel_{gamename}_{player1}_{player2}".replace("-", "_")
 

@@ -271,4 +271,15 @@ def DeleteTournament(request):
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
     tournament.delete()
+    for id in tournament.player_list:
+        notification = {
+            'type': 'deleted_message',
+            'group': f'user_{id}',
+            'message': name,
+            'sender': '0',
+        }
+        redis_client.publish('global_chat', json.dumps(notification))
+
+        # Publish the notification
+        redis_client.publish('global_chat', json.dumps(notification))
     return JsonResponse({'detail': 'Tournament deleted', 'name' : name}, status=200)
