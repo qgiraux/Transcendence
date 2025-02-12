@@ -2,6 +2,9 @@ const {Parser} = require("./Parser")
 const {CmdRegister} = require("./CmdRegister")
 const {CmdChat} = require("./CmdChat")
 const {CmdGame} = require("./CmdGame")
+const {HttpsClient} = require("./HttpsClient")
+
+HttpsClient.allowSelfSigned(); //
 
 const p = new Parser();
 patterns = ["[--help]", "[--version]"]
