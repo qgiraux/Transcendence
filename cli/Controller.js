@@ -11,6 +11,7 @@ class Controller {
 	static keyArrowRight = '\x1B[C';
 	static keyArrowLeft = '\x1B[D';
 	static keyEnter = '\x0D';
+	static keyEnterNotTTY = '\x0A';
 	static keyBackspace = '\x7F';
 
 	constructor(isStopKey=Controller._isStopKey) {
@@ -49,7 +50,9 @@ class Controller {
 	}
 
 	static stop(){
-		process.stdin.setRawMode(false);
+		if (process.stdin.isTTY) {
+			process.stdin.setRawMode(false);
+		}
 		process.stdin.pause();
 	}
 
@@ -83,7 +86,10 @@ class Controller {
 
 	initalize(stdin, eventCallback){
 		assert.equal(false, this.initalized);
-		stdin.setRawMode(true);
+		//assert.equal(true, stdin.isTTY);
+		if (stdin.isTTY) {
+			stdin.setRawMode(true);
+		}
 		stdin.resume();
 		//stdin.setEncoding("utf8"); //
 		stdin.on('data', eventCallback);

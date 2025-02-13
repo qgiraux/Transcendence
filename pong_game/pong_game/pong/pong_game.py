@@ -15,8 +15,9 @@ import httpx
 
 log = logging.getLogger(__name__)
 
-PADDLE_SPEED = 2 # 3 / canvasheight per tick
-BALL_SPEED = 1.25 # 2.5 / canvaswidth per tick
+PADDLE_SPEED = 2 # 4 / canvasheight per tick if 30 tick per second
+BALL_SPEED = 1.25 # 2.5 / canvaswidth per tick if 30 tick per second
+BALL_ACCELERATION = 1.1
 
 @unique
 class Direction(Enum):
@@ -87,6 +88,7 @@ class Ball:
 			paddle_left - 10 <= self.position[1] <= paddle_left + 10) and self.direction[0] < 0:
 			delta = self.position[1] - paddle_left
 			self.direction[0] = -self.direction[0]
+			self.speed *= BALL_ACCELERATION
 
 			# Normalize the delta to a more reasonable angle adjustment
 			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
@@ -95,6 +97,7 @@ class Ball:
 			paddle_right - 10 <= self.position[1] <= paddle_right + 10) and self.direction[0] > 0:
 			delta = self.position[1] - paddle_right
 			self.direction[0] = -self.direction[0]
+			self.speed *= BALL_ACCELERATION
 
 			# Normalize the delta to a more reasonable angle adjustment
 			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
@@ -102,9 +105,11 @@ class Ball:
 	def update_scoring(self, player1, player2):
 		if self.position[0] <= 0:
 			player2.score += 1
+			self.speed = BALL_SPEED
 			self.reset()
 		elif self.position[0] >= self.game_width:
 			player1.score += 1
+			self.speed = BALL_SPEED
 			self.reset()
 
 	def reset(self):
@@ -318,7 +323,11 @@ class PongEngine(threading.Thread):
 
 	def player_ready(self, userid):
 		log.error("Player %s pressed READY", userid)
+		log.error(f"score is set to {self.score}")
 		self.ready_players.add(userid)
+		if self.score != 0:
+			self.ready_players.add(-1)
+
 
 	async def add_player(self, playerid):
 		log.error("Adding player %s to the game", playerid)
@@ -335,7 +344,7 @@ class PongEngine(threading.Thread):
 			self.state.player_left.player_left = True
 		elif self.state.player_right is None:
 			self.state.player_right = Player(playerid=playerid)
-			self.state.player_right.player_left = False
+			self.state.player_right.player_left = True
 		else:
 			log.error("Game is full, player %s cannot join", playerid)
 			return
@@ -376,14 +385,15 @@ class PongEngine(threading.Thread):
 			log.error("Player %s not in game", playerid)
 			# log.error("game state is %s", self.state)
 			return
-
-		if self.state.player_left is False or self.state.player_right is False:
-			log.error("Game %s is over", self.name)
-			self.end_game()
+		asyncio.create_task(self.end_game())
 
 	async def end_game(self):
+		log.error("Game %s is over, setting game_on to false...", self.name)
 		self.game_on = False
+		self.score = -1
+		log.error("Game %s is over, boradcasting...", self.name)
 		await self.broadcast_game_over()
+		log.error("game over message sent")
 		if self.game_task:
 			self.game_task.cancel()
 			try:

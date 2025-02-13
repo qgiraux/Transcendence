@@ -47,6 +47,9 @@ class AbstractView {
     this.eventListeners.forEach((ObjListener) => {
       this.deleteEventListener(ObjListener);
     });
+    //AV I added this to clear the timeOut set in tournament 
+    if (Application.timeoutId)
+      clearTimeout(Application.timeoutId);
     this.childOnDestroy();
   }
 }

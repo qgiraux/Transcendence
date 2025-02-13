@@ -19,6 +19,7 @@ class HomeView extends AbstractView {
     Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
+    Application.toggleLangSelectorShow();
     this.onStart();
   }
 
@@ -68,7 +69,7 @@ class HomeView extends AbstractView {
             TRequest.request("GET", `/api/users/userinfo/${sender}`)
               .then((username) => {
                 const textmessage = `${username.username} has invited you to a game!`;
-                const link = message;
+                const link = data.message;
                 Alert.inviteMessage(type, textmessage, link);
               })
               .catch((err) => {
@@ -82,7 +83,7 @@ class HomeView extends AbstractView {
                 const textmessage = `your game is starting!`;
                 const link = message;
                 Router.reroute("/pong");
-                Alert.inviteMessage(type, textmessage, link);
+                // Alert.inviteMessage(type, textmessage, link);
                 Application.gameSocket.send(
                   JSON.stringify({
                     type: "join",
@@ -97,6 +98,12 @@ class HomeView extends AbstractView {
                 console.error("Failed to fetch user info:", err);
               });
           }
+          if (type === "winner" || type === "deleted") {
+            // Display the invite
+            Application.joinedTournament = "";
+            console.log("jointournament cleared");
+          }
+
           if (type === "GOTO") {
             // Display the alert
 
@@ -205,14 +212,18 @@ class HomeView extends AbstractView {
       `;
 
       // Instantiate PongGame and start the game loop
-      const pongGame = new PongGame("pongCanvas");
-      pongGame.gameLoop();
+      this.pongGame = new PongGame("pongCanvas");
+      this.pongGame.gameLoop();
     } else {
       console.error("#view-container not found in the DOM.");
     }
   }
 
-  childOnDestroy() {}
+  childOnDestroy() {
+    if (this.pongGame) {
+      this.pongGame.destroy();
+    }
+  }
 }
 
 export default HomeView;

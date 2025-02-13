@@ -17,6 +17,7 @@ class FriendsView extends AbstractView {
 
   async init() {
     await this.loadMessages();
+    Application.toggleLangSelectorShow();
     this.onStart();
   }
 

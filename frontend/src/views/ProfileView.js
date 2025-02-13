@@ -20,6 +20,7 @@ class ProfileView extends AbstractView {
     Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
+    Application.toggleLangSelectorShow();
     this.onStart();
   }
 
@@ -27,23 +28,42 @@ class ProfileView extends AbstractView {
     this.domText = {};
     this.domText.title = await Application.localization.t("titles.profile");
     this.domText.level = await Application.localization.t("profile.level");
-    this.domText.gamePlayedNumber = await Application.localization.t("profile.gamePlayedNumber");
-    this.domText.victoryNumber = await Application.localization.t("profile.victoryNumber");
+    this.domText.gamePlayedNumber = await Application.localization.t(
+      "profile.gamePlayedNumber"
+    );
+    this.domText.victoryNumber = await Application.localization.t(
+      "profile.victoryNumber"
+    );
     if (this.playerVictoryRemain === 1) {
-      this.domText.winRemain = await Application.localization.t("profile.oneWinRemains");
+      this.domText.winRemain = await Application.localization.t(
+        "profile.oneWinRemains"
+      );
+    } else if (this.playerVictoryRemain > 1) {
+      this.domText.winRemain = await Application.localization.t(
+        "profile.multipleWinsRemain"
+      );
     }
-    else if (this.playerVictoryRemain > 1) {
-      this.domText.winRemain = await Application.localization.t("profile.multipleWinsRemain");
-    } 
     this.domText.table = {};
-    this.domText.table.result = await Application.localization.t("profile.table.result");
-    this.domText.table.date = await Application.localization.t("profile.table.date");
-    this.domText.table.score = await Application.localization.t("profile.table.score");
+    this.domText.table.result = await Application.localization.t(
+      "profile.table.result"
+    );
+    this.domText.table.date = await Application.localization.t(
+      "profile.table.date"
+    );
+    this.domText.table.score = await Application.localization.t(
+      "profile.table.score"
+    );
 
     this.messages = {};
-    this.messages.errorInitTitle = await Application.localization.t("profile.errorInitTitle");
-    this.messages.errorInitBody = await Application.localization.t("profile.errorInitBody");
-    this.domText.manageAccount = await Application.localization.t("profile.manageAccount");
+    this.messages.errorInitTitle = await Application.localization.t(
+      "profile.errorInitTitle"
+    );
+    this.messages.errorInitBody = await Application.localization.t(
+      "profile.errorInitBody"
+    );
+    this.domText.manageAccount = await Application.localization.t(
+      "profile.manageAccount"
+    );
   }
 
   onStart() {

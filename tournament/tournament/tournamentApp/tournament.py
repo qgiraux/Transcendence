@@ -21,7 +21,15 @@ game_counter = 0
 def Tournament_operation(tournament):
     logger.error("trying to start tournament...")
     try:
+
         lineup = tournament.player_list
+        for id in lineup :
+            if not redis_client.sismember('online_users', id):
+                tournament.player_list.remove(id)
+                tournament.save()
+                logger.error(f"player {id} not online")
+                return
+
         random.shuffle(lineup)
         exp_size = tournament.tournament_size
         size = len(lineup)
@@ -32,6 +40,16 @@ def Tournament_operation(tournament):
         tournament.status = 1
         tournament.save()
         winner = organize_tournament(lineup, tournament)
+        notification = {
+        'type': 'winner_message',
+        'group': f'user_{winner}',
+        'message': f"'{winner}'",
+        'sender': "0",
+        }
+        try:
+            redis_client.publish("global_chat", json.dumps(notification))
+        except Exception as e:
+            logger.error(f"Error sending winner message: {e}")
         response = requests.post('http://web3-tournament/score/', data={'name': winner, "result": "win"})
         if response.status_code != 201:
             logger.error(f"Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")
@@ -71,7 +89,10 @@ def organize_tournament(lineup, tournament):
 async def match(player1, player2, gamename):
     logger.error(f"Match {gamename} between {player1} and {player2}")
     channel_layer = get_channel_layer()
-
+    if not redis_client.sismember('online_users', player1):
+        return player2
+    if not redis_client.sismember('online_users', player2):
+        return player1
     # Simulate a channel name for this task
     channel_name = f"channel_{gamename}_{player1}_{player2}".replace("-", "_")
 

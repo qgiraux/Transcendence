@@ -81,7 +81,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         elif msg_type == "online":
             await self.online()
         elif msg_type == "giveup":
-            log.error("Player %s gave up with message %s", self.user_id, msg_data)
+            # log.error("Player %s gave up with message %s", self.user_id, msg_data)
             if self.game_name in self.pong:
                 self.pong[self.game_name].engine.player_leave(self.user_id)
         else:
