@@ -215,7 +215,8 @@
       "inProgress": "Tornei in corso",
       "finished": "Terminato", 
       "alreadyJoinedTxt": "Completa le tue partite in corso o annulla la tua partecipazione per creare o unirti a un altro torneo!",
-      "noTournamentToDisplay": "Nessun torneo da mostrare"
+      "noTournamentToDisplay": "Nessun torneo da mostrare",
+      "manage": "Impostazioni"
     },
     "create": {
       "txt": "Crea torneo",

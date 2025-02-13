@@ -12,6 +12,7 @@ class TournamentsView extends AbstractView {
     super(params);
     this.domText = {};
     this.messages = {};
+    this.ongoingEvent = false;
     this.init();
   }
 
@@ -78,6 +79,9 @@ class TournamentsView extends AbstractView {
     );
     this.domText.noTournamentToDisplay = await Application.localization.t(
       "tournament.tab.noTournamentToDisplay"
+    );
+    this.domTextManageTournament = await Application.localization.t(
+      "tournament.tab.manage"
     );
     this.domText.close = await Application.localization.t("friends.close");
     this.messages.fetchTournamentsErr = await Application.localization.t(
@@ -176,9 +180,9 @@ class TournamentsView extends AbstractView {
       });
       //AV = I added this to refresh the page every 20s but there is an ugly glitch
       Application.timeoutId = setTimeout(() => {
-        Router.reroute("/tournaments");
-        this.restoreStatus();
-      }, 20000);
+              Router.reroute("/tournaments");
+              this.restoreStatus();
+            }, 20000);
 
     //                  Event listeners
     // state panel
@@ -196,8 +200,21 @@ class TournamentsView extends AbstractView {
       "click",
       this.joinTournamentHandler.bind(this)
     );
-
   }
+
+  // handle_refresh()
+  // {
+  //   if (!this.ongoingEvent)
+  //     {
+  //       Application.timeoutId = setTimeout(() => {
+  //       Router.reroute("/tournaments");
+  //       this.restoreStatus();
+  //     }, 20000);
+  //     }
+  //   else {
+  //     clearTimeout(Application.timeoutId)
+  //   }
+  // }
 
   /*
 
@@ -228,6 +245,8 @@ class TournamentsView extends AbstractView {
   }
 
   async joinTournamentHandler(event) {
+    this.ongoingEvent = true;
+    this.handle_refresh();
     if (event.target.classList.contains("join-tournament-btn")) {
       const tournamentName = event.target.getAttribute("data-tournament");
       console.log("trying to join", tournamentName);
@@ -243,6 +262,7 @@ class TournamentsView extends AbstractView {
       } catch (error) {
         Alert.errorMessage(this.messages.joinFailure);
       }
+      this.ongoingEvent = false;
       Router.reroute("/tournaments");
     }
   }
@@ -528,7 +548,7 @@ Request API function
       
       actionDiv.innerHTML = `<div class="btn-group">
       <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        Manage tournament
+        ${this.domTextManageTournament}
       </button>
         <ul class="dropdown-menu">
           <li>
@@ -584,7 +604,7 @@ Request API function
 			          </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+                <button type="button" class="btn btn-secondary" id="close-btn">${this.domText.close}</button>
               </div>
             </div>
           </div>
@@ -592,12 +612,13 @@ Request API function
 
         document.body.appendChild(modal);
 
+        modal.querySelector("#close-btn").addEventListener("click", () => {
+          modal.remove();
+        });
 
         modal.querySelector("#abort-btn").addEventListener("click", () => {
           modal.remove();
         });
-        
-  
 
         modal.querySelector("#confirm-btn").addEventListener("click", async () => {
           try {
@@ -625,7 +646,6 @@ Request API function
       //DELETE MODALE 
 
       const deleteButton = actionDiv.querySelector(`[data-action='delete-tournament']`);
-      // if (isPlayerInTournament) {
         deleteButton.addEventListener("click", async () => {
           try {
             console.log("Sent parameter :", tournament);
@@ -636,7 +656,8 @@ Request API function
             Alert.errorMessage("Error deleting tournament", error.message);
           }
         });
-      // }
+
+      //INVITE MODALE 
       
       const hasFriends = (this.friendsDetails.length === 0) ? false : true;
       console.log("The user has friends", hasFriends);
@@ -684,7 +705,7 @@ Request API function
             }
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+              <button type="button" class="btn btn-secondary" id="close-btn" >${this.domText.close}</button>
           </div>
         </div>
       </div>
@@ -693,6 +714,7 @@ Request API function
         document.body.appendChild(modal);
 
         //Handling event listeners on the invite_buttons
+        
         modal.querySelectorAll("[data-action='invite-friend']").forEach(button => {
           button.addEventListener("click", async (event) => {
             const friendId = event.target.getAttribute("data-friend-id");
@@ -723,6 +745,10 @@ Request API function
               console.error("In inviteFriend:", error.message);
             }
           });
+        });
+
+        modal.querySelector("#close-btn").addEventListener("click", () => {
+          modal.remove();
         });
       
         modal.querySelector("[data-bs-dismiss='modal']").addEventListener("click", () => {
