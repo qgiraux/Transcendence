@@ -429,7 +429,7 @@ class PongGameView extends AbstractView {
             <div class="mx-auto" style="max-width: 700px;">
                 <h1 class="text-white display-1">Tournament Game</h1>
 
-                <div class="row">
+                <div class="row justify-content-md-center">
                     <div id="canvas-container">
                         <canvas id="pongCanvas" width="800" height="400"></canvas>
                     </div>
