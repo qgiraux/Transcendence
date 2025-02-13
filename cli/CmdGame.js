@@ -17,7 +17,7 @@ class CmdGame extends CmdJWT {
 	constructor() {
 		super((jwt)=>{this.#onLoginInitialize(jwt)}, () => {return this.#checkProperties()}, "node pong-cli game");
 		this.name = "game";
-		this.description = "Play pong";
+		this.description = "Play Pong using keyboard arrows. Create or join tournaments."; //
 		this.width = 103; //Min 29
 		this.height = 28; // Min 8
 		//this.dar = "1:1"; // * NOT IMPLEMENTED
@@ -26,7 +26,7 @@ class CmdGame extends CmdJWT {
 		this.pongCanvas = undefined;
 		this.tournament = undefined;
 		this.newTournament = false;
-		this.description = "Play Pong using keyboard arrows. Create or join tournaments."; //
+		
 		this.players = 2;
 		this.parser.addOptions([
 			"[--width=<width>]", 

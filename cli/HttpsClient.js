@@ -1,7 +1,11 @@
 const https = require('node:https');
 
 class HttpsClient{
+	static #debug = false;
+
 	static enableDebug(log = (...args) => {console.log(args)}) {
+		if (HttpsClient.#debug)
+			return ;
 		HttpsClient.request_ = HttpsClient.request;
 		HttpsClient.request = (options, jsonData, callback) => {
 			log("I:", options, jsonData, callback);
@@ -11,6 +15,7 @@ class HttpsClient{
 			}
 			HttpsClient.request_(options, jsonData, callback_);
 		}
+		HttpsClient.#debug = true;
 	}
 
 	static allowSelfSigned(){
