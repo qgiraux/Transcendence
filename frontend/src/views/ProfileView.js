@@ -354,75 +354,78 @@ class ProfileView extends AbstractView {
       container.innerHTML = `
 	  <div class="row"><h1>${this.domText.title}</h1></div>
 		<div class="mt-4 row mx-auto" style="max-width:800px;">
-        <div class="row p-1 mb-4 mx-auto">
-            <div class="row d-flex flex-row p-2 ">
-                <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
-				<div class="row">
-              <img id="profile-img" src="${Avatar.url(
-                this.currentUserInfos.id
+      <div class="row d-flex flex-row p-2 ">
+        <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
+			    <div class="row">
+            <img id="profile-img" src="${Avatar.url(
+              this.currentUserInfos.id
               )}" width="300" height="300" data-avatar="${
-        this.currentUserInfos.id
-      }" alt="user" class="rounded-circle img-fluid"></div>
-	  <div class="row mt-2">
-	  	${this.id === Application.getUserInfos().userId ? profileEdit : ""}
+              this.currentUserInfos.id
+               }" alt="user" class="rounded-circle img-fluid">
+          </div>
+	        <div class="row mt-2">
+	  	      ${this.id === Application.getUserInfos().userId ? profileEdit : ""}
+	        </div>
+        </div>
+        <div class="col-6 mb-3 p-2 ">
+            <h1 class="text-primary display-6 fw-bold" id="nickname">${
+              this.currentUserInfos.nickname
+            }</h1>
+            <p class="text-secondary " id="username">@${
+              this.currentUserInfos.username
+            }</p>
+            <div class="card bg-dark text-white p-4 rounded shadow">
+              <h2 class="text-center text-white mb-4">${
+                  this.domText.level
+                } <strong>${this.playerLevel}</strong></h2>
+              <div class="row mb-3 d-flex justify-content-center align-items-center">
+                  <div class="col-6 text-primary">${
+                      this.domText.gamePlayedNumber
+                    }
+                  </div>
+                  <div class="col-6 text-end text-white fw-bold fs-3">${
+                      this.playerMatchPlayed
+                    }
+                  </div>
+              </div>
+              <div class="row mb-3 d-flex justify-content-center align-items-center">
+                  <div class="col-6 text-primary">${
+                      this.domText.victoryNumber
+                    }
+                  </div>
+                  <div class="col-6 text-end text-white fw-bold fs-4">${
+                      this.playerMatchWon
+                    }
+                  </div>
+              </div>
+              <div class="progress " style="height: 10px; border-radius: 5px;">
+                  <div id="progress-bar" class="progress-bar" role="progressbar"
+                      style="width: 0%; background-color: #76c7c0;" aria-valuenow="50" aria-valuemin="0"
+                      aria-valuemax="100">
+                  </div>
+              </div>
+              <div class="text-white" id="victories-left-text">${
+                  this.playerVictoryRemain
+                } ${this.domText.winRemain}
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <div id="history-container" class="row p-3 scrollable-panel">
+          <div class="user-stats ">
+              <table class="table table-dark  table-striped " id="table-history">
+                  <tr class="text-center mb-2">
+                      <th>${this.domText.table.result}</th>
+                      <th>${this.domText.table.date}</th>
+                      <th>${this.domText.table.score}</th>
+                      <th></th>
+
+                  </tr>
+              </table>
+          </div>
+      </div>
 	  </div>
-            </div>
-                <div class="col-6 mb-3 p-2 ">
-                    <h1 class="text-primary display-6 fw-bold" id="nickname">${
-                      this.currentUserInfos.nickname
-                    }</h1>
-                    <p class="text-secondary " id="username">@${
-                      this.currentUserInfos.username
-                    }</p>
-                    <div class="card bg-dark text-white p-4 rounded shadow">
-                        <h2 class="text-center text-white mb-4">${
-                          this.domText.level
-                        } <strong>${this.playerLevel}</strong></h2>
-                        <div class="row mb-3 d-flex justify-content-center align-items-center">
-                            <div class="col-6 text-primary">${
-                              this.domText.gamePlayedNumber
-                            }</div>
-                            <div class="col-6 text-end text-white fw-bold fs-3">${
-                              this.playerMatchPlayed
-                            }</div>
-                        </div>
-                        <div class="row mb-3 d-flex justify-content-center align-items-center">
-                            <div class="col-6 text-primary">${
-                              this.domText.victoryNumber
-                            }</div>
-                            <div class="col-6 text-end text-white fw-bold fs-4">${
-                              this.playerMatchWon
-                            }</div>
-                        </div>
-                        <div class="progress " style="height: 10px; border-radius: 5px;">
-                            <div id="progress-bar" class="progress-bar" role="progressbar"
-                                style="width: 0%; background-color: #76c7c0;" aria-valuenow="50" aria-valuemin="0"
-                                aria-valuemax="100">
-                            </div>
-                        </div>
-                        <div class="text-white" id="victories-left-text">${
-                          this.playerVictoryRemain
-                        } ${this.domText.winRemain}
-                        </div>
-                    </div>
-                </div>
-                <br>
-            </div>
-
-            <div id="history-container" class="row scrollable-panel p-3">
-                <div class="user-stats">
-                    <table class="table table-dark  table-striped " id="table-history">
-                        <tr class="text-center mb-2">
-                            <th>${this.domText.table.result}</th>
-                            <th>${this.domText.table.date}</th>
-                            <th>${this.domText.table.score}</th>
-                            <th></th>
-
-                        </tr>
-                    </table>
-                </div>
-            </div>
-	</div>
       `;
     }
   }

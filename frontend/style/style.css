@@ -431,6 +431,11 @@ input:-webkit-autofill:focus {
   border: 2px solid white; /* Optional: Add a border around the image */
 }
 
+#history-container {
+  overflow: auto !important;
+  max-height: 300px !important;
+}
+
 /* Navigation Bar */
 /* nav {
   background: #363f47;
