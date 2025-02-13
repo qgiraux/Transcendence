@@ -133,8 +133,8 @@ class AccountDeleteView extends AbstractView {
           id: friendId,
         });
       }
-      //where other playrs added the player as a friend
-
+      // delete the user from all users friendslist
+      await TRequest.request("DELETE", "/api/friends/removefromall/");
       // Delete all the blocks
       //where the player blocks other players
       const blocksList = await TRequest.request(
@@ -146,7 +146,8 @@ class AccountDeleteView extends AbstractView {
           id: blockId,
         });
       }
-      //where other playrs block the player
+      // delete the user from all users blockList
+      await TRequest.request("DELETE", "/api/friends/blocks/removefromall/");
 
       // Delete profile picture
       await TRequest.request("DELETE", "/api/avatar/delete/");
