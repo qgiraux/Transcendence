@@ -137,7 +137,7 @@ def JoinTournament(request):
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    
+
     # Add a player to the list
     if user_id in tournament.player_list:
         return JsonResponse({'detail': 'User already subscribed', 'code': 'conflict'}, status=409)
@@ -231,3 +231,30 @@ def DeleteTournament(request):
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
     tournament.delete()
     return JsonResponse({'detail': 'Tournament deleted', 'name' : name}, status=200)
+
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def unsubscribeAll(request): # unsubscribe the player of all tournaments
+    logger.error("unsubscribbed all received")
+    if request.method != 'DELETE':
+        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
+    try:
+        auth_header = request.headers.get('Authorization').split()[1]
+        logger.error(request.headers.get('Authorization'))
+        logger.error( f" ++++{auth_header}=====" )
+        if not auth_header or " " not in auth_header:
+            return JsonResponse({'detail': 'Invalid authorization header'}, status=400)
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded["id"]
+        tournaments = Tournament.objects.all()
+        unsubscribbed = []
+        logger.error("start loop")
+        for tournament in tournaments:
+            if user_id in tournament.player_list:
+                tournament.player_list.remove(user_id)
+                tournament.save()
+                unsubscribbed.append(tournament.player_list)
+        return JsonResponse({'detail': 'Tournament deleted', 'name' : unsubscribbed}, status=200)
+
+    except InvalidTokenError:
+        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
