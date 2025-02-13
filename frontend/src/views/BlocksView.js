@@ -296,53 +296,48 @@ class BlocksView extends AbstractView {
     if (container) {
       container.innerHTML = `
 
-<!-- Modal -->
-<div class="modal fade text-white" id="UserSelectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog ">
-    <div class="modal-content bg-dark">
-      <div class="modal-header">
-        <h5 class="modal-title" id="UserSelectModalLabel">User Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-		<img id="modal-img" src="" alt="user" width="200" height="200" class="">
-        <p id="modal-nickname">placeholder</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
-        <button type="button" class="btn btn-primary" id="add-block-button"  data-bs-dismiss="modal">${this.domText.addBlockAction}</button>
+    <!-- Modal -->
+    <div class="modal fade text-white" id="UserSelectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog ">
+        <div class="modal-content bg-dark">
+          <div class="modal-header">
+            <h5 class="modal-title" id="UserSelectModalLabel">User Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+        <img id="modal-img" src="" alt="user" width="200" height="200" class="">
+            <p id="modal-nickname">placeholder</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+            <button type="button" class="btn btn-primary" id="add-block-button"  data-bs-dismiss="modal">${this.domText.addBlockAction}</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
 
-<div class="row">
+    <div class="row">
+      <div class="col-12">
+        <h1>${this.domText.Title}</h1>
+      </div>
+    </div>
+
+    <div class="row">
 			<div class="col-12">
-				<h1 class="text-white display-1">${this.domText.Title}</h1>
+				<h2><small>${this.domText.lookingForTxt}</small></h2>
 			</div>
-		</div>
-		<div class="row g-2  p-2" id="blocks-container">
-		</div>
-
-		<div class="row">
 			<div class="col-12">
-				<h3 class="text-white display-5 mt-5 mb-0">${this.domText.lookingForTxt}</h3>
+        <input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
+          placeholder="${this.domText.lookingForField}" data-bs-toggle="dropdown" aria-expanded="false" />
+        <ul class="dropdown-menu " id="dropdownMenu">
+          <!-- Les options seront ajoutées ici dynamiquement -->
+        </ul>
 			</div>
-			<div class="row mt-0">
-				<div class="col-9 mx-auto">
-					<div class="container mt-5">
-						<div class="dropdown" mx-auto>
-							<input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
-								placeholder="${this.domText.lookingForField}" data-bs-toggle="dropdown" aria-expanded="false" />
-							<ul class="dropdown-menu w-100" id="dropdownMenu">
-								<!-- Les options seront ajoutées ici dynamiquement -->
-							</ul>
-						</div>
+    </div>
 
-					</div>
-				</div>
-			</div>
+    <div class="row g-2  p-2" id="blocks-container">
+		</div>
 					`;
     }
   }

@@ -77,9 +77,13 @@ h2 small {
   margin-right: 15px;
 }
 
+.dropdown-item {
+  color: white;
+}
+
 .dropdown-item:hover {
   background-color: #adfe04;
-  color: black;
+  color: black !important;
   border-radius: 0;
 }
 
@@ -225,6 +229,30 @@ i {
   border: 4px;
   border-color: #90fce1;
   box-shadow: 0 0 10px #90fce1, 0 0 20px #90fce1;
+}
+
+
+.dropdown-menu {
+  background-color: black;
+  color: white !important;
+  border-radius: 0px;
+  border-width: 2px;
+  border-color: white;
+}
+
+
+
+
+#dropdownMenu {
+  background-color: black;
+  color: white;
+  border-radius: 0px;
+  border-width: 2px;
+  border-color: white;
+}
+
+#dropdownMenu a {
+  color: white;
 }
 
 /* LANDING VIEW STYLING */

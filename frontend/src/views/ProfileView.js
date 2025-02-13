@@ -368,7 +368,7 @@ class ProfileView extends AbstractView {
 	        </div>
         </div>
         <div class="col-6 mb-3 p-2 ">
-            <h1 class="text-primary display-6 fw-bold" id="nickname">${
+            <h1 class="display-6 fw-bold" id="nickname">${
               this.currentUserInfos.nickname
             }</h1>
             <p class="text-secondary " id="username">@${
@@ -379,7 +379,7 @@ class ProfileView extends AbstractView {
                   this.domText.level
                 } <strong>${this.playerLevel}</strong></h2>
               <div class="row mb-3 d-flex justify-content-center align-items-center">
-                  <div class="col-6 text-primary">${
+                  <div class="col-6 ">${
                       this.domText.gamePlayedNumber
                     }
                   </div>
@@ -389,7 +389,7 @@ class ProfileView extends AbstractView {
                   </div>
               </div>
               <div class="row mb-3 d-flex justify-content-center align-items-center">
-                  <div class="col-6 text-primary">${
+                  <div class="col-6 ">${
                       this.domText.victoryNumber
                     }
                   </div>

@@ -277,7 +277,7 @@ class PongGameView extends AbstractView {
                   height: 100vh; /* Full viewport height */
               }
             </style>
-            <h1 class="text-white display-1">Tournament Game</h1>
+            <h1>Tournament Game</h1>
             <canvas id="pongCanvas" width="800" height="400"></canvas>
             <div id="message-container"></div>
           `;

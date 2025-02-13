@@ -505,7 +505,7 @@ Set HTML
 
 
       <!-- Avatar Card -->
-      <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center"
+      <div class="setting-card row w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center"
         id="avatar">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-white fw-bold text-center w-100">${
@@ -537,7 +537,7 @@ Set HTML
       </div>
 
       <!-- Alias Card -->
-      <div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+      <div class="setting-card row  w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center d-none"
         id="alias">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-white fw-bold text-center w-100">${
@@ -555,7 +555,7 @@ Set HTML
       </div>
 
       <!-- password Card -->
-      <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+      <div class="setting-card row w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center d-none"
         id="password">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-white fw-bold text-center w-100">${
@@ -594,7 +594,7 @@ Set HTML
       </div>
 
       <!-- Authentication Card -->
-    <div class="setting-card row w-75 mw-75 mx-auto text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+    <div class="setting-card row w-75 mw-75 mx-auto text-white container-md p-3 d-flex flex-column align-items-center d-none"
       id="twofa">
       <div class="row align-items-start w-100">
         <h2 class="display-4 text-white fw-bold text-center w-100">
@@ -624,7 +624,7 @@ Set HTML
 
 
       <!-- Delete Account Card -->
-      <div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+      <div class="setting-card row  w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center d-none"
         id="delete">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-danger fw-bold text-center w-100">${
