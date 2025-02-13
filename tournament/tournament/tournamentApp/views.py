@@ -194,9 +194,9 @@ def LeaveTournament(request):
 
     tournament.player_list.remove(user_id)  # Remove player ID - minor correction for the leave feature
     tournament.save()
+    logger.error(f"{len(tournament.player_list)} in tournament")
     if len(tournament.player_list) == 0:
         tournament.delete()
-        tournament.save()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
 
 
@@ -270,7 +270,6 @@ def DeleteTournament(request):
         tournament = Tournament.objects.get(tournament_name=name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    tournament.delete()
     for id in tournament.player_list:
         notification = {
             'type': 'deleted_message',
@@ -279,7 +278,5 @@ def DeleteTournament(request):
             'sender': '0',
         }
         redis_client.publish('global_chat', json.dumps(notification))
-
-        # Publish the notification
-        redis_client.publish('global_chat', json.dumps(notification))
+    tournament.delete()
     return JsonResponse({'detail': 'Tournament deleted', 'name' : name}, status=200)

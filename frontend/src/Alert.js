@@ -64,7 +64,7 @@ class Alert {
 
   static inviteMessage(title, message, link) {
     const alertContainer = document.querySelector("#alert-container");
-
+    
     // Generate the alert HTML
     const alertHTML = `
 	  <div class="row">
@@ -101,6 +101,7 @@ class Alert {
               `Invite accepted successfully for tournament: ${link}`
             );
           } catch (error) {
+            console.log(error);
             Alert.errorMessage("Error", "Failed to accept the invite.");
           }
         });
