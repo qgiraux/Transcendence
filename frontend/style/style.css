@@ -169,7 +169,7 @@ i {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
   background-color: #000000;
   max-width: 1200px;
   height: 100vh;
