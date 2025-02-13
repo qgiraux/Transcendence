@@ -39,6 +39,7 @@ class PongGameView extends AbstractView {
         document.addEventListener('keyup', (event) => this.handleKeyUp(event));
 
         this._setHTML();
+        Application.toggleLangSelectorHide();
 
         this.canvas = document.getElementById("pongCanvas");
         

@@ -188,11 +188,11 @@ def LeaveTournament(request):
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
     
-    # Add a player to the list
+    # Remove a player from the list
     if user_id not in tournament.player_list:
         return JsonResponse({'detail': 'User not subscribed', 'code': 'conflict'}, status=409)
 
-    tournament.player_list.append(user_id)  # Add player ID
+    tournament.player_list.remove(user_id)  # Remove player ID - minor correction for the leave feature
     tournament.save()
     if len(tournament.player_list) == 0:
         tournament.delete()

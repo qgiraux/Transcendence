@@ -19,6 +19,7 @@ class HomeView extends AbstractView {
     Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
+    Application.toggleLangSelectorShow();
     this.onStart();
   }
 
