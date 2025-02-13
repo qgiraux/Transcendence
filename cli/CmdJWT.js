@@ -1,10 +1,11 @@
-const {Parser} = require("./Parser")
-const {HttpsClient} = require("./HttpsClient")
-const {Command} = require("./Command")
+const {Parser} = require("./Parser");
+const {HttpsClient} = require("./HttpsClient");
+const {Command} = require("./Command");
 //const {Controller} = require("./Controller")
 //const assert = require('node:assert')
-const {TextEditor} = require("./TextEditor")
-const {Localization} = require("./Localization")
+const {TextEditor} = require("./TextEditor");
+const {Localization} = require("./Localization");
+const {ApiPong} = require("./ApiPong");
 
 let l = new Localization(); //
 
@@ -95,9 +96,9 @@ class CmdJWT extends Command {
 		{
 			this.jwt = ret.message;
 			this.onLoggedin(this.jwt); //
-		}
-		else
+		} else {
 			CmdJWT.#printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
+		}
 	}
 
 	#stepAPILogin(){	
@@ -116,11 +117,9 @@ class CmdJWT extends Command {
 		const hostname = hostInfo[0];
 		const port = Number(hostInfo[1]);
 
-		//HttpsClient.allowSelfSigned(); //
-		HttpsClient.post(
-			{hostname: hostname, port:port, path: TL_API_LOGIN}, //
-			JSON.stringify({username: this.login, password: this.password}),
-			(ret) => {this.#stepJWT(ret);}
+		ApiPong.login(
+			{hostname: hostname, port:port}, 
+			this.login, this.password, (ret) => {this.#stepJWT(ret)}
 		);
 	}
 
