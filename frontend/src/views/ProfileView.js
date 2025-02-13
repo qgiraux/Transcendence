@@ -92,7 +92,11 @@ class ProfileView extends AbstractView {
         this._attachEventHandlers();
         setTimeout(() => {
           const bar = document.getElementById("progress-bar");
-          bar.style.width = `${(5 - this.playerVictoryRemain) * 20}%`;
+          const progressPercentage = (5 - this.playerVictoryRemain) * 20;
+          bar.style.width = `${progressPercentage}%`;
+          bar.style.backgroundColor = "#ff4632";
+          bar.setAttribute("aria-valuenow", progressPercentage);
+          bar.classList.add(`wp-${progressPercentage}`);
         }, 300);
       })
       .catch((error) => {
@@ -352,28 +356,27 @@ class ProfileView extends AbstractView {
 
     if (container) {
       container.innerHTML = `
-	  <div class="row"><h1>${this.domText.title}</h1></div>
-		<div class="mt-4 row mx-auto" style="max-width:800px;">
-      <div class="row d-flex flex-row p-2 ">
+      <div class="row"><h1>${this.domText.title}</h1></div>
+      <div class="mt-4 row mx-auto">
         <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
-			    <div class="row">
+          <div class="row">
             <img id="profile-img" src="${Avatar.url(
               this.currentUserInfos.id
               )}" width="300" height="300" data-avatar="${
               this.currentUserInfos.id
-               }" alt="user" class="rounded-circle img-fluid">
+                }" alt="user" class="rounded-circle img-fluid">
           </div>
-	        <div class="row mt-2">
-	  	      ${this.id === Application.getUserInfos().userId ? profileEdit : ""}
-	        </div>
+          <div class="row mt-2">
+            ${this.id === Application.getUserInfos().userId ? profileEdit : ""}
+          </div>
         </div>
         <div class="col-6 mb-3 p-2 ">
-            <h1 class="display-6 fw-bold" id="nickname">${
+            <h1 id="nickname">${
               this.currentUserInfos.nickname
             }</h1>
-            <p class="text-secondary " id="username">@${
+            <h2 id="username"><small>@${
               this.currentUserInfos.username
-            }</p>
+            }</small></h2>
             <div class="card bg-dark text-white p-4 rounded shadow">
               <h2 class="text-center text-white mb-4">${
                   this.domText.level
@@ -398,10 +401,9 @@ class ProfileView extends AbstractView {
                     }
                   </div>
               </div>
-              <div class="progress " style="height: 10px; border-radius: 5px;">
+              <div class="progress">
                   <div id="progress-bar" class="progress-bar" role="progressbar"
-                      style="width: 0%; background-color: #76c7c0;" aria-valuenow="50" aria-valuemin="0"
-                      aria-valuemax="100">
+                      aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="margin-bottom: 0px;">
                   </div>
               </div>
               <div class="text-white" id="victories-left-text">${
@@ -420,12 +422,10 @@ class ProfileView extends AbstractView {
                       <th>${this.domText.table.date}</th>
                       <th>${this.domText.table.score}</th>
                       <th></th>
-
                   </tr>
               </table>
           </div>
       </div>
-	  </div>
       `;
     }
   }

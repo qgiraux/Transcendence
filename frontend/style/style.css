@@ -461,7 +461,7 @@ input:-webkit-autofill:focus {
 
 #history-container {
   overflow: auto !important;
-  max-height: 300px !important;
+  max-height: 280px !important;
 }
 
 /* Navigation Bar */
