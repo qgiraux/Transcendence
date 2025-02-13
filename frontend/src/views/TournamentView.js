@@ -178,11 +178,8 @@ class TournamentsView extends AbstractView {
           `Please try again later `
         );
       });
-      //AV = I added this to refresh the page every 20s but there is an ugly glitch
-      Application.timeoutId = setTimeout(() => {
-              Router.reroute("/tournaments");
-              this.restoreStatus();
-            }, 20000);
+      //AV = New function to handle refresh if there is no event 
+      this.handle_refresh();
 
     //                  Event listeners
     // state panel
@@ -202,19 +199,28 @@ class TournamentsView extends AbstractView {
     );
   }
 
-  // handle_refresh()
-  // {
-  //   if (!this.ongoingEvent)
-  //     {
-  //       Application.timeoutId = setTimeout(() => {
-  //       Router.reroute("/tournaments");
-  //       this.restoreStatus();
-  //     }, 20000);
-  //     }
-  //   else {
-  //     clearTimeout(Application.timeoutId)
-  //   }
-  // }
+  //handle the timeouts
+  handle_refresh() {
+    if (typeof Application.timeoutId === "undefined") {
+      Application.timeoutId = null;
+    }
+  
+    if (!this.ongoingEvent) {
+      if (Application.timeoutId) {
+        clearTimeout(Application.timeoutId);
+      }
+  
+      Application.timeoutId = setTimeout(() => {
+        Router.reroute("/tournaments");
+        this.restoreStatus();
+      }, 6000);
+    } else {
+      if (Application.timeoutId) {
+        clearTimeout(Application.timeoutId);
+        Application.timeoutId = null;
+      }
+    }
+  }
 
   /*
 
@@ -420,7 +426,7 @@ Request API function
     return header;
   }
 
-  //AV (suggestion to be discussed) : another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
+  //Another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
   createNewTournamentHeaderCannotJoin() {
     const header = document.createElement("div");
     header.classList.add("row", "p-2", "w-75");
@@ -433,7 +439,7 @@ Request API function
     return header;
 }
 
-//AV (suggestion to be discussed) : header to display a message in case no tournament is to be displayed in the view 
+//Header to display a message in case no tournament is to be displayed in the view 
   createNewNoTournamentHeader() {
     const header = document.createElement("div");
     header.classList.add("row", "p-2", "w-75");
@@ -579,7 +585,10 @@ Request API function
       //QUIT MODALE
 
       const quitButton = actionDiv.querySelector(`[data-action="open-quit-modal"]`);
+      
       quitButton.addEventListener("click", async () => {
+        this.ongoingEvent = true;
+        this.handle_refresh();
         const modal = document.createElement("div");
         modal.classList.add("modal", "fade", "show");
         modal.style.display = "block";
@@ -614,10 +623,14 @@ Request API function
 
         modal.querySelector("#close-btn").addEventListener("click", () => {
           modal.remove();
+          this.ongoingEvent = false;
+          this.handle_refresh();
         });
 
         modal.querySelector("#abort-btn").addEventListener("click", () => {
           modal.remove();
+          this.ongoingEvent = false;
+          this.handle_refresh();
         });
 
         modal.querySelector("#confirm-btn").addEventListener("click", async () => {
@@ -631,9 +644,12 @@ Request API function
                });
               console.log(response);
               modal.remove();
+              this.ongoingEvent = false;
               Router.reroute("/tournaments");
           } catch (error) {
             modal.remove();
+            this.ongoingEvent = false;
+            this.handle_refresh();
             Alert.errorMessage("Error", error.message);
           }
         });
@@ -647,13 +663,18 @@ Request API function
 
       const deleteButton = actionDiv.querySelector(`[data-action='delete-tournament']`);
         deleteButton.addEventListener("click", async () => {
+          this.ongoingEvent = true;
+          this.handle_refresh();
           try {
             console.log("Sent parameter :", tournament);
             await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament["tournament name"] });
-            Alert.successMessage("Tournaments", "Tournament deleted successfully");
+            Alert.successMessage("Tournaments", "Tournament deleted successfully"); //TO TRANSLATE
+            this.ongoingEvent = false;
             Router.reroute("/tournaments")
           } catch (error) {
-            Alert.errorMessage("Error deleting tournament", error.message);
+            this.ongoingEvent = false;
+            this.handle_refresh();
+            Alert.errorMessage("Error deleting tournament", error.message); //TO TRANSLATE
           }
         });
 
@@ -737,21 +758,26 @@ Request API function
       
               // modal.remove();
               // Alert.successMessage("Friend", "Invited successfully");
-              event.target.textContent = "Invited ✅";
+              event.target.textContent = "Invited ✅"; //TO TRANSLATE
               event.target.disabled = true;
             } catch (error) {
               modal.remove();
-              Alert.errorMessage("Error", error.message);
+              Alert.errorMessage("Error", error.message); //TO TRANSLATE
               console.error("In inviteFriend:", error.message);
             }
           });
-        });
+        });this.ongoingEvent = false;
+        this.handle_refresh();
 
         modal.querySelector("#close-btn").addEventListener("click", () => {
+          this.ongoingEvent = false;
+          this.handle_refresh();
           modal.remove();
         });
       
         modal.querySelector("[data-bs-dismiss='modal']").addEventListener("click", () => {
+          this.ongoingEvent = false;
+          this.handle_refresh();
           modal.remove();
         });
       });
