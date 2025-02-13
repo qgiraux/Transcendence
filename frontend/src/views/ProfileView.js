@@ -344,7 +344,9 @@ class ProfileView extends AbstractView {
 
   _setHtml() {
     const profileEdit = `
-		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">${this.domText.manageAccount}</a>
+		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">
+      <button class="btn btn-primary" type="button">  
+        ${this.domText.manageAccount}</button></a>
     `;
     const container = document.querySelector("#view-container");
 
@@ -365,7 +367,7 @@ class ProfileView extends AbstractView {
 	  	${this.id === Application.getUserInfos().userId ? profileEdit : ""}
 	  </div>
             </div>
-                <div class="col-6 mb-3 p-2 border border-secondary rounded ">
+                <div class="col-6 mb-3 p-2 ">
                     <h1 class="text-primary display-6 fw-bold" id="nickname">${
                       this.currentUserInfos.nickname
                     }</h1>

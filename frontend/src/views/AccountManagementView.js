@@ -484,19 +484,19 @@ Set HTML
 
       <div class="row mb-2">
         <div class=" btn-group mx-auto align-items-center">
-          <button id="nav-avatar" class="nav-button btn btn-primary active">${
+          <button id="nav-avatar" class="nav-button btn btn-custom active">${
             this.domText.manageAvatar
           }</button>
-          <button id="nav-alias"  class="nav-button btn btn-primary">${
+          <button id="nav-alias"  class="nav-button btn btn-custom">${
             this.domText.changeAlias
           }</button>
-          <button id="nav-password"  class="nav-button btn btn-primary">${
+          <button id="nav-password"  class="nav-button btn btn-custom">${
             this.domText.changePassword
           }</button>
-          <button id="nav-twofa"  class="nav-button btn btn-primary">${
+          <button id="nav-twofa"  class="nav-button btn btn-custom">${
             this.domText.manage2FA
           }</button>
-          <button id="nav-delete"  class="nav-button btn btn-primary">${
+          <button id="nav-delete"  class="nav-button btn btn-custom">${
             this.domText.deleteAccount
           }</button>
         </div>
