@@ -175,7 +175,7 @@ def LeaveTournament(request):
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
-        
+
     data = json.loads(request.body)
     if not data.get('name'):
         return JsonResponse({'detail': 'missing tournament name in body', 'code': 'incomplete_body'}, status=400)
@@ -187,7 +187,7 @@ def LeaveTournament(request):
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    
+
     # Remove a player from the list
     if user_id not in tournament.player_list:
         return JsonResponse({'detail': 'User not subscribed', 'code': 'conflict'}, status=409)
@@ -280,30 +280,3 @@ def DeleteTournament(request):
         redis_client.publish('global_chat', json.dumps(notification))
     tournament.delete()
     return JsonResponse({'detail': 'Tournament deleted', 'name' : name}, status=200)
-
-@csrf_exempt
-@permission_classes([IsAuthenticated])
-def unsubscribeAll(request): # unsubscribe the player of all tournaments
-    logger.error("unsubscribbed all received")
-    if request.method != 'DELETE':
-        return JsonResponse({'detail': 'method not allowed', 'code': 'method_not_allowed'}, status=405)
-    try:
-        auth_header = request.headers.get('Authorization').split()[1]
-        logger.error(request.headers.get('Authorization'))
-        logger.error( f" ++++{auth_header}=====" )
-        if not auth_header or " " not in auth_header:
-            return JsonResponse({'detail': 'Invalid authorization header'}, status=400)
-        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
-        user_id = decoded["id"]
-        tournaments = Tournament.objects.all()
-        unsubscribbed = []
-        logger.error("start loop")
-        for tournament in tournaments:
-            if user_id in tournament.player_list:
-                tournament.player_list.remove(user_id)
-                tournament.save()
-                unsubscribbed.append(tournament.player_list)
-        return JsonResponse({'detail': 'Tournament deleted', 'name' : unsubscribbed}, status=200)
-
-    except InvalidTokenError:
-        return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)

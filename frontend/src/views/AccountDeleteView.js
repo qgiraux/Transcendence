@@ -47,7 +47,7 @@ class AccountDeleteView extends AbstractView {
     this.addEventListener(
       document.querySelector("#confirm-btn"),
       "click",
-      this.confirm.bind(this)
+      this.deleteConfirm.bind(this)
     );
   }
 
@@ -55,7 +55,74 @@ class AccountDeleteView extends AbstractView {
     Router.reroute("/home");
   }
 
-  async confirm() {
+  async fetchTournamentDetails(names) {
+    const details = await Promise.all(
+      names.map(async (name) => {
+        try {
+          const response = await TRequest.request(
+            "GET",
+            `/api/tournament/details/${name}`
+          );
+          return response;
+        } catch (error) {
+          return null;
+        }
+      })
+    );
+    return details;
+  }
+
+  async unsubscribeFromAll(tournaments) {
+    Promise.all(
+      tournaments.map(async (tournament) => {
+        try {
+          const response = await TRequest.request(
+            "POST",
+            `/api/tournament/leave/`,
+            {
+              name: tournament["tournament name"],
+            }
+          );
+          return response;
+        } catch (error) {
+          Alert.errorMessage(
+            "Error",
+            "Couldn't unsubscribe from tournament(s). Try to do it manually"
+          );
+          return;
+        }
+      })
+    );
+  }
+
+  async deleteConfirm() {
+    const tournaments = await TRequest.request("GET", "/api/tournament/list/");
+
+    const detailedTournamentsList = await this.fetchTournamentDetails(
+      tournaments["tournaments"]
+    );
+    const subscribedList = detailedTournamentsList.filter((tournament) => {
+      return (
+        tournament.status !== 2 &&
+        tournament.players.includes(Application.getUserInfos().userId)
+      );
+    });
+
+    subscribedList.forEach((tournament) => {
+      // if the user has an tournament in progress , refuse to delete his account
+      if (tournament.status === 1) {
+        Alert.errorMessage(
+          "You have a tournament in progress",
+          "unsubscribe or give up before deleting your account"
+        );
+        return;
+      }
+    });
+
+    //Unsubscribe the player form all tournaments
+    await this.unsubscribeFromAll(subscribedList);
+
+    // Delete all the friends of the player
     try {
       const friendsList = await TRequest.request(
         "GET",
@@ -66,7 +133,10 @@ class AccountDeleteView extends AbstractView {
           id: friendId,
         });
       }
+      //where other playrs added the player as a friend
 
+      // Delete all the blocks
+      //where the player blocks other players
       const blocksList = await TRequest.request(
         "GET",
         "/api/friends/blocks/blockslist/"
@@ -76,8 +146,11 @@ class AccountDeleteView extends AbstractView {
           id: blockId,
         });
       }
-      await TRequest.request("DELETE", "/api/avatar/delete/");
+      //where other playrs block the player
 
+      // Delete profile picture
+      await TRequest.request("DELETE", "/api/avatar/delete/");
+      // Annonymise the user in the db and revoque credentials
       await TRequest.request("DELETE", "/api/users/deleteuser/");
       Router.reroute("/logout");
     } catch (error) {
