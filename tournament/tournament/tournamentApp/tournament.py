@@ -102,6 +102,14 @@ async def match(player1, player2, gamename):
         channel_name
     )
 
+     # Send an initial message to the group
+    message = {'type': 'create', 'data': {'name': gamename}}
+    await channel_layer.group_send(
+        f"game_{gamename}",
+        message
+    )
+    # asyncio.sleep(1)
+
     # Notification logic
     notification = {
         'type': 'game_message',
@@ -116,12 +124,7 @@ async def match(player1, player2, gamename):
     except Exception as e:
         logger.error(f"Error sending game-on message: {e}")
 
-    # Send an initial message to the group
-    message = {'type': 'create', 'data': {'name': gamename}}
-    await channel_layer.group_send(
-        f"game_{gamename}",
-        message
-    )
+   
 
     # Wait for messages from the group
     while True:

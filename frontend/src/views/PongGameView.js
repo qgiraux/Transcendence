@@ -61,8 +61,14 @@ class PongGameView extends AbstractView {
         TRequest.request("GET", `/api/tournament/details/${Application.joinedTournament}`)
             .then((tournament) => {
                 this.displayTournamentProgression(tournament);
+                if (this.startMessage === false){
+                    Application.gameSocket.send(
+                        JSON.stringify({ type: "online", data: ""})
+                    );
+                    this.startMessage = true;
+                }
             })
-
+       
         // Initialize paddles and ball
         this.paddle1 = {
             x: this.canvas.width / 80,
@@ -82,17 +88,13 @@ class PongGameView extends AbstractView {
             x: this.canvas.width / 2,
             y: this.canvas.height / 2,
             radius: 10,
-        };
-        
+        };        
         if (Application.gameSocket) {
             console.log("WebSocket connection already established.");
             try {
-                // Application.gameSocket.onopen = () => {
-                //     console.log("WebSocket connection established"); 
-                // };
 
                 Application.gameSocket.onmessage = (event) => {
-                    console.log("DATA=== ", event.data);
+                    // console.log("DATA=== ", event.data);
                     const data = JSON.parse(event.data);
 
                     if (data.type == "game_init") {
@@ -118,7 +120,7 @@ class PongGameView extends AbstractView {
         } else {
             console.error("gameSocket connection not established.");
         }
-        
+        Application.gameSocket.send(JSON.stringify({ type: 'online', data: {} }));        
     }
 
     update_keys() {
@@ -178,37 +180,46 @@ class PongGameView extends AbstractView {
 
     startGame(data) {
         console.log("IS STARTGAME CALLED", data);
-        
+        console.log(data)
         // this.canvas.style.display = "block";
         // console.log("🖥️ Pong canvas should now be visible.");
 
-        let uri1 = "/api/users/userinfo/" + data.state.player_left.player_id;
+        let uri1 = "/api/users/userinfo/" + data.state.player_left.playerid;
         TRequest.request("GET", uri1)
         .then((result) => {
-            this.p1name = result.name;
+            this.p1name = result.username;
             console.log("p1name: ", this.p1name);
-            let uri2 = "/api/users/userinfo/" + data.state.player_right.player_id;
+            console.log
+            let uri2 = "/api/users/userinfo/" + data.state.player_right.playerid;
             TRequest.request("GET", uri2)
             .then((result) => {
-                this.p2name = result.name;
+                console.log("result: ", result);
+                this.p2name = result.username;
                 // this.renderer.drawStartMessage(
                 //     this.paddle1,
                 //     this.paddle2,
                 //     this.p1name,
                 //     this.p2name
                 // );
+                console.log("p2name: ", this.p2name);
             })
             .catch((error) => {
-                Alert.errorMessage("Error", error.message);
+                Alert.errorMessage("Error on p2name", error.message);
             });
         })
         .catch((error) => {
-            Alert.errorMessage("Error", error.message);
+            Alert.errorMessage("Error on p1name", error.message);
         });
     }
 
     handleCountdown(data) {
-        console.log("Countdown: ", data.data);
+        // console.log("Countdown: ", data.data);
+        if (this.startMessage === false){
+            Application.gameSocket.send(
+                JSON.stringify({ type: "online", data: Application.getUserInfos().userName})
+            );
+            this.startMessage = true;
+        }
 
         this.messageContainer.classList.add("d-none");
         this.tournamentContainer.classList.add("d-none");
@@ -278,7 +289,12 @@ class PongGameView extends AbstractView {
 
     gameLoop() {
         if (this.isGameOver || this.paused) return;
-
+        if (this.startMessage === false){
+            Application.gameSocket.send(
+                JSON.stringify({ type: "online", data: ""})
+            );
+            this.startMessage = true;
+        }
         this.update_keys();
 
         
