@@ -117,7 +117,8 @@ services:
     volumes:
       - ./tournament:/workspace/tournament
     depends_on:
-      - db_tournament
+      db_tournament:
+        condition: service_healthy
     networks:
       - transcendence
     init: true
@@ -134,6 +135,11 @@ services:
       - postgres_tournament:/var/lib/postgresql/data
     networks:
       - transcendence
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U django -d db_tournament"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   avatar:
     image: avatar
