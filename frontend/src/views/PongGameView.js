@@ -5,6 +5,8 @@ import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
 import Avatar from "../Avatar.js";
 
+const BALL_RADIUS = 10;
+
 class PongGameView extends AbstractView {
     constructor(params) {
         super(params);
@@ -16,6 +18,9 @@ class PongGameView extends AbstractView {
         this.paddle1 = null;
         this.paddle2 = null;
         this.ball = { x: 0, y: 0, radius: 10};
+        this.cpaddle1 = this.paddle1;
+        this.cpaddle2 = this.paddle2;
+        this.cball = this.ball;
         this.score1 = 0;
         this.score2 = 0;
         this.p1name = "";
@@ -44,6 +49,8 @@ class PongGameView extends AbstractView {
 
         this.canvasContainer = document.getElementById("canvas-container");
         this.canvas = document.getElementById("pongCanvas");
+        this.canvas.width += BALL_RADIUS * 2; // Increase the width by 20
+        this.canvas.height += BALL_RADIUS * 2; // Increase the height by 20
         this.messageContainer = document.getElementById("message-container");
         this.tournamentContainer = document.getElementById("tournament-data");
 
@@ -87,7 +94,7 @@ class PongGameView extends AbstractView {
         this.ball = {
             x: this.canvas.width / 2,
             y: this.canvas.height / 2,
-            radius: 10,
+            radius: BALL_RADIUS,
         };        
         if (Application.gameSocket) {
             console.log("WebSocket connection already established.");
@@ -235,9 +242,10 @@ class PongGameView extends AbstractView {
             this.paused = true;
         }
         console.log("THIS PLAYER NAME = ", this.p1name, this.p2name);
+        this.adjustToCanvas();
         this.renderer.drawCountdownMessage(
-            this.paddle1,
-            this.paddle2,
+            this.cpaddle1,
+            this.cpaddle2,
             this.score1,
             this.score2, 
             data.data,
@@ -278,11 +286,6 @@ class PongGameView extends AbstractView {
                 this.displayTournamentProgression(tournament);
             })
         this.tournamentContainer.classList.remove("d-none");
-        // // Draw final scores
-        // this.renderer.clearCanvas();
-        // this.renderer.drawScore(this.score1, this.score2);
-        // this.renderer.drawGameOverMessage(data.state.winner);
-
         console.log("Game Over");
         this.isGameOver = true; // Stop game loop when the game ends
     }
@@ -297,18 +300,33 @@ class PongGameView extends AbstractView {
         }
         this.update_keys();
 
-        
+        this.adjustToCanvas()
         this.renderer.renderingLoop(
-            this.paddle1,
-            this.paddle2,
+            this.cpaddle1,
+            this.cpaddle2,
             this.score1,
             this.score2,
-            this.ball,
+            this.cball,
             this.p1name,
             this.p2name
         );
 
         requestAnimationFrame(this.gameLoop.bind(this));
+    }
+
+    adjustToCanvas() {
+        // Copy the current positions of paddles and ball
+        this.cpaddle1 = { ...this.paddle1 };
+        this.cpaddle2 = { ...this.paddle2 };
+        this.cball = { ...this.ball };
+
+        // Adjust the coordinates by BALL_RADIUS to account for the canvas border
+        this.cpaddle1.x += BALL_RADIUS;
+        this.cpaddle1.y += BALL_RADIUS;
+        this.cpaddle2.x -= BALL_RADIUS;
+        this.cpaddle2.y += BALL_RADIUS;
+        this.cball.x += BALL_RADIUS;
+        this.cball.y += BALL_RADIUS;    
     }
 
     displayTournamentProgression(tournament) {

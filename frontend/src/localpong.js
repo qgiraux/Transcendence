@@ -108,12 +108,18 @@ class PongGame {
         if (this.ball.x + this.ball.radius > this.canvas.width - this.paddle2.width * 2 && 
             this.ball.y > this.paddle2.y - this.paddle2.height / 2 && 
             this.ball.y < this.paddle2.y + this.paddle2.height / 2 && this.ball.dx > 0) {
+            let deltaY = this.ball.y - this.paddle2.y;
+            let angle = deltaY / (this.paddle2.height / 2);
             this.ball.dx = -this.ball.dx;
+            this.ball.dy = angle * 4;
         } 
         else if (this.ball.x - this.ball.radius < this.paddle1.width * 2 && 
-                 this.ball.y > this.paddle1.y - this.paddle1.height / 2 && 
-                 this.ball.y < this.paddle1.y + this.paddle1.height / 2 && this.ball.dx < 0) {
+             this.ball.y > this.paddle1.y - this.paddle1.height / 2 && 
+             this.ball.y < this.paddle1.y + this.paddle1.height / 2 && this.ball.dx < 0) {
+            let deltaY = this.ball.y - this.paddle1.y;
+            let angle = deltaY / (this.paddle1.height / 2);
             this.ball.dx = -this.ball.dx;
+            this.ball.dy = angle * 4;
         }
     }
 
