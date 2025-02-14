@@ -28,6 +28,8 @@ class Application {
   static navButtonProfile = "nav-avatar";
   static tournamentPanelStatus = 0;
   static joinedTournament = "";
+  //Placeholder to store timeouts to clear them nicely in onDestroy()
+  static timeoutId = null;
 
   constructor() {
     throw new Error("Application class must not be instantiated.");
@@ -218,6 +220,16 @@ class Application {
     };
     console.log(Application.gameSocket);
     return Application.gameSocket;
+  }
+
+  static toggleLangSelectorHide() {
+    const langSelect = document.querySelector("#language-selector-container");
+    langSelect.classList.add("d-none");
+  }
+
+  static toggleLangSelectorShow() {
+    const langSelect = document.querySelector("#language-selector-container");
+    langSelect.classList.remove("d-none");
   }
 
   static async toggleSideBar() {

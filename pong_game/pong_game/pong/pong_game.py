@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 
 PADDLE_SPEED = 2 # 4 / canvasheight per tick if 30 tick per second
 BALL_SPEED = 1.25 # 2.5 / canvaswidth per tick if 30 tick per second
+BALL_ACCELERATION = 1.1
 
 @unique
 class Direction(Enum):
@@ -87,6 +88,7 @@ class Ball:
 			paddle_left - 10 <= self.position[1] <= paddle_left + 10) and self.direction[0] < 0:
 			delta = self.position[1] - paddle_left
 			self.direction[0] = -self.direction[0]
+			self.speed *= BALL_ACCELERATION
 
 			# Normalize the delta to a more reasonable angle adjustment
 			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
@@ -95,6 +97,7 @@ class Ball:
 			paddle_right - 10 <= self.position[1] <= paddle_right + 10) and self.direction[0] > 0:
 			delta = self.position[1] - paddle_right
 			self.direction[0] = -self.direction[0]
+			self.speed *= BALL_ACCELERATION
 
 			# Normalize the delta to a more reasonable angle adjustment
 			self.direction[1] = (delta / 10)  # You can adjust this factor to control the bounce steepness
@@ -102,9 +105,11 @@ class Ball:
 	def update_scoring(self, player1, player2):
 		if self.position[0] <= 0:
 			player2.score += 1
+			self.speed = BALL_SPEED
 			self.reset()
 		elif self.position[0] >= self.game_width:
 			player1.score += 1
+			self.speed = BALL_SPEED
 			self.reset()
 
 	def reset(self):

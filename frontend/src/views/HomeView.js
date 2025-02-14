@@ -19,6 +19,7 @@ class HomeView extends AbstractView {
     Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
+    Application.toggleLangSelectorShow();
     this.onStart();
   }
 
@@ -68,7 +69,7 @@ class HomeView extends AbstractView {
             TRequest.request("GET", `/api/users/userinfo/${sender}`)
               .then((username) => {
                 const textmessage = `${username.username} has invited you to a game!`;
-                const link = message;
+                const link = data.message;
                 Alert.inviteMessage(type, textmessage, link);
               })
               .catch((err) => {

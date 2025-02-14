@@ -20,6 +20,7 @@ class LandingView extends AbstractView {
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
     await Application.applyTranslations();
+    Application.toggleLangSelectorShow();
     this.onStart();
   }
 
