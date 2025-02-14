@@ -462,24 +462,16 @@ class PongGameView extends AbstractView {
                   margin: auto; /* Centers horizontally */
               }
             </style>
-            <div class="mx-auto" style="max-width: 700px;">
-                <h1 class="text-white display-1">Tournament Game</h1>
+            <h1>Tournament Game</h1>
+            <canvas id="pongCanvas" width="800" height="400"></canvas>
+            <div id="message-container"></div>
 
-                <div class="row justify-content-md-center">
-                    <div id="canvas-container">
-                        <canvas id="pongCanvas" width="800" height="400"></canvas>
-                    </div>
-                    <div id="tournament-data"></div>
-                    <div id="message-container">Press SPACE to start...</div>
-                </div>
-            </div>
           `;
           const canvas = document.getElementById("pongCanvas");
           canvas.focus(); // Ensure the canvas is focusable
       } else {
           console.error("#view-container not found in the DOM.");
       }
-
     }
 }
 

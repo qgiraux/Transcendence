@@ -142,21 +142,21 @@ class CreateTournamentView extends AbstractView {
   _setHtml() {
     const container = document.querySelector("#view-container");
     if (container) {
-      container.innerHTML = `<div id="view-container" class="container-fluid col py-3"><div class=" mx-auto" style="max-width: 600px;">
+      container.innerHTML = `<div class=" mx-auto" style="max-width: 600px;">
 						<div class="row mt-5">
-			<h1 class="text-white text-center mt-5">${this.domText.createTournamentTxt}</h1>
+			<h1>${this.domText.createTournamentTxt}</h1>
 		</div>
 			<div class=" p-4 d-flex flex-column align-items-center justify-content-center scrollable-panel" id="scrollable-panel">
                 <div class="btn-group mx-auto align-items-center w-75">
-						<button id="size-2" data-size="2" class="btn btn-primary active" aria-current="page">${this.domText.twoPlayers}</button>
-						<button id="size-4" data-size="4" class="btn btn-primary">${this.domText.fourPlayers}</button>
-						<button id="size-8" data-size="8" class="btn btn-primary">${this.domText.eightPlayers}</button>
+						<button id="size-2" data-size="2" class="btn btn-custom active" aria-current="page">${this.domText.twoPlayers}</button>
+						<button id="size-4" data-size="4" class="btn btn-custom">${this.domText.fourPlayers}</button>
+						<button id="size-8" data-size="8" class="btn btn-custom">${this.domText.eightPlayers}</button>
 					</div>
 
 				<input type="text" class="form-control text-center mt-3 w-75" maxlength="16" minlength="5" id="tournament_name" placeholder="${this.domText.tournamentNameEnter}">
 
 				<button id="createbtn" class="btn btn-primary mt-3 w-75">${this.domText.createBtn}</button>
-			</div></div></div>`;
+			</div></div>`;
     }
   }
 

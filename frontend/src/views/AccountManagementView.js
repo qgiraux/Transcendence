@@ -484,19 +484,19 @@ Set HTML
 
       <div class="row mb-2">
         <div class=" btn-group mx-auto align-items-center">
-          <button id="nav-avatar" class="nav-button btn btn-primary active">${
+          <button id="nav-avatar" class="nav-button btn btn-custom active">${
             this.domText.manageAvatar
           }</button>
-          <button id="nav-alias"  class="nav-button btn btn-primary">${
+          <button id="nav-alias"  class="nav-button btn btn-custom">${
             this.domText.changeAlias
           }</button>
-          <button id="nav-password"  class="nav-button btn btn-primary">${
+          <button id="nav-password"  class="nav-button btn btn-custom">${
             this.domText.changePassword
           }</button>
-          <button id="nav-twofa"  class="nav-button btn btn-primary">${
+          <button id="nav-twofa"  class="nav-button btn btn-custom">${
             this.domText.manage2FA
           }</button>
-          <button id="nav-delete"  class="nav-button btn btn-primary">${
+          <button id="nav-delete"  class="nav-button btn btn-custom">${
             this.domText.deleteAccount
           }</button>
         </div>
@@ -505,7 +505,7 @@ Set HTML
 
 
       <!-- Avatar Card -->
-      <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center"
+      <div class="setting-card row w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center"
         id="avatar">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-white fw-bold text-center w-100">${
@@ -537,7 +537,7 @@ Set HTML
       </div>
 
       <!-- Alias Card -->
-      <div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+      <div class="setting-card row  w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center d-none"
         id="alias">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-white fw-bold text-center w-100">${
@@ -555,7 +555,7 @@ Set HTML
       </div>
 
       <!-- password Card -->
-      <div class="setting-card row w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+      <div class="setting-card row w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center d-none"
         id="password">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-white fw-bold text-center w-100">${
@@ -594,7 +594,7 @@ Set HTML
       </div>
 
       <!-- Authentication Card -->
-    <div class="setting-card row w-75 mw-75 mx-auto text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+    <div class="setting-card row w-75 mw-75 mx-auto text-white container-md p-3 d-flex flex-column align-items-center d-none"
       id="twofa">
       <div class="row align-items-start w-100">
         <h2 class="display-4 text-white fw-bold text-center w-100">
@@ -624,7 +624,7 @@ Set HTML
 
 
       <!-- Delete Account Card -->
-      <div class="setting-card row  w-75 mw-75 mx-auto  text-white border border-secondary rounded container-md p-3 d-flex flex-column align-items-center d-none"
+      <div class="setting-card row  w-75 mw-75 mx-auto  text-white container-md p-3 d-flex flex-column align-items-center d-none"
         id="delete">
         <div class="row align-items-start w-100">
           <h2 class="display-6 text-danger fw-bold text-center w-100">${
