@@ -139,3 +139,38 @@ def friends_list(request):
             status=500,
             content_type='application/json'
         )
+
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def remove_from_all(request):
+    if request.method != 'DELETE':
+        return HttpResponse(
+            json.dumps({'detail': 'Method not allowed', 'code': 'method_not_allowed'}),
+            status=405,
+            content_type='application/json'
+        )
+    try:
+        auth_header = request.headers.get('Authorization').split()[1]
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded.get('user_id')
+        if not user_id:
+            return HttpResponse(
+                json.dumps({'detail': 'User not found', 'code': 'user_not_found'}),
+                status=400,
+                content_type='application/json'
+            )
+        Friends.objects.filter(friend_id=user_id).delete()
+        return JsonResponse({'message': 'User removed successfully form all friends'}, status=200)
+
+
+    except jwt.ExpiredSignatureError:
+        return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.InvalidTokenError:
+        return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return HttpResponse(
+            json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
+            status=500,
+            content_type='application/json'
+        )

@@ -84,7 +84,9 @@ class FriendsView extends AbstractView {
     Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
-        this.userList = result;
+        this.userList = result.filter((user) => {
+          return user["account_deleted"] !== true;
+        });
         this._refreshFriendsList();
       })
       .catch((error) => {
@@ -279,7 +281,7 @@ class FriendsView extends AbstractView {
           <span id="status-${friend.id}" style="color: grey;">Checking...</span>
           <span class="dropdown-toggle-split" style="color: inherit;"></span>
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu" style="max-width: 500px;">
           <li><button class="dropdown-item" data-id="${
             friend.id
           }" data-action="view-profile">${
@@ -397,6 +399,7 @@ class FriendsView extends AbstractView {
         <ul class="dropdown-menu " id="dropdownMenu">
           <!-- Les options seront ajoutées ici dynamiquement -->
         </ul>
+
 			</div>
     </div>
 

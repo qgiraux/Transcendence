@@ -18,6 +18,10 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from .models import add_stat
 from urllib.parse import urlencode
 import base64
+from rest_framework.views import APIView
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from .mock_jwt_expired  import mock_jwt_expired
+import jwt
 
 
 
@@ -50,6 +54,9 @@ def get_jwt_token(request):
     except User.DoesNotExist:
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
+    user = User.objects.get(username=body['username'])
+    if user.account_deleted:
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
     # Check if the password matches the one stored in the database
     password = body.get('password')
     if not password:
@@ -182,6 +189,7 @@ def Get_user_infos(request, user_id):
         "id": user.id,
         "username": user.username,
         "nickname": user.nickname,
+        "deleted": user.account_deleted
     }
     return JsonResponse(user_info)
 
@@ -274,13 +282,85 @@ def ChangeNickname(request):
         return Response(serializer.data, status=200)
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def DeleteUser(request):
-    user = request.user
-    id = user.id
-    user.delete()
-    return Response({"deleted":id}, status=200)
+def validate_jwt_token(request):
+    """
+    Custom JWT token validation method.
+
+    Args:
+        request (Request): Incoming HTTP request
+
+    Returns:
+        dict: Decoded token payload if valid
+    Raises:
+        ValidationError: If token is invalid
+    """
+    auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+
+    if not auth_header.startswith('Bearer '):
+        raise ValidationError("Invalid Authorization header format")
+
+    token = auth_header.split(' ')[1]
+
+    try:
+        payload = jwt.decode(
+            token,
+            'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q',
+            algorithms=['HS256']
+        )
+        return payload
+
+    except jwt.ExpiredSignatureError:
+        raise ValidationError("Token has expired")
+    except jwt.InvalidTokenError:
+        raise ValidationError("Invalid token")
+
+
+
+class UserDeleteView(APIView):
+    def delete(self, request):
+        try:
+            logger.info("User delete request received.")
+            token_payload = validate_jwt_token(request)
+            user_id = token_payload.get('user_id')
+            if not user_id:
+                logger.warning("No user_id found in token.")
+                return Response(
+                    {"error": "No user_id found in token"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            user = User.objects.get(id=user_id)
+            logger.info(f"deleting account for id {user_id}")
+            user.account_deleted = True
+            user.username = f"DELETED_{user_id}"
+            user.nickname = "ACCOUNT DELETED"
+            user.password = ""
+            user.stats = {}
+            user.save()
+            return Response({"deleted":user_id}, status=200)
+
+
+        except User.DoesNotExist:
+            return Response(
+                    {"error": "No user found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        except ObjectDoesNotExist:
+             return Response(
+                    {"error": "No user found"},
+                    status=status.HTTP_404_NOT_FOUND)
+        except ValidationError as e:
+            logger.error(f"Validation error: {e}")
+            return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+
+        except Exception as e:
+            logger.exception("Unexpected error during avatar deletion.")
+            return Response(
+                {"error":f"error {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

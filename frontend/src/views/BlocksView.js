@@ -84,7 +84,9 @@ class BlocksView extends AbstractView {
     Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
-        this.userList = result;
+        this.userList = result.filter((user) => {
+          return user["account_deleted"] !== true;
+        });
         this._refreshBlocksList();
       })
       .catch((error) => {
@@ -335,6 +337,7 @@ class BlocksView extends AbstractView {
         </ul>
 			</div>
     </div>
+
 
     <div class="row g-2  p-2" id="blocks-container">
 		</div>

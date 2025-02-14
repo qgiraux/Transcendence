@@ -34,6 +34,7 @@ class Application {
   constructor() {
     throw new Error("Application class must not be instantiated.");
   }
+
   static setToken(newtoken) {
     if (
       !Object.hasOwn(newtoken, "access") ||
@@ -54,8 +55,6 @@ class Application {
   static setAccessToken(newAccesstoken) {
     Application.#token.access = newAccesstoken;
   }
-
-  
 
   static deleteAccessToken() {
     Application.#token = null;
@@ -241,6 +240,11 @@ class Application {
     avatarImg.setAttribute("data-avatar", userId);
     await Avatar.refreshAvatars();
     sideBar.classList.remove("d-none");
+  }
+
+  static hideSideBar() {
+    const sideBar = document.querySelector("#sidebar");
+    sideBar.classList.add("d-none");
   }
 
   static toggleChat() {

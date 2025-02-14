@@ -400,3 +400,4 @@ class PongEngine(threading.Thread):
 				await self.game_task
 			except asyncio.CancelledError:
 				log.error("Game loop task cancelled")
+		self.online_players = 0
