@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 game_counter = 0
 
 def Tournament_operation(tournament):
-    logger.error("[Tournament.tournamnent] trying to start tournament...")
+    logger.debug("[Tournament.tournamnent] trying to start tournament...")
     try:
 
         lineup = tournament.player_list
@@ -36,7 +36,7 @@ def Tournament_operation(tournament):
         if size not in [2 ** i for i in range(1, 4)] or size != exp_size:
             logger.error(f"[Tournament.tournamnent] Invalid tournament size: {size} or exp_size: {exp_size}")
             return
-        logger.error("[Tournament.tournamnent] starting tournament...")
+        logger.debug("[Tournament.tournamnent] starting tournament...")
         tournament.status = 1
         tournament.save()
         winner = organize_tournament(lineup, tournament)
@@ -54,8 +54,8 @@ def Tournament_operation(tournament):
         if response.status_code != 201:
             logger.error(f"[Tournament.tournamnent] Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")
         else:
-            logger.error(f"[Tournament.tournamnent] Successfully notified the endpoint. Response: {response.text}")
-        logger.error(f"[Tournament.tournamnent]  Winner: {winner}")
+            logger.debug(f"[Tournament.tournamnent] Successfully notified the endpoint. Response: {response.text}")
+        logger.info(f"[Tournament.tournamnent]  Winner: {winner}")
 
         return 
     except Exception as e:
@@ -69,10 +69,10 @@ def organize_tournament(lineup, tournament):
     if len(lineup) == 1:
         tournament.status = 2
         tournament.save()
-        logger.error(f"[[Tournament.tournamnent]  Winner: {lineup[0]}")
+        logger.debug(f"[[Tournament.tournamnent]  Winner: {lineup[0]}")
         return lineup[0]  # Winner
     next_lineup = []
-    logger.error(f"[Tournament.tournamnent] lineup: {lineup}")
+    logger.debug(f"[Tournament.tournamnent] lineup: {lineup}")
     # Parallel execution of matches
     with ThreadPoolExecutor() as executor:
         # gamename = str(uuid.uuid4())
@@ -87,7 +87,7 @@ def organize_tournament(lineup, tournament):
 
 
 async def match(player1, player2, gamename):
-    logger.error(f"[Tournament.tournamnent] Match {gamename} between {player1} and {player2}")
+    logger.info(f"[Tournament.tournamnent] Match {gamename} between {player1} and {player2}")
     channel_layer = get_channel_layer()
     if not redis_client.sismember('online_users', player1):
         return player2
@@ -128,11 +128,11 @@ async def match(player1, player2, gamename):
 
     # Wait for messages from the group
     while True:
-        logger.error(f"[Tournament.tournamnent] Waiting for message from: game_{gamename}")
+        logger.debug(f"[Tournament.tournamnent] Waiting for message from: game_{gamename}")
         message = await channel_layer.receive(channel_name)  # Use `receive` for the specific channel
-        logger.error(f"[Tournament.tournamnent] Received message: {message}")
+        logger.debug(f"[Tournament.tournamnent] Received message: {message}")
 
         # Check for game over condition
         if message.get("type") == "game_over":
-            logger.error(f"[Tournament.tournamnent] Game over: {message}")
+            logger.debug(f"[Tournament.tournamnent] Game over: {message}")
             return message.get("state").get("winner")

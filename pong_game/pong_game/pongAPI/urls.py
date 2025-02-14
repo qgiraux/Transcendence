@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def view500(request):
-    logger.error(f"[pong_game.urls] {request}")
+    logger.debug(f"[pong_game.urls] {request}")
 
 urlpatterns = [
     path('admin/', admin.site.urls),

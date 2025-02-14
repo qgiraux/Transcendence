@@ -42,7 +42,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
-        log.error(f"[pong.consumer] Player {self.user_id} disconnected")
+        log.debug(f"[pong.consumer] Player {self.user_id} disconnected")
         if self.game_name in self.pong:
             self.pong[self.game_name].engine.player_leave(self.user_id)
         # if self.user_id:

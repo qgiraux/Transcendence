@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        logger.error("[Chat.consumers] WebSocket connection attempt")
+        logger.debug("[Chat.consumers] WebSocket connection attempt")
         # Extract the token from the query string
         query_params = parse_qs(self.scope['query_string'].decode())
         token = query_params.get('token', [None])[0]
@@ -25,7 +25,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # Decode the token to get user_id and nickname
                 self.user_id = user_info['user_id']
                 self.nickname = user_info['user_id']
-                logger.error(f"[Chat.consumers] User {self.nickname} connected")
+                logger.info(f"[Chat.consumers] User {self.nickname} connected")
             else:
                 logger.error("[Chat.consumers] Invalid token")
                 await self.close()
@@ -92,7 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
         elif message_type == 'notification' and sender_name == 'system':
             # Send the message directly to the specified user
-            logger.error(f"[Chat.consumers] Notification message: {data['message']}")
+            logger.debug(f"[Chat.consumers] Notification message: {data['message']}")
             await self.channel_layer.group_send(
                 group,
                 {
@@ -144,7 +144,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Send the chat message to the WebSocket."""
         if event['message'].startswith("'!invite") and event['group'] != 'global_chat':
             tmp = event['message'][9: -1].strip()
-            logger.error(f"[Chat.consumers] Invite message: {tmp}")
+            logger.debug(f"[Chat.consumers] Invite message: {tmp}")
             await self.send(text_data=json.dumps({
                 'type': 'invite',
                 'message': f"'{tmp}'",
@@ -218,4 +218,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if channel_name not in self.channels:
             self.channels.append(channel_name)
             await pubsub.subscribe(channel_name)
-            logger.error(f"[Chat.consumers] Subscribed to new channel: {channel_name}")
+            logger.debug(f"[Chat.consumers] Subscribed to new channel: {channel_name}")

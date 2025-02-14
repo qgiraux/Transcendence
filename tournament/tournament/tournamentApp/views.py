@@ -194,7 +194,7 @@ def LeaveTournament(request):
 
     tournament.player_list.remove(user_id)  # Remove player ID - minor correction for the leave feature
     tournament.save()
-    logger.error(f"[Tournament.views] {len(tournament.player_list)} in tournament")
+    logger.debug(f"[Tournament.views] {len(tournament.player_list)} in tournament")
     if len(tournament.player_list) == 0:
         tournament.delete()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
@@ -224,7 +224,7 @@ def TournamentList(request):
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
-    logger.error(f"[Tournament.views] User ID: {user_id}")
+    logger.debug(f"[Tournament.views] User ID: {user_id}")
     tournaments = Tournament.objects.all()
     tournament_list = []
     for tournament in tournaments:

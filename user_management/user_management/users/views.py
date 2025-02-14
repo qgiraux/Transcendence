@@ -156,12 +156,12 @@ def Get_user_stats(request, user_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def Add_user_stats(request, user_id):
-    logger.error(f"[users.views] adduserstats - Request body: {request.body}")
+    logger.debug(f"[users.views] adduserstats - Request body: {request.body}")
     # Use the authenticated user from request.user
     user = get_object_or_404(User, id=user_id)
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    logger.error(f"[users.views] {body}")
+    logger.debug(f"[users.views] {body}")
     if not body.get('tournament_id') or not body.get('date') or not body.get('opponent') or not body.get('score') or not body.get('win'):
         logger.error("[users.views] Missing required fields")
         return Response({'Error':'Missing required fields'}, status=400)
@@ -174,7 +174,7 @@ def Add_user_stats(request, user_id):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def Get_user_infos(request, user_id):
-    logger.error(f"[users.views]  {user_id}")
+    logger.debug(f"[users.views]  {user_id}")
     if user_id == 0:
         user_info = {
         "id": 0,
@@ -182,7 +182,7 @@ def Get_user_infos(request, user_id):
         "nickname": "system",
         "2fa": "false",
         }
-        logger.error(f"[users.views] {user_info}")
+        logger.debug(f"[users.views] {user_info}")
         return JsonResponse(user_info)
     user = get_object_or_404(User, id=user_id)
     user_info = {
@@ -207,7 +207,7 @@ def Get_user_id(request):
         return Response({"error": 'Missing username'}, status=400)
 
     username = body['username']
-    logger.error(f"[users.views]  {username}")
+    logger.debug(f"[users.views]  {username}")
     if username == 'system':
         user_info = {
         "id": 0,
@@ -215,7 +215,7 @@ def Get_user_id(request):
         "nickname": "system",
         "2fa": "false",
         }
-        logger.error(f"[users.views] {user_info}")
+        logger.debug(f"[users.views] {user_info}")
         return JsonResponse(user_info)
     user = get_object_or_404(User, username=username)
     user_info = {
