@@ -13,7 +13,7 @@ from rest_framework import status, views, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .utils import is_user_online, get_user_totp_device, generate_qr_code
+from .utils import is_user_online, get_user_totp_device, generate_qr_code, Token2FAAccessSignatureError, Token2FAExpiredError, validate_2FA_accesstoken, generate_2FA_accesstoken
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from .models import add_stat
 from urllib.parse import urlencode
@@ -46,6 +46,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_jwt_token(request):
+    logger.error("hello")
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
 
@@ -65,39 +66,11 @@ def get_jwt_token(request):
     user = authenticate(username=body['username'], password=password)
     if user is None:
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    logger.error("here")
 
-    # If 2FA is enabled, proceed with the two-factor authentication process
+    # # If 2FA is enabled, proceed with the two-factor authentication process
     if user.twofa_enabled:
-        try:
-            token = body.get('twofa')
-            if not token:
-                return Response({'2FA': '2FA token required'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            device = get_user_totp_device(user)
-            if device and device.verify_token(token):
-                if not device.confirmed:
-                    device.confirmed = True
-                    device.save()
-
-                refresh = RefreshToken.for_user(user)
-                access = str(refresh.access_token)
-
-                # Add custom claims to the access token
-                access_token = refresh.access_token
-                access_token['username'] = user.username
-                access_token['nickname'] = user.nickname
-                access_token['twofa'] = user.twofa_enabled
-                access = str(access_token)
-
-                return Response({
-                    'refresh': str(refresh),
-                    'access': access
-                })
-
-            return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        except json.JSONDecodeError:
-            return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'2FA': '2FA token required', 'token': f"{generate_2FA_accesstoken(user.id, "secret")}"}, status=status.HTTP_401_UNAUTHORIZED)
 
     # 2FA not enabled: directly generate tokens
     refresh = RefreshToken.for_user(user)
@@ -156,14 +129,14 @@ def Get_user_stats(request, user_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def Add_user_stats(request, user_id):
-    logger.debug(f"[users.views] adduserstats - Request body: {request.body}")
+    logger.error(f"adduserstats - Request body: {request.body}")
     # Use the authenticated user from request.user
     user = get_object_or_404(User, id=user_id)
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    logger.debug(f"[users.views] {body}")
+    logger.error(body)
     if not body.get('tournament_id') or not body.get('date') or not body.get('opponent') or not body.get('score') or not body.get('win'):
-        logger.error("[users.views] Missing required fields")
+        logger.error("Missing required fields")
         return Response({'Error':'Missing required fields'}, status=400)
     try :
         add_stat(user,body['tournament_id'], body['date'], body['opponent'], body['score'], body['win'])
@@ -174,7 +147,7 @@ def Add_user_stats(request, user_id):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def Get_user_infos(request, user_id):
-    logger.debug(f"[users.views]  {user_id}")
+    logger.error(user_id)
     if user_id == 0:
         user_info = {
         "id": 0,
@@ -182,7 +155,7 @@ def Get_user_infos(request, user_id):
         "nickname": "system",
         "2fa": "false",
         }
-        logger.debug(f"[users.views] {user_info}")
+        logger.error(user_info)
         return JsonResponse(user_info)
     user = get_object_or_404(User, id=user_id)
     user_info = {
@@ -197,17 +170,17 @@ def Get_user_infos(request, user_id):
 @permission_classes([IsAuthenticated])
 def Get_user_id(request):
     if not request.body:
-        logger.error("[users.views] Missing body")
+        logger.error("Missing body")
         return Response({"error":'Missing username'}, status=400)
 
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     if 'username' not in body:
-        logger.error("[users.views] Missing username")
+        logger.error("Missing username")
         return Response({"error": 'Missing username'}, status=400)
 
     username = body['username']
-    logger.debug(f"[users.views]  {username}")
+    logger.error(username)
     if username == 'system':
         user_info = {
         "id": 0,
@@ -215,7 +188,7 @@ def Get_user_id(request):
         "nickname": "system",
         "2fa": "false",
         }
-        logger.debug(f"[users.views] {user_info}")
+        logger.error(user_info)
         return JsonResponse(user_info)
     user = get_object_or_404(User, username=username)
     user_info = {
@@ -319,17 +292,17 @@ def validate_jwt_token(request):
 class UserDeleteView(APIView):
     def delete(self, request):
         try:
-            logger.info("[users.views] User delete request received.")
+            logger.info("User delete request received.")
             token_payload = validate_jwt_token(request)
             user_id = token_payload.get('user_id')
             if not user_id:
-                logger.warning("[users.views] No user_id found in token.")
+                logger.warning("No user_id found in token.")
                 return Response(
                     {"error": "No user_id found in token"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             user = User.objects.get(id=user_id)
-            logger.info(f"[users.views] deleting account for id {user_id}")
+            logger.info(f"deleting account for id {user_id}")
             user.account_deleted = True
             user.username = f"DELETED_{user_id}"
             user.nickname = "ACCOUNT DELETED"
@@ -349,11 +322,11 @@ class UserDeleteView(APIView):
                     {"error": "No user found"},
                     status=status.HTTP_404_NOT_FOUND)
         except ValidationError as e:
-            logger.error(f"[users.views] Validation error: {e}")
+            logger.error(f"Validation error: {e}")
             return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
 
         except Exception as e:
-            logger.exception("[users.views] Unexpected error during avatar deletion.")
+            logger.exception("Unexpected error during avatar deletion.")
             return Response(
                 {"error":f"error {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -367,6 +340,7 @@ class UserDeleteView(APIView):
 def RegisterUser(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
+        logger.error('hello')
         user = serializer.save()
         user.nickname = user.username
         user.set_password(serializer.validated_data['password'])
