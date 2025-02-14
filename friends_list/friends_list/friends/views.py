@@ -59,7 +59,7 @@ def add_friend(request):
     except InvalidTokenError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        # logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Friends.views] Unexpected error: {e}")
         return JsonResponse({'detail': f"An error occurred {e} ", 'code': 'error_occurred'}, status=500)
 
 @csrf_exempt
@@ -100,7 +100,7 @@ def remove_friend(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Friends.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,
@@ -133,7 +133,7 @@ def friends_list(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Friends.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,
@@ -168,7 +168,7 @@ def remove_from_all(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Friends.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,

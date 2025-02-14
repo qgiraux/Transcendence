@@ -15,7 +15,7 @@ async def cleanup_online_users():
             user_channel = f"user_{user_id.decode('utf-8')}"
             if user_channel.encode('utf-8') not in group_members:
                 await redis_client.srem('online_users', user_id)
-                logger.info(f"Removed ghost user {user_id} from online_users")
+                logger.info(f"[Chat.tasks] Removed ghost user {user_id} from online_users")
         await asyncio.sleep(60)  # Run cleanup every 60 seconds
 
 # Start the cleanup task

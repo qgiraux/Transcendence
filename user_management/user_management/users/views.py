@@ -156,14 +156,14 @@ def Get_user_stats(request, user_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def Add_user_stats(request, user_id):
-    logger.error(f"adduserstats - Request body: {request.body}")
+    logger.debug(f"[users.views] adduserstats - Request body: {request.body}")
     # Use the authenticated user from request.user
     user = get_object_or_404(User, id=user_id)
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
-    logger.error(body)
+    logger.debug(f"[users.views] {body}")
     if not body.get('tournament_id') or not body.get('date') or not body.get('opponent') or not body.get('score') or not body.get('win'):
-        logger.error("Missing required fields")
+        logger.error("[users.views] Missing required fields")
         return Response({'Error':'Missing required fields'}, status=400)
     try :
         add_stat(user,body['tournament_id'], body['date'], body['opponent'], body['score'], body['win'])
@@ -174,7 +174,7 @@ def Add_user_stats(request, user_id):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def Get_user_infos(request, user_id):
-    logger.error(user_id)
+    logger.debug(f"[users.views]  {user_id}")
     if user_id == 0:
         user_info = {
         "id": 0,
@@ -182,7 +182,7 @@ def Get_user_infos(request, user_id):
         "nickname": "system",
         "2fa": "false",
         }
-        logger.error(user_info)
+        logger.debug(f"[users.views] {user_info}")
         return JsonResponse(user_info)
     user = get_object_or_404(User, id=user_id)
     user_info = {
@@ -197,17 +197,17 @@ def Get_user_infos(request, user_id):
 @permission_classes([IsAuthenticated])
 def Get_user_id(request):
     if not request.body:
-        logger.error("Missing body")
+        logger.error("[users.views] Missing body")
         return Response({"error":'Missing username'}, status=400)
 
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     if 'username' not in body:
-        logger.error("Missing username")
+        logger.error("[users.views] Missing username")
         return Response({"error": 'Missing username'}, status=400)
 
     username = body['username']
-    logger.error(username)
+    logger.debug(f"[users.views]  {username}")
     if username == 'system':
         user_info = {
         "id": 0,
@@ -215,7 +215,7 @@ def Get_user_id(request):
         "nickname": "system",
         "2fa": "false",
         }
-        logger.error(user_info)
+        logger.debug(f"[users.views] {user_info}")
         return JsonResponse(user_info)
     user = get_object_or_404(User, username=username)
     user_info = {
@@ -319,17 +319,17 @@ def validate_jwt_token(request):
 class UserDeleteView(APIView):
     def delete(self, request):
         try:
-            logger.info("User delete request received.")
+            logger.info("[users.views] User delete request received.")
             token_payload = validate_jwt_token(request)
             user_id = token_payload.get('user_id')
             if not user_id:
-                logger.warning("No user_id found in token.")
+                logger.warning("[users.views] No user_id found in token.")
                 return Response(
                     {"error": "No user_id found in token"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             user = User.objects.get(id=user_id)
-            logger.info(f"deleting account for id {user_id}")
+            logger.info(f"[users.views] deleting account for id {user_id}")
             user.account_deleted = True
             user.username = f"DELETED_{user_id}"
             user.nickname = "ACCOUNT DELETED"
@@ -349,11 +349,11 @@ class UserDeleteView(APIView):
                     {"error": "No user found"},
                     status=status.HTTP_404_NOT_FOUND)
         except ValidationError as e:
-            logger.error(f"Validation error: {e}")
+            logger.error(f"[users.views] Validation error: {e}")
             return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
 
         except Exception as e:
-            logger.exception("Unexpected error during avatar deletion.")
+            logger.exception("[users.views] Unexpected error during avatar deletion.")
             return Response(
                 {"error":f"error {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

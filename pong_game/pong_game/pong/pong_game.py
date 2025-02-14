@@ -155,7 +155,7 @@ class PongEngine(threading.Thread):
 	MAX_SCORE = 3
 
 	def __init__(self, group_name, **kwargs):
-		log.error("Initializing Pong Engine")
+		log.info("[pong.pong_game] Initializing Pong Engine")
 		super(PongEngine, self).__init__(daemon=True, name="PongEngine", **kwargs)
 		self.group_name = group_name
 		self.name = uuid.uuid4()
@@ -180,7 +180,7 @@ class PongEngine(threading.Thread):
             # Block until both players are ready
 			self.game_task = self.loop.create_task(self.game_loop())
 		except Exception as e:
-			log.error(f"Error during readiness check: {e}")
+			log.error(f"[pong.pong_game] Error during readiness check: {e}")
 
 	async def game_loop(self):
 		try:
@@ -192,16 +192,16 @@ class PongEngine(threading.Thread):
 				await self.broadcast_state()  # Directly await the async function
 				if self.state.player_left.score >= self.MAX_SCORE or self.state.player_right.score >= self.MAX_SCORE:
 					await self.end_game()
-					log.error("Game %s is over", self.name)
+					log.info("[pong.pong_game] Game %s is over", self.name)
 					break
 				tmp = self.state.player_left.score + self.state.player_right.score
 				if tmp > self.score:
-					log.error("Score changed from %s to %s", self.score, tmp)
+					log.info("[pong.pong_game] Score changed from %s to %s", self.score, tmp)
 					self.score = self.state.player_left.score + self.state.player_right.score
 					await self.broadcast_countdown()
 				await asyncio.sleep(self.TICK_RATE)
 		except asyncio.CancelledError:
-			log.error("Game loop cancelled")
+			log.error("[pong.pong_game] Game loop cancelled")
 			raise
 
 	async def broadcast_state(self):
@@ -212,17 +212,17 @@ class PongEngine(threading.Thread):
 
 	async def broadcast_starting_state(self):
 		self.online_players += 1
-		log.error(f"number on online players : {self.online_players}")
+		log.debug(f"[pong.pong_game] number on online players : {self.online_players}")
 		if self.online_players < 2:
 			return
 		state_json = self.state.render()
-		log.error("Broadcasting starting state: %s", state_json)
+		log.debug("[pong.pong_game] Broadcasting starting state: %s", state_json)
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_init", "state": state_json}
 		)
 
 	async def broadcast_countdown(self):
-		log.error(f"Broadcasting countdown on group {self.group_name}")
+		log.debug(f"[pong.pong_game] Broadcasting countdown on group {self.group_name}")
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "countdown", "data": 3}
 		)
@@ -245,9 +245,9 @@ class PongEngine(threading.Thread):
 				response = await client.post(url, json=data, headers=headers)
 				response.raise_for_status()  # Raise an exception for HTTP errors
 		except httpx.HTTPStatusError as e:
-			log.error(f"HTTP error occurred: {e.response.status_code}")
+			log.error(f"[pong.pong_game] HTTP error occurred: {e.response.status_code}")
 		except Exception as e:
-			log.error(f"Error posting stats: {e}")
+			log.error(f"[pong.pong_game] Error posting stats: {e}")
 
 
 
@@ -266,7 +266,7 @@ class PongEngine(threading.Thread):
 			state_json["score"] = "forfeit"
 		else:
 			state_json["score"] = f"{state_json['p1score']}/{state_json['p2score']}"
-		log.error(f"sending game over to group {self.group_name}")
+		log.debug(f"[pong.pong_game] sending game over to group {self.group_name}")
 		await self.channel_layer.group_send(
 			self.group_name, {"type": "game_over", "state": state_json}
 		)
@@ -275,10 +275,10 @@ class PongEngine(threading.Thread):
 			p1_id = int(state_json["p1"])
 			p2_id = int(state_json["p2"])
 		except ValueError:
-			log.error(f"Invalid player IDs: p1={state_json['p1']}, p2={state_json['p2']}")
+			log.error(f"[pong.pong_game] Invalid player IDs: p1={state_json['p1']}, p2={state_json['p2']}")
 			return
 
-		log.error("Posting stats for players %s and %s", p1_id, p2_id)
+		log.debug("[pong.pong_game] Posting stats for players %s and %s", p1_id, p2_id)
 		url1 = f"http://user_management:8000/adduserstats/{p1_id}"
 		url2 = f"http://user_management:8000/adduserstats/{p2_id}"
 		header = {
@@ -294,13 +294,13 @@ class PongEngine(threading.Thread):
 			"win": "yes" if self.state.player_left.score > self.state.player_right.score else "no"
 		}
 		# Post stats for player 1
-		# log.error(endJson)
+		log.debug(f"[pong.pong_game] Posting stats for player 1: {endJson}")
 		await self.post_stats(url1, endJson, header)
 
 		# Post stats for player 2
 		endJson["win"] = "no" if self.state.player_left.score > self.state.player_right.score else "yes"
 		endJson["opponent"] = state_json["p1"]
-		# log.error(endJson)
+		log.debug(f"[pong.pong_game] Posting stats for player 2: {endJson}")
 		await self.post_stats(url2, endJson, header)
 
 
@@ -314,7 +314,7 @@ class PongEngine(threading.Thread):
 		return state
 
 	def get_player_paddle_move(self, playerid, direction):
-		log.error("Player %s moved paddle %s", playerid, direction)
+		log.debug("[pong.pong_game] Player %s moved paddle %s", playerid, direction)
 		with self.key_lock:
 			if direction == 'up':
 				self.paddle_y_change[playerid] = Direction.UP
@@ -322,21 +322,21 @@ class PongEngine(threading.Thread):
 				self.paddle_y_change[playerid] = Direction.DOWN
 
 	def player_ready(self, userid):
-		log.error("Player %s pressed READY", userid)
-		log.error(f"score is set to {self.score}")
+		log.debug("[pong.pong_game] Player %s pressed READY", userid)
+		log.debug(f"[pong.pong_game] score is set to {self.score}")
 		self.ready_players.add(userid)
 		if self.score != 0:
 			self.ready_players.add(-1)
 
 
 	async def add_player(self, playerid):
-		log.error("Adding player %s to the game", playerid)
+		log.debug("[pong.pong_game] Adding player %s to the game", playerid)
 
 		if (
 			(self.state.player_left and playerid == self.state.player_left.playerid) or
 			(self.state.player_right and playerid == self.state.player_right.playerid)
 		):
-			log.error("Player %s already in game", playerid)
+			log.error("[pong.pong_game] Player %s already in game", playerid)
 			return
 
 		if self.state.player_left is None:
@@ -346,13 +346,13 @@ class PongEngine(threading.Thread):
 			self.state.player_right = Player(playerid=playerid)
 			self.state.player_right.player_left = True
 		else:
-			log.error("Game is full, player %s cannot join", playerid)
+			log.error("[pong.pong_game] Game is full, player %s cannot join", playerid)
 			return
 
-		log.error("Player %s joined the game", playerid)
+		log.info("[pong.pong_game] Player %s joined the game", playerid)
 
 	def process_paddle_movement(self, state, movements):
-		# log.error("Processing paddle movements for game %s", self.name)
+		log.debug("[pong.pong_game] Processing paddle movements for game %s", self.name)
 
 		if state.player_left.playerid in movements:
 			state.player_left.move_paddle(movements[state.player_left.playerid])
@@ -363,7 +363,7 @@ class PongEngine(threading.Thread):
 		return state
 
 	def process_ball_movement(self, state):
-		# log.error("Processing ball movements for game %s", self.name)
+		log.debug("[pong.pong_game] Processing ball movements for game %s", self.name)
 
 		ball = state.ball
 		ball.move()
@@ -372,7 +372,7 @@ class PongEngine(threading.Thread):
 		return state
 
 	def player_leave(self, playerid):
-		log.error("Player %s left the game", playerid)
+		log.info("[pong.pong_game] Player %s left the game", playerid)
 		if self.state.player_left.playerid == playerid:
 			self.state.player_left.player_left = False
 			self.state.player_right.score = self.MAX_SCORE
@@ -382,22 +382,22 @@ class PongEngine(threading.Thread):
 			self.state.player_left.score = self.MAX_SCORE
 			self.state.player_right.score = -1
 		else:
-			log.error("Player %s not in game", playerid)
-			# log.error("game state is %s", self.state)
+			log.error("[pong.pong_game] Player %s not in game", playerid)
+			log.debug("[pong.pong_game] game state is %s", self.state)
 			return
 		asyncio.create_task(self.end_game())
 
 	async def end_game(self):
-		log.error("Game %s is over, setting game_on to false...", self.name)
+		log.debug("[pong.pong_game] Game %s is over, setting game_on to false...", self.name)
 		self.game_on = False
 		self.score = -1
-		log.error("Game %s is over, boradcasting...", self.name)
+		log.debug("[pong.pong_game] Game %s is over, boradcasting...", self.name)
 		await self.broadcast_game_over()
-		log.error("game over message sent")
+		log.debug("[pong.pong_game] game over message sent")
 		if self.game_task:
 			self.game_task.cancel()
 			try:
 				await self.game_task
 			except asyncio.CancelledError:
-				log.error("Game loop task cancelled")
+				log.error("[pong.pong_game] Game loop task cancelled")
 		self.online_players = 0
