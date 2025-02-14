@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        logger.error("WebSocket connection attempt")
+        logger.error("[Chat.consumers] WebSocket connection attempt")
         # Extract the token from the query string
         query_params = parse_qs(self.scope['query_string'].decode())
         token = query_params.get('token', [None])[0]
@@ -25,13 +25,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # Decode the token to get user_id and nickname
                 self.user_id = user_info['user_id']
                 self.nickname = user_info['user_id']
-                logger.error(f"User {self.nickname} connected")
+                logger.error(f"[Chat.consumers] User {self.nickname} connected")
             else:
-                logger.error("Invalid token")
+                logger.error("[Chat.consumers] Invalid token")
                 await self.close()
                 return
         else:
-            logger.error("No token provided")
+            logger.error("[Chat.consumers] No token provided")
             await self.close()
             return
 
@@ -45,7 +45,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.connect_redis()
 
     async def disconnect(self, close_code):
-        logger.info(f"User {self.nickname} disconnected")
+        logger.info(f"[Chat.consumers] User {self.nickname} disconnected")
         await redis_client.srem('online_users', self.user_id)
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         await redis_client.close()
@@ -54,9 +54,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             return jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            logger.error("Token expired")
+            logger.error("[Chat.consumers] Token expired")
         except jwt.InvalidTokenError:
-            logger.error("Invalid token")
+            logger.error("[Chat.consumers] Invalid token")
         return None
 
     async def connect_redis(self):
@@ -67,7 +67,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return
             except redis.ConnectionError as e:
                 retries -= 1
-                logger.error(f"Redis connection failed, {retries} retries left")
+                logger.error(f"[Chat.consumers] Redis connection failed, {retries} retries left")
                 await asyncio.sleep(1)
         raise redis.ConnectionError("Failed to connect to Redis")
 
@@ -92,7 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
         elif message_type == 'notification' and sender_name == 'system':
             # Send the message directly to the specified user
-            logger.error(f"Notification message: {data['message']}")
+            logger.error(f"[Chat.consumers] Notification message: {data['message']}")
             await self.channel_layer.group_send(
                 group,
                 {
@@ -144,7 +144,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Send the chat message to the WebSocket."""
         if event['message'].startswith("'!invite") and event['group'] != 'global_chat':
             tmp = event['message'][9: -1].strip()
-            logger.error(f"Invite message: {tmp}")
+            logger.error(f"[Chat.consumers] Invite message: {tmp}")
             await self.send(text_data=json.dumps({
                 'type': 'invite',
                 'message': f"'{tmp}'",
@@ -218,4 +218,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if channel_name not in self.channels:
             self.channels.append(channel_name)
             await pubsub.subscribe(channel_name)
-            # logger.error(f"Subscribed to new channel: {channel_name}")
+            logger.error(f"[Chat.consumers] Subscribed to new channel: {channel_name}")

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 game_counter = 0
 
 def Tournament_operation(tournament):
-    logger.error("trying to start tournament...")
+    logger.error("[Tournament.tournamnent] trying to start tournament...")
     try:
 
         lineup = tournament.player_list
@@ -27,16 +27,16 @@ def Tournament_operation(tournament):
             if not redis_client.sismember('online_users', id):
                 tournament.player_list.remove(id)
                 tournament.save()
-                logger.error(f"player {id} not online")
+                logger.error(f"[Tournament.tournamnent] player {id} not online")
                 return
 
         random.shuffle(lineup)
         exp_size = tournament.tournament_size
         size = len(lineup)
-        if size not in [2 ** i for i in range(1, 3)] or size != exp_size:
-            logger.error(f"Invalid tournament size: {size} or exp_size: {exp_size}")
+        if size not in [2 ** i for i in range(1, 4)] or size != exp_size:
+            logger.error(f"[Tournament.tournamnent] Invalid tournament size: {size} or exp_size: {exp_size}")
             return
-        logger.error("starting tournament...")
+        logger.error("[Tournament.tournamnent] starting tournament...")
         tournament.status = 1
         tournament.save()
         winner = organize_tournament(lineup, tournament)
@@ -49,13 +49,13 @@ def Tournament_operation(tournament):
         try:
             redis_client.publish("global_chat", json.dumps(notification))
         except Exception as e:
-            logger.error(f"Error sending winner message: {e}")
+            logger.error(f"[Tournament.tournamnent] Error sending winner message: {e}")
         response = requests.post('http://web3-tournament/score/', data={'name': winner, "result": "win"})
         if response.status_code != 201:
-            logger.error(f"Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")
+            logger.error(f"[Tournament.tournamnent] Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")
         else:
-            logger.error(f"Successfully notified the endpoint. Response: {response.text}")
-        logger.error(f"[Tournament_operation] Winner: {winner}")
+            logger.error(f"[Tournament.tournamnent] Successfully notified the endpoint. Response: {response.text}")
+        logger.error(f"[Tournament.tournamnent]  Winner: {winner}")
 
         return 
     except Exception as e:
@@ -69,10 +69,10 @@ def organize_tournament(lineup, tournament):
     if len(lineup) == 1:
         tournament.status = 2
         tournament.save()
-        logger.error(f"[organize_tournament] Winner: {lineup[0]}")
+        logger.error(f"[[Tournament.tournamnent]  Winner: {lineup[0]}")
         return lineup[0]  # Winner
     next_lineup = []
-    logger.error(f"lineup: {lineup}")
+    logger.error(f"[Tournament.tournamnent] lineup: {lineup}")
     # Parallel execution of matches
     with ThreadPoolExecutor() as executor:
         # gamename = str(uuid.uuid4())
@@ -87,7 +87,7 @@ def organize_tournament(lineup, tournament):
 
 
 async def match(player1, player2, gamename):
-    logger.error(f"Match {gamename} between {player1} and {player2}")
+    logger.error(f"[Tournament.tournamnent] Match {gamename} between {player1} and {player2}")
     channel_layer = get_channel_layer()
     if not redis_client.sismember('online_users', player1):
         return player2
@@ -122,17 +122,17 @@ async def match(player1, player2, gamename):
         notification['group'] = f'user_{player2}'
         redis_client.publish("global_chat", json.dumps(notification))
     except Exception as e:
-        logger.error(f"Error sending game-on message: {e}")
+        logger.error(f"[Tournament.tournamnent] Error sending game-on message: {e}")
 
    
 
     # Wait for messages from the group
     while True:
-        logger.error(f"Waiting for message from: game_{gamename}")
+        logger.error(f"[Tournament.tournamnent] Waiting for message from: game_{gamename}")
         message = await channel_layer.receive(channel_name)  # Use `receive` for the specific channel
-        logger.error(f"Received message: {message}")
+        logger.error(f"[Tournament.tournamnent] Received message: {message}")
 
         # Check for game over condition
         if message.get("type") == "game_over":
-            logger.error(f"Game over: {message}")
+            logger.error(f"[Tournament.tournamnent] Game over: {message}")
             return message.get("state").get("winner")

@@ -59,7 +59,7 @@ def add_block(request):
     except InvalidTokenError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
         return JsonResponse({'detail': 'An error occurred', 'code': 'error_occurred'}, status=500)
 
 @csrf_exempt
@@ -100,7 +100,7 @@ def remove_block(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,
@@ -132,7 +132,7 @@ def blocks_list(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,
@@ -167,7 +167,7 @@ def remove_from_all(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,

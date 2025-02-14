@@ -15,17 +15,17 @@ class CustomUser(AbstractUser):
 
 def add_stat(self, tournament_id, date, opponent, score, win):
         """Add or update a tournament stat."""
-        logger.error("starting add_stat")
+        logger.error("[users.models] starting add_stat")
         if not self.stats:
             self.stats = {}
-            logger.error("stats created")
+            logger.error("[users.models] stats created")
         else:
-            logger.error("stats exists")
+            logger.error("[users.models] stats exists")
         self.stats[date] = {
             "date": date,
             "opponent": opponent,
             "score": score,
             "win": win,
         }
-        logger.error("stats updated")
+        logger.error("[users.models] stats updated")
         self.save()

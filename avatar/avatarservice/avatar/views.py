@@ -175,32 +175,32 @@ class AvatarUploadView(APIView):
         """
         Handle avatar upload with JWT authentication
         """
-        logger.info("Avatar upload request received.")
+        logger.info("[Avatar.views] Avatar upload request received.")
         try:
             token_payload = validate_jwt_token(request)
             user_id = token_payload.get('user_id')
             if not user_id:
-                logger.warning("No user_id found in token.")
+                logger.warning("[Avatar.views] No user_id found in token.")
                 return Response(
                     {"error": "No user_id found in token"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            logger.info(f"Token validated for user_id: {user_id}.")
+            logger.info(f"[Avatar.views] Token validated for user_id: {user_id}.")
 
             image = request.FILES.get('image')
             if not image:
-                logger.warning("No image provided in the request.")
+                logger.warning("[Avatar.views] No image provided in the request.")
                 return Response(
                     {"error": "Invalid image provided"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             validate_image(image, allowed_formats=['JPEG', 'PNG'], max_size=(1200, 1200))
-            logger.info("Image validation successful.")
+            logger.info("[Avatar.views] Image validation successful.")
         except ValidationError as e:
-            logger.error(f"Validation error: {e}")
+            logger.error(f"[Avatar.views] Validation error: {e}")
             return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
         except UnsupportedFormatError as e:
-            logger.error(f"Unsupported format error: {e}")
+            logger.error(f"[Avatar.views] Unsupported format error: {e}")
             return Response(
                 {"error":{"error":f"{e}"}},
                 status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
@@ -211,19 +211,19 @@ class AvatarUploadView(APIView):
                 status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
             )
         except ImageTooLargeError as e:
-            logger.error(f"Image too large error: {e}")
+            logger.error(f"[Avatar.views] Image too large error: {e}")
             return Response(
                 {"error":f"{e}"},
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
         except ImageTooLargeDimensionsError as e:
-            logger.error(f"Image dimension error: {e}")
+            logger.error(f"[Avatar.views] Image dimension error: {e}")
             return Response(
                 {"error":f"{e}"},
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
             )
         except Exception as e:
-            logger.exception(f"Unexpected error during image validation. {e}")
+            logger.exception(f"[Avatar.views] Unexpected error during image validation. {e}")
             return Response(
                 {"error":f"{e}"},
                 status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
@@ -231,11 +231,11 @@ class AvatarUploadView(APIView):
 
         try:
             avatar = Avatar.objects.get(Userid=user_id)
-            logger.info(f"Existing avatar found for user_id: {user_id}. Updating it.")
+            logger.info(f"[Avatar.views] Existing avatar found for user_id: {user_id}. Updating it.")
             old_img_path = f"images/{avatar.uuid}.jpg"
             if os.path.exists(old_img_path):
                 os.remove(old_img_path)
-                logger.info(f"Old avatar image deleted: {old_img_path}.")
+                logger.info(f"[Avatar.views] Old avatar image deleted: {old_img_path}.")
             avatar.image = convert_image(file_obj=image)
             avatar.uuid = very_unique_uuid(
                 uuid.uuid4(),
@@ -243,24 +243,24 @@ class AvatarUploadView(APIView):
                 max_recursion=10
             )
             avatar.save()
-            logger.info(f"Avatar updated successfully for user_id: {user_id}.")
+            logger.info(f"[Avatar.views] Avatar updated successfully for user_id: {user_id}.")
             return Response(
                 {"message": f"Image updated successfully", "uuid": avatar.uuid}
             )
         except Avatar.DoesNotExist:
-            logger.info(f"No existing avatar found for user_id: {user_id}. Creating a new one.")
+            logger.info(f"[Avatar.views] No existing avatar found for user_id: {user_id}. Creating a new one.")
             avatar = Avatar.objects.create(
                 Userid=user_id,
                 image=convert_image(file_obj=image)
             )
             avatar.save()
-            logger.info(f"Avatar created successfully for user_id: {user_id}.")
+            logger.info(f"[Avatar.views] Avatar created successfully for user_id: {user_id}.")
             return Response(
                 {"message": "Image uploaded successfully", "uuid": avatar.uuid},
                 status=201
             )
         except Exception as e:
-            logger.exception("Unexpected error during avatar save operation.")
+            logger.exception("[Avatar.views] Unexpected error during avatar save operation.")
             return Response(
                 {"error":f"{e}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -270,21 +270,21 @@ class AvatarUploadView(APIView):
 @api_view(['GET'])
 def get_image(request, img_id):
     try:
-        logger.info(f"Fetching image with uuid: {img_id}.")
+        logger.info(f"[Avatar.views] Fetching image with uuid: {img_id}.")
         avatar = Avatar.objects.get(uuid=img_id)
         with open(avatar.image.path, 'rb') as image_file:
             response = HttpResponse(image_file.read(), content_type='image/jpeg')
             response['Cache-Control'] = 'max-age=3600'
-            logger.info(f"Image successfully returned for uuid: {img_id}.")
+            logger.info(f"[Avatar.views] Image successfully returned for uuid: {img_id}.")
             return response
     except Avatar.DoesNotExist:
-        logger.warning(f"Avatar with uuid {img_id} does not exist. Returning fallback image.")
+        logger.warning(f"[Avatar.views] Avatar with uuid {img_id} does not exist. Returning fallback image.")
         with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
             response = HttpResponse(image_file.read(), content_type='image/jpeg')
             response['Cache-Control'] = 'max-age=10800'
             return response
     except FileNotFoundError as e:
-        logger.error(f"File not found for uuid {img_id}: {e}")
+        logger.error(f"[Avatar.views] File not found for uuid {img_id}: {e}")
         with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
             response = HttpResponse(image_file.read(), content_type='image/jpeg')
             response['Cache-Control'] = 'max-age=10800'
@@ -293,7 +293,7 @@ def get_image(request, img_id):
 
 @api_view(['GET'])
 def get_default(request):
-    logger.info("Returning default avatar image.")
+    logger.info("[Avatar.views] Returning default avatar image.")
     with open('helpers_images/avatar_default.jpg', 'rb') as image_file:
         response = HttpResponse(image_file.read(), content_type='image/jpeg')
         response['Cache-Control'] = 'max-age=10800'
@@ -310,7 +310,7 @@ class AvatarListView(APIView):
             serializer = AvatarListSerializer(users, many=True)
             return JsonResponse(serializer.data, safe=False)
         except ValidationError as e:
-            logger.error(f"Validation error: {e}")
+            logger.error(f"[Avatar.views] Validation error: {e}")
             return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             return Response(
@@ -324,11 +324,11 @@ class AvatarListView(APIView):
 class AvatarDeleteView(APIView):
     def delete(self, request):
         try:
-            logger.info("Avatar delete request received.")
+            logger.info("[Avatar.views] Avatar delete request received.")
             token_payload = validate_jwt_token(request)
             user_id = token_payload.get('user_id')
             if not user_id:
-                logger.warning("No user_id found in token.")
+                logger.warning("[Avatar.views] No user_id found in token.")
                 return Response(
                     {"error": "No user_id found in token"},
                     status=status.HTTP_400_BAD_REQUEST
@@ -337,18 +337,18 @@ class AvatarDeleteView(APIView):
             old_img_path = f"images/{avatar.uuid}.jpg"
             if os.path.exists(old_img_path):
                 os.remove(old_img_path)
-                logger.info(f"Deleted avatar image file: {old_img_path}.")
+                logger.info(f"[Avatar.views] Deleted avatar image file: {old_img_path}.")
             avatar.delete()
-            logger.info(f"Avatar successfully deleted for user_id: {user_id}.")
+            logger.info(f"[Avatar.views] Avatar successfully deleted for user_id: {user_id}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
-            logger.error(f"Validation error: {e}")
+            logger.error(f"[Avatar.views] Validation error: {e}")
             return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
         except Avatar.DoesNotExist:
-            logger.warning(f"No avatar found for user_id: {user_id}.")
+            logger.warning(f"[Avatar.views] No avatar found for user_id: {user_id}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            logger.exception("Unexpected error during avatar deletion.")
+            logger.exception("[Avatar.views] Unexpected error during avatar deletion.")
             return Response(
                 {"error":f"error {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
