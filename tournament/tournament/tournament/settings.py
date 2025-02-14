@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,19 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q'
+SECRET_KEY = os.getenv('TRANSCENDENCE_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    'redis',
-    'nginx',
-    'localhost',
-    '127.0.0.1',
-    '0.0.0.0',
-    '*',
-    ]
+ALLOWED_HOSTS = os.getenv('TRANSCENDENCE_ALLOWED_HOSTS').split(',')
 
 DEFAULT_RUNSERVER_CLASS = 'daphne.cli.DaphneCommand'
 
@@ -99,8 +93,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'db_tournament',
-        'USER': 'django',
-        'PASSWORD': 'django',
+        'USER': os.getenv('TOURNAMENT_DB_USERNAME'),
+        'PASSWORD': os.getenv('TOURNAMENT_DB_PASSWORD'),
         'HOST': 'db_tournament',  # Or your PostgreSQL server IP
         'PORT': '5432',       # Default PostgreSQL port
     }
@@ -147,8 +141,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-import os
 
 from channels.routing import ProtocolTypeRouter
 from django.core.asgi import get_asgi_application
