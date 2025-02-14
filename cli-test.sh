@@ -1,10 +1,12 @@
 PASSWORD=Password123!
+PLAYER_NUM=2
+########### DO NOT EDIT THIS ###########
+########### SCRIPT AT BOTTOM ###########
 LINE_BREAK=_____________________________________________
-user_list=""
-player_num=0
-tournament_name=""
+g_user_list=""
+g_tournament_name=""
 
-make_server () {
+remake_server () {
     make down
     docker volume rm $(docker volume ls)
     make
@@ -22,14 +24,14 @@ EOF
 join_tournament () {
     _login=$1
     _password=$PASSWORD
-    gnome-terminal -- bash -c "node pong-cli test --login=$_login --password=$_password --tournament=$tournament_name"
+    gnome-terminal -- bash -c "node pong-cli test --login=$_login --password=$_password --tournament=$g_tournament_name"
 }
 
 create_tournament () {
     _login=$1
     _password=$PASSWORD
-    _players=$player_num
-    gnome-terminal -- bash -c "node pong-cli test --login=$_login --password=$_password --tournament=$tournament_name --create --players=$_players"
+    _players=$PLAYER_NUM
+    gnome-terminal -- bash -c "node pong-cli test --login=$_login --password=$_password --tournament=$g_tournament_name --create --players=$_players"
 }
 
 #
@@ -39,7 +41,7 @@ get_first_user () {
 }
 
 get_other_users () {
-    echo -e $user_list | awk '{if (1 != NR) {print $0}}'
+    echo -e $g_user_list | awk '{if (1 != NR) {print $0}}'
 }
 
 echo_step () {
@@ -64,12 +66,12 @@ get_unique_name() {
 
 add_user () {
     user=$1
-    user_list+="$user\n"
+    g_user_list+="$user\n"
 }
 
 get_user () {
     index=$1
-    echo -e $user_list | awk '{if (NR - 1 == '$index') {print $0; exit}}'
+    echo -e $g_user_list | awk '{if (NR - 1 == '$index') {print $0; exit}}'
 }
 
 add_unique_users () {
@@ -87,7 +89,7 @@ get_unique_name_once () {
 #
 register_users () {
     echo_step "USERS SIGNUP"
-    for _user in $(echo -e $user_list);
+    for _user in $(echo -e $g_user_list);
     do
         echo "$_user registers"
         register_user $_user
@@ -98,13 +100,14 @@ register_users () {
 play_tournament () {
     echo_step "TOURNAMENT"
     _user=$(get_first_user)
-    echo "$_user creates $tournament_name"
+    sleep 10 #
+    echo "$_user creates $g_tournament_name"
     create_tournament $(get_first_user)
-    sleep 1 #
+    sleep 10 #
     for _user in $(get_other_users);
     do
         sleep 1 #
-        echo "$_user joins $tournament_name"
+        echo "$_user joins $g_tournament_name"
         join_tournament $_user
     done
     echo $LINE_BREAK
@@ -112,16 +115,14 @@ play_tournament () {
 
 ##############################################################
 
-player_num=2
-tournament_name=$(get_unique_name_once)
-echo $tournament_name
+g_tournament_name=$(get_unique_name_once)
 
-# #
-make_server
+remake_server
 
 cd cli
 
-add_unique_users $player_num
-
+add_unique_users $PLAYER_NUM
+sleep 10
 register_users
+
 play_tournament

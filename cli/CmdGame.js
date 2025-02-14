@@ -341,16 +341,25 @@ class CmdGame extends CmdJWT {
 	}
 
 	#onLoginInitialize(jwt) {
+		let wsOpened = 0;
+		const onOpen = () => {
+			wsOpened++;
+			if (2 == wsOpened) {
+				this.#onOpenCreateTournament();
+			}
+		}
+
 		this.#iniCanvas();
 		this.pongCanvas.update();
 		this.#dialog(`Connecting to host...`); //
 		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
 		this.wsGame = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
 		this.wsGame.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
-		this.wsGame.on('open', () => {this.#onOpenCreateTournament()});
+		this.wsGame.on('open', () => {onOpen()});
 		this.wsGame.on('message', (data) => {this.#onPongMessage(data)});
 		this.wsChat = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
 		this.wsChat.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
+		this.wsChat.on('open', () => {onOpen()});
 		this.wsChat.on('message', (data) => {this.#onChatMessage(data)});
 	}
 
