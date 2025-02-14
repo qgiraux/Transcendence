@@ -75,14 +75,22 @@ class CmdTest extends Command {
 		ApiPong.login({host: this.host, port: this.port}, this.userName, this.password, onRet);
 	}
 
-	#openWS() {
+	#openWS(nextStep) {
+		let openedWS = 0;
+		const onWSOpen = () => {
+			openedWS += 1;
+			if (2 == openedWS) {
+				nextStep();
+			}
+		}
+
 		this.wsPong = new WebSocket(`wss://${this.host}:${this.port}/ws/pong/?token=${this.jwt.access}`);
 		this.wsPong.on('error', (data) => {this.log('O: pong: ws: error: ', data); this.#exit()});
-		this.wsPong.on('open', () => {this.log('O: pong: ws: open: ', "")});
+		this.wsPong.on('open', () => {this.log('O: pong: ws: open: ', ""); onWSOpen()});
 		this.wsPong.on('message', (data) => {this.log('O: pong: ws: message: ', data); this.#onPongMessage(data)});
 		this.wsChat = new WebSocket(`wss://${this.host}:${this.port}/ws/chat/?token=${this.jwt.access}`);
 		this.wsChat.on('error', (data) => {this.log('O: chat: ws: error: ', data); this.#exit()});
-		this.wsChat.on('open', () => {this.log('O: chat: ws: open: ', "")});
+		this.wsChat.on('open', () => {this.log('O: chat: ws: open: ', ""); onWSOpen()});
 		this.wsChat.on('message', (data) => {this.log('O: chat: ws: message: ', data); this.#onChatMessage(data)});
 	}
 
@@ -153,7 +161,11 @@ class CmdTest extends Command {
 
 	testJoin() {
 		this.log("test:", JSON.stringify(this));
-		const onLogin = () => {this.#openWS(); this.#joinTournament()};
+		const onWSOpen = () => {
+			this.#joinTournament();
+		}
+		const onLogin = () => {this.#openWS(onWSOpen)};
+
 		this.#login(onLogin);
 	}
 
@@ -161,7 +173,11 @@ class CmdTest extends Command {
 		if (tournamentSize)
 			this.tournamentSize = tournamentSize;
 		this.log("test:", JSON.stringify(this));
-		const onLogin = () => {this.#openWS(); this.#createTournament()};
+		const onWSOpen = () => {
+			this.#createTournament();
+		}
+		const onLogin = () => {this.#openWS(onWSOpen)};
+
 		this.#login(onLogin);
 	}
 }
