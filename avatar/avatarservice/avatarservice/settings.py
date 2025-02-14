@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import sys
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,18 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q'
+SECRET_KEY = os.getenv('TRANSCENDENCE_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    'avatar',
-    'localhost',
-    '127.0.0.1',
-    '0.0.0.0',
-    '*',
-]
+ALLOWED_HOSTS = os.getenv('TRANSCENDENCE_ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -94,8 +89,8 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'db_avatar',
-            'USER': 'avatar',
-            'PASSWORD': 'avatar',
+            'USER': os.getenv('AVATAR_DB_USERNAME'),
+            'PASSWORD': os.getenv('AVATAR_DB_PASSWORD'),
             'HOST': 'db_avatar',
             'PORT': '5432',
         }

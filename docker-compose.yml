@@ -21,6 +21,7 @@ services:
     ports:
       - "8001:8000"
     init: true
+    env_file: ./.env
 
   db_user_management:
     image: postgres:15
@@ -34,6 +35,7 @@ services:
       - postgres_user_management:/var/lib/postgresql/data
     networks:
       - transcendence
+    env_file: ./.env
 
   chat:
     image: chat
@@ -46,6 +48,7 @@ services:
     networks:
       - transcendence
     init: true
+    env_file: ./.env
 
   friends_list:
     image: friends_list
@@ -61,6 +64,7 @@ services:
     networks:
       - transcendence
     init: true
+    env_file: ./.env
 
   db_friends_list:
     container_name: db_friends_list
@@ -74,6 +78,7 @@ services:
       - postgres_friends_list:/var/lib/postgresql/data
     networks:
       - transcendence
+    env_file: ./.env
   
   pong_game:
     image: pong_game
@@ -85,6 +90,7 @@ services:
       - transcendence
     ports:
       - "8002:8000"
+    env_file: ./.env
 
   redis:
     container_name: redis
@@ -92,6 +98,7 @@ services:
     restart: always
     networks:
       - transcendence
+    env_file: ./.env
 
   nginx:
     container_name: nginx
@@ -107,6 +114,7 @@ services:
       - "5000:443"
     restart: unless-stopped
     init: true
+    env_file: ./.env
 
   tournament:
     image: tournament
@@ -122,6 +130,7 @@ services:
     networks:
       - transcendence
     init: true
+    env_file: ./.env
 
   db_tournament:
     image: postgres:15
@@ -140,6 +149,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    env_file: ./.env
 
   avatar:
     image: avatar
@@ -156,6 +166,7 @@ services:
     ports:
       - 8000:8000
     init: true
+    env_file: ./.env
 
   db_avatar:
     image: postgres:15
@@ -169,6 +180,7 @@ services:
       - postgres_avatar:/var/lib/postgresql/data
     networks:
       - transcendence
+    env_file: ./.env
     
   web3-tournament:
     build: ./blockchain/web3-tournament
