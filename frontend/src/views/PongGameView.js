@@ -185,12 +185,6 @@ class PongGameView extends AbstractView {
             .then((result) => {
                 console.log("result: ", result);
                 this.p2name = result.username;
-                // this.renderer.drawStartMessage(
-                //     this.paddle1,
-                //     this.paddle2,
-                //     this.p1name,
-                //     this.p2name
-                // );
                 console.log("p2name: ", this.p2name);
             })
             .catch((error) => {
