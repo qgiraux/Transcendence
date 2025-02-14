@@ -137,7 +137,7 @@ def JoinTournament(request):
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    
+
     # Add a player to the list
     if user_id in tournament.player_list:
         return JsonResponse({'detail': 'User already subscribed', 'code': 'conflict'}, status=409)
@@ -175,7 +175,7 @@ def LeaveTournament(request):
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
-        
+
     data = json.loads(request.body)
     if not data.get('name'):
         return JsonResponse({'detail': 'missing tournament name in body', 'code': 'incomplete_body'}, status=400)
@@ -187,7 +187,7 @@ def LeaveTournament(request):
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    
+
     # Remove a player from the list
     if user_id not in tournament.player_list:
         return JsonResponse({'detail': 'User not subscribed', 'code': 'conflict'}, status=409)

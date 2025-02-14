@@ -84,7 +84,9 @@ class BlocksView extends AbstractView {
     Avatar.getUUid();
     TRequest.request("GET", "/api/users/userlist/")
       .then((result) => {
-        this.userList = result;
+        this.userList = result.filter((user) => {
+          return user["account_deleted"] !== true;
+        });
         this._refreshBlocksList();
       })
       .catch((error) => {
@@ -335,7 +337,7 @@ class BlocksView extends AbstractView {
 						<div class="dropdown" mx-auto>
 							<input type="text" class="form-control" style="max-width: 500px;" id="searchInput"
 								placeholder="${this.domText.lookingForField}" data-bs-toggle="dropdown" aria-expanded="false" />
-							<ul class="dropdown-menu w-100" id="dropdownMenu">
+							<ul class="dropdown-menu w-100" style="max-width: 500px;" id="dropdownMenu">
 								<!-- Les options seront ajoutées ici dynamiquement -->
 							</ul>
 						</div>
