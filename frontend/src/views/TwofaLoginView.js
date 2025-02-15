@@ -43,14 +43,10 @@ class TwofaLoginView extends AbstractView {
       this.updateCountDown(`${Math.floor((diff / 1000) % 60)}`);
     } else {
       clearInterval(this.interval);
-      const msg = document.querySelector("#validitymsg");
-      if (msg) {
-        msg.textContent =
-          "The token has expired. You will be redirected to the landing page.";
-        setTimeout(() => {
-          Router.reroute("/landing");
-        }, 1000);
-      }
+      this.expireDisplay();
+      setTimeout(() => {
+        Router.reroute("/landing");
+      }, 1000);
     }
   }
 
@@ -62,6 +58,11 @@ class TwofaLoginView extends AbstractView {
   errorDisplay() {
     const card = document.querySelector("#twofacard");
     card.innerHTML = `<p class="text-danger"> <strong>Authentication failure !</strong><br>You will be redirected on the landing page.</p>`;
+  }
+
+  expireDisplay() {
+    const card = document.querySelector("#twofacard");
+    card.innerHTML = `<p class="text-danger"> <strong>The token has expired !</strong><br>You will be redirected on the landing page.</p>`;
   }
 
   async loginPressHandler(event) {
@@ -121,11 +122,9 @@ class TwofaLoginView extends AbstractView {
     if (this.tokenArray.length !== 3) return this.badTokenExit();
     const timestamp = Number(this.tokenArray[1]) * 1000; //the timestamp is in seconds
     this.validityLimit = new Date(timestamp);
-    console.log("this.validityLimit", this.validityLimit);
     if (isNaN(this.validityLimit.getTime())) return this.badTokenExit();
-    console.log("this.validityLimit", this.validityLimit);
-    this.interval = setInterval(this.tokenValidityCheck.bind(this), 1000);
     this.setHtml();
+    this.interval = setInterval(this.tokenValidityCheck.bind(this), 1000);
     this.addEventListener(
       document.querySelector("#twofabutton"),
       "click",
@@ -147,7 +146,7 @@ class TwofaLoginView extends AbstractView {
                 <div class="row border rounded border-secondary">
         <div class="row w-75 mw-75 mx-auto text-white container-md p-4 d-flex flex-column align-items-center" id="twofacard">
         <div class="row align-items-start w-100">
-    <p id="validitymsg" >You have <strong id="countdown">0</strong> seconds left to enter the code from your authenticator app.
+    <p id="validitymsg" >You have <strong id="countdown"></strong> seconds left to enter the code from your authenticator app.
     </p>
         </div>
         <div class="row mb-3 w-100">
