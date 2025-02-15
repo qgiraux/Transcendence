@@ -27,7 +27,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 urlpatterns = [
     path('register/', RegisterUser, name='register'),
     path('login/', get_jwt_token, name='login'),
-    path('login_twofa/', authenticate_with_2fa, name='login'),
+    path('logintwofa/', authenticate_with_2fa, name='login'),
     path('enable_twofa/', Enable_Twofa, name='enable twofa'),
     path('refresh/', refresh_jwt_token, name='token_refresh'),
     path('userinfo/', Get_my_infos, name='myuserinfo'),
