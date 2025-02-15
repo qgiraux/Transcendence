@@ -66,8 +66,8 @@ def generate_2FA_accesstoken(user_id: int,  secret_key:str, validity:int=60):
 
     Args:
         user_id (int): user id
-        validity (int, optional): token validity in seconds. Defaults to 60 seconds
         secret_key (str): UTF-8 str of the secret key used by hmac
+        validity (int, optional): token validity in seconds. Defaults to 60 seconds
     """
     validity_timestamp = int(time.time()) + validity
     data = f"{user_id}:{validity_timestamp}".encode("utf-8")
@@ -76,14 +76,19 @@ def generate_2FA_accesstoken(user_id: int,  secret_key:str, validity:int=60):
 
     return f"{user_id}:{validity_timestamp}:{signature_b64}"
 
-def validate_2FA_accesstoken(token:str, secret_key:str):
+def validate_2FA_accesstoken(token:str, secret_key:str)->int:
     """_summary_
-        Validate the token by checking the hmac signature
+        Validate the token by checking the hmac signature and returns the user id
+        to authenticate
     Args:
         token (str): _description_ the user_id:expire_time:signature token
         secret_key (str): _description_ secret key to validate the token
     Raises:
-        InvalidTokenError: _description_ The token is either
+        TokenSignatureError: _description_ invalid signature
+        Tokenexpire_timeError: _description_ expired token
+
+    Returns:
+        (int): _description_ user_id
     """
 
     user_id, expire_time, signature = token.split(':')
@@ -94,24 +99,9 @@ def validate_2FA_accesstoken(token:str, secret_key:str):
     expected_signature = hmac.new(secret_key.encode("utf-8"), payload, hashlib.sha256).digest()
     expected_signature_b64 = base64.urlsafe_b64encode(expected_signature).decode()
     if not hmac.compare_digest(expected_signature_b64, signature):
-        raise TokenSignatureError()
+        raise Token2FAAccessSignatureError()
     # verify the validity
     now = int(time.time())
     if expire_time < now:
-        raise Tokenexpire_timeError()
-
-
-
-if __name__ == "__main__":
-    SECRET_KEY = "this is my secret key to encode the signature"
-    INVALID_KEY = "invalid"
-    t = generate_token(25, INVALID_KEY, 5)
-    print(t)
-    # time.sleep(6)
-    try:
-        validate_token(t, SECRET_KEY)
-        print("the token is valid !")
-    except TokenSignatureError:
-        print("The signature is not valid")
-    except Tokenexpire_timeError:
-        print("The token has expired")
+        raise Token2FAExpiredError()
+    return user_id
