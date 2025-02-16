@@ -83,6 +83,12 @@ class LandingView extends AbstractView {
   }
 
   onStart() {
+    if (Application.getAccessToken() !== null) {
+      setTimeout(() => {
+        Router.reroute("/home");
+      }, 50);
+      return;
+    }
     this.setHtml();
     const loginRadio = document.getElementById("loginradio");
     const createAccountRadio = document.getElementById("registerradio");
