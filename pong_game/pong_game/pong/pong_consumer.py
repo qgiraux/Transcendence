@@ -144,8 +144,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
         if self.game_name in self.pong:
             self.pong.pop(self.game_name, None)
-            self.pong[self.game_name].engine.stop()
-        await self.channel_layer.group_remove(self.group_name, self.channel_name)
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
             
     async def game_final_scores(self, event):
         game_over = event["game_over"]
