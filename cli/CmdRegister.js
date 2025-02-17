@@ -1,34 +1,21 @@
 const {Parser} = require("./Parser");
-const {HttpsClient} = require("./HttpsClient");
 const {Command} = require("./Command");
-//const {Controller} = require("./Controller")
-//const assert = require('node:assert')
 const {TextEditor} = require("./TextEditor");
-const {Localization} = require("./Localization");
 const {ApiPong} = require("./ApiPong");
 
-let l = new Localization(); //
-
-
-const TLK_CMD_DESC = "cli.signup.cmd.desc";
-const TLK_CMD_SHELL = "cli.signup.cmd.shell";
-//const TLK_CMD_OPTS_A = "cli.signup.cmd.opts[]";
-//const TLK_SYS_HOST = "sys.host";
-const TLK_SYS_ERR = "sys.err";
-const TLK_OK = "cli.signup.ok";
-const TLK_ERR_PWD_MATCH = "cli.signup.err.pwd:match";
-const TLK_ERR_BAD_Q_HOST = "cli.signup.err.bad?host";
-const TLK_PROMPT_PWD_RE = "cli.prompt.pwd:re";
-const TLK_PROMPT_PWD = "cli.prompt.pwd";
 const TLK_PROMPT_LOGIN = "cli.prompt.login";
-//const TLK_API_SIGNUP = "api.signup";
 
 class CmdRegister extends Command {
 	constructor() {
 		
-		super(l.t(TLK_CMD_DESC), l.t(TLK_CMD_SHELL));
+		super("Register to Pong", "node pong-cli signup");
 
-		const opts = l.source.cli.signup.cmd["opts[]"];
+		const opts = [
+			"[--help]", 
+			"[--host=<hostname:port>]", 
+			"[--login=<login>]", 
+			"[--password=<password>]"
+		];
 		const callbacks = [
 			()=>{this.parser.displayHelp = true;}, 
 			(match)=>{this.host = Parser.getOptionValue(match);}, 
@@ -39,7 +26,7 @@ class CmdRegister extends Command {
 		this.parser.setOptions(opts, callbacks);
 		this.parser.defaultCallback = () => {this.#stepEnterLogin()};
 		this.host = "";
-		this.hostDefault = l.source.sys.host;
+		this.hostDefault = "localhost:5000";
 		/**@type {String} */
 		this.login = "";
 		/**@type {String} */
@@ -82,14 +69,14 @@ class CmdRegister extends Command {
 
 	static _printError(text)
 	{
-		process.stderr.write(`\x1b[31m${l.t(TLK_SYS_ERR)}: ${text}\x1b[0m\n`);
+		process.stderr.write(`\x1b[31m${"Error"}: ${text}\x1b[0m\n`);
 	}
 
 	static _printResult(ret){
 		const statusCode = Number(ret.statusCode);
 
 		if (200 <= statusCode && 300 > statusCode)
-			CmdRegister._printSuccess(l.t(TLK_OK));
+			CmdRegister._printSuccess("Registration success!");
 		else
 			CmdRegister._printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
 	}
@@ -101,7 +88,7 @@ class CmdRegister extends Command {
 		}
 		if (this.password != this.passwordConfirm)
 		{
-			CmdRegister._printError(l.t(TLK_ERR_PWD_MATCH));
+			CmdRegister._printError("Passwords do not match.");
 			return ;
 		}		
 		if (!this.host)
@@ -109,7 +96,7 @@ class CmdRegister extends Command {
 		const hostInfo = this.host.split(":");
 		if (2 != hostInfo.length)
 		{
-			CmdRegister._printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
+			CmdRegister._printError(`Invalid host ${this.host}.`);
 			return ;
 		}	
 		const hostname = hostInfo[0];
@@ -125,7 +112,7 @@ class CmdRegister extends Command {
 		const update = (line) => {this.passwordConfirm = line};
 		const nextStep = () => {this.#stepPost();};
 
-		this.#getValue(l.t(TLK_PROMPT_PWD_RE), update, nextStep, true);
+		this.#getValue("Confirm password:", update, nextStep, true);
 	}
 
 	#stepEnterPassword(){
@@ -133,7 +120,7 @@ class CmdRegister extends Command {
 		const nextStep = () => {this.#stepConfirmPassword();};
 
 		if (!this.password)
-			this.#getValue(l.t(TLK_PROMPT_PWD), update, nextStep, true);
+			this.#getValue("Enter password:", update, nextStep, true);
 		else
 			nextStep();
 	}
@@ -143,7 +130,7 @@ class CmdRegister extends Command {
 		const nextStep = () => {this.#stepEnterPassword();};
 
 		if (!this.login)
-			this.#getValue(l.t(TLK_PROMPT_LOGIN), update, nextStep, false);
+			this.#getValue("Enter login:", update, nextStep, false);
 		else
 			nextStep();
 	}

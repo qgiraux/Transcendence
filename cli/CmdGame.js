@@ -1,8 +1,6 @@
 const {CmdJWT} = require("./CmdJWT");
-const {Localization} = require("./Localization");
 const WebSocket = require('ws'); //npm install ws
 const {HttpsClient} = require("./HttpsClient");
-const {TextEditor} = require("./TextEditor");
 const {Controller} = require("./Controller")
 const {CvsPong} = require("./CvsPong")
 const {Canvas} = require("./Canvas")
@@ -10,8 +8,6 @@ const {Parser} = require("./Parser")
 const {WSIPong} = require("./WSIPong")
 const {TextBox} = require("./TextBox");
 const {ApiPong} = require("./ApiPong");
-
-let l = new Localization(); //
 
 class CmdGame extends CmdJWT {
 	constructor() {
