@@ -1,5 +1,3 @@
-import Application from "./Application.js";
-
 const translations = {};
 
 const pathEn = "../../local/en-us/translation.json";
@@ -12,7 +10,7 @@ class Localization {
     this.lang = Localization.detectLanguage();
     this.translation = null;
     this.source = null;
-    this.loadTranslations();
+    // this.loadTranslations();
   }
 
   static detectLanguage() {
@@ -50,7 +48,7 @@ class Localization {
       this.translation = await Localization._load(path);
       translations[this.lang] = this.translation;
     }
-    if (!translations["en-us"]) {
+    if (this.lang !== "en-us" && !translations["en-us"]) {
       translations["en-us"] = await Localization._load(pathEn);
     }
     this.source = translations["en-us"];

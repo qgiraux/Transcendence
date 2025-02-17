@@ -127,9 +127,24 @@
       "field": "2FA code",
       "enterActivation": "Enter your 2FA code to confirm activation",
       "success": "2FA code verified successfully",
+      "authent": {
+        "enterCode": "Enter 2FA code",
+        "authenticate": "Authenticate",
+        "success": "Authentication success",
+        "failure": "Authentication failure",
+        "redirectionLanding": "You will be redirected to the landing page",
+        "redirectionHome": "You will be redirected to your home page"
+      },
       "invalid": "Invalid 2FA code",
       "errors": {
-        "unexpected": "Something went wrong"
+        "unexpected": "Something went wrong",
+        "token": "The supplied token is invalid",
+        "expired": "The token has expired",
+        "empty": "You must enter a code"
+      },
+      "countdown": {
+        "partOne": "You have",
+        "partTwo": "seconds left to enter the code from your authenticator app"
       }
     },
     "delete": {

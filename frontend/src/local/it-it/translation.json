@@ -128,11 +128,26 @@
       "alreadyActivated": "2FA già attivato",
       "scanQR": "Scansiona questo codice QR con la tua app di autenticazione",
       "field": "Codice 2FA",
-      "enterActivation": "Inserisci il tuo codice 2FA per confermare l'attivazione",
+      "enterActivation": "Inserisci il codice 2FA per confermare l'attivazione",
       "success": "Codice 2FA verificato con successo",
+      "authent": {
+        "enterCode": "Inserisci il codice 2FA",
+        "authenticate": "Autenticarsi",
+        "success": "Autenticazione riuscita",
+        "failure": "Autenticazione fallita",
+        "redirectionLanding": "Verrai reindirizzato alla pagina principale",
+        "redirectionHome": "Verrai reindirizzato alla tua pagina personale"
+      },
       "invalid": "Codice 2FA non valido",
       "errors": {
-        "unexpected": "Si è verificato un errore"
+        "unexpected": "Si è verificato un errore",
+        "token": "Il token fornito non è valido",
+        "expired": "Il token è scaduto",
+        "empty": "Devi inserire un codice"
+      },
+      "countdown": {
+        "partOne": "Hai ancora",
+        "partTwo": "secondi per inserire il codice dalla tua app di autenticazione"
       }
     },
     "delete": {

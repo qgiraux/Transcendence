@@ -277,7 +277,9 @@ class Application {
 
   static async retrieveDBLang() {
     const lang = await Application.getUserInfos().lang;
-      if (lang && Application.lang !== lang) {
+    if (lang === "null")
+        return Application.lang;
+    else if (lang && Application.lang !== lang) {
           Application.lang = lang;
           this.localization.lang = lang;
       }

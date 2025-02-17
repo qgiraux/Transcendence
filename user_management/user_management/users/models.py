@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
     twofa_enabled = models.BooleanField(default=False)
     stats = models.JSONField(default=dict)
     account_deleted = models.BooleanField(default=False)
-    lang = models.CharField(max_length=5, default="en-us")
+    lang = models.CharField(max_length=5, default="null")
 
 def add_stat(self, tournament_id, date, opponent, score, win):
         """Add or update a tournament stat."""

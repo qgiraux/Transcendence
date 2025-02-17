@@ -130,9 +130,24 @@
       "field": "Código 2FA",
       "enterActivation": "Introduce tu código 2FA para confirmar la activación",
       "success": "Código 2FA verificado con éxito",
+      "authent": {
+        "enterCode": "Introduce el código 2FA",
+        "authenticate": "Autenticarse",
+        "success": "Autenticación exitosa",
+        "failure": "Error de autenticación",
+        "redirectionLanding": "Serás redirigido a la página de inicio",
+        "redirectionHome": "Serás redirigido a tu página personal"
+      },
       "invalid": "Código 2FA inválido",
       "errors": {
-        "unexpected": "Algo salió mal"
+        "unexpected": "Ocurrió un error",
+        "token": "El token proporcionado no es válido",
+        "expired": "El token ha expirado",
+        "empty": "Debes ingresar un código"
+      },
+      "countdown": {
+        "partOne": "Te quedan",
+        "partTwo": "segundos para ingresar el código de tu aplicación de autenticación"
       }
     },
     "delete": {

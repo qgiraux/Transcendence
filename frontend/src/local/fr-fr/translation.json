@@ -31,10 +31,6 @@
       "choose": "Choisissez votre mot de passe",
       "confirm": "Confirmez votre mot de passe"
     },
-    "twofa": {
-      "label": "Code 2FA (si activé)",
-      "field": "2FA (optionnel)"
-    },
     "signup": {
       "submit": "Créer un compte"
     },
@@ -125,14 +121,29 @@
     "twofa": {
       "title": "Authentification à deux facteurs",
       "activate": "Activer 2FA",
-      "alreadyActivated": "2FA déjà activée",
-      "scanQR": "Scannez ce QR code avec votre application d'authentification",
+      "alreadyActivated": "2FA déjà activé",
+      "scanQR": "Scannez ce code QR avec votre application d'authentification",
       "field": "Code 2FA",
-      "enterActivation": "Saisissez votre code 2FA pour confirmer l'activation",
+      "enterActivation": "Entrez votre code 2FA pour confirmer l'activation",
       "success": "Code 2FA vérifié avec succès",
+      "authent": {
+        "enterCode": "Entrez le code 2FA",
+        "authenticate": "S'authentifier",
+        "success": "Authentification réussie",
+        "failure": "Échec de l'authentification",
+        "redirectionLanding": "Vous allez être redirigé vers la page d'accueil",
+        "redirectionHome": "Vous allez être redirigé vers votre page d'accueil"
+      },
       "invalid": "Code 2FA invalide",
       "errors": {
-        "unexpected": "Une erreur s'est produite"
+        "unexpected": "Une erreur s'est produite",
+        "token": "Le jeton fourni est invalide",
+        "expired": "Le jeton a expiré",
+        "empty": "Vous devez entrer un code"
+      },
+      "countdown": {
+        "partOne": "Il vous reste",
+        "partTwo": "secondes pour entrer le code de votre application d'authentification"
       }
     },
   "delete": {
