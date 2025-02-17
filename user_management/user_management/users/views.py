@@ -1,32 +1,53 @@
-# Create your views here.
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UsernameSerializer
+
+# Imports standards de Python
 import json
 import logging
+import base64
+from urllib.parse import urlencode
+
+# Imports Django
 from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.conf import settings
+
+
+# Imports Django REST Framework
+from rest_framework import generics, status, views, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import RegisterSerializer
-from rest_framework import status, views, permissions
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+# Imports Django Simple JWT
+import jwt
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .utils import is_user_online, get_user_totp_device, generate_qr_code
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+
+# app specific imports
+from .serializers import (
+    UserSerializer,
+    CustomTokenObtainPairSerializer,
+    UsernameSerializer,
+    RegisterSerializer,
+)
+from .utils import (
+    is_user_online,
+    get_user_totp_device,
+    generate_qr_code,
+    Token2FAAccessSignatureError,
+    Token2FAExpiredError,
+    validate_2FA_accesstoken,
+    generate_2FA_accesstoken,
+)
 from .models import add_stat
-from urllib.parse import urlencode
-import base64
-
-
-
-
-
-
+from .mock_jwt_expired import mock_jwt_expired
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
+
 
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
@@ -42,14 +63,20 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_jwt_token(request):
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
+    try:
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+    except (UnicodeDecodeError, json.JSONDecodeError) as e:
+        return Response({'error': 'Invalid body'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         user = User.objects.get(username=body['username'])
     except User.DoesNotExist:
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
+    user = User.objects.get(username=body['username'])
+    if user.account_deleted:
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
     # Check if the password matches the one stored in the database
     password = body.get('password')
     if not password:
@@ -59,38 +86,11 @@ def get_jwt_token(request):
     if user is None:
         return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    # If 2FA is enabled, proceed with the two-factor authentication process
+    # # If 2FA is enabled, a second authentification is required
     if user.twofa_enabled:
-        try:
-            token = body.get('twofa')
-            if not token:
-                return Response({'2FA': '2FA token required'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            device = get_user_totp_device(user)
-            if device and device.verify_token(token):
-                if not device.confirmed:
-                    device.confirmed = True
-                    device.save()
-
-                refresh = RefreshToken.for_user(user)
-                access = str(refresh.access_token)
-
-                # Add custom claims to the access token
-                access_token = refresh.access_token
-                access_token['username'] = user.username
-                access_token['nickname'] = user.nickname
-                access_token['twofa'] = user.twofa_enabled
-                access = str(access_token)
-
-                return Response({
-                    'refresh': str(refresh),
-                    'access': access
-                })
-
-            return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        except json.JSONDecodeError:
-            return Response({'error': 'Invalid request body'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'2FA': '2FA token required',
+                         'token': f"{generate_2FA_accesstoken(user.id, settings.SECRET_KEY)}"},
+                         status=status.HTTP_401_UNAUTHORIZED)
 
     # 2FA not enabled: directly generate tokens
     refresh = RefreshToken.for_user(user)
@@ -129,6 +129,59 @@ def refresh_jwt_token(request):
     return Response({
         'access': access
     })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def authenticate_with_2fa(request):
+    try:
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+    except (UnicodeDecodeError, json.JSONDecodeError) as e:
+        return Response({'error': 'Invalid body'}, status=status.HTTP_400_BAD_REQUEST)
+    #  len(body.get('token').split(':')) != 3:
+    twofa_token = body.get('twofa')
+    if not twofa_token:
+        return Response({'error': '2FA token required'}, status=status.HTTP_401_UNAUTHORIZED)
+    nav_token = body.get('token')
+    if not nav_token:
+        return Response({'2FA': 'navigation token required'}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        user_id = validate_2FA_accesstoken(token=nav_token, secret_key= settings.SECRET_KEY)
+    except Token2FAAccessSignatureError:
+        return Response({'error': 'Invalid navigation token'}, status=status.HTTP_401_UNAUTHORIZED)
+    except Token2FAExpiredError:
+        return Response({'error': 'Expired navigation token'}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid user'}, status=status.HTTP_401_UNAUTHORIZED)
+    if not user.twofa_enabled:
+        return Response({'error': 'Invalid user'}, status=status.HTTP_401_UNAUTHORIZED)
+    #Validating the 2FA
+    device = get_user_totp_device(user)
+    if device and device.verify_token(twofa_token):
+        if not device.confirmed:
+            device.confirmed = True
+            device.save()
+
+        refresh = RefreshToken.for_user(user)
+        access = str(refresh.access_token)
+
+        access_token = refresh.access_token
+        access_token['username'] = user.username
+        access_token['nickname'] = user.nickname
+        access_token['twofa'] = user.twofa_enabled
+        access = str(access_token)
+
+        return Response({
+            'refresh': str(refresh),
+            'access': access
+        })
+    else:
+        return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -182,6 +235,7 @@ def Get_user_infos(request, user_id):
         "id": user.id,
         "username": user.username,
         "nickname": user.nickname,
+        "deleted": user.account_deleted
     }
     return JsonResponse(user_info)
 
@@ -274,19 +328,92 @@ def ChangeNickname(request):
         return Response(serializer.data, status=200)
     return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def DeleteUser(request):
-    user = request.user
-    id = user.id
-    user.delete()
-    return Response({"deleted":id}, status=200)
+def validate_jwt_token(request):
+    """
+    Custom JWT token validation method.
+
+    Args:
+        request (Request): Incoming HTTP request
+
+    Returns:
+        dict: Decoded token payload if valid
+    Raises:
+        ValidationError: If token is invalid
+    """
+    auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+
+    if not auth_header.startswith('Bearer '):
+        raise ValidationError("Invalid Authorization header format")
+
+    token = auth_header.split(' ')[1]
+
+    try:
+        payload = jwt.decode(
+            token,
+            'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q',
+            algorithms=['HS256']
+        )
+        return payload
+
+    except jwt.ExpiredSignatureError:
+        raise ValidationError("Token has expired")
+    except jwt.InvalidTokenError:
+        raise ValidationError("Invalid token")
+
+
+
+class UserDeleteView(APIView):
+    def delete(self, request):
+        try:
+            logger.info("User delete request received.")
+            token_payload = validate_jwt_token(request)
+            user_id = token_payload.get('user_id')
+            if not user_id:
+                logger.warning("No user_id found in token.")
+                return Response(
+                    {"error": "No user_id found in token"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            user = User.objects.get(id=user_id)
+            logger.info(f"deleting account for id {user_id}")
+            user.account_deleted = True
+            user.username = f"DELETED_{user_id}"
+            user.nickname = "ACCOUNT DELETED"
+            user.password = ""
+            user.stats = {}
+            user.save()
+            return Response({"deleted":user_id}, status=200)
+
+
+        except User.DoesNotExist:
+            return Response(
+                    {"error": "No user found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        except ObjectDoesNotExist:
+             return Response(
+                    {"error": "No user found"},
+                    status=status.HTTP_404_NOT_FOUND)
+        except ValidationError as e:
+            logger.error(f"Validation error: {e}")
+            return Response(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+
+        except Exception as e:
+            logger.exception("Unexpected error during avatar deletion.")
+            return Response(
+                {"error":f"error {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def RegisterUser(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
+        logger.error('hello')
         user = serializer.save()
         user.nickname = user.username
         user.set_password(serializer.validated_data['password'])

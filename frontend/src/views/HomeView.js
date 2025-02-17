@@ -82,7 +82,6 @@ class HomeView extends AbstractView {
               .then((username) => {
                 const textmessage = `your game is starting!`;
                 const link = message;
-                Router.reroute("/pong");
                 // Alert.inviteMessage(type, textmessage, link);
                 Application.gameSocket.send(
                   JSON.stringify({
@@ -93,6 +92,8 @@ class HomeView extends AbstractView {
                     },
                   })
                 );
+                Router.reroute("/pong");
+                
               })
               .catch((err) => {
                 console.error("Failed to fetch user info:", err);
@@ -134,7 +135,7 @@ class HomeView extends AbstractView {
       try {
         Application.gameSocket.onmessage = (event) => {
           // Parse the incoming JSON
-          console.log("gameSocket message received----:", event.data);
+          // console.log("gameSocket message received----:", event.data);
           const data = JSON.parse(event.data);
           const sender = data.sender || 0; // Default if field missing
           const group = data.group || "No group"; // Default if field missing

@@ -15,13 +15,13 @@ class Command(BaseCommand):
         redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
         pubsub = redis_client.pubsub()
         await pubsub.subscribe('global_chat')  # Subscribe to global Redis channels
-        logger.error("listen to redis intit ok")
+        logger.info("[Chat.listen_to_redis] listen to redis intit ok")
         try:
             async for message in pubsub.listen():
-                logger.error(f"Message: {message}")
+                logger.debug(f"[Chat.listen_to_redis] Message: {message}")
                 if message and isinstance(message['data'], bytes):
                     data = json.loads(message['data'])
-                    logger.error(f"Dispatching message: {data}")
+                    logger.debug(f"[Chat.listen_to_redis] Dispatching message: {data}")
                     channel_layer = get_channel_layer()
                     await channel_layer.group_send(
                         data['group'],
@@ -33,7 +33,7 @@ class Command(BaseCommand):
                         }
                     )
         except Exception as e:
-            logger.error(f"Error in Redis listener: {e}")
+            logger.error(f"[Chat.listen_to_redis] Error in Redis listener: {e}")
         finally:
             await pubsub.unsubscribe('global_chat')
             await redis_client.close()

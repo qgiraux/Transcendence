@@ -8,7 +8,8 @@ const {CvsPong} = require("./CvsPong")
 const {Canvas} = require("./Canvas")
 const {Parser} = require("./Parser")
 const {WSIPong} = require("./WSIPong")
-const {TextBox} = require("./TextBox")
+const {TextBox} = require("./TextBox");
+const {ApiPong} = require("./ApiPong");
 
 let l = new Localization(); //
 
@@ -16,7 +17,7 @@ class CmdGame extends CmdJWT {
 	constructor() {
 		super((jwt)=>{this.#onLoginInitialize(jwt)}, () => {return this.#checkProperties()}, "node pong-cli game");
 		this.name = "game";
-		this.description = "Play pong";
+		this.description = "Play Pong using keyboard arrows. Create or join tournaments."; //
 		this.width = 103; //Min 29
 		this.height = 28; // Min 8
 		//this.dar = "1:1"; // * NOT IMPLEMENTED
@@ -25,7 +26,7 @@ class CmdGame extends CmdJWT {
 		this.pongCanvas = undefined;
 		this.tournament = undefined;
 		this.newTournament = false;
-		this.description = "Play Pong using keyboard arrows. Create or join tournaments."; //
+		
 		this.players = 2;
 		this.parser.addOptions([
 			"[--width=<width>]", 
@@ -55,7 +56,7 @@ class CmdGame extends CmdJWT {
 
 	#checkProperties() {
 		if (false == this.newTournament && !this.tournament) {
-			process.stderr.write(`Error: expected tounament name. Use --tourname=<name>'\n`);
+			process.stderr.write(`Error: expected tounament name. Use --tournament=<name>'\n`);
 			return 1;
 		} else if (!this.width || 29 > this.width) {
 			process.stderr.write(`Error: width must be 29 or above, received: '${this.width}'\n`);
@@ -95,6 +96,8 @@ class CmdGame extends CmdJWT {
 
 	#parseInit(state) {
 		//console.log(state); //
+		if (!state.player_right || !state.player_right)
+			return ;
 		if (this.me == state.player_right.playerid) {
 			this.mirror = true;
 			this.opponent = state.player_left.playerid;
@@ -129,12 +132,9 @@ class CmdGame extends CmdJWT {
 
 	#onVictory() {
 		this.#dialog("Game Won");
-		HttpsClient.reqWithJwt(
-			HttpsClient.setUrlInOptions(
-				this.host, 
-				{method: "GET", path: `/api/tournament/details/${this.tournament}`}
-			),
-			null,
+		ApiPong.getTournamentDetails(
+			HttpsClient.setUrlInOptions(this.host),
+			this.tournament,
 			(ret) => {this.#onMatchResult(ret)},
 			this.jwt,
 			(access) => {this.jwt.access = access}
@@ -240,15 +240,11 @@ class CmdGame extends CmdJWT {
 		) {
 			for (const playerId of ret.message.players) {
 				if (playerId != this.me) {
-					HttpsClient.reqWithJwt(
-						HttpsClient.setUrlInOptions(
-							this.host, 
-							{method: "GET", path: `/api/users/userinfo/${playerId}`}
-						),
-						null,
+					ApiPong.getUserInfo(
+						HttpsClient.setUrlInOptions(this.host), 
+						playerId,
 						(ret) => {this.#onUserinfoSetName(ret)},
-						this.jwt,
-						(access) => {this.jwt.access = access}
+						this.jwt, (access) => {this.jwt.access = access}
 					)
 				}
 			}
@@ -276,15 +272,11 @@ class CmdGame extends CmdJWT {
 				data: ""
 			}));
 			if (!this.playerNames) {
-				HttpsClient.reqWithJwt(
-					HttpsClient.setUrlInOptions(
-						this.host, 
-						{method: "GET", path: `/api/tournament/details/${this.tournament}`}
-					),
-					null,
+				ApiPong.getTournamentDetails(
+					HttpsClient.setUrlInOptions(this.host), 
+					this.tournament,
 					(ret) => {this.#onTournamentDetailsGetNames(ret)},
-					this.jwt,
-					(access) => {this.jwt.access = access}
+					this.jwt, (access) => {this.jwt.access = access}
 				)
 			}
 			// this.wsChat.close();
@@ -318,9 +310,9 @@ class CmdGame extends CmdJWT {
 			this.#dialog("Missing tournament name. Use --tournament=<name>");
 			this.#onStop();
 		}
-		HttpsClient.reqWithJwt(
-			HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/join/"}),
-			JSON.stringify({name: this.tournament}),
+		ApiPong.joinTournament(
+			HttpsClient.setUrlInOptions(this.host), 
+			this.tournament,
 			(ret) => {this.#onJoinStart(ret)},
 			this.jwt, (access) => {this.jwt.access = access}
 		);
@@ -331,9 +323,9 @@ class CmdGame extends CmdJWT {
 			if (!this.tournament) {
 				this.tournament=String(Date.now());
 			}
-			HttpsClient.reqWithJwt(
-				HttpsClient.setUrlInOptions(this.host, {method: "POST", path: "/api/tournament/create/"}),
-				JSON.stringify({name: this.tournament, size: this.players}),
+			ApiPong.createTournament(
+				HttpsClient.setUrlInOptions(this.host),
+				this.tournament, this.players,
 				(ret) => {
 					if (false == HttpsClient.isStatusOk(ret.statusCode)) {
 						this.#dialog(JSON.stringify(ret));
@@ -349,16 +341,25 @@ class CmdGame extends CmdJWT {
 	}
 
 	#onLoginInitialize(jwt) {
+		let wsOpened = 0;
+		const onOpen = () => {
+			wsOpened++;
+			if (2 == wsOpened) {
+				this.#onOpenCreateTournament();
+			}
+		}
+
 		this.#iniCanvas();
 		this.pongCanvas.update();
 		this.#dialog(`Connecting to host...`); //
 		this.boxCanvas.moveCursor(this.boxCanvas.dx, this.boxCanvas.dy);
 		this.wsGame = new WebSocket('wss://' + this.host + '/ws/pong/?token=' + jwt.access);
 		this.wsGame.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
-		this.wsGame.on('open', () => {this.#onOpenCreateTournament()});
+		this.wsGame.on('open', () => {onOpen()});
 		this.wsGame.on('message', (data) => {this.#onPongMessage(data)});
 		this.wsChat = new WebSocket('wss://' + this.host + '/ws/chat/?token=' + jwt.access);
 		this.wsChat.on('error', (data) => {this.#dialog(String(data)); this.#onStop()});
+		this.wsChat.on('open', () => {onOpen()});
 		this.wsChat.on('message', (data) => {this.#onChatMessage(data)});
 	}
 

@@ -122,10 +122,9 @@ class Router {
     this.route();
   }
 
-  //AV = I added the hyphen because this rule blocked the rerouting to /create-tournaments in case of a language change
   static reroute(uri) {
-    const regex = /^\/[a-zA-Z0-9\/-]*$/;
-    if (!regex.test(uri)) throw new Error("Router::reroute : invalid route");
+    if (/^[a-zA-Z0-9\/\-_=:]+$/.test(uri) === false)
+      throw new Error("Router::reroute : invalid route");
     const event = new CustomEvent("redirect", {
       detail: {
         route: uri,

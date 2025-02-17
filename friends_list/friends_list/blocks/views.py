@@ -11,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from .mock_jwt_expired  import mock_jwt_expired
 
+logger = logging.getLogger(__name__)
+
 
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})
@@ -57,7 +59,7 @@ def add_block(request):
     except InvalidTokenError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
         return JsonResponse({'detail': 'An error occurred', 'code': 'error_occurred'}, status=500)
 
 @csrf_exempt
@@ -98,7 +100,7 @@ def remove_block(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,
@@ -130,7 +132,42 @@ def blocks_list(request):
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(),status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
+        return HttpResponse(
+            json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
+            status=500,
+            content_type='application/json'
+        )
+
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def remove_from_all(request):
+    if request.method != 'DELETE':
+        return HttpResponse(
+            json.dumps({'detail': 'Method not allowed', 'code': 'method_not_allowed'}),
+            status=405,
+            content_type='application/json'
+        )
+    try:
+        auth_header = request.headers.get('Authorization').split()[1]
+        decoded = jwt.decode(auth_header, settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded.get('user_id')
+        if not user_id:
+            return HttpResponse(
+                json.dumps({'detail': 'User not found', 'code': 'user_not_found'}),
+                status=400,
+                content_type='application/json'
+            )
+        Blocks.objects.filter(block_id=user_id).delete()
+        return JsonResponse({'message': 'User removed successfully form all blocklists'}, status=200)
+
+
+    except jwt.ExpiredSignatureError:
+        return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.InvalidTokenError:
+        return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        logger.error(f"[Blocks.views] Unexpected error: {e}")
         return HttpResponse(
             json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
             status=500,

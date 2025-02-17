@@ -104,7 +104,7 @@ def Invite(request):
         redis_client.publish('global_chat', json.dumps(notification))
 
     except Exception as e:
-        logger.error(f"Error processing invite: {e}")
+        logger.error(f"[Tournament.views] Error processing invite: {e}")
         return JsonResponse({"detail": "An unexpected error occurred."}, status=500)
 
     return JsonResponse({"detail": "Message sent"}, status=200)
@@ -137,7 +137,7 @@ def JoinTournament(request):
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    
+
     # Add a player to the list
     if user_id in tournament.player_list:
         return JsonResponse({'detail': 'User already subscribed', 'code': 'conflict'}, status=409)
@@ -175,7 +175,7 @@ def LeaveTournament(request):
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
-        
+
     data = json.loads(request.body)
     if not data.get('name'):
         return JsonResponse({'detail': 'missing tournament name in body', 'code': 'incomplete_body'}, status=400)
@@ -187,14 +187,14 @@ def LeaveTournament(request):
         tournament = Tournament.objects.get(tournament_name=tournament_name)
     except ObjectDoesNotExist:
         return JsonResponse({'detail': 'Tournament not found', 'code': 'not_found'}, status=404)
-    
+
     # Remove a player from the list
     if user_id not in tournament.player_list:
         return JsonResponse({'detail': 'User not subscribed', 'code': 'conflict'}, status=409)
 
     tournament.player_list.remove(user_id)  # Remove player ID - minor correction for the leave feature
     tournament.save()
-    logger.error(f"{len(tournament.player_list)} in tournament")
+    logger.debug(f"[Tournament.views] {len(tournament.player_list)} in tournament")
     if len(tournament.player_list) == 0:
         tournament.delete()
     return JsonResponse({'tournament name': tournament.tournament_name}, status=200)
@@ -224,7 +224,7 @@ def TournamentList(request):
     user_id = decoded.get('user_id')
     if not user_id:
         return JsonResponse({'detail': 'User not found', 'code': 'not_found'}, status=404)
-    logger.error(f"User ID: {user_id}")
+    logger.debug(f"[Tournament.views] User ID: {user_id}")
     tournaments = Tournament.objects.all()
     tournament_list = []
     for tournament in tournaments:

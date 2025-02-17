@@ -907,9 +907,9 @@ Request API function
 
 			<div class="row">
 					<div class="btn-group mx-auto align-items-center">
-						<button id="status-0" data-status="0" class="btn btn-primary active" aria-current="page">${this.domText.openTournaments}</button>
-						<button id="status-1" data-status="1" class="btn btn-primary">${this.domText.tournamentsInProgress}</button>
-						<button id="status-2" data-status="2" class="btn btn-primary">${this.domText.finishedTournaments}</button>
+						<button id="status-0" data-status="0" class="btn btn-custom active" aria-current="page">${this.domText.openTournaments}</button>
+						<button id="status-1" data-status="1" class="btn btn-custom">${this.domText.tournamentsInProgress}</button>
+						<button id="status-2" data-status="2" class="btn btn-custom">${this.domText.finishedTournaments}</button>
 					</div>
 
 				</div>

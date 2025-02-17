@@ -10,20 +10,22 @@ class CustomUser(AbstractUser):
     nickname = models.CharField(max_length=20, blank=True, null=True)
     twofa_enabled = models.BooleanField(default=False)
     stats = models.JSONField(default=dict)
+    account_deleted = models.BooleanField(default=False)
+
 
 def add_stat(self, tournament_id, date, opponent, score, win):
         """Add or update a tournament stat."""
-        logger.error("starting add_stat")
+        logger.debug("[users.models] starting add_stat")
         if not self.stats:
             self.stats = {}
-            logger.error("stats created")
+            logger.debug("[users.models] stats created")
         else:
-            logger.error("stats exists")
+            logger.debug("[users.models] stats exists")
         self.stats[date] = {
             "date": date,
             "opponent": opponent,
             "score": score,
             "win": win,
         }
-        logger.error("stats updated")
+        logger.info("[users.models] stats updated")
         self.save()

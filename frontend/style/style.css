@@ -19,6 +19,10 @@ body {
   height: 100vh;
 }
 
+div {
+  margin-bottom: 10px;
+}
+
 .navbar-brand {
   padding: 10px;
   text-align: left;
@@ -73,9 +77,13 @@ h2 small {
   margin-right: 15px;
 }
 
+.dropdown-item {
+  color: white;
+}
+
 .dropdown-item:hover {
   background-color: #adfe04;
-  color: black;
+  color: black !important;
   border-radius: 0;
 }
 
@@ -165,7 +173,7 @@ i {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
   background-color: #000000;
   max-width: 1200px;
   height: 100vh;
@@ -185,15 +193,13 @@ i {
   margin-top: 5px;
 }
 
-.btn-primary:hover {
-  background-color: #000000;
-  color: #adfe04;
-  border-color: #adfe04;
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #000000 !important;
+  color: #adfe04 !important;
+  border-color: #adfe04 !important;
   border-width: 4px;
-}
-
-.btn-custom {
-  width: 150px;
 }
 
 #profile-img {
@@ -225,6 +231,30 @@ i {
   box-shadow: 0 0 10px #90fce1, 0 0 20px #90fce1;
 }
 
+
+.dropdown-menu {
+  background-color: black;
+  color: white !important;
+  border-radius: 0px;
+  border-width: 2px;
+  border-color: white;
+}
+
+
+
+
+#dropdownMenu {
+  background-color: black;
+  color: white;
+  border-radius: 0px;
+  border-width: 2px;
+  border-color: white;
+}
+
+#dropdownMenu a {
+  color: white;
+}
+
 /* LANDING VIEW STYLING */
 
 #landing-page-form {
@@ -252,7 +282,8 @@ i {
 }
 
 /* Selected state: When clicked or focused */
-input[type="radio"]:checked + .btn-custom {
+input[type="radio"]:checked + .btn-custom,
+.btn-custom.active {
   background-color: #ff4632 !important; /* Green background */
   color: black !important; /* Black text */
   outline: none !important; /* Remove any focus outline */
@@ -426,6 +457,11 @@ input:-webkit-autofill:focus {
 .hover-tooltip .tooltip img {
   display: block;
   border: 2px solid white; /* Optional: Add a border around the image */
+}
+
+#history-container {
+  overflow: auto !important;
+  max-height: 280px !important;
 }
 
 /* Navigation Bar */

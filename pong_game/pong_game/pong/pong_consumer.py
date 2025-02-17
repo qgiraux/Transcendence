@@ -42,7 +42,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave the game group
-        log.error(f"Player {self.user_id} disconnected")
+        log.debug(f"[pong.consumer] Player {self.user_id} disconnected")
         if self.game_name in self.pong:
             self.pong[self.game_name].engine.player_leave(self.user_id)
         # if self.user_id:
@@ -57,19 +57,19 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         game_name = data.get("name")
 
         if not game_name:
-            log.error("Game name not provided")
+            log.error("[pong.consumer] Game name not provided")
             return  
         self.group_name = f"game_{game_name}"        
         if game_name not in self.pong:
             self.pong[game_name] = PongConsumer(group = self.group_name)
         await self.channel_layer.group_add(self.group_name, self.channel_name)
-        log.error(f"Game created :{game_name}")
+        log.info(f"[pong.consumer] Game created :{game_name}")
  
     async def receive(self, text_data=None, bytes_data=None):
         content = json.loads(text_data)
         msg_type = content.get("type")
         msg_data = content.get("data")
-        log.error("Received message: %s -- %s", msg_type, msg_data)
+        log.debug("[pong.consumer] Received message: %s -- %s", msg_type, msg_data)
         if msg_type == "join":
             await self.join(msg_data)
         elif msg_type == "move_paddle":
@@ -81,11 +81,11 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         elif msg_type == "online":
             await self.online()
         elif msg_type == "giveup":
-            # log.error("Player %s gave up with message %s", self.user_id, msg_data)
+            log.debug("[pong.consumer] Player %s gave up with message %s", self.user_id, msg_data)
             if self.game_name in self.pong:
                 self.pong[self.game_name].engine.player_leave(self.user_id)
         else:
-            log.warning("Unknown message type: %s", msg_type)
+            log.warning("[pong.consumer] Unknown message type: %s", msg_type)
 
     async def join(self, data):
         userid = data.get("userid")
@@ -101,47 +101,46 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         
     async def move_paddle(self, data):
         if not self.user_id:
-            log.error("User not correctly joined")
+            log.error("[pong.consumer] User not correctly joined")
             return
         
-        log.error("User %s moved paddle", self.user_id)
+        log.debug("[pong.consumer] User %s moved paddle", self.user_id)
         direction = data.get("direction")
         self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
 
 
     async def ready(self):
         if not self.user_id:
-            log.error("User not correctly joined")
+            log.error("[pong.consumer] User not correctly joined")
             return
-        log.error("User %s is ready", self.user_id)
+        log.debug("[pong.consumer] User %s is ready", self.user_id)
         self.pong[self.game_name].engine.player_ready(self.user_id)
     
     async def online(self):
         if not self.user_id:
             log.error("User not correctly joined")
             return
-        log.error("User %s is online", self.user_id)
+        log.info("[pong.consumer] User %s is online", self.user_id)
         if self.game_name in self.pong:
             await self.pong[self.game_name].engine.broadcast_starting_state()
         else:
-            log.error("Game %s not found", self.game_name)
+            log.error("[pong.consumer] Game %s not found", self.game_name)
 
     async def game_update(self, event):
-        # log.error("Game update: %s", event)
-        # state = event[""]
+        log.debug("[pong.consumer] Game update: %s", event)
         await self.send(text_data=json.dumps(event))
 
     
     async def countdown(self, event):
-        # log.error("Game update: %s", event)
+        log.debug("[pong.consumer] Game update: %s", event)
         await self.send(text_data=json.dumps(event))
     
     async def game_init(self, event):
-        # log.error("Game update: %s", event)
+        log.debug("[pong.consumer] Game update: %s", event)
         await self.send(text_data=json.dumps(event))
     
     async def game_over(self, event):
-        # log.error("Game update: %s", event)
+        log.debug("[pong.consumer] Game update: %s", event)
         await self.send(text_data=json.dumps(event))
             
     async def game_final_scores(self, event):
@@ -152,9 +151,9 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         try:
             return jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            log.error("Token expired")
+            log.error("[pong.consumer] Token expired")
         except jwt.InvalidTokenError:
-            log.error("Invalid token")
+            log.error("[pong.consumer] Invalid token")
         return None
 
 from threading import Lock
@@ -162,7 +161,7 @@ import asyncio
 
 class PongConsumer(SyncConsumer):
     def __init__(self, group, *args, **kwargs):
-        log.info("Game Engine Consumer initialized: %s %s", args, kwargs)
+        log.info("[pong.consumer] Game Engine Consumer initialized: %s %s", args, kwargs)
         super().__init__(*args, **kwargs)
         self.group_name = group
         self.engine = PongEngine(self.group_name)
@@ -172,24 +171,24 @@ class PongConsumer(SyncConsumer):
 
     async def player_join(self, event):
         if len(self.players) >= 2:
-            log.error("Game is full")
+            log.error("[pong.consumer] Game is full")
             return
         
-        log.error("PongConsumer - Player joined: %s", event.get("userid"))
+        log.info("[pong.consumer] PongConsumer - Player joined: %s", event.get("userid"))
         self.players.append(event["userid"])
 
         await self.engine.add_player(event["userid"])
         
         if len(self.players) == 2:
-            log.error("Starting game")
+            log.info("[pong.consumer] Starting game")
             self.engine.run()
 
 
     async def infos(self):
         await asyncio.sleep(0.2)
-        log.error("Sending game infos")
+        log.debug("[pong.consumer] Sending game infos")
         if not self.game_name:
-            log.error("Game name not set")
+            log.error("[pong.consumer] Game name not set")
             return
         state = self.engine.state
         response = {
@@ -205,20 +204,13 @@ class PongConsumer(SyncConsumer):
         }
         await self.send(text_data=json.dumps(response))
 
-    # def player_leave(self, event):
-    #     player = event.get("userid")
-    #     log.error("Player left: %s", player)
-    #     if player in self.players:
-    #         self.players.remove(player)
-    #         self.engine.player_leave(player)
-
     
     def player_move_paddle(self, event):
-        log.error("Move paddle: %s", event)
+        log.debug("[pong.consumer] Move paddle: %s", event)
         direction = event.get("direction")
         try:
             direction = Direction[direction]
         except KeyError:
-            log.error("Invalid direction")
+            log.error("[pong.consumer] Invalid direction")
             return
         self.engine.get_player_paddle_move(event["userid"], direction)
