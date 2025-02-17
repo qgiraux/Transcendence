@@ -1,15 +1,33 @@
 from django.urls import path, re_path
-from .views import UserListView, Get_my_infos, Get_user_infos, ChangeLogin,  RegisterUser, ChangeNickname, CheckUserStatus, get_jwt_token, GetAllUsers, Enable_Twofa, Get_user_stats, Add_user_stats, Get_user_id, ChangePassword, refresh_jwt_token,UserDeleteView
+from .views import (
+    UserListView,
+    Get_my_infos,
+    Get_user_infos,
+    ChangeLogin,
+    RegisterUser,
+    ChangeNickname,
+    CheckUserStatus,
+    get_jwt_token, GetAllUsers,
+    Enable_Twofa,
+    Get_user_stats,
+    Add_user_stats,
+    Get_user_id,
+    ChangePassword,
+    refresh_jwt_token,
+    UserDeleteView,
+    authenticate_with_2fa,
+    TOTPCreateView
+    )
+
 from django.contrib.auth.views import LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import TOTPCreateView
 
 
 
 urlpatterns = [
     path('register/', RegisterUser, name='register'),
     path('login/', get_jwt_token, name='login'),
-    # path('login_twofa/', get_jwt_token_2fa, name='login'),
+    path('logintwofa/', authenticate_with_2fa, name='login'),
     path('enable_twofa/', Enable_Twofa, name='enable twofa'),
     path('refresh/', refresh_jwt_token, name='token_refresh'),
     path('userinfo/', Get_my_infos, name='myuserinfo'),

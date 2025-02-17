@@ -17,6 +17,7 @@ import PongGameView from "./views/PongGameView.js";
 import CreateTournamentView from "./views/CreateTournamentView.js";
 import Application from "./Application.js";
 import AccountDeleteView from "./views/AccountDeleteView.js";
+import TwofaLoginView from "./views/TwofaLoginView.js";
 
 async function initializeLanguageSelector() {
   await Application.setLanguage(Application.lang);
@@ -26,6 +27,7 @@ async function initializeLanguageSelector() {
 const router = new Router();
 router.addRoute("/", RootView);
 router.addRoute("/landing", LandingView);
+router.addRoute("/twofalogin/:token", TwofaLoginView);
 router.addRoute("/home", HomeView);
 router.addRoute("/profile", ProfileView);
 router.addRoute("/profile/:id", ProfileView);

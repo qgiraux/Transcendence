@@ -147,11 +147,9 @@ class LandingView extends AbstractView {
     event.stopPropagation();
     const login = document.querySelector("#InputLogin");
     const password = document.querySelector("#InputPassword");
-    const twofa = document.querySelector("#InputTwofa");
     this.loginRequest({
       username: login.value,
       password: password.value,
-      twofa: twofa.value,
     });
   }
 
@@ -169,12 +167,13 @@ class LandingView extends AbstractView {
         if (response.status === 401) {
           const message = await response.json();
           if (message["2FA"] !== undefined) {
-            if (message["2FA"].includes("required"))
-              throw new Error("2FA token required");
-          } else if (message["error"] !== undefined)
-            if (message["error"].includes("2FA"))
-              throw new Error("Invalid or expired 2FA code");
-            else throw new Error(this.messages.invalidCredentials);
+            //A two factor authentification is needed
+            //We get the token and transmit it to the TwofaLoginView
+            const token = message["token"];
+            if (token === undefined) throw new Error(this.messages.serverError);
+            Router.reroute(`/twofalogin/${token}`);
+            return;
+          } else throw new Error(this.messages.invalidCredentials);
         } else {
           throw new Error(this.messages.serverError);
         }
@@ -278,17 +277,11 @@ class LandingView extends AbstractView {
                 <label for="InputPassword">${this.domText.passwordLabel}</label>
                 <input type="password" class="form-control" id="InputPassword" placeholder="${this.domText.passwordField}">
               </div>
-              <div class="form-group text-white ">
-                <label for="InputPassword">${this.domText.twofaLabel}</label>
-                <input type="twofa" class="form-control" id="InputTwofa" placeholder="${this.domText.twofaField}">
-              </div>
               <div class="d-flex justify-content-center mt-3">
                 <button id="login-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signInSubmit}</button>
               </div>
             </form>
-
           </div>
-
         </div>
 
         <div class="row " id="register-form">
