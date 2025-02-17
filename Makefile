@@ -9,11 +9,12 @@ Red=\033[1;31m        # Red
 Green=\033[0;32m       # Green
 
 CLI_MODULES=cli/node_modules/
+PORT=5000
 
 #########################################################
 ### REGLES
 #########################################################
-.PHONY:		all init up down prune tests re cli cli-fclean status
+.PHONY:		all init up down prune tests re cli cli-fclean status rm
 
 
 all: build up cli
@@ -87,11 +88,21 @@ tests: test-front test-up test-users test-friends test-chat test-avatar down
 up:
 	@ echo '🚀      starting the containers...'
 	@docker compose  -f docker-compose.yml up -d
+	@echo "💻      https://localhost:$(PORT)"
+	@echo '🌐      https://'$$(ifconfig | awk '/enp0s/{eth=1} /inet /{if (eth) {print $$2; exit;}}')':$(PORT)'
+	
 
 stop:
 	@ echo '✋🏻     stopping the containers...'
 	@docker compose  -f docker-compose.yml stop
 
+rm: down
+	@ echo '🗑️      removing everything but cache...'
+	-docker stop $$(docker ps -qa) 2>/dev/null
+	-docker rm $$(docker ps -qa) 2>/dev/null
+	-docker rmi -f $$(docker images -qa) 2>/dev/null
+	-docker volume rm $$(docker volume ls -q) 2>/dev/null
+	-docker network rm $$(docker network ls -q) 2>/dev/null
 
 #stoppe les container et les detruits avec le network
 down:
