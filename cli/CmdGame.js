@@ -67,10 +67,11 @@ class CmdGame extends CmdJWT {
 
 	#initalizeController() {
 		this.controller.onStopKey = () => {/*this.controller.stop();*/ this.#onStop()}; //Move at End
-		this.controller.onKeys([Controller.keyArrowUp, Controller.keyArrowDown, " "], [
+		this.controller.onKeys([Controller.keyArrowUp, Controller.keyArrowDown, " ", "R"], [
 			() => {this.#movePaddle("up")},
 			() => {this.#movePaddle("down")},
 			() => {this.#sayReady()},
+			() => {this.#redrawCanvas()},
 		]);
 	}
 
@@ -411,6 +412,17 @@ class CmdGame extends CmdJWT {
 		//console.error(msg); //
 		this.dialogCanvas.resetText(msg);
 		this.dialogCanvas.displayText();
+	}
+
+	#redrawCanvas() {
+		this.boxCanvas.moveCursor(0, 0);
+		this.boxCanvas.clearRec();
+		this.boxCanvas.moveCursor(1, 1);
+		this.boxCanvas.drawBox();
+		this.pongCanvas.moveCursor(0, 0);
+		this.pongCanvas.clearRec();
+		this.pongCanvas.update(() => {});
+		//this.dialogCanvas.displayText();
 	}
 
 	#iniCanvas() {
