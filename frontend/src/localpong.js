@@ -146,7 +146,7 @@ class PongGame {
             
             if (this.score1 === this.endScore || this.score2 === this.endScore) {
                 this.resetBall();
-                this.ball.dx = random() > 0.5 ? 4 : -4;
+                this.ball.dx = Math.random() > 0.5 ? 4 : -4;
                 this.gameEnd();
                 this.paused = true;
                 this.waitingForServe = true;
