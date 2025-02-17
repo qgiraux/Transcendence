@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/23 15:33:12 by jerperez         ###   ########.fr        #
+#    Updated: 2025/02/17 15:13:05 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -73,7 +73,7 @@ def _verify_bytecode(bytecode, source, metadata, version):
 
 def _verify_sha3(sha3_source, sha3_meta):
 	if (sha3_source == sha3_meta):
-		logger.info(f"source SHA3 match: {sha3_meta}")
+		logger.info(f"OK: source and metadata SHA3 match: {sha3_meta}")
 	else:
 		logger.error(f"SHA3 do not match, source: {sha3_source}, metadata {sha3_meta}")
 
@@ -87,7 +87,7 @@ def _verify_versions(version_cbor, version_meta):
 	for i, v in enumerate(cbor):
 		if (v != meta[i]):
 			logger.error(f"version do not match: {version_cbor} (CBOR) and {version_meta} (mata)")
-	logger.info(f"solc version: {version_meta}")
+	logger.info(f"OK: CBOR and metadata solc match: {version_meta}")
 
 async def verify_transact(
 		address : str, 
@@ -114,7 +114,7 @@ async def verify_transact(
 	except Exception as e:
 		logger.error(f"Verification failed: {e}")
 		return 1
-	logger.info(f"Verification completed.")
+	logger.info(f"OK: Verification completed.")
 	return 0
 
 async def main():
