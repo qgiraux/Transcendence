@@ -99,6 +99,7 @@ def get_jwt_token(request):
     access_token['username'] = user.username
     access_token['nickname'] = user.nickname
     access_token['twofa'] = user.twofa_enabled
+    access_token['lang'] = user.lang
 
     access = str(access_token)
 
@@ -124,6 +125,7 @@ def refresh_jwt_token(request):
     access_token = refresh.access_token
     access_token['username'] = user.username
     access_token['nickname'] = user.nickname
+    access_token['lang'] = user.lang
     access = str(access_token)
 
     return Response({
@@ -171,6 +173,7 @@ def authenticate_with_2fa(request):
         access_token['username'] = user.username
         access_token['nickname'] = user.nickname
         access_token['twofa'] = user.twofa_enabled
+        access_token['lang'] = user.lang
         access = str(access_token)
 
         return Response({
@@ -227,6 +230,7 @@ def Get_user_infos(request, user_id):
         "username": "system",
         "nickname": "system",
         "2fa": "false",
+        "lang":"en-us"
         }
         logger.error(user_info)
         return JsonResponse(user_info)
@@ -235,6 +239,7 @@ def Get_user_infos(request, user_id):
         "id": user.id,
         "username": user.username,
         "nickname": user.nickname,
+        "lang": user.lang,
         "deleted": user.account_deleted
     }
     return JsonResponse(user_info)
@@ -260,6 +265,7 @@ def Get_user_id(request):
         "username": "system",
         "nickname": "system",
         "2fa": "false",
+        "lang":"en-us"
         }
         logger.error(user_info)
         return JsonResponse(user_info)
@@ -269,6 +275,7 @@ def Get_user_id(request):
         "username": user.username,
         "nickname": user.nickname,
         "2fa": user.twofa_enabled,
+        "lang": user.lang
     }
     return JsonResponse(user_info)
 
@@ -322,6 +329,29 @@ def ChangeNickname(request):
     # Update nickname
     if body['nickname']:
         user.nickname = body['nickname']
+        user.save()
+        # Return updated user info
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=200)
+    return Response({"error":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ChangeLanguage(request):
+    logger.error("lang called")
+    user = request.user
+    logger.error("  request user")
+    body_unicode = request.body.decode('utf-8')
+    logger.error("  body_unicode")
+    body = json.loads(body_unicode)
+    if 'lang' not in body:
+        logger.error("lang not in body")
+        return Response({"error": "the language is not provided"}, status=status.HTTP_400_BAD_REQUEST)
+    logger.error("  json_loads")
+    # Update lang
+    if body['lang']:
+        logger.error(body['lang'])
+        user.lang = body['lang']
         user.save()
         # Return updated user info
         serializer = UserSerializer(user)
@@ -404,7 +434,6 @@ class UserDeleteView(APIView):
                 {"error":f"error {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
 
 
 

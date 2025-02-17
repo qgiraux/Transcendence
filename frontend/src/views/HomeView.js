@@ -16,14 +16,16 @@ class HomeView extends AbstractView {
   }
 
   async init() {
-    Application.localization.loadTranslations();
-    await Application.setLanguage(Application.lang);
+    console.log("Application lang in home = ", Application.lang);
     await this.loadMessages();
     Application.toggleLangSelectorShow();
     this.onStart();
   }
 
   async loadMessages() {
+    await Application.localization.loadTranslations();
+    await Application.setLanguage(Application.lang);
+    Application.applyTranslations();
     this.domText.Title = await Application.localization.t("titles.home");
     this.domText.welcomeMessage = await Application.localization.t(
       "home.welcome"

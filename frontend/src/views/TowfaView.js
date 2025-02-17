@@ -19,7 +19,7 @@ class TwofaView extends AbstractView {
   }
 
   async loadMessages() {
-    Application.localization.loadTranslations();
+    // Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     console.log("OK");
     this.domText.scanQR = await Application.localization.t("twofa.scanQR");

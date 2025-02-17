@@ -5,6 +5,7 @@ import Avatar from "./Avatar.js";
 import Localization from "./Localization.js";
 import Router from "./Router.js";
 import LandingView from "./views/LandingView.js";
+import TRequest from "./TRequest.js";
 
 class Application {
   /**
@@ -82,6 +83,7 @@ class Application {
         Application.#userInfos.userName = token.payload.username;
         Application.#userInfos.nickname = token.payload.nickname;
         Application.#userInfos.twofa = token.payload.twofa;
+        Application.#userInfos.lang = token.payload.lang;
       } catch (error) {
         console.error(`Application: Error during userInfos setting : ${error}`);
       }
@@ -92,6 +94,7 @@ class Application {
     Application.#userInfos.userId = infos.id;
     Application.#userInfos.userName = infos.username;
     Application.#userInfos.nickname = infos.nickname;
+    Application.#userInfos.lang = infos.lang;
   }
 
   static getUserInfos() {
@@ -263,6 +266,7 @@ class Application {
     for (let cookie of cookies) {
         const [name, value] = cookie.split("=");
         if (name === "language") {
+            console.log("Le cookie = ", value);
             return value;
         }
     }
@@ -271,14 +275,60 @@ class Application {
 
   //ENDOFNEW
 
+  static async retrieveDBLang() {
+    const lang = await Application.getUserInfos().lang;
+      if (lang && Application.lang !== lang) {
+          Application.lang = lang;
+          this.localization.lang = lang;
+      }
+      console.log("The language retrieved in DB is = ", lang);
+      console.log("Application language =", Application.lang);
+      return (lang);
+  }
+
   static async setLanguage(lang) {
     Application.lang = lang;
     if (lang !== this.localization.lang) {
       this.localization.lang = this.lang;
+      if (location.pathname !== "/landing")
+      {
+        await this.updateLanguageInDatabase();
+      }
       this.setLanguageCookie(lang);
     }
     await this.localization.loadTranslations();
     await Application.applyTranslations();
+  }
+
+
+  // static async setLanguage(lang) {
+  //    const lang = await Application.getUserInfos().lang;
+  //   console.log("In setLang, Application.lang = ", Application.lang);
+  //   if (lang !== Application.lang) {
+  //     this.localization.lang = lang;
+  //     Application.lang = lang;
+      // if (location.pathname !== "/landing")
+      //   await this.updateLanguageInDatabase();
+  //     this.setLanguageCookie(lang); //Refreshing the language cookie
+  //   }
+  //   console.log(location.pathname)
+  //   await this.localization.loadTranslations();
+  //   // console.log("Application lang after changing =", Application.lang);
+  //   // console.log("Lang in DB after changing", await Application.getUserInfos().lang);
+  //   await Application.applyTranslations();
+  // }
+
+  static async updateLanguageInDatabase() {
+    try {
+      const lang = Application.lang;
+      const newLang =  await TRequest.request("POST", "/api/users/lang/", {
+        lang: lang,
+      });
+      console.log("Language has been updated:");
+    } 
+    catch (error) {
+      console.log(`Error updating language ${error}`);
+    }
   }
 
   static async applyTranslations() {

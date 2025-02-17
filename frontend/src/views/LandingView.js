@@ -16,10 +16,8 @@ class LandingView extends AbstractView {
   }
 
   async init() {
-    Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
-    await Application.applyTranslations();
     Application.toggleLangSelectorShow();
     this.onStart();
   }
@@ -184,6 +182,8 @@ class LandingView extends AbstractView {
       Application.setUserInfosFromToken();
       await Application.toggleSideBar();
       Application.toggleChat();
+      Application.retrieveDBLang();
+      Application.setLanguage(Application.lang);
       Router.reroute("/home");
     } catch (error) {
       Alert.errorMessage(this.messages.loginAlertTitle, error.message);
