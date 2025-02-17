@@ -46,7 +46,7 @@ router.route();
 
 Application.router = router;
 
-initializeLanguageSelector();
+// initializeLanguageSelector();
 
 const langSelector = document.getElementById("lang-select");
 
