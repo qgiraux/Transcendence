@@ -21,7 +21,7 @@ class Application {
   };
   static mainSocket = null;
   static gameSocket = null;
-  static lang = localStorage.getItem("selectedLang") || "en-us";
+  static lang = this.getLanguageCookie() || "en-us";
   static localization = new Localization(Application.lang);
   static translationsCache = {};
   static activeProfileView = "avatar"; //test to make the view in account mgmt ersistant upon language change
@@ -252,10 +252,30 @@ class Application {
     chatBox.classList.remove("d-none");
   }
 
+  //NEW AV - setting a cookie to store the language and make it persistant 
+
+  static setLanguageCookie(lang) {
+    document.cookie = `language=${lang}; path=/; max-age=${30 * 24 * 60 * 60}`; //30 days duration
+  }
+
+  static getLanguageCookie() {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+        const [name, value] = cookie.split("=");
+        if (name === "language") {
+            return value;
+        }
+    }
+    return null;
+  }
+
+  //ENDOFNEW
+
   static async setLanguage(lang) {
     Application.lang = lang;
     if (lang !== this.localization.lang) {
       this.localization.lang = this.lang;
+      this.setLanguageCookie(lang);
     }
     await this.localization.loadTranslations();
     await Application.applyTranslations();
