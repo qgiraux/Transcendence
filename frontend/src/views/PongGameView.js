@@ -187,13 +187,9 @@ class PongGameView extends AbstractView {
                 this.p2name = result.username;
                 console.log("p2name: ", this.p2name);
             })
-            .catch((error) => {
-                Alert.errorMessage("Error on p2name", error.message);
-            });
+            .catch((error) => {});
         })
-        .catch((error) => {
-            Alert.errorMessage("Error on p1name", error.message);
-        });
+        .catch((error) => {});
     }
     handleCountdown(data) {
         // console.log("Countdown: ", data.data);

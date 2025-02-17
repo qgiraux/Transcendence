@@ -21,7 +21,6 @@ game_counter = 0
 def Tournament_operation(tournament):
     logger.debug("[Tournament.tournamnent] trying to start tournament...")
     try:
-
         lineup = tournament.player_list
         for id in lineup :
             if not redis_client.sismember('online_users', id):
