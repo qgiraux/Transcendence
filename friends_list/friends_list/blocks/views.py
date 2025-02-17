@@ -1,6 +1,7 @@
 import json
 import jwt
 import logging
+import requests
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from .models import Blocks
 from django.conf import settings
@@ -154,10 +155,20 @@ def remove_from_all(request):
         user_id = decoded.get('user_id')
         if not user_id:
             return HttpResponse(
-                json.dumps({'detail': 'User not found', 'code': 'user_not_found'}),
+                json.dumps({'detail': 'User id not provided'}),
                 status=400,
                 content_type='application/json'
             )
+        url = f"http://user_management:8000/userinfo/{user_id}"
+        r = requests.get(url,headers= {'Host': 'localhost'} , timeout=5)
+        if (r.status_code != 200):
+            raise requests.RequestException(f"server error {r}")
+        try:
+            j = r.json()
+        except requests.exceptions.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response: {r.text}") from e
+        if  not j.get("deleted") or j["deleted"] != True:
+            return JsonResponse({'error': 'user is not deleted'}, status=401)
         Blocks.objects.filter(block_id=user_id).delete()
         return JsonResponse({'message': 'User removed successfully form all blocklists'}, status=200)
 
