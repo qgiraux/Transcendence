@@ -185,6 +185,13 @@ class AccountManagementView extends AbstractView {
       "click",
       this._aliasButtonHandler.bind(this)
     );
+    const passwordButton = document.getElementById("password-update-button");
+    this.addEventListener(
+      passwordButton,
+      "click",
+      this.passwordButtonHandler.bind(this)
+    );
+
     //AV = added an event listener for the avatar btn so we can navigate back to avatar from another view
     this.addEventListener(
       document.querySelector("#nav-avatar"),
@@ -417,7 +424,8 @@ Set HTML
     return validatExpr.test(passwordValue);
   }
 
-  async passwordButtonHandler() {
+  async passwordButtonHandler(event) {
+    event.stopPropagation();
     const oldPassword = document.querySelector("#oldpasswordinput");
     const input1 = document.querySelector("#newPasswordInput1");
     const input2 = document.querySelector("#newPasswordInput2");
@@ -602,8 +610,10 @@ Set HTML
         </h2>
 
       <div id="twofa-disabled" ${
-        Application.getUserInfos().twofa === false ? "" : 'style="display:none;"'
-        }>
+        Application.getUserInfos().twofa === false
+          ? ""
+          : 'style="display:none;"'
+      }>
         <a href="/twofa" data-link>
           <h5 class="text-center fs-5" data-i18n="accountMgmt.twofa.activate">
             ${this.domText.twofaActivate}
@@ -634,7 +644,7 @@ Set HTML
         <div class="mx-auto text-center mb-2">
           <p class="text-danger">${this.domText.deleteIrreversible}</p>
         </div>
-        
+
         <div class="row w-100">
         <a data-link href="/delete" class="text-danger text-center fs-5 mx-auto"> ${
           this.domText.deleteAction
