@@ -209,7 +209,7 @@ services:
     depends_on:
       - hardhat-network
     expose:
-      - 8000
+      - 80
 
   hardhat-network:
     build: ./blockchain/hardhat-network

@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/11 12:27:58 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/23 15:10:56 by jerperez         ###   ########.fr        #
+#    Updated: 2025/02/17 14:55:27 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -172,8 +172,7 @@ class ContractInterface:
 
 	def __del__(self):
 		if (self._w3 is not None):
-			#logger.warning(f"interface was not destroyed properly, use `await interface.destroy()`")
-			raise self.Leak(f"interface was not destroyed properly, use `await interface.destroy()`") #TODO
+			raise self.Leak(f"interface was not destroyed properly, use `await interface.destroy()`")
 
 async def main():
 	""" Sets score['Cup']='Patate' then gets score['Cup'] """

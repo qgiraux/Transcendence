@@ -46,4 +46,4 @@ COPY ./django /django
 COPY ./entrypoint.sh /.
 
 ENTRYPOINT		[ "bash", "/entrypoint.sh" ]
-CMD				["python3", "/django/manage.py", "runserver"]
+CMD				["python3", "/django/manage.py", "runserver", "web3-tournament:80"]

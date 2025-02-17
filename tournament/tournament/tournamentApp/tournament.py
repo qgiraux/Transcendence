@@ -12,6 +12,7 @@ from .models import Tournament
 from asgiref.sync import async_to_sync
 import random
 import requests
+#import subprocess
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 
@@ -50,12 +51,14 @@ def Tournament_operation(tournament):
             redis_client.publish("global_chat", json.dumps(notification))
         except Exception as e:
             logger.error(f"[Tournament.tournamnent] Error sending winner message: {e}")
-        response = requests.post('http://web3-tournament/score/', data={'name': winner, "result": "win"})
+        data = f"name={tournament.tournament_name}&result={winner}"
+        headers = {'Content-Length': str(len(data)), 'Content-Type': 'application/x-www-form-urlencoded'}
+        response = requests.post('http://web3-tournament/score/', data=data, headers=headers)
         if response.status_code != 201:
             logger.error(f"[Tournament.tournamnent] Failed to notify the endpoint. Status code: {response.status_code}, Response: {response.text}")
         else:
             logger.debug(f"[Tournament.tournamnent] Successfully notified the endpoint. Response: {response.text}")
-        logger.info(f"[Tournament.tournamnent]  Winner: {winner}")
+        logger.debug(f"[Tournament.tournamnent]  Winner: {winner}")
 
         return 
     except Exception as e:
