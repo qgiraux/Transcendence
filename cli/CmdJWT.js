@@ -1,36 +1,20 @@
 const {Parser} = require("./Parser");
-const {HttpsClient} = require("./HttpsClient");
 const {Command} = require("./Command");
-//const {Controller} = require("./Controller")
-//const assert = require('node:assert')
 const {TextEditor} = require("./TextEditor");
-const {Localization} = require("./Localization");
 const {ApiPong} = require("./ApiPong");
-
-let l = new Localization(); //
-
-
-const TLK_CMD_DESC = "cli.signup.cmd.desc";
-const TLK_CMD_SHELL = "cli.signup.cmd.shell";
-//const TLK_CMD_OPTS_A = "cli.signup.cmd.opts[]";
-//const TLK_SYS_HOST = "sys.host";
-const TLK_SYS_ERR = "sys.err";
-const TLK_OK = "cli.signup.ok";
-const TLK_ERR_PWD_MATCH = "cli.signup.err.pwd:match";
-const TLK_ERR_BAD_Q_HOST = "cli.signup.err.bad?host";
-const TLK_PROMPT_PWD_RE = "cli.prompt.pwd:re";
-const TLK_PROMPT_PWD = "cli.prompt.pwd";
-const TLK_PROMPT_LOGIN = "cli.prompt.login";
-//const TLK_API_SIGNUP = "api.signup";
-const TL_API_LOGIN = "/api/users/login/";
 
 class CmdJWT extends Command {
 	constructor(onLoggedin = (jwt)=>{console.log(JSON.stringify(jwt))},
 		beforeLogin = () => {return 0},
 		usage = ""
 	) {
-		super(l.t(TLK_CMD_DESC), usage);
-		const opts = l.source.cli.signup.cmd["opts[]"];
+		super("Register to Pong", usage);
+		const opts = [
+			"[--help]", 
+			"[--host=<hostname:port>]", 
+			"[--login=<login>]", 
+			"[--password=<password>]"
+		];
 		const callbacks = [
 			()=>{this.parser.displayHelp = true;}, 
 			(match)=>{this.host = Parser.getOptionValue(match);}, 
@@ -40,7 +24,7 @@ class CmdJWT extends Command {
 		this.parser.setOptions(opts, callbacks);
 		this.parser.defaultCallback = () => {this.#stepLogin()};
 		this.host = "";
-		this.hostDefault = l.source.sys.host;
+		this.hostDefault = "localhost:5000";
 		this.login = "";
 		this.password = "";
 		this.jwt = {refresh: "", access: ""};
@@ -77,7 +61,7 @@ class CmdJWT extends Command {
 
 	static #printError(text)
 	{
-		process.stderr.write(`\x1b[31m${l.t(TLK_SYS_ERR)}: ${text}\x1b[0m\n`);
+		process.stderr.write(`\x1b[31m${"Error"}: ${text}\x1b[0m\n`);
 	}
 
 	// retryRefreshJwt(getOptions, retryCallback, onFailure) {
@@ -110,7 +94,7 @@ class CmdJWT extends Command {
 			this.editor.stop();
 			this.editor = undefined;
 		} else if (2 != hostInfo.length) {
-			CmdJWT.#printError(l.t(TLK_ERR_BAD_Q_HOST), {host: this.host});
+			CmdJWT.#printError(`Invalid host ${this.host}.`);
 			this.password = "";
 			return ;
 		}	
@@ -128,7 +112,7 @@ class CmdJWT extends Command {
 		const nextStep = () => {this.#stepAPILogin();};
 
 		if (!this.password)
-			this.#getValue(l.t(TLK_PROMPT_PWD), update, nextStep, true);
+			this.#getValue("Enter password:", update, nextStep, true);
 		else
 			nextStep();
 	}
@@ -138,7 +122,7 @@ class CmdJWT extends Command {
 		const nextStep = () => {this.#stepEnterPassword();};
 
 		if (!this.login)
-			this.#getValue(l.t(TLK_PROMPT_LOGIN), update, nextStep, false);
+			this.#getValue("Enter login:", update, nextStep, false);
 		else
 			nextStep();
 	}

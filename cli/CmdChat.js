@@ -1,29 +1,8 @@
 const {CmdJWT} = require("./CmdJWT");
-const {Localization} = require("./Localization");
 const WebSocket = require('ws'); //npm install ws
 const {HttpsClient} = require("./HttpsClient");
 const {TextEditor} = require("./TextEditor");
 const {ApiPong} = require("./ApiPong");
-//const {Controller} = require("./Controller");
-
-let l = new Localization(); //
-
-//const TLK_CMD_DESC = "cli.signup.cmd.desc";
-// const TLK_CMD_SHELL = "cli.signup.cmd.shell";
-// //const TLK_CMD_OPTS_A = "cli.signup.cmd.opts[]";
-// //const TLK_SYS_HOST = "sys.host";
-// const TLK_SYS_ERR = "sys.err";
-// const TLK_OK = "cli.signup.ok";
-// const TLK_ERR_PWD_MATCH = "cli.signup.err.pwd:match";
-// const TLK_ERR_BAD_Q_HOST = "cli.signup.err.bad?host";
-// const TLK_PROMPT_PWD_RE = "cli.prompt.pwd:re";
-// const TLK_PROMPT_PWD = "cli.prompt.pwd";
-// const TLK_PROMPT_LOGIN = "cli.prompt.login";
-// //const TLK_API_SIGNUP = "api.signup";
-// const TL_API_LOGIN = "/api/users/login/";
-
-//wws://localhost:5000/ws/chat/?token=<access_token>
-
 
 class ChatMessage {
 	/**
@@ -83,8 +62,6 @@ class ChatMessage {
 			sender: this.sender,
 		});
 	}
-
-	//`/api/users/userinfo/${sender}`
 }
 
 class CmdChat extends CmdJWT {
