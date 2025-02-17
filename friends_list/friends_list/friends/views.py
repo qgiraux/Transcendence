@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from .mock_jwt_expired  import mock_jwt_expired
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -155,18 +156,36 @@ def remove_from_all(request):
         user_id = decoded.get('user_id')
         if not user_id:
             return HttpResponse(
-                json.dumps({'detail': 'User not found', 'code': 'user_not_found'}),
+                json.dumps({'detail': 'User id not provided'}),
                 status=400,
                 content_type='application/json'
             )
+        url = f"http://user_management:8000/userinfo/{user_id}"
+        r = requests.get(url,headers= {'Host': 'localhost'} , timeout=5)
+        if (r.status_code != 200):
+            raise requests.RequestException(f"server error {r}")
+        try:
+            j = r.json()
+        except requests.exceptions.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response: {r.text}") from e
+        if  not j.get("deleted") or j["deleted"] != True:
+            return JsonResponse({'error': 'user is not deleted'}, status=401)
         Friends.objects.filter(friend_id=user_id).delete()
-        return JsonResponse({'message': 'User removed successfully form all friends'}, status=200)
+        return JsonResponse({'message': 'User removed successfully from all friends'}, status=200)
+
 
 
     except jwt.ExpiredSignatureError:
         return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
     except jwt.InvalidTokenError:
         return JsonResponse(mock_jwt_expired(), status=status.HTTP_401_UNAUTHORIZED)
+    except requests.RequestException as e:
+        logger.error(f"[Friends.views] External service request failed: {e}")
+        return HttpResponse(
+            json.dumps({'detail': 'An error occurred', 'code': 'error_occurred'}),
+            status=500,
+            content_type='application/json'
+        )
     except Exception as e:
         logger.error(f"[Friends.views] Unexpected error: {e}")
         return HttpResponse(
