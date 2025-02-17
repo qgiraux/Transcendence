@@ -3,8 +3,8 @@ class WSIPong {
 	static height = 100;
 	static paddleLX = 10;
 	static paddleRX = 190;
-	static paddleLH = 10;
-	static paddleRH = 10;
+	static paddleLH = 20;
+	static paddleRH = 20;
 	static ballX0 = 100;
 	static ballY0 = 50;
 
