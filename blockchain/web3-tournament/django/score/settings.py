@@ -30,7 +30,6 @@ ALLOWED_HOSTS = [
     'tournament',
     '.localhost',
     '127.0.0.1',
-    '*',
     ]
 
 
