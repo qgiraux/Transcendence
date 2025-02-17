@@ -28,21 +28,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 logger.info(f"[Chat.consumers] User {self.nickname} connected")
             else:
                 logger.error("[Chat.consumers] Invalid token")
+                await redis_client.close()
                 await self.close()
                 return
         else:
             logger.error("[Chat.consumers] No token provided")
             await self.close()
             return
-
         self.group_name = f"user_{self.user_id}"
-        await self.channel_layer.group_add(self.group_name, self.channel_name)
-        await self.channel_layer.group_add('global_chat', self.channel_name)
-        await redis_client.sadd('online_users', self.user_id)
+        # Check if the user is already connected
+        if await redis_client.sismember('online_users', self.user_id):
+            logger.error(f"[Chat.consumers] User {self.nickname} is already connected")
+            await self.close()
+        else :
+            await self.channel_layer.group_add(self.group_name, self.channel_name)
+            await self.channel_layer.group_add('global_chat', self.channel_name)
+            await self.accept()
+            await self.connect_redis()
 
-        await self.accept()
-        # Redis connection
-        await self.connect_redis()
+        await redis_client.sadd('online_users', self.user_id)        
 
     async def disconnect(self, close_code):
         logger.info(f"[Chat.consumers] User {self.nickname} disconnected")
