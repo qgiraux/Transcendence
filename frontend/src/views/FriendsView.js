@@ -22,7 +22,7 @@ class FriendsView extends AbstractView {
   }
 
   async loadMessages() {
-    await Application.localization.loadTranslations();
+    // await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     this.domText.Title = await Application.localization.t("titles.friends");
     this.domText.viewProfile = await Application.localization.t(

@@ -27,9 +27,57 @@ class PongGameView extends AbstractView {
         this.isGameOver = false;
         this.up = false;
         this.down = false;
-      
-        this.onStart();
+
+        this.domText = {};
+        this.messages = {};
+        this.init();
     }
+
+    async init() {
+        await this.loadMessages();
+        Application.toggleLangSelectorShow();
+        this.onStart();
+      }
+    
+      async loadMessages() {
+        await Application.localization.loadTranslations();
+        await Application.setLanguage(Application.lang);
+        Application.applyTranslations();
+        this.domText.welcome = await Application.localization.t(
+            "pongView.welcome"
+        );
+        this.domText.waitingOpponent = await Application.localization.t(
+            "pongView.waitingOpponent"
+        );
+        this.domText.titleGame = await Application.localization.t(
+            "pongView.titleGame"
+        );
+        this.domText.pressSpace = await Application.localization.t(
+            "pongView.pressSpace"
+        );
+        this.domText.hasWon = await Application.localization.t(
+            "pongView.hasWon"
+        );
+        this.domText.wonGame = await Application.localization.t(
+          "pongView.wonGame"
+        );
+        this.domText.wonTournament = await Application.localization.t(
+            "pongView.wonTournament"
+        );
+        this.domText.lost = await Application.localization.t(
+            "pongView.lost"
+        );
+        this.domText.waitHere = await Application.localization.t(
+            "pongView.waitHere"
+        );
+        this.domText.goHomeVictory = await Application.localization.t(
+            "pongView.goHomeVictory"
+        );
+        this.domText.goHomeDefeat = await Application.localization.t(
+            "pongView.goHomeDefeat"
+        );
+      }
+    
     childOnDestroy() {
         console.log("Destroying PongGameView");
         if (this.isGameOver === false)
@@ -146,7 +194,7 @@ class PongGameView extends AbstractView {
         case ' ':
             Application.gameSocket.send(JSON.stringify({ type: 'ready', data: { direction: 'ready' } }));
             if (!this.gameStarted) {
-                this.messageContainer.innerHTML = `<h2><small>Waiting for Opponent...</small></h2>`;
+                this.messageContainer.innerHTML = `<h2><small>${this.domText.waitingOpponent}</small></h2>`;
                 this.gameStarted = true;
             }
             // console.log("READY");
@@ -298,23 +346,43 @@ class PongGameView extends AbstractView {
         this.cball.x += BALL_RADIUS;
         this.cball.y += BALL_RADIUS;    
     }
+
     displayWinLoseMessage(win, end) {
         if (win == true) {
             if (end == true) {
 
-                this.messageContainer.innerHTML = `<h2><small>You WON baby!<br>You can <a data-link href="/home">go back home</a> now and savour your victory.`
+                this.messageContainer.innerHTML = `<h2><small>${this.domText.wonTournament}<br>${this.domText.goHomeVictory}`
                 this.messageContainer.classList.remove("d-none");
             }
             else {
-                this.messageContainer.innerHTML = `<h2><small>You WON baby!<br>You can wait here for the next match to start.`
+                this.messageContainer.innerHTML = `<h2><small>${this.domText.wonGame}<br>${this.domText.waitHere}`
                 this.messageContainer.classList.remove("d-none");
             }
         }
         else {
-            this.messageContainer.innerHTML = `<h2><small>Oh noooo you lost!<br>You can <a data-link href="/home">go back home</a> now and cry.`
+            this.messageContainer.innerHTML = `<h2><small>${this.domText.lost}<br>${this.domText.goHomeDefeat}`
             this.messageContainer.classList.remove("d-none");
         }
     }
+
+    // displayWinLoseMessage(win, end) {
+    //     if (win == true) {
+    //         if (end == true) {
+
+    //             this.messageContainer.innerHTML = `<h2><small>You WON baby!<br>You can <a data-link href="/home">go back home</a> now and savour your victory.`
+    //             this.messageContainer.classList.remove("d-none");
+    //         }
+    //         else {
+    //             this.messageContainer.innerHTML = `<h2><small>You WON baby!<br>You can wait here for the next match to start.`
+    //             this.messageContainer.classList.remove("d-none");
+    //         }
+    //     }
+    //     else {
+    //         this.messageContainer.innerHTML = `<h2><small>Oh noooo you lost!<br>You can <a data-link href="/home">go back home</a> now and cry.`
+    //         this.messageContainer.classList.remove("d-none");
+    //     }
+    // }
+
     displayTournamentProgression(tournament) {
         let roundNumber = tournament["size"];
         //create the tournament card div
@@ -327,7 +395,7 @@ class PongGameView extends AbstractView {
         );
         this.tournamentContainer.innerHTML = `
                     <div class="row mt-1 d-flex  justify-content-center align-items-center mx-auto">
-                    <h4>Welcome to the tournament ${tournament["tournament name"]}</h4>
+                    <h4>${this.domText.welcome}  ${tournament["tournament name"]}</h4>
                     <div class="row d-flex mx-auto justify-content-center align-items-center p-1" id="rounds-container"></div>
                     `;
         const roundsContainer = this.tournamentContainer.querySelector("#rounds-container");
@@ -431,7 +499,7 @@ class PongGameView extends AbstractView {
           .then((result) => {
             usernameText.innerHTML = `${result.username}`;
             if (winner == true) {
-                usernameText.innerHTML = `<h2><small>${result.username} won !</small></h2>`
+                usernameText.innerHTML = `<h2><small>${result.username} ${this.domText.hasWon}</small></h2>`
             }
             });
           return container;
@@ -452,12 +520,12 @@ class PongGameView extends AbstractView {
                   margin: auto; /* Centers horizontally */
               }
             </style>
-            <h1>Tournament Game</h1>
+            <h1>${this.domText.titleGame}</h1>
             <div id="canvas-container">
             <canvas id="pongCanvas" width="800" height="400"></canvas>
             </div>
             <div id="tournament-data"></div>
-            <div id="message-container"><h2><small>Press SPACE to start the game.</small></h2></div>
+            <div id="message-container"><h2><small>${this.domText.pressSpace}</small></h2></div>
           `;
           const canvas = document.getElementById("pongCanvas");
           canvas.focus(); // Ensure the canvas is focusable

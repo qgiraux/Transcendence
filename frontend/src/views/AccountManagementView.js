@@ -21,7 +21,7 @@ class AccountManagementView extends AbstractView {
   }
 
   async loadMessages() {
-    await Application.localization.loadTranslations();
+    // await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await Application.applyTranslations();
     this.messages.wrongCredentialsFormat = await Application.localization.t(

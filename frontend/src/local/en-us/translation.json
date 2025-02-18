@@ -128,9 +128,24 @@
       "field": "2FA code",
       "enterActivation": "Enter your 2FA code to confirm activation",
       "success": "2FA code verified successfully",
+      "authent": {
+        "enterCode": "Enter 2FA code",
+        "authenticate": "Authenticate",
+        "success": "Authentication success",
+        "failure": "Authentication failure",
+        "redirectionLanding": "You will be redirected to the landing page",
+        "redirectionHome": "You will be redirected to your home page"
+      },
       "invalid": "Invalid 2FA code",
       "errors": {
-        "unexpected": "Something went wrong"
+        "unexpected": "Something went wrong",
+        "token": "The supplied token is invalid",
+        "expired": "The token has expired",
+        "empty": "You must enter a code"
+      },
+      "countdown": {
+        "partOne": "You have",
+        "partTwo": "seconds left to enter the code from your authenticator app"
       }
     },
     "delete": {
@@ -218,7 +233,8 @@
       "inProgress": "Tournaments in progress",
       "finished": "Finished",
       "alreadyJoinedTxt": "Complete your current games or cancel your participation to create or join another tournament!",
-      "noTournamentToDisplay": "No tournament to display"
+      "noTournamentToDisplay": "No tournament to display",
+      "manage": "Settings"
     },
     "create": {
       "txt": "Create tournament",
@@ -292,5 +308,18 @@
     "confirmationText" : "Are you sure you want to delete your account?",
     "confirmationNo": "😊 No I want to keep playing !",
     "confirmationYes": "😔 Yes I want to delete my account"
+  },
+  "pongView": {
+    "welcome" : "Welcome to the tournament",
+    "waitingOpponent": "Waiting for opponent...",
+    "titleGame": "Tournament game",
+    "pressSpace": "Press SPACE to start the game.",
+    "hasWon": "has won!",
+    "wonGame": "You WON the game baby! 😎",
+    "wonTournament": "You WON the tournament baby! 😎",
+    "lost": "Oh noooo you lost!",
+    "waitHere": "You can wait here for the next match to start.",
+    "goHomeVictory": "You can <a data-link href='https://127.0.0.1:5000/home'>go back home</a> now and savour your victory.",
+    "goHomeDefeat": "You can <a data-link href='https://127.0.0.1:5000/home'>go back home</a> now and cry."
   }
 }

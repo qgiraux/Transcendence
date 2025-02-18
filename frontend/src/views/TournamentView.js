@@ -12,6 +12,7 @@ class TournamentsView extends AbstractView {
     super(params);
     this.domText = {};
     this.messages = {};
+    this.ongoingEvent = false;
     this.init();
   }
 
@@ -22,7 +23,7 @@ class TournamentsView extends AbstractView {
   }
 
   async loadMessages() {
-    await Application.localization.loadTranslations();
+    // await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     this.domText.title = await Application.localization.t("titles.tournament");
     this.domText.createTournamentTxt = await Application.localization.t(
@@ -78,6 +79,9 @@ class TournamentsView extends AbstractView {
     );
     this.domText.noTournamentToDisplay = await Application.localization.t(
       "tournament.tab.noTournamentToDisplay"
+    );
+    this.domTextManageTournament = await Application.localization.t(
+      "tournament.tab.manage"
     );
     this.domText.close = await Application.localization.t("friends.close");
     this.messages.fetchTournamentsErr = await Application.localization.t(
@@ -174,11 +178,8 @@ class TournamentsView extends AbstractView {
           `Please try again later `
         );
       });
-      //AV = I added this to refresh the page every 20s but there is an ugly glitch
-      Application.timeoutId = setTimeout(() => {
-        Router.reroute("/tournaments");
-        this.restoreStatus();
-      }, 20000);
+      //AV = New function to handle refresh if there is no event 
+      this.handle_refresh();
 
     //                  Event listeners
     // state panel
@@ -196,7 +197,29 @@ class TournamentsView extends AbstractView {
       "click",
       this.joinTournamentHandler.bind(this)
     );
+  }
 
+  //handle the timeouts
+  handle_refresh() {
+    if (typeof Application.timeoutId === "undefined") {
+      Application.timeoutId = null;
+    }
+  
+    if (!this.ongoingEvent) {
+      if (Application.timeoutId) {
+        clearTimeout(Application.timeoutId);
+      }
+  
+      Application.timeoutId = setTimeout(() => {
+        Router.reroute("/tournaments");
+        this.restoreStatus();
+      }, 6000);
+    } else {
+      if (Application.timeoutId) {
+        clearTimeout(Application.timeoutId);
+        Application.timeoutId = null;
+      }
+    }
   }
 
   /*
@@ -228,6 +251,8 @@ class TournamentsView extends AbstractView {
   }
 
   async joinTournamentHandler(event) {
+    this.ongoingEvent = true;
+    this.handle_refresh();
     if (event.target.classList.contains("join-tournament-btn")) {
       const tournamentName = event.target.getAttribute("data-tournament");
       console.log("trying to join", tournamentName);
@@ -243,6 +268,7 @@ class TournamentsView extends AbstractView {
       } catch (error) {
         Alert.errorMessage(this.messages.joinFailure);
       }
+      this.ongoingEvent = false;
       Router.reroute("/tournaments");
     }
   }
@@ -400,7 +426,7 @@ Request API function
     return header;
   }
 
-  //AV (suggestion to be discussed) : another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
+  //Another header in case the user already joined a tournament, to explain they can't create or join another tournament while already participating in one. 
   createNewTournamentHeaderCannotJoin() {
     const header = document.createElement("div");
     header.classList.add("row", "p-2", "w-75");
@@ -413,7 +439,7 @@ Request API function
     return header;
 }
 
-//AV (suggestion to be discussed) : header to display a message in case no tournament is to be displayed in the view 
+//Header to display a message in case no tournament is to be displayed in the view 
   createNewNoTournamentHeader() {
     const header = document.createElement("div");
     header.classList.add("row", "p-2", "w-75");
@@ -528,7 +554,7 @@ Request API function
       
       actionDiv.innerHTML = `<div class="btn-group">
       <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        Manage tournament
+        ${this.domTextManageTournament}
       </button>
         <ul class="dropdown-menu">
           <li>
@@ -559,7 +585,10 @@ Request API function
       //QUIT MODALE
 
       const quitButton = actionDiv.querySelector(`[data-action="open-quit-modal"]`);
+      
       quitButton.addEventListener("click", async () => {
+        this.ongoingEvent = true;
+        this.handle_refresh();
         const modal = document.createElement("div");
         modal.classList.add("modal", "fade", "show");
         modal.style.display = "block";
@@ -584,7 +613,7 @@ Request API function
 			          </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+                <button type="button" class="btn btn-secondary" id="close-btn">${this.domText.close}</button>
               </div>
             </div>
           </div>
@@ -592,12 +621,17 @@ Request API function
 
         document.body.appendChild(modal);
 
+        modal.querySelector("#close-btn").addEventListener("click", () => {
+          modal.remove();
+          this.ongoingEvent = false;
+          this.handle_refresh();
+        });
 
         modal.querySelector("#abort-btn").addEventListener("click", () => {
           modal.remove();
+          this.ongoingEvent = false;
+          this.handle_refresh();
         });
-        
-  
 
         modal.querySelector("#confirm-btn").addEventListener("click", async () => {
           try {
@@ -610,9 +644,12 @@ Request API function
                });
               console.log(response);
               modal.remove();
+              this.ongoingEvent = false;
               Router.reroute("/tournaments");
           } catch (error) {
             modal.remove();
+            this.ongoingEvent = false;
+            this.handle_refresh();
             Alert.errorMessage("Error", error.message);
           }
         });
@@ -625,18 +662,23 @@ Request API function
       //DELETE MODALE 
 
       const deleteButton = actionDiv.querySelector(`[data-action='delete-tournament']`);
-      // if (isPlayerInTournament) {
         deleteButton.addEventListener("click", async () => {
+          this.ongoingEvent = true;
+          this.handle_refresh();
           try {
             console.log("Sent parameter :", tournament);
             await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament["tournament name"] });
-            Alert.successMessage("Tournaments", "Tournament deleted successfully");
+            Alert.successMessage("Tournaments", "Tournament deleted successfully"); //TO TRANSLATE
+            this.ongoingEvent = false;
             Router.reroute("/tournaments")
           } catch (error) {
-            Alert.errorMessage("Error deleting tournament", error.message);
+            this.ongoingEvent = false;
+            this.handle_refresh();
+            Alert.errorMessage("Error deleting tournament", error.message); //TO TRANSLATE
           }
         });
-      // }
+
+      //INVITE MODALE 
       
       const hasFriends = (this.friendsDetails.length === 0) ? false : true;
       console.log("The user has friends", hasFriends);
@@ -684,7 +726,7 @@ Request API function
             }
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.domText.close}</button>
+              <button type="button" class="btn btn-secondary" id="close-btn" >${this.domText.close}</button>
           </div>
         </div>
       </div>
@@ -693,6 +735,7 @@ Request API function
         document.body.appendChild(modal);
 
         //Handling event listeners on the invite_buttons
+        
         modal.querySelectorAll("[data-action='invite-friend']").forEach(button => {
           button.addEventListener("click", async (event) => {
             const friendId = event.target.getAttribute("data-friend-id");
@@ -715,17 +758,26 @@ Request API function
       
               // modal.remove();
               // Alert.successMessage("Friend", "Invited successfully");
-              event.target.textContent = "Invited ✅";
+              event.target.textContent = "Invited ✅"; //TO TRANSLATE
               event.target.disabled = true;
             } catch (error) {
               modal.remove();
-              Alert.errorMessage("Error", error.message);
+              Alert.errorMessage("Error", error.message); //TO TRANSLATE
               console.error("In inviteFriend:", error.message);
             }
           });
+        });this.ongoingEvent = false;
+        this.handle_refresh();
+
+        modal.querySelector("#close-btn").addEventListener("click", () => {
+          this.ongoingEvent = false;
+          this.handle_refresh();
+          modal.remove();
         });
       
         modal.querySelector("[data-bs-dismiss='modal']").addEventListener("click", () => {
+          this.ongoingEvent = false;
+          this.handle_refresh();
           modal.remove();
         });
       });

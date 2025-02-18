@@ -19,7 +19,7 @@ class CreateTournamentView extends AbstractView {
 
   async loadMessages() {
     console.log("Trying to load messages");
-    await Application.localization.loadTranslations();
+    // await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     this.domText.title = await Application.localization.t(
       "titles.createTournaments"

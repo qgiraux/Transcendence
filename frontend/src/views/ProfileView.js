@@ -17,7 +17,7 @@ class ProfileView extends AbstractView {
 
   async init() {
     console.log(Application.lang);
-    Application.localization.loadTranslations();
+    // Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
     Application.toggleLangSelectorShow();

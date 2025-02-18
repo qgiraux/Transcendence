@@ -31,10 +31,6 @@
       "choose": "Choisissez votre mot de passe",
       "confirm": "Confirmez votre mot de passe"
     },
-    "twofa": {
-      "label": "Code 2FA (si activé)",
-      "field": "2FA (optionnel)"
-    },
     "signup": {
       "submit": "Créer un compte"
     },
@@ -126,14 +122,29 @@
     "twofa": {
       "title": "Authentification à deux facteurs",
       "activate": "Activer 2FA",
-      "alreadyActivated": "2FA déjà activée",
-      "scanQR": "Scannez ce QR code avec votre application d'authentification",
+      "alreadyActivated": "2FA déjà activé",
+      "scanQR": "Scannez ce code QR avec votre application d'authentification",
       "field": "Code 2FA",
-      "enterActivation": "Saisissez votre code 2FA pour confirmer l'activation",
+      "enterActivation": "Entrez votre code 2FA pour confirmer l'activation",
       "success": "Code 2FA vérifié avec succès",
+      "authent": {
+        "enterCode": "Entrez le code 2FA",
+        "authenticate": "S'authentifier",
+        "success": "Authentification réussie",
+        "failure": "Échec de l'authentification",
+        "redirectionLanding": "Vous allez être redirigé vers la page d'accueil",
+        "redirectionHome": "Vous allez être redirigé vers votre page d'accueil"
+      },
       "invalid": "Code 2FA invalide",
       "errors": {
-        "unexpected": "Une erreur s'est produite"
+        "unexpected": "Une erreur s'est produite",
+        "token": "Le jeton fourni est invalide",
+        "expired": "Le jeton a expiré",
+        "empty": "Vous devez entrer un code"
+      },
+      "countdown": {
+        "partOne": "Il vous reste",
+        "partTwo": "secondes pour entrer le code de votre application d'authentification"
       }
     },
   "delete": {
@@ -218,7 +229,8 @@
       "inProgress": "Tournois en cours",
       "finished": "Terminé", 
       "alreadyJoinedTxt": "Terminez vos parties en cours ou annulez votre participation pour créer ou rejoindre un autre tournoi !",
-      "noTournamentToDisplay": "Aucun tournoi à afficher"
+      "noTournamentToDisplay": "Aucun tournoi à afficher",
+      "manage": "Paramètres"
     },
     "create": {
       "txt": "Créer un tournoi",
@@ -292,5 +304,18 @@
     "confirmationText": "Êtes-vous sûr de vouloir supprimer votre compte ?",
     "confirmationNo": "😊 Non, je veux continuer à jouer !",
     "confirmationYes": "😔 Oui, je veux supprimer mon compte"
+},
+  "pongView": {
+    "welcome": "Bienvenue au tournoi",
+    "waitingOpponent": "En attente d'un adversaire...",
+    "titleGame": "Match de tournoi",
+    "pressSpace": "Appuyez sur ESPACE pour commencer la partie.",
+    "hasWon": "a gagné !",
+    "wonGame": "Tu AS GAGNÉ la partie bébé ! 😎",
+    "wonTournament": "Tu AS GAGNÉ le tournoi bébé ! 😎",
+    "lost": "Oh noooon, tu as perdu !",
+    "waitHere": "Tu peux attendre ici que le prochain match commence.",
+    "goHomeVictory": "Tu peux <a data-link href='https://localhost:5000/home'>rentrer chez toi</a> maintenant et savourer ta victoire.",
+    "goHomeDefeat": "Tu peux <a data-link href='https://localhost:5000/home'>rentrer chez toi</a> maintenant et pleurer."
 }
 }

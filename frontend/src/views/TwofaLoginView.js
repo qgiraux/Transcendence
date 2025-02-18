@@ -15,17 +15,56 @@ class TwofaLoginView extends AbstractView {
 
   async init() {
     console.log(Application.lang);
-    Application.localization.loadTranslations();
-    await Application.setLanguage(Application.lang);
+    // await Application.setLanguage(Application.lang);
     await this.loadMessages();
-    // await Application.applyTranslations();
+    Application.toggleLangSelectorShow();
     this.onStart();
   }
 
-  async loadMessages() {}
+  async loadMessages() {
+    await Application.applyTranslations() ;
+    console.log("OK");
+    this.domText.title = await Application.localization.t("accountMgmt.twofa.title");
+    this.messages.errorTwofa = await Application.localization.t(
+      "accountMgmt.twofa.error.token"
+    );
+    this.messages.errorEmpty = await Application.localization.t(
+      "accountMgmt.twofa.errors.empty"
+    );
+    this.messages.unexpectedError = await Application.localization.t(
+      "accountMgmt.twofa.errors.unexpected"
+    );
+    this.messages.errorExpired = await Application.localization.t(
+      "accountMgmt.twofa.errors.expired"
+    );
+    this.domText.enterCode = await Application.localization.t(
+      "accountMgmt.twofa.authent.enterCode"
+    );
+    this.domText.authenticate = await Application.localization.t(
+      "accountMgmt.twofa.authent.authenticate"
+    );
+    this.messages.authentSuccess = await Application.localization.t(
+      "accountMgmt.twofa.authent.success"
+    );
+    this.messages.authentFailure = await Application.localization.t(
+      "accountMgmt.twofa.authent.failure"
+    );
+    this.domText.rerouteLanding = await Application.localization.t(
+      "accountMgmt.twofa.authent.redirectionLanding"
+    );
+    this.domText.rerouteHome = await Application.localization.t(
+      "accountMgmt.twofa.authent.redirectionHome"
+    );
+    this.domText.countdownOne = await Application.localization.t(
+      "accountMgmt.twofa.countdown.partOne"
+    );
+    this.domText.countdownTwo = await Application.localization.t(
+      "accountMgmt.twofa.countdown.partTwo"
+    );
+  }
 
   badTokenExit() {
-    Alert.errorMessage("Twofa", "The supplied token is invalid");
+    Alert.errorMessage(this.domText.title, this.messages.errorTwofa);
     Router.reroute("/landing");
   }
 
@@ -52,17 +91,17 @@ class TwofaLoginView extends AbstractView {
 
   successDisplay() {
     const card = document.querySelector("#twofacard");
-    card.innerHTML = `<p class="text-success"> <strong>Authentication Success !</strong><br>You will be redirected on your home page.</p>`;
+    card.innerHTML = `<p class="text-success"> <strong>${this.messages.authentSuccess}</strong><br>${this.domText.rerouteHome}</p>`;
   }
 
   errorDisplay() {
     const card = document.querySelector("#twofacard");
-    card.innerHTML = `<p class="text-danger"> <strong>Authentication failure !</strong><br>You will be redirected on the landing page.</p>`;
+    card.innerHTML = `<p class="text-danger"> <strong>${this.messages.authentFailure}</strong><br>${this.domText.rerouteLanding}</p>`;
   }
 
   expireDisplay() {
     const card = document.querySelector("#twofacard");
-    card.innerHTML = `<p class="text-danger"> <strong>The token has expired !</strong><br>You will be redirected on the landing page.</p>`;
+    card.innerHTML = `<p class="text-danger"> <strong>${this.messages.errorExpired}</strong><br>${this.domText.rerouteLanding}</p>`;
   }
 
   async loginPressHandler(event) {
@@ -70,7 +109,7 @@ class TwofaLoginView extends AbstractView {
     clearInterval(this.interval);
     const codeInput = document.querySelector("#twofainput");
     if (codeInput.value.length === 0) {
-      Alert.errorMessage("2FA", "You must enter a code.");
+      Alert.errorMessage(this.domText.title, this.messages.errorEmpty);
       return;
     }
     try {
@@ -100,6 +139,8 @@ class TwofaLoginView extends AbstractView {
       Application.setToken(json);
       Application.setUserInfosFromToken();
       this.successDisplay();
+      Application.retrieveDBLang();
+      Application.setLanguage(Application.lang);
       setTimeout(async () => {
         await Application.toggleSideBar();
         Application.toggleChat();
@@ -107,8 +148,8 @@ class TwofaLoginView extends AbstractView {
       }, 1500);
     } catch (error) {
       Alert.errorMessage(
-        "Server error",
-        "An error has occured, please try again."
+        this.domText.title,
+        this.messages.unexpectedError
       );
       setTimeout(() => {
         Router.reroute("/landing");
@@ -141,19 +182,19 @@ class TwofaLoginView extends AbstractView {
     viewContainer.innerHTML = `
     <div style="max-width: 800px;" class="mx-auto w-75 mw-75 align-item-center p-2 ">
                 <div class="row mx-auto mb-5">
-                    <h1>Two factor authentification</h1>
+                    <h1>${this.domText.title}</h1>
                 </div>
                 <div class="row border rounded border-secondary">
         <div class="row w-75 mw-75 mx-auto text-white container-md p-4 d-flex flex-column align-items-center" id="twofacard">
         <div class="row align-items-start w-100">
-    <p id="validitymsg" >You have <strong id="countdown"></strong> seconds left to enter the code from your authenticator app.
+    <p id="validitymsg" >${this.domText.countdownOne} <strong id="countdown"></strong> ${this.messages.countdownTwo}
     </p>
         </div>
         <div class="row mb-3 w-100">
-          <input type="text" class="form-control mx-auto" id="twofainput" minlength="1" maxlength="20" placeholder="Enter 2FA code" style="max-width: 300px;">
+          <input type="text" class="form-control mx-auto" id="twofainput" minlength="1" maxlength="20" placeholder="${this.domText.enterCode}" style="max-width: 300px;">
         </div>
         <div class="row w-100">
-          <button id="twofabutton" type="button" class="btn btn-primary fs-5 mx-auto" id="alias-update-button" style="width: 200px;">Authenticate</button>
+          <button id="twofabutton" type="button" class="btn btn-primary fs-5 mx-auto" id="alias-update-button" style="width: 200px;">${this.domText.authenticate}</button>
         </div>
       </div>
     </div>

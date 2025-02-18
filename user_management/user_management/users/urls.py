@@ -6,6 +6,7 @@ from .views import (
     ChangeLogin,
     RegisterUser,
     ChangeNickname,
+    ChangeLanguage,
     CheckUserStatus,
     get_jwt_token, GetAllUsers,
     Enable_Twofa,
@@ -41,6 +42,8 @@ urlpatterns = [
     path('deleteuser/', UserDeleteView.as_view(), name='delete user'),
     path('userstatus/<int:user_id>', CheckUserStatus, name='check user status'),
     path('userlist/', GetAllUsers, name='user list'),
+    path('lang/', ChangeLanguage, name='change language'),
+
 
     path('totp/create/', TOTPCreateView.as_view(), name='totp-create'),
     # re_path(r'totp/login/(?P<token>[0-9]{6})/', TOTPVerifyView.as_view(), name='totp-login'),

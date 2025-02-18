@@ -1,3 +1,5 @@
+const translations = {};
+
 const pathEn = "../../local/en-us/translation.json";
 const pathFr = "../../local/fr-fr/translation.json";
 const pathEs = "../../local/es-es/translation.json";
@@ -8,7 +10,7 @@ class Localization {
     this.lang = Localization.detectLanguage();
     this.translation = null;
     this.source = null;
-    this.loadTranslations();
+    // this.loadTranslations();
   }
 
   static detectLanguage() {
@@ -39,13 +41,30 @@ class Localization {
   }
 
   async loadTranslations() {
-    const path = Localization._getTLPath(this.lang);
-    this.translation = await Localization._load(path);
-    if (!this.translation) console.log("Error fetching translation file");
-    this.source = await Localization._load(pathEn);
-    this.isLoaded = true;
+    if (translations[this.lang]) {
+      this.translation = translations[this.lang];
+    } else {
+      const path = Localization._getTLPath(this.lang);
+      this.translation = await Localization._load(path);
+      translations[this.lang] = this.translation;
+    }
+    if (this.lang !== "en-us" && !translations["en-us"]) {
+      translations["en-us"] = await Localization._load(pathEn);
+    }
+    this.source = translations["en-us"];
+
+    this.isLoaded = this.translation !== null && this.source !== null;
     if (!this.isLoaded) console.log("Error loading translation");
   }
+
+  // async loadTranslations() {
+  //   const path = Localization._getTLPath(this.lang);
+  //   this.translation = await Localization._load(path);
+  //   if (!this.translation) console.log("Error fetching translation file");
+  //   this.source = await Localization._load(pathEn);
+  //   this.isLoaded = true;
+  //   if (!this.isLoaded) console.log("Error loading translation");
+  // }
 
   async t(flatkey, data) {
     if (!this.isLoaded) await this.loadTranslations();

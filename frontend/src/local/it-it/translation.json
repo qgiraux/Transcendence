@@ -129,11 +129,26 @@
       "alreadyActivated": "2FA già attivato",
       "scanQR": "Scansiona questo codice QR con la tua app di autenticazione",
       "field": "Codice 2FA",
-      "enterActivation": "Inserisci il tuo codice 2FA per confermare l'attivazione",
+      "enterActivation": "Inserisci il codice 2FA per confermare l'attivazione",
       "success": "Codice 2FA verificato con successo",
+      "authent": {
+        "enterCode": "Inserisci il codice 2FA",
+        "authenticate": "Autenticarsi",
+        "success": "Autenticazione riuscita",
+        "failure": "Autenticazione fallita",
+        "redirectionLanding": "Verrai reindirizzato alla pagina principale",
+        "redirectionHome": "Verrai reindirizzato alla tua pagina personale"
+      },
       "invalid": "Codice 2FA non valido",
       "errors": {
-        "unexpected": "Si è verificato un errore"
+        "unexpected": "Si è verificato un errore",
+        "token": "Il token fornito non è valido",
+        "expired": "Il token è scaduto",
+        "empty": "Devi inserire un codice"
+      },
+      "countdown": {
+        "partOne": "Hai ancora",
+        "partTwo": "secondi per inserire il codice dalla tua app di autenticazione"
       }
     },
     "delete": {
@@ -218,7 +233,8 @@
       "inProgress": "Tornei in corso",
       "finished": "Terminato", 
       "alreadyJoinedTxt": "Completa le tue partite in corso o annulla la tua partecipazione per creare o unirti a un altro torneo!",
-      "noTournamentToDisplay": "Nessun torneo da mostrare"
+      "noTournamentToDisplay": "Nessun torneo da mostrare",
+      "manage": "Impostazioni"
     },
     "create": {
       "txt": "Crea torneo",
@@ -292,5 +308,18 @@
     "confirmationText": "Sei sicuro di voler eliminare il tuo account?",
     "confirmationNo": "😊 No, voglio continuare a giocare!",
     "confirmationYes": "😔 Sì, voglio eliminare il mio account"
+  },
+  "pongView": {
+    "welcome": "Benvenuto al torneo",
+    "waitingOpponent": "In attesa di un avversario...",
+    "titleGame": "Partita del torneo",
+    "pressSpace": "Premi SPAZIO per iniziare la partita.",
+    "hasWon": "ha vinto!",
+    "wonGame": "Hai VINTO la partita, baby! 😎",
+    "wonTournament": "Hai VINTO il torneo, baby! 😎",
+    "lost": "Oh noooo, hai perso!",
+    "waitHere": "Puoi aspettare qui che inizi la prossima partita.",
+    "goHomeVictory": "Puoi <a data-link href='https://localhost:5000/home'>tornare a casa</a> ora e assaporare la tua vittoria.",
+    "goHomeDefeat": "Puoi <a data-link href='https://localhost:5000/home'>tornare a casa</a> ora e piangere."
   }
 }

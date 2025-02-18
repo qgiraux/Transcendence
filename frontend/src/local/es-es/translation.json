@@ -131,9 +131,24 @@
       "field": "Código 2FA",
       "enterActivation": "Introduce tu código 2FA para confirmar la activación",
       "success": "Código 2FA verificado con éxito",
+      "authent": {
+        "enterCode": "Introduce el código 2FA",
+        "authenticate": "Autenticarse",
+        "success": "Autenticación exitosa",
+        "failure": "Error de autenticación",
+        "redirectionLanding": "Serás redirigido a la página de inicio",
+        "redirectionHome": "Serás redirigido a tu página personal"
+      },
       "invalid": "Código 2FA inválido",
       "errors": {
-        "unexpected": "Algo salió mal"
+        "unexpected": "Ocurrió un error",
+        "token": "El token proporcionado no es válido",
+        "expired": "El token ha expirado",
+        "empty": "Debes ingresar un código"
+      },
+      "countdown": {
+        "partOne": "Te quedan",
+        "partTwo": "segundos para ingresar el código de tu aplicación de autenticación"
       }
     },
     "delete": {
@@ -218,7 +233,8 @@
       "inProgress": "Torneos en progreso",
       "finished": "Finalizado", 
       "alreadyJoinedTxt": "Completa tus partidas actuales o cancela tu participación para crear o unirte a otro torneo!",
-      "noTournamentToDisplay": "Ningún torneo para mostrar"
+      "noTournamentToDisplay": "Ningún torneo para mostrar",
+      "manage": "Configuración"
     },
     "create": {
       "txt": "Crear torneo",
@@ -291,5 +307,18 @@
     "confirmationText": "¿Estás seguro de que quieres eliminar tu cuenta?",
     "confirmationNo": "😊 No, quiero seguir jugando!",
     "confirmationYes": "😔 Sí, quiero eliminar mi cuenta"
-} 
+},
+  "pongView": {
+      "welcome": "Bienvenido al torneo",
+      "waitingOpponent": "Esperando a un oponente...",
+      "titleGame": "Partida del torneo",
+      "pressSpace": "Presiona ESPACIO para comenzar la partida.",
+      "hasWon": "¡ha ganado!",
+      "wonGame": "¡Ganaste la partida, bebé! 😎",
+      "wonTournament": "¡Ganaste el torneo, bebé! 😎",
+      "lost": "¡Oh noooo, perdiste!",
+      "waitHere": "Puedes esperar aquí hasta que comience el próximo partido.",
+      "goHomeVictory": "Ahora puedes <a data-link href='https://localhost:5000/home'>volver a casa</a> y saborear tu victoria.",
+      "goHomeDefeat": "Ahora puedes <a data-link href='https://localhost:5000/home'>volver a casa</a> y llorar."
+    }
 }
