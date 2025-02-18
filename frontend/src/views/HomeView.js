@@ -37,8 +37,12 @@ class HomeView extends AbstractView {
   }
 
   onStart() {
-    Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
+    if (!Application.mainSocket) {
+      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
+    }
+    if (!Application.gameSocket) {
     Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
+    }
     this._setHtml();
     if (Application.mainSocket) {
       try {

@@ -124,7 +124,7 @@ class ProfileView extends AbstractView {
         date: new Date(match.date),
       }));
       this.playerHistory = this.playerHistory.sort((a, b) => {
-        return a.date - b.date;
+        return b.date - a.date;
       });
       this.playerMatchPlayed = this.playerHistory.length;
       this.playerMatchWon = this.playerHistory.reduce((victories, current) => {
@@ -154,7 +154,7 @@ class ProfileView extends AbstractView {
           ? '<img src="/img/winning-cup.png" width="40" height="40" alt="winner"  style="padding: 0;margin: 0; background-color: transparent;">'
           : '<img src="/img/loser.png" width="40" height="40" alt="loser"  style="padding: 0;margin: 0; background-color: transparent;">'
       }</th>
-            <td class="text-center">${match.date.toLocaleDateString(
+            <td class="text-center">${match.date.toLocaleString(
               "fr-FR"
             )}</td>
           <td class="text-center">${match.score}</td>
@@ -421,6 +421,7 @@ class ProfileView extends AbstractView {
                       <th>${this.domText.table.result}</th>
                       <th>${this.domText.table.date}</th>
                       <th>${this.domText.table.score}</th>
+                      <th>opponent</th>
                       <th></th>
                   </tr>
               </table>

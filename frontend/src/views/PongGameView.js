@@ -56,6 +56,7 @@ class PongGameView extends AbstractView {
         console.log("🎮 Pong Canvas:", this.canvas);
         this.canvasContainer.classList.add("d-none");
         this.renderer = new PongRenderer(this.canvas);
+
         TRequest.request("GET", `/api/tournament/details/${Application.joinedTournament}`)
             .then((tournament) => {
                 this.displayTournamentProgression(tournament);
@@ -145,7 +146,7 @@ class PongGameView extends AbstractView {
         case ' ':
             Application.gameSocket.send(JSON.stringify({ type: 'ready', data: { direction: 'ready' } }));
             if (!this.gameStarted) {
-                this.messageContainer.textContent = "Waiting for Opponent...";
+                this.messageContainer.innerHTML = `<h2><small>Waiting for Opponent...</small></h2>`;
                 this.gameStarted = true;
             }
             // console.log("READY");
@@ -187,13 +188,9 @@ class PongGameView extends AbstractView {
                 this.p2name = result.username;
                 console.log("p2name: ", this.p2name);
             })
-            .catch((error) => {
-                Alert.errorMessage("Error on p2name", error.message);
-            });
+            .catch((error) => {});
         })
-        .catch((error) => {
-            Alert.errorMessage("Error on p1name", error.message);
-        });
+        .catch((error) => {});
     }
     handleCountdown(data) {
         // console.log("Countdown: ", data.data);
@@ -253,6 +250,15 @@ class PongGameView extends AbstractView {
         TRequest.request("GET", `/api/tournament/details/${Application.joinedTournament}`)
             .then((tournament) => {
                 this.displayTournamentProgression(tournament);
+                let win = false;
+                let end = false;
+                if (data.state.winner == Application.getUserInfos().userId) {
+                    win = true;
+                }
+                if (tournament.rounds[1]) {
+                    end = true;
+                }
+                this.displayWinLoseMessage(win, end);
             })
         this.tournamentContainer.classList.remove("d-none");
         console.log("Game Over");
@@ -292,19 +298,36 @@ class PongGameView extends AbstractView {
         this.cball.x += BALL_RADIUS;
         this.cball.y += BALL_RADIUS;    
     }
+    displayWinLoseMessage(win, end) {
+        if (win == true) {
+            if (end == true) {
+
+                this.messageContainer.innerHTML = `<h2><small>You WON baby!<br>You can <a data-link href="/home">go back home</a> now and savour your victory.`
+                this.messageContainer.classList.remove("d-none");
+            }
+            else {
+                this.messageContainer.innerHTML = `<h2><small>You WON baby!<br>You can wait here for the next match to start.`
+                this.messageContainer.classList.remove("d-none");
+            }
+        }
+        else {
+            this.messageContainer.innerHTML = `<h2><small>Oh noooo you lost!<br>You can <a data-link href="/home">go back home</a> now and cry.`
+            this.messageContainer.classList.remove("d-none");
+        }
+    }
     displayTournamentProgression(tournament) {
         let roundNumber = tournament["size"];
         //create the tournament card div
         this.tournamentContainer.classList.add(
         "tournament-card",
-        "w-75",
+        "w-100",
         "text-white",
         "border",
         "p-3"
         );
         this.tournamentContainer.innerHTML = `
                     <div class="row mt-1 d-flex  justify-content-center align-items-center mx-auto">
-                    <h4>${tournament["tournament name"]}</h4>
+                    <h4>Welcome to the tournament ${tournament["tournament name"]}</h4>
                     <div class="row d-flex mx-auto justify-content-center align-items-center p-1" id="rounds-container"></div>
                     `;
         const roundsContainer = this.tournamentContainer.querySelector("#rounds-container");
@@ -366,6 +389,9 @@ class PongGameView extends AbstractView {
           round,
           indexPlayertwo
         );
+        if (Application.getUserInfos().userId == idPlayerOne || Application.getUserInfos().userId == idPlayerTwo) {
+            match.classList.add("highlightBorder");
+        }
         match.appendChild(this.createAvatarElementFromId(idPlayerOne, 50, false));
         match.appendChild(this.createAvatarElementFromId(idPlayerTwo, 50, false));
         return match;
@@ -380,29 +406,39 @@ class PongGameView extends AbstractView {
     return `/profile/${id}`;
     }
     createAvatarElementFromId(id, size, winner) {
+        const container = document.createElement("div");
+        container.classList.add("pongGameTournamentContainer");
         const img = document.createElement("img");
         img.classList.add("rounded", "rounded-circle");
         if (winner) {
-          img.classList.add(
-            "rounded",
-            "rounded-circle",
-            "border",
-            "border-warning"
-          );
+          img.classList.add("win");
+          img.style.display = "block";
+          img.style.margin = "0 auto";
         }
         img.width = size;
         img.height = size;
         if (id !== 0) {
           img.src = Avatar.url(id);
           img.dataset.avatar = id;
-          const link = document.createElement("a");
-          link.dataset.link = 1;
-          link.href = this.getProfileLinkformId(id);
-          link.appendChild(img);
-          return link;
+          container.appendChild(img);
+
+          const usernameText = document.createElement("p");
+          usernameText.innerHTML = "Unknown User";
+
+          container.appendChild(usernameText);
+
+          TRequest.request("GET", `/api/users/userinfo/${id}`)
+          .then((result) => {
+            usernameText.innerHTML = `${result.username}`;
+            if (winner == true) {
+                usernameText.innerHTML = `<h2><small>${result.username} won !</small></h2>`
+            }
+            });
+          return container;
         } else {
           img.src = "/img/question_mark_icon.png";
-          return img;
+          container.appendChild(img)
+          return container;
         }
       }
     
@@ -421,7 +457,7 @@ class PongGameView extends AbstractView {
             <canvas id="pongCanvas" width="800" height="400"></canvas>
             </div>
             <div id="tournament-data"></div>
-            <div id="message-container"></div>
+            <div id="message-container"><h2><small>Press SPACE to start the game.</small></h2></div>
           `;
           const canvas = document.getElementById("pongCanvas");
           canvas.focus(); // Ensure the canvas is focusable

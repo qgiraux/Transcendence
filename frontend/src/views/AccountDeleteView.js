@@ -124,6 +124,9 @@ class AccountDeleteView extends AbstractView {
 
     // Delete all the friends of the player
     try {
+      // Anonymise the user in the db and revoque credentials
+      await TRequest.request("DELETE", "/api/users/deleteuser/");
+
       const friendsList = await TRequest.request(
         "GET",
         "/api/friends/friendslist/"
@@ -151,8 +154,6 @@ class AccountDeleteView extends AbstractView {
 
       // Delete profile picture
       await TRequest.request("DELETE", "/api/avatar/delete/");
-      // Annonymise the user in the db and revoque credentials
-      await TRequest.request("DELETE", "/api/users/deleteuser/");
       Router.reroute("/logout");
     } catch (error) {
       Alert.errorMessage("Account Delete", error.message);
