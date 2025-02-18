@@ -300,7 +300,7 @@ Request API function
     });
     switch (this.panel_status) {
       case 0:
-        selectedTournaments.forEach((tournament) => {
+        selectedTournaments.reverse().forEach((tournament) => {
           if (
             tournament["players"].includes(Application.getUserInfos().userId)
           ) {
@@ -322,7 +322,7 @@ Request API function
         break;
       case 1:
         if (selectedTournaments.length > 0) {
-          selectedTournaments.forEach((tournament) => {
+          selectedTournaments.reverse().forEach((tournament) => {
             panel.appendChild(this.createTournamentCard(tournament));
         });
       }
@@ -333,7 +333,7 @@ Request API function
         break;
       case 2:
         if (selectedTournaments.length > 0) {
-          selectedTournaments.forEach((tournament) => {
+          selectedTournaments.reverse().forEach((tournament) => {
             panel.appendChild(this.createTournamentCard(tournament));
         });
       }
@@ -345,7 +345,7 @@ Request API function
   }
 
   /*
-  HTML Elements creation helpers fucntcions :
+  HTML Elements creation helpers fucntions :
 
 */
 
