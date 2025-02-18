@@ -231,7 +231,7 @@
     "tab": {
       "open": "Tornei aperti",
       "inProgress": "Tornei in corso",
-      "finished": "Terminato", 
+      "finished": "Terminato",
       "alreadyJoinedTxt": "Completa le tue partite in corso o annulla la tua partecipazione per creare o unirti a un altro torneo!",
       "noTournamentToDisplay": "Nessun torneo da mostrare",
       "manage": "Impostazioni"
@@ -277,7 +277,7 @@
       "true": "Unito"
     },
     "quit": {
-      "quitBttn": "Abbandona il torneo", 
+      "quitBttn": "Abbandona il torneo",
       "confirmTxt": "❗ Sei sicuro di voler abbandonare il torneo?",
       "confirmYes": "Sì",
       "confirmNo": "No"
@@ -319,7 +319,7 @@
     "wonTournament": "Hai VINTO il torneo, baby! 😎",
     "lost": "Oh noooo, hai perso!",
     "waitHere": "Puoi aspettare qui che inizi la prossima partita.",
-    "goHomeVictory": "Puoi <a data-link href='https://localhost:5000/home'>tornare a casa</a> ora e assaporare la tua vittoria.",
-    "goHomeDefeat": "Puoi <a data-link href='https://localhost:5000/home'>tornare a casa</a> ora e piangere."
+    "goHomeVictory": "Puoi <a data-link href='/home'>tornare a casa</a> ora e assaporare la tua vittoria.",
+    "goHomeDefeat": "Puoi <a data-link href='/home'>tornare a casa</a> ora e piangere."
   }
 }

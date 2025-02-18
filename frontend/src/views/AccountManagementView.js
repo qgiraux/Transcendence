@@ -579,19 +579,19 @@ Set HTML
             <input type="password"  current-password class="form-control mx-auto" id="oldpasswordinput" minlength="1"
               maxlength="20" placeholder="${
                 this.domText.enterOldPwd
-              }" style="max-width: 300px;">
+              }" style="max-width: 300px;" autocomplete="old-password">
           </div>
           <div class="row mb-3 w-100">
             <input type="password" new-password class="form-control mx-auto" id="newPasswordInput1" minlength="1"
               maxlength="20" placeholder="${
                 this.domText.enterNewPwd
-              }" style="max-width: 300px;">
+              }" style="max-width: 300px;" autocomplete="new-password">
           </div>
           <div class="row mb-3 w-100">
             <input type="password" new-password class="form-control mx-auto" id="newPasswordInput2" minlength="1"
               maxlength="20" placeholder="${
                 this.domText.confirmNewPwd
-              }" style="max-width: 300px;">
+              }" style="max-width: 300px;" autocomplete="new-password">
           </div>
           <div class="row w-100">
             <button type="button" class="btn btn-primary fs-5 mx-auto" id="password-update-button"

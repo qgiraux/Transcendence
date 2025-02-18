@@ -1,5 +1,7 @@
 import DefaultView from "./views/ErrorView.js";
 import AbstractView from "./views/AbstractView.js";
+import Application from "./Application.js";
+import LandingView from "./views/LandingView.js";
 class Router {
   /**
    * The Router class
@@ -108,9 +110,19 @@ class Router {
   }
 
   route() {
+    let newroute = location.pathname;
+    if (Application.getAccessToken() === null) {
+      if (newroute !== "/landing" && !newroute.includes("twofalogin")) {
+        setTimeout(() => {
+          Router.reroute("/landing");
+        }, 20);
+        return;
+      }
+    }
+    console.log("routing to:", newroute);
     if (this.#currentView !== null) this.#currentView.onDestroy();
     this.#currentView = null;
-    let newView = this._matchRoute(location.pathname);
+    let newView = this._matchRoute(newroute);
     if (newView === null) {
       newView = new DefaultView({});
     }
