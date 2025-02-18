@@ -143,6 +143,8 @@ def JoinTournament(request):
         return JsonResponse({'detail': 'User already subscribed', 'code': 'conflict'}, status=409)
     if len(tournament.player_list) == tournament.tournament_size:
         return JsonResponse({'detail': 'Tournament full', 'code': 'conflict'}, status=409)
+    if tournament.status != 0:
+        return JsonResponse({'detail': 'Tournament not joinable', 'code': 'conflict'}, status=409)
 
     tournament.player_list.append(user_id)  # Add player ID
     tournament.save()
