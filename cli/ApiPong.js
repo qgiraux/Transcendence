@@ -1,5 +1,9 @@
 const {HttpsClient} = require("./HttpsClient");
 
+/**
+ * Interface to pong HTTPS API
+ * @info Refer to `HttpsClient` for how to use `callback`
+ */
 class ApiPong {
 	static #updateOptions(options, path, method) {
 		if (!options) {
@@ -10,6 +14,13 @@ class ApiPong {
 		return options;
 	}
 
+	/**
+	 * Registers to pong using API
+	 * @param {https.RequestOptions} options 
+	 * @param {String} username 
+	 * @param {String} password 
+	 * @param {Function} callback
+	 */
 	static register(options, username, password, callback) {
 		HttpsClient.request(
 			ApiPong.#updateOptions(
@@ -20,6 +31,13 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Logins to pong using API
+	 * @param {https.RequestOptions} options 
+	 * @param {String} username 
+	 * @param {String} password 
+	 * @param {Function} callback 
+	 */
 	static login(options, username, password, callback) {
 		HttpsClient.request(
 			ApiPong.#updateOptions(
@@ -30,6 +48,16 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Block user using API
+	 * @param {https.RequestOptions} options 
+	 * @param {Number} userId 
+	 * @param {Function} callback 
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static block(options, userId, callback, jwt, updateJwtAccess) {
 		HttpsClient.reqWithJwt(
 			ApiPong.#updateOptions(
@@ -40,6 +68,16 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Unblocks user using API
+	 * @param {https.RequestOptions} options 
+	 * @param {Number} userId 
+	 * @param {Function} callback 
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static unblock(options, userId, callback, jwt, updateJwtAccess) {
 		HttpsClient.reqWithJwt(
 			ApiPong.#updateOptions(
@@ -50,6 +88,17 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Gets User Info using API
+	 * Or self info if no userId provided
+	 * @param {https.RequestOptions} options 
+	 * @param {Number | None} userId 
+	 * @param {Function} callback 
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static getUserInfo(options, userId, callback, jwt, updateJwtAccess) {
 		if (userId) {
 			HttpsClient.reqWithJwt(
@@ -70,6 +119,16 @@ class ApiPong {
 		}
 	}
 
+	/**
+	 * Gets User Stats via API
+	 * @param {https.RequestOptions} options 
+	 * @param {Number | None} userId 
+	 * @param {Function} callback 
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static getUserStats(options, userId, callback, jwt, updateJwtAccess) {
 		HttpsClient.reqWithJwt(
 			ApiPong.#updateOptions(
@@ -80,6 +139,14 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Gets self blocklist via API
+	 * @param {https.RequestOptions} options 
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static getBlockList(options, callback, jwt, updateJwtAccess) {
 		HttpsClient.reqWithJwt(
 			ApiPong.#updateOptions(
@@ -90,6 +157,15 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Gets tournament Details via API
+	 * @param {https.RequestOptions} options 
+	 * @param {String} tournamentName
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static getTournamentDetails(options, tournamentName, callback, jwt, updateJwtAccess) {
 		HttpsClient.reqWithJwt(
 			ApiPong.#updateOptions(
@@ -100,6 +176,15 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Joins tournament Details via API
+	 * @param {https.RequestOptions} options 
+	 * @param {String} tournamentName
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static joinTournament(options, tournamentName, callback, jwt, updateJwtAccess) {
 		HttpsClient.reqWithJwt(
 			ApiPong.#updateOptions(
@@ -110,6 +195,16 @@ class ApiPong {
 		);
 	}
 
+	/**
+	 * Creates tournament Details via API
+	 * @param {https.RequestOptions} options 
+	 * @param {String} tournamentName
+	 * @param {Number} tournamentSize
+	 * @param {Object} jwt
+	 * @param {String} jwt.access
+	 * @param {String} jwt.refresh
+	 * @param {Function} updateJwtAccess 
+	 */
 	static createTournament(options, tournamentName, tournamentSize, callback, jwt, updateJwtAccess) {
 		HttpsClient.reqWithJwt(
 			ApiPong.#updateOptions(

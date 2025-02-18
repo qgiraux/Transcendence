@@ -37,17 +37,3 @@ class WSIPong {
 module.exports = {
 	"WSIPong": WSIPong
 }
-
-// #sayReady() {
-// 	this.ws.send(JSON.stringify({
-// 		type: "ready",
-// 		data: {direction: "ready"}
-// 	}));
-// }
-
-// #movePaddle(d) {
-// 	this.ws.send(JSON.stringify({
-// 		type: "move_paddle",
-// 		data: {direction: d}
-// 	}));
-// }
