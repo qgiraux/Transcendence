@@ -457,9 +457,6 @@ class CmdChat extends CmdJWT {
 	}
 }
 
-// const r = new CmdChat();
-// r.parser.eval();
-
 module.exports = {
 	"CmdChat": CmdChat
 }

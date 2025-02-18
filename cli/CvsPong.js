@@ -276,7 +276,6 @@ class CvsPong extends Canvas {
 	}
 
 	initalize(){
-		//this.paddleRX = CvsPong.pixPerChar * (this.dx - 1);
 		this.netX = Math.floor(this.dx / 2);
 		this.scoreLY = 2;
 		this.scoreRY = 2;
@@ -316,54 +315,8 @@ class CvsPong extends Canvas {
 		this.drawScoreR();
 		this.drawBall();
 	}
-
-	// static fromCanvas(canvas, dx, dy){
-	// 	return new CvsPong(
-	// 		dx, 
-	// 		dy, 
-	// 		canvas.cursorX, 
-	// 		canvas.cursorY
-	// 	)
-	// }
 }
-
-// void		Game::printNet(void)
-// {
-// 	cli_move_cursor_to(this->_net_x, 1);
-// 	for (t_cpos y = 0; y != this->_screen_ymax; ++y)
-// 		std::cout << CLI_NETCELL << CLI_ANSI_CURSOR_1BACK1DOWN;
-// }
 
 module.exports = {
 	"CvsPong": CvsPong
 }
-
-// o = new Canvas(53,22,1,1);
-// o.drawBox();
-// o.moveCursor(1, 1);
-
-// c = CvsPong.fromCanvas(o, 51, 20);
-
-// c.paddleRY = 1;
-// c.paddleLY = 5;
-
-// c.paddleRH = 10;
-// c.paddleLH = c.paddleRH;
-// c.scoreL = 5;
-// c.scoreR = 42;
-// c.ballX = 20;
-// c.ballY = 13;
-
-// c.initalize();
-
-// c.drawPaddleL();
-// c.drawPaddleR();
-// c.drawNet();
-// c.drawScoreL();
-// c.drawScoreR();
-// //c.drawPaddleL(CvsPong.paddleEraseCells);
-// //c.drawPaddleR(CvsPong.paddleEraseCells);
-// c.drawBall();
-// //c.eraseBall();
-
-// o.moveCursor(o.dx, o.dy);

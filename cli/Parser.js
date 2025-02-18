@@ -104,7 +104,6 @@ class Parser {
 		for (let i = 0; this.words.length != i; ++i) {
 			let word_ = this.words[i];
 
-			//console.log(this);
 			if ("-" == word_[1]) {
 				if (-1 == this._evalOption(word_)) {
 					process.stdout.write(`unknown option: ${word_}\n`);
@@ -147,11 +146,3 @@ class Parser {
 module.exports = {
 	"Parser": Parser
 }
-
-// p = new Parser();
-// patterns = ["[--help]", "[--version]"]
-// callbacks = [()=>{p.displayHelp = true}, ()=>{process.stdout.write("pong-cli version 0.1.0\n")}]
-// commandNames = ["register"]
-// p.setOptions(patterns, callbacks);
-// p.commandNames = commandNames;
-// p.eval();

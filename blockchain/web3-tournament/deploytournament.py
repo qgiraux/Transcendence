@@ -6,13 +6,12 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/17 10:50:15 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/23 14:14:32 by jerperez         ###   ########.fr        #
+#    Updated: 2025/02/18 09:57:36 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #
 import asyncio
-#import logging
 import sys
 #
 sys.path.insert(0, "/contract") #ugly
@@ -27,5 +26,4 @@ async def main():
 	await AsyncWeb3.disconnect(w3)
 
 if __name__ == '__main__':
-	#logger = logging.getLogger(__name__)
 	asyncio.run(main())

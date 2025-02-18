@@ -16,7 +16,7 @@ class Controller {
 
 	constructor(isStopKey=Controller._isStopKey) {
 		this.isStopKey = isStopKey;
-		this.stop = () => {}; //make private
+		this.stop = () => {};
 		this.initalized = false;
 		this.onStopKey = () => {};
 	}
@@ -51,7 +51,7 @@ class Controller {
 
 	static stop(){
 		if (process.stdin.isTTY) {
-			process.stdin.setRawMode(false);
+			process.stdin.setRawMode(false); //TODO: maybe print a warning
 		}
 		process.stdin.pause();
 	}
@@ -86,12 +86,10 @@ class Controller {
 
 	initalize(stdin, eventCallback){
 		assert.equal(false, this.initalized);
-		//assert.equal(true, stdin.isTTY);
 		if (stdin.isTTY) {
 			stdin.setRawMode(true);
 		}
 		stdin.resume();
-		//stdin.setEncoding("utf8"); //
 		stdin.on('data', eventCallback);
 		this.stop = () => {
 			stdin.removeListener('data', eventCallback);
@@ -105,7 +103,7 @@ class Controller {
 		const eventCallback = (buf) => {
 			callback(buf);
 			if (this.isStopKey(buf)) {
-				this.onStopKey(); //
+				this.onStopKey();
 				stdin.removeListener('data', eventCallback);
 				this.stop();
 			}
@@ -134,36 +132,3 @@ class Controller {
 module.exports = {
 	"Controller": Controller
 }
-
-// // // /**
-// // //  * Testing purposes
-// // //  */
-// // // function main(){
-	// function printLol(){
-	// 	console.log("LOL");
-	// }
-
-// // // 	function printPatate(){
-// // // 		console.log("Patate");
-// // // 	}
-
-// // // 	const encore = () =>{
-// // // 		Controller.stop();
-// // // 		const cc = new Controller();
-// // // 		//cc.onAnyKey(console.log);
-// // // 		cc.onKeys([Controller.keyEnter], [printPatate], console.log);
-// // // 		cc.stop = Controller.stop;
-// // // 	}
-
-// const c = new Controller();
-// c.onKeys([], [], console.log);
-// // //	c.stop = encore;
-// // // }
-
-// // // main();
-
-// // const c0 = new Controller();
-// // c0.onKeys(["A"], [()=>{console.log(0)}]);
-
-// // const c1 = new Controller();
-// // c1.onKeys(["B"], [()=>{console.log(1)}]);

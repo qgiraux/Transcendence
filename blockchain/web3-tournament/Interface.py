@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/11 12:27:58 by jerperez          #+#    #+#              #
-#    Updated: 2025/02/17 14:55:27 by jerperez         ###   ########.fr        #
+#    Updated: 2025/02/18 09:58:11 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,6 @@ import json
 #
 import hexbytes
 import rest_framework.serializers
-#import adrf.serializers
 #
 sys.path.insert(0, "/contract") #ugly
 import AsyncWeb3
