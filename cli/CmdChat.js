@@ -356,7 +356,7 @@ class CmdChat extends CmdJWT {
 		} else {
 			ApiPong.getUserInfo(
 				HttpsClient.setUrlInOptions(this.host),
-				user,
+				userId,
 				(ret) => {
 					if (200 == ret.statusCode) {
 							const nickname_ = ret.message.nickname;
