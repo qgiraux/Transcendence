@@ -301,10 +301,21 @@ class CmdGame extends CmdJWT {
 		);
 	}
 
+	#getRandomTournamentName() {
+		const name = Date.now().toString(36).toLowerCase()
+			.replace("l","A")
+			.replace("1","B")
+			.replace("0", "C");
+
+		if (16 < name.length)
+			return name.substring(name.length - 16);
+		return name;
+	}
+
 	#onOpenCreateTournament() {
 		if (true == this.newTournament) {
 			if (!this.tournament) {
-				this.tournament=String(Date.now());
+				this.tournament=this.#getRandomTournamentName();
 			}
 			ApiPong.createTournament(
 				HttpsClient.setUrlInOptions(this.host),
