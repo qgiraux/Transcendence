@@ -140,19 +140,3 @@ class Canvas {
 module.exports = {
 	"Canvas": Canvas
 }
-
-// c = new Canvas(5,5,1,1);
-// process.stdout.write("             \n             \n             \n             \n             \n             \n");
-// c.moveCursor(2,2);
-// process.stdout.write("Lol");
-// c.drawBox();
-// c.clearLines();
-// c.drawPlainText("hh ");
-// //c.drawBox();
-// c.moveCursor(2,2);
-
-// sub = c.subCanvas(2,2)
-// //sub.drawBox();
-// sub.moveCursor(0,0);
-// process.stdout.write("OK");
-// c.moveCursor(10,10);

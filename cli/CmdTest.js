@@ -185,7 +185,3 @@ class CmdTest extends Command {
 module.exports = {
 	"CmdTest": CmdTest
 }
-
-// const t = new CmdTest({});
-// HttpsClient.allowSelfSigned();
-// t.parser.eval();

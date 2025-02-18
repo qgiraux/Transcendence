@@ -55,8 +55,6 @@ class HttpsClient{
 			options.headers['Content-Type'] = 'application/json',
 			options.headers['Content-Length']= jsonData.length
 		}
-		// console.error(options); //
-		// console.error(jsonData); //
 		const req = https.request(options, (res) => {
 			const { statusCode } = res;
 			const contentType = res.headers['content-type'];
@@ -139,10 +137,3 @@ class HttpsClient{
 module.exports = {
 	"HttpsClient": HttpsClient
 }
-
-// //HttpsClient.get('https://swapi.py4e.com/api/people/1/', console.log);
-
-// HttpsClient.allowSelfSigned();
-// //HttpsClient.post({hostname:"localhost", port:5000, path:"/"}, {}, console.log, 200);
-// HttpsClient.post({hostname:"localhost", port:5000, path:"/api/users/register/"}, {username:"patate56", password:"Password123#"}, console.log, 200);
-// //HttpsClient.post({hostname:"echo.free.beeceptor.com", port:443, path:"/sample-request"}, {username:"patate", password:"pass"}, console.log);

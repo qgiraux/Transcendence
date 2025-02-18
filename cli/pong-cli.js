@@ -5,7 +5,7 @@ const {CmdGame} = require("./CmdGame");
 const {CmdTest} = require("./CmdTest");
 const {HttpsClient} = require("./HttpsClient");
 
-HttpsClient.allowSelfSigned(); //
+HttpsClient.allowSelfSigned(); //WARNING: ALLOWS SELF SIGNED (OK for eval)
 
 const p = new Parser();
 patterns = ["[--help]", "[--version]"]
@@ -13,7 +13,5 @@ callbacks = [()=>{p.displayHelp = true}, ()=>{process.stdout.write("pong-cli ver
 p.setOptions(patterns, callbacks);
 p.commands = [new CmdRegister(), new CmdChat(), new CmdGame(), new CmdTest()];
 p.defaultCallback = ()=>{p.printHelp()};
-
-//HttpsClient.enableDebug(); //
 
 p.eval();

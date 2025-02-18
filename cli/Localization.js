@@ -64,14 +64,3 @@ class Localization {
 module.exports = {
 	"Localization": Localization
 }
-
-//console.log(Localization.detectLanguage());
-
-// const l = new Localization();
-
-// console.log(l.t("globals.host"));
-// console.log(l.t("cli.register.error.bad?host", {"host": "patate"}));
-
-
-//console.log(data_en.patate);
-//data_en.patate;
