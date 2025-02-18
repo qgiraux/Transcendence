@@ -274,8 +274,8 @@ class CmdGame extends CmdJWT {
 			this.#dialog(JSON.stringify(ret));
 			this.#onStop();
 			return ;
-		} else if (409 == ret.statusCode) {
-			; //Skip is already joined
+		// } else if (409 == ret.statusCode) {
+		// 	; //Skip is already joined
 		} else if (404 == ret.statusCode) {
 			this.#dialog(`Tournament '${this.tournament}' not found`);
 			this.#onStop();
@@ -314,7 +314,7 @@ class CmdGame extends CmdJWT {
 						this.#dialog(JSON.stringify(ret));
 						this.#onStop();
 					} else {
-						this.#onTournamentJoin();
+						this.#startGame();
 					}
 				}, this.jwt, (access) => {this.jwt.access = access}
 			);
