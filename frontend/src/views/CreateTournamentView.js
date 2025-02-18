@@ -54,6 +54,11 @@ class CreateTournamentView extends AbstractView {
     this.messages.createFailure = await Application.localization.t(
       "tournament.create.failure"
     );
+    this.domText.duplicate = await Application.localization.t
+    (
+      "tournament.create.errors.alreadytExists"
+
+    );
     console.log("Messages loaded");
   }
 
@@ -119,18 +124,30 @@ class CreateTournamentView extends AbstractView {
       return;
     }
     const size = Number(this.tournamentSize);
-    const resp = await TRequest.request("POST", "/api/tournament/create/", {
-      name: name,
-      size: size,
-    });
-    if (resp["tournament name"] === undefined) {
-      Alert.errorMessage(this.domText.tournament, this.messages.createFailure);
+    try{
+      const resp = await TRequest.request("POST", "/api/tournament/create/", {
+        name: name,
+        size: size,
+      });
+      console.log(resp)
+      if (resp["tournament name"] === undefined) {
+        Alert.errorMessage(this.domText.tournament, this.messages.createFailure);
+      }
+      //AV : I added the else to display a success message and (suggestion to be discussed) reroute to the main tournament page
+      else {
+        Alert.successMessage(this.domText.tournament, `${this.messages.createSuccess} ${name}`);
+        Application.joinedTournament = name;
+        Router.reroute("/tournaments");
+      }
     }
-    //AV : I added the else to display a success message and (suggestion to be discussed) reroute to the main tournament page
-    else {
-      Alert.successMessage(this.domText.tournament, `${this.messages.createSuccess} ${name}`);
-      Application.joinedTournament = name;
-      Router.reroute("/tournaments");
+    catch (error) {
+      console.log(error);
+      if (error.toString().includes("409")) {
+
+        Alert.errorMessage(this.domText.tournament, this.domText.duplicate);
+      } else {
+      Alert.errorMessage(this.domText.tournament, this.messages.createFailure);
+      }
     }
   }
 

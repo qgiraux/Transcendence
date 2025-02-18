@@ -53,6 +53,9 @@ class ProfileView extends AbstractView {
     this.domText.table.score = await Application.localization.t(
       "profile.table.score"
     );
+    this.domText.table.opponent = await Application.localization.t(
+      "profile.table.opponent"
+    );
 
     this.messages = {};
     this.messages.errorInitTitle = await Application.localization.t(
@@ -421,7 +424,7 @@ class ProfileView extends AbstractView {
                       <th>${this.domText.table.result}</th>
                       <th>${this.domText.table.date}</th>
                       <th>${this.domText.table.score}</th>
-                      <th>opponent</th>
+                      <th>${this.domText.table.opponent}</th>
                       <th></th>
                   </tr>
               </table>
