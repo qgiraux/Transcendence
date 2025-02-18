@@ -6,7 +6,7 @@
 #    By: jerperez <jerperez@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/22 13:12:29 by jerperez          #+#    #+#              #
-#    Updated: 2025/01/23 15:40:57 by jerperez         ###   ########.fr        #
+#    Updated: 2025/02/18 09:57:08 by jerperez         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,16 +56,6 @@ def get_private_key_from_env(env_var=ENV_ACCOUNT_SERVICE_KEY) -> str:
 	if ('' == private_key):
 		logger.error("Private key not found in env") #
 	return private_key
-
-# def _get_private_key_from_keystore(keystore, publickey, password, web3_):
-# 	dirs=os.listdir(keystore)
-# 	r = '(?i)' + publickey + '$'
-# 	for d in dirs:
-# 		file = os.path.join(keystore, d)
-# 		if os.path.isfile(file) and bool(re.search(r, file)):
-# 			encrypted = readfile(file)
-# 			return web3_.eth.account.decrypt(encrypted, password)
-# 	return ''
 
 def hide_private_key(private_key : str, web3_ : web3.main.AsyncWeb3) -> str:
 	""" Gets public address and saves `private_key` for payments"""

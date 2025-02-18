@@ -1,8 +1,5 @@
-const {Canvas} = require("./Canvas")
-const {Controller} = require("./Controller")
-
-
-// let g_selectedItem = 0;
+const {Canvas} = require("./Canvas");
+const {Controller} = require("./Controller");
 
 class Menu {
 

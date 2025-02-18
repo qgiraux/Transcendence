@@ -356,7 +356,7 @@ class CmdChat extends CmdJWT {
 		} else {
 			ApiPong.getUserInfo(
 				HttpsClient.setUrlInOptions(this.host),
-				user,
+				userId,
 				(ret) => {
 					if (200 == ret.statusCode) {
 							const nickname_ = ret.message.nickname;
@@ -456,9 +456,6 @@ class CmdChat extends CmdJWT {
 		this.writeChat(data_, this.editor.text);
 	}
 }
-
-// const r = new CmdChat();
-// r.parser.eval();
 
 module.exports = {
 	"CmdChat": CmdChat

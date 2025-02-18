@@ -16,7 +16,6 @@ class CmdGame extends CmdJWT {
 		this.description = "Play Pong using keyboard arrows. Create or join tournaments."; //
 		this.width = 103; //Min 29
 		this.height = 28; // Min 8
-		//this.dar = "1:1"; // * NOT IMPLEMENTED
 		this.boxCanvas = undefined;
 		this.dialogCanvas = undefined;
 		this.pongCanvas = undefined;
@@ -27,14 +26,12 @@ class CmdGame extends CmdJWT {
 		this.parser.addOptions([
 			"[--width=<width>]", 
 			"[--height=<height>]",
-			//"[--display=<width:height>]",
 			"[--tournament=<tournament>]",
 			"[--create]",
 			"[--players=<num_players>]",
 		],[
 			(match) => {this.width = Number(Parser.getOptionValue(match))}, 
 			(match) => {this.height = Number(Parser.getOptionValue(match))},
-			//(match) => {this.dar = Parser.getOptionValue(match)},
 			(match) => {this.tournament = Parser.getOptionValue(match)},
 			() => {this.newTournament = true},
 			(match) => {this.players = Number(Parser.getOptionValue(match))},
@@ -46,7 +43,7 @@ class CmdGame extends CmdJWT {
 		this.me = undefined;
 		this.opponent = undefined;
 		this.opponentName = undefined;
-		this.playerNames = undefined; //
+		this.playerNames = undefined;
 		this.askready = false;
 	}
 
@@ -66,7 +63,7 @@ class CmdGame extends CmdJWT {
 
 
 	#initalizeController() {
-		this.controller.onStopKey = () => {/*this.controller.stop();*/ this.#onStop()}; //Move at End
+		this.controller.onStopKey = () => {this.#onStop()};
 		this.controller.onKeys([Controller.keyArrowUp, Controller.keyArrowDown, " ", "R"], [
 			() => {this.#movePaddle("up")},
 			() => {this.#movePaddle("down")},
@@ -81,7 +78,6 @@ class CmdGame extends CmdJWT {
 	}
 
 	#parseGameState(obj) {
-		//console.error(obj); //
 		if (this.mirror)
 			this.#mirorGame(obj);
 		this.#onGameUpdate(()=>{this.#updateGame(obj)})
@@ -92,7 +88,6 @@ class CmdGame extends CmdJWT {
 	}
 
 	#parseInit(state) {
-		//console.log(state); //
 		if (!state.player_right || !state.player_right)
 			return ;
 		if (this.me == state.player_right.playerid) {
@@ -163,15 +158,12 @@ class CmdGame extends CmdJWT {
 	}
 
 	#updateGame(obj) {
-		//console.error(this); //
 		this.pongCanvas.ballX = Number(this.#toCanvasX(obj.ball.position[0]));
 		this.pongCanvas.ballY = Number(this.#toCanvasY(obj.ball.position[1]));
 		this.pongCanvas.paddleLY = Number(this.#toCanvasY(obj.player_left.paddle_y - WSIPong.paddleLH / 2));
 		this.pongCanvas.paddleRY = Number(this.#toCanvasY(obj.player_right.paddle_y - WSIPong.paddleRH / 2));
 		this.pongCanvas.scoreL = Number(obj.player_left.score);
 		this.pongCanvas.scoreR = Number(obj.player_right.score);
-		//console.error(obj); //
-		//console.error(this); //
 	}
 
 	//WS
@@ -200,8 +192,6 @@ class CmdGame extends CmdJWT {
 	#onPongMessage(data) {
 		const obj = JSON.parse(data);
 
-		// console.error("onPongMessage"); //
-		//console.error(obj); //
 		if ("game_update" == obj.type) {
 			this.#parseGameState(obj.state);
 		} else if ("countdown" == obj.type) {
@@ -214,7 +204,6 @@ class CmdGame extends CmdJWT {
 	}
 
 	#onUserinfoSetName(ret) {
-		//console.error(ret);
 		if (
 			HttpsClient.isStatusOk(ret.statusCode)
 			&& ret.message 
@@ -226,7 +215,6 @@ class CmdGame extends CmdJWT {
 			}
 			this.playerNames[String(ret.message.id)] = String(ret.message.nickname);
 		}
-		//console.error(this.playerNames);
 	}
 
 	#onTournamentDetailsGetNames(ret) {
@@ -276,8 +264,6 @@ class CmdGame extends CmdJWT {
 					this.jwt, (access) => {this.jwt.access = access}
 				)
 			}
-			// this.wsChat.close();
-			// this.wsChat = null;
 		}
 	}
 
@@ -288,8 +274,8 @@ class CmdGame extends CmdJWT {
 			this.#dialog(JSON.stringify(ret));
 			this.#onStop();
 			return ;
-		} else if (409 == ret.statusCode) {
-			; //Skip is already joined
+		// } else if (409 == ret.statusCode) {
+		// 	; //Skip is already joined
 		} else if (404 == ret.statusCode) {
 			this.#dialog(`Tournament '${this.tournament}' not found`);
 			this.#onStop();
@@ -315,10 +301,21 @@ class CmdGame extends CmdJWT {
 		);
 	}
 
+	#getRandomTournamentName() {
+		const name = Date.now().toString(36).toLowerCase()
+			.replace("l","A")
+			.replace("1","B")
+			.replace("0", "C");
+
+		if (16 < name.length)
+			return name.substring(name.length - 16);
+		return name;
+	}
+
 	#onOpenCreateTournament() {
 		if (true == this.newTournament) {
 			if (!this.tournament) {
-				this.tournament=String(Date.now());
+				this.tournament=this.#getRandomTournamentName();
 			}
 			ApiPong.createTournament(
 				HttpsClient.setUrlInOptions(this.host),
@@ -328,7 +325,7 @@ class CmdGame extends CmdJWT {
 						this.#dialog(JSON.stringify(ret));
 						this.#onStop();
 					} else {
-						this.#onTournamentJoin();
+						this.#startGame();
 					}
 				}, this.jwt, (access) => {this.jwt.access = access}
 			);
@@ -409,7 +406,6 @@ class CmdGame extends CmdJWT {
 
 
 	#dialog(msg) {
-		//console.error(msg); //
 		this.dialogCanvas.resetText(msg);
 		this.dialogCanvas.displayText();
 	}
@@ -422,7 +418,6 @@ class CmdGame extends CmdJWT {
 		this.pongCanvas.moveCursor(0, 0);
 		this.pongCanvas.clearRec();
 		this.pongCanvas.update(() => {});
-		//this.dialogCanvas.displayText();
 	}
 
 	#iniCanvas() {
@@ -456,18 +451,8 @@ class CmdGame extends CmdJWT {
 		this.#iniCanvas();
 		this.#dialog(`Tournament="${this.tournament}" Waiting for tounament players... `);
 		this.#initalizeController();
-		//this.#initalizeControllerDebug();
 	}
 }
-
-// 	const c = new Controller();
-// 	c.onKeys([Controller.keyEnter], [printLol], console.log);
-// 	c.stop = encore;
-// }
-
-
-// const r = new CmdGame();
-// r.parser.eval();
 
 module.exports = {
 	"CmdGame": CmdGame

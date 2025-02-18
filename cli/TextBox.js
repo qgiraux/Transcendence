@@ -97,22 +97,6 @@ class TextBox {
 	}
 }
 
-// const c = new Canvas(5,5,1,1);
-// c.clearLines();
-// const t = new TextBox(c);
-// t.text = "sal\tut\nles amis\n01234567890123456789\nlol\nlol\nlol\nlol\nlol"
-// t.displayText();
-// t.resetText("patate");
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
-// t.scrollRight();
-// t.displayText();
-
 module.exports = {
 	"TextBox": TextBox
 }

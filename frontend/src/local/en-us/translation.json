@@ -66,7 +66,8 @@
     "table": {
       "result": "Result",
       "date": "Date",
-      "score": "Score"
+      "score": "Score",
+      "opponent": "Opponent"
     },
     "errorInitTitle": "Something went wrong",
     "errorInitBody": "We have issue communicating to the server. Please try again later."
@@ -183,6 +184,8 @@
       }
     },
     "close": "Close",
+    "online": "Online",
+    "offline": "Offline",
     "modal": {
       "notFound": "Error: modal not found",
       "idAttributeMissing": "Error: data-id attribute not found on modal"
@@ -258,7 +261,8 @@
         "joinTournament": "Error joining tournament",
         "createTournament": "Error creating tournament",
         "invalidName": "Invalid tournament name",
-        "tourNameRequirements": "The tournament name must consist of alphanumeric characters and be between 5 and 16 characters long."
+        "tourNameRequirements": "The tournament name must consist of alphanumeric characters and be between 5 and 16 characters long.",
+        "alreadytExists": "A tournament with that name already exists"
       }
     },
     "invite": {
