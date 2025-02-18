@@ -106,14 +106,9 @@ class PongRenderer {
     this.drawScore(0, 0);
     this.drawPaddle1(paddle1);
     this.drawPaddle2(paddle2);
-    this.ctx.font = "20px Audiowide";
+    this.ctx.font = "20px Montserrat";
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = "white";
-    // this.ctx.fillText(
-    //   Application.joinedTournament,
-    //   this.canvas.width /2,
-    //   this.canvas.height -50
-    // );
     this.ctx.fillText(
       "Press SPACE to start",
       this.canvas.width / 2,
