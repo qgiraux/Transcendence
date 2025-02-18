@@ -19,10 +19,10 @@ import Application from "./Application.js";
 import AccountDeleteView from "./views/AccountDeleteView.js";
 import TwofaLoginView from "./views/TwofaLoginView.js";
 
-async function initializeLanguageSelector() {
-  await Application.setLanguage(Application.lang);
-  await Application.applyTranslations();
-}
+// async function initializeLanguageSelector() {
+//   await Application.setLanguage(Application.lang);
+//   await Application.applyTranslations();
+// }
 
 const router = new Router();
 router.addRoute("/", RootView);
@@ -51,5 +51,3 @@ Application.router = router;
 const langSelector = document.getElementById("lang-select");
 
 langSelector.addEventListener("change", Application.listenForLanguageChange);
-
-//test

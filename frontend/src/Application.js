@@ -231,6 +231,8 @@ class Application {
 
   static toggleLangSelectorShow() {
     const langSelect = document.querySelector("#language-selector-container");
+    const langSelectId = document.querySelector("#lang-select");
+    langSelectId.value = Application.lang; //Added these lines to update the lang selector button in case the language was changed by the system
     langSelect.classList.remove("d-none");
   }
 
@@ -291,12 +293,14 @@ class Application {
   static async setLanguage(lang) {
     Application.lang = lang;
     if (lang !== this.localization.lang) {
-      this.localization.lang = this.lang;
+      this.localization.lang = lang;
       if (location.pathname !== "/landing")
       {
         await this.updateLanguageInDatabase();
       }
       this.setLanguageCookie(lang);
+      // const langSelector = document.getElementById("lang-select");
+      // langSelector.value = lang;
     }
     await this.localization.loadTranslations();
     await Application.applyTranslations();
