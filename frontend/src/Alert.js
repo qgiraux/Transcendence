@@ -1,4 +1,5 @@
 import TRequest from "./TRequest.js";
+import Application from "./Application.js";
 
 class Alert {
   //This event listener closes all Alert when a click is captured outside an alert
@@ -96,6 +97,7 @@ class Alert {
             );
             console.log(ret);
             this.clearAlerts();
+            Application.joinedTournament = link;
             Alert.successMessage(
               "Success",
               `Invite accepted successfully for tournament: ${link}`
