@@ -152,7 +152,7 @@ class State:
 		return frame
 
 class PongEngine(threading.Thread):
-	TICK_RATE = float(os.getenv('TICK_RATE', 1/60)) # 30 tick per second
+	TICK_RATE = float(os.getenv('TICK_RATE', 1/60))
 	MAX_SCORE = int(os.getenv('MAX_SCORE', 3))
 
 	
@@ -181,7 +181,7 @@ class PongEngine(threading.Thread):
 		try:
             # Block until both players are ready
 			self.game_task = self.loop.create_task(self.game_loop())
-			self.loop.run_until_complete(self.game_task)
+			# self.loop.run_until_complete(self.game_task)
 		except Exception as e:
 			log.error(f"[pong.pong_game] Error during readiness check: {e}")
 
