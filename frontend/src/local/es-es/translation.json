@@ -169,6 +169,8 @@
       }
     },
     "close": "Cerrar",
+    "online": "En línea",
+    "offline": "descon.",
     "modal": {
       "notFound": "Error: modal no encontrado",
       "idAttributeMissing": "Error: falta el atributo data-id en el modal"

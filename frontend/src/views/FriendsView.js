@@ -43,7 +43,15 @@ class FriendsView extends AbstractView {
     this.domText.addFriendAction = await Application.localization.t(
       "friends.add.action"
     );
-    this.domText.close = await Application.localization.t("friends.close");
+    this.domText.close = await Application.localization.t(
+      "friends.close"
+    );
+    this.domText.online = await Application.localization.t(
+      "friends.online"
+    );
+    this.domText.offline = await Application.localization.t(
+      "friends.offline"
+    );
     this.messages.error = await Application.localization.t(
       "friends.errors.general"
     );
@@ -307,10 +315,10 @@ class FriendsView extends AbstractView {
       .then((result) => {
         if (result.online === 1) {
           statusElement.style.color = "rgb(0, 255, 149)";
-          statusElement.textContent = "Online";
+          statusElement.textContent = this.domText.online;
         } else {
           statusElement.style.color = "rgb(255, 0, 0)";
-          statusElement.textContent = "Offline";
+          statusElement.textContent = this.domText.offline;
         }
       })
       .catch((error) => {

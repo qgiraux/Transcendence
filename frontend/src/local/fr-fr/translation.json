@@ -169,6 +169,8 @@
       }
     },
     "close": "Fermer",
+    "online": "En ligne",
+    "offline": "Hors ligne",
     "modal": {
       "notFound": "Erreur : modale introuvable",
       "idAttributeMissing": "Erreur : l'attribut data-id est manquant sur la modale"
