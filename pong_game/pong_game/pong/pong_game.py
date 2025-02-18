@@ -16,9 +16,9 @@ import os
 
 log = logging.getLogger(__name__)
 
-PADDLE_SPEED = float(os.getenv('PADDLE_SPEED', 4)) # 4 / canvasheight per tick if 30 tick per second
-BALL_SPEED = float(os.getenv('BALL_SPEED', 1.25)) # 2.5 / canvaswidth per tick if 30 tick per second
-BALL_ACCELERATION = float(os.getenv('BALL_ACCELERATION', 1))
+PADDLE_SPEED = 4 #float(os.getenv('PADDLE_SPEED', 4)) # 4 / canvasheight per tick if 30 tick per second
+BALL_SPEED = 1.25 #float(os.getenv('BALL_SPEED', 1.25)) # 2.5 / canvaswidth per tick if 30 tick per second
+BALL_ACCELERATION = 1.1 #float(os.getenv('BALL_ACCELERATION', 1))
 
 @unique
 class Direction(Enum):
@@ -152,8 +152,8 @@ class State:
 		return frame
 
 class PongEngine(threading.Thread):
-	TICK_RATE = float(os.getenv('TICK_RATE', 1/60)) # 30 tick per second
-	MAX_SCORE = int(os.getenv('MAX_SCORE', 3))
+	TICK_RATE = 1/60 #float(os.getenv('TICK_RATE', 1/60)) # 30 tick per second
+	MAX_SCORE = 3 #int(os.getenv('MAX_SCORE', 3))
 
 	
 	def __init__(self, group_name, **kwargs):
@@ -181,7 +181,7 @@ class PongEngine(threading.Thread):
 		try:
             # Block until both players are ready
 			self.game_task = self.loop.create_task(self.game_loop())
-			self.loop.run_until_complete(self.game_task)
+			# self.loop.run_until_complete(self.game_task)
 		except Exception as e:
 			log.error(f"[pong.pong_game] Error during readiness check: {e}")
 
