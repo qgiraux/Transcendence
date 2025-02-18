@@ -69,13 +69,6 @@ class TextEditor extends Controller {
 			this.text += String(buff);
 			echo(buff);
 		}
-		// const code = Controller.getCharCode(buff);
-
-		// if (Controller.isPrintable(code))
-		// {
-		// 	this.text += String(buff);
-		// 	echo(buff);
-		// }
 	}
 
 	static echo(buff){
@@ -90,9 +83,3 @@ class TextEditor extends Controller {
 module.exports = {
 	"TextEditor": TextEditor
 }
-
-// function main(){
-// 	const c = new TextEditor(console.log, (buffout) => TextEditor.echo(buffout), Controller.keyEnter);
-// }
-
-// main();

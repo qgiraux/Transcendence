@@ -64,22 +64,13 @@ class CmdJWT extends Command {
 		process.stderr.write(`\x1b[31m${"Error"}: ${text}\x1b[0m\n`);
 	}
 
-	// retryRefreshJwt(getOptions, retryCallback, onFailure) {
-	// 	HttpsClient.refreshJwt(
-	// 		getOptions, 
-	// 		this.jwt, 
-	// 		(jwt) => {this.jwt = jwt; retryCallback()}, 
-	// 		onFailure
-	// 	)
-	// }
-
 	#stepJWT(ret){
 		const statusCode = Number(ret.statusCode);
 
 		if (200 <= statusCode && 300 > statusCode)
 		{
 			this.jwt = ret.message;
-			this.onLoggedin(this.jwt); //
+			this.onLoggedin(this.jwt);
 		} else {
 			CmdJWT.#printError(`${statusCode}: ${JSON.stringify(ret.message)}`);
 		}
@@ -140,6 +131,3 @@ class CmdJWT extends Command {
 module.exports = {
 	"CmdJWT": CmdJWT
 }
-
-// const r = new CmdJWT();
-// r.parser.eval();

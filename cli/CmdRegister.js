@@ -139,6 +139,3 @@ class CmdRegister extends Command {
 module.exports = {
 	"CmdRegister": CmdRegister
 }
-
-// const r = new CmdRegister();
-// r.parser.eval();
