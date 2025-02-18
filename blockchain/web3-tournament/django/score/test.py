@@ -5,8 +5,6 @@ import rest_framework.test
 import rest_framework.status
 import django.urls
 import django.http
-import asyncio
-import adrf.requests
 import rest_framework.request
 import django.core.handlers.asgi
 import django.test

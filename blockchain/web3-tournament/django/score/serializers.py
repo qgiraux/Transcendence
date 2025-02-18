@@ -1,6 +1,4 @@
-#import rest_framework
 import rest_framework.serializers
-#from rest_framework import serializers as rest_framework_serializers
 
 class Tournament:
 	def __init__(self, name: str, result : str):
