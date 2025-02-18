@@ -66,7 +66,8 @@
     "table": {
       "result": "Resultado",
       "date": "Fecha",
-      "score": "Puntuación"
+      "score": "Puntuación",
+      "opponent": "adversario"
     },
     "errorInitTitle": "Algo salió mal",
     "errorInitBody": "Tenemos problemas de comunicación con el servidor. Por favor, inténtelo de nuevo más tarde."
@@ -168,6 +169,8 @@
       }
     },
     "close": "Cerrar",
+    "online": "En línea",
+    "offline": "descon.",
     "modal": {
       "notFound": "Error: modal no encontrado",
       "idAttributeMissing": "Error: falta el atributo data-id en el modal"
@@ -242,7 +245,8 @@
         "joinTournament": "Error al unirse al torneo",
         "createTournament": "Error al crear el torneo",
         "invalidName": "Nombre de torneo no válido",
-        "tourNameRequirements": "El nombre del torneo debe contener caracteres alfanuméricos y tener entre 5 y 16 caracteres de longitud."
+        "tourNameRequirements": "El nombre del torneo debe contener caracteres alfanuméricos y tener entre 5 y 16 caracteres de longitud.",
+        "alreadytExists": "Ya existe un torneo con ese nombre"
       }
     },
     "invite": {

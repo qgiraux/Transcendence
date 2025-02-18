@@ -66,7 +66,8 @@
     "table": {
       "result": "Résultat",
       "date": "Date",
-      "score": "Score"
+      "score": "Score",
+      "opponent": "Adversaire"
     },
     "errorInitTitle": "Une erreur est survenue",
     "errorInitBody": "Nous rencontrons un problème de communication avec le serveur. Veuillez réessayer plus tard."
@@ -168,6 +169,8 @@
       }
     },
     "close": "Fermer",
+    "online": "En ligne",
+    "offline": "Hors ligne",
     "modal": {
       "notFound": "Erreur : modale introuvable",
       "idAttributeMissing": "Erreur : l'attribut data-id est manquant sur la modale"
@@ -242,7 +245,8 @@
         "joinTournament": "Erreur lors de la participation au tournoi",
         "createTournament": "Erreur lors de la création du tournoi",
         "invalidName": "Nom du tournoi invalide",
-        "tourNameRequirements": "Le nom du tournoi doit contenir des caractères alphanumériques et comporter entre 5 et 16 caractères."
+        "tourNameRequirements": "Le nom du tournoi doit contenir des caractères alphanumériques et comporter entre 5 et 16 caractères.",
+        "alreadytExists": "Un tournoi avec ce nom existe déjà"
       }
     },
     "invite": {
