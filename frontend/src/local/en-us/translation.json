@@ -304,5 +304,18 @@
     "confirmationText" : "Are you sure you want to delete your account?",
     "confirmationNo": "😊 No I want to keep playing !",
     "confirmationYes": "😔 Yes I want to delete my account"
+  },
+  "pongView": {
+    "welcome" : "Welcome to the tournament",
+    "waitingOpponent": "Waiting for opponent...",
+    "titleGame": "Tournament game",
+    "pressSpace": "Press SPACE to start the game.",
+    "hasWon": "has won!",
+    "wonGame": "You WON the game baby! 😎",
+    "wonTournament": "You WON the tournament baby! 😎",
+    "lost": "Oh noooo you lost!",
+    "waitHere": "You can wait here for the next match to start.",
+    "goHomeVictory": "You can <a data-link href='https://127.0.0.1:5000/home'>go back home</a> now and savour your victory.",
+    "goHomeDefeat": "You can <a data-link href='https://127.0.0.1:5000/home'>go back home</a> now and cry."
   }
 }

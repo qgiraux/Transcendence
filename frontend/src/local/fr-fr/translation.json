@@ -300,5 +300,18 @@
     "confirmationText": "Êtes-vous sûr de vouloir supprimer votre compte ?",
     "confirmationNo": "😊 Non, je veux continuer à jouer !",
     "confirmationYes": "😔 Oui, je veux supprimer mon compte"
+},
+  "pongView": {
+    "welcome": "Bienvenue au tournoi",
+    "waitingOpponent": "En attente d'un adversaire...",
+    "titleGame": "Match de tournoi",
+    "pressSpace": "Appuyez sur ESPACE pour commencer la partie.",
+    "hasWon": "a gagné !",
+    "wonGame": "Tu AS GAGNÉ la partie bébé ! 😎",
+    "wonTournament": "Tu AS GAGNÉ le tournoi bébé ! 😎",
+    "lost": "Oh noooon, tu as perdu !",
+    "waitHere": "Tu peux attendre ici que le prochain match commence.",
+    "goHomeVictory": "Tu peux <a data-link href='https://localhost:5000/home'>rentrer chez toi</a> maintenant et savourer ta victoire.",
+    "goHomeDefeat": "Tu peux <a data-link href='https://localhost:5000/home'>rentrer chez toi</a> maintenant et pleurer."
 }
 }

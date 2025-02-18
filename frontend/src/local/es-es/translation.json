@@ -303,5 +303,18 @@
     "confirmationText": "¿Estás seguro de que quieres eliminar tu cuenta?",
     "confirmationNo": "😊 No, quiero seguir jugando!",
     "confirmationYes": "😔 Sí, quiero eliminar mi cuenta"
-} 
+},
+  "pongView": {
+      "welcome": "Bienvenido al torneo",
+      "waitingOpponent": "Esperando a un oponente...",
+      "titleGame": "Partida del torneo",
+      "pressSpace": "Presiona ESPACIO para comenzar la partida.",
+      "hasWon": "¡ha ganado!",
+      "wonGame": "¡Ganaste la partida, bebé! 😎",
+      "wonTournament": "¡Ganaste el torneo, bebé! 😎",
+      "lost": "¡Oh noooo, perdiste!",
+      "waitHere": "Puedes esperar aquí hasta que comience el próximo partido.",
+      "goHomeVictory": "Ahora puedes <a data-link href='https://localhost:5000/home'>volver a casa</a> y saborear tu victoria.",
+      "goHomeDefeat": "Ahora puedes <a data-link href='https://localhost:5000/home'>volver a casa</a> y llorar."
+    }
 }
