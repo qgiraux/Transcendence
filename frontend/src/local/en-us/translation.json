@@ -114,7 +114,7 @@
         "action": "Update avatar",
         "updateSuccess": "The avatar picture has been updated successfully.",
         "uploadFailure": "The picture could't be uploaded.",
-        "uploadFileCheck": "Please check that it is a valid jpeg or png file, less or equal than 5MB"
+        "uploadFileCheck": "Please check that it is a valid jpeg or png file, with a maximum size 5MB and a maximum resolution of 1200 x 1200"
       },
       "reset": {
         "action": "Avatar reset"

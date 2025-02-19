@@ -67,7 +67,7 @@
       "result": "Resultado",
       "date": "Fecha",
       "score": "Puntuación",
-      "opponent": "adversario"
+      "opponent": "Adversario"
     },
     "errorInitTitle": "Algo salió mal",
     "errorInitBody": "Tenemos problemas de comunicación con el servidor. Por favor, inténtelo de nuevo más tarde."
@@ -114,8 +114,7 @@
         "action": "Actualizar avatar",
         "updateSuccess": "La imagen del avatar se ha actualizado correctamente.",
         "uploadFailure": "No se pudo cargar la imagen.",
-        "uploadFileCheck": "Verifique que sea un archivo jpeg o png válido, con un tamaño menor o igual a 5 MB"
-      },
+        "uploadFileCheck": "Por favor, verifica que sea un archivo JPEG o PNG válido, con un tamaño máximo de 5 MB y una resolución máxima de 1200 x 1200"      },
       "reset": {
         "action": "Restablecimiento de avatar"
       }
@@ -289,7 +288,8 @@
       "deleteTournament": "Eliminar",
       "players": "jugadores",
       "player": "jugador",
-      "spots": " plaza"
+      "spots": " plazas",
+      "spot": " plaza"
     }
   },
   "twofa": {

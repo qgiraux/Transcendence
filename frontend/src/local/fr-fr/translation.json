@@ -110,8 +110,7 @@
         "action": "Mettre à jour l'avatar",
         "updateSuccess": "L'image de l'avatar a été mise à jour avec succès.",
         "uploadFailure": "L'image n'a pas pu être téléchargée.",
-        "uploadFileCheck": "Veuillez vérifier qu'il s'agit d'un fichier jpeg ou png valide, d'une taille inférieure ou égale à 5 Mo"
-      },
+        "uploadFileCheck": "Veuillez vérifier qu'il s'agit d'un fichier JPEG ou PNG valide, d'une taille maximale de 5 Mo et d'une résolution maximale de 1200 x 1200"      },
       "reset": {
         "action": "Réinitialisation de l'avatar"
       }
