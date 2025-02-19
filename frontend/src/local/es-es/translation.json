@@ -87,7 +87,7 @@
       "field": "Ingrese un nuevo alias",
       "update": "Actualizar alias",
       "empty": "El alias no puede estar vacío",
-      "requirements": "El alias debe tener como máximo 20 caracteres",
+      "requirements": "Debes proporcionar un alias válido. El alias debe tener entre 1 y 20 caracteres, puede contener caracteres alfanuméricos y !@#$%^&*",
       "updateSuccess": "El alias se ha actualizado correctamente.",
       "updateFailure": "Error al actualizar el alias: "
     },

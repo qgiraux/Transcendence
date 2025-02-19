@@ -44,6 +44,7 @@ from .utils import (
 )
 from .models import add_stat
 from .mock_jwt_expired import mock_jwt_expired
+import re
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -182,9 +183,6 @@ def authenticate_with_2fa(request):
         })
     else:
         return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -329,6 +327,8 @@ def ChangeNickname(request):
     # Update nickname
     if body['nickname']:
         user.nickname = body['nickname']
+        if not re.match(r'^[a-zA-Z0-9_!@#$%^&*]{1,20}$', body['nickname']):
+            return Response({"error": "Invalid nickname. It must be 1-20 characters long and can only contain letters, numbers, underscores, and !@#$%^&*."}, status=status.HTTP_400_BAD_REQUEST)
         user.save()
         # Return updated user info
         serializer = UserSerializer(user)
@@ -390,8 +390,6 @@ def validate_jwt_token(request):
     except jwt.InvalidTokenError:
         raise ValidationError("Invalid token")
 
-
-
 class UserDeleteView(APIView):
     def delete(self, request):
         try:
@@ -434,8 +432,6 @@ class UserDeleteView(APIView):
                 {"error":f"error {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
