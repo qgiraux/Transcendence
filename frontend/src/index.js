@@ -25,7 +25,7 @@ async function initializeLanguageSelector() {
 }
 
 const router = new Router();
-router.addRoute("/", RootView);
+router.addRoute("/", LandingView);
 router.addRoute("/landing", LandingView);
 router.addRoute("/twofalogin/:token", TwofaLoginView);
 router.addRoute("/home", HomeView);

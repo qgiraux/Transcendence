@@ -77,7 +77,7 @@ class ProfileView extends AbstractView {
       }, 50);
       return;
     }
-    this.id = this.params["id"] || Application.getUserInfos().userId;
+    this.id = Number(this.params["id"]) || Application.getUserInfos().userId;
 
     TRequest.request("GET", `/api/users/userinfo/${this.id}`)
       .then((result) => {
@@ -147,9 +147,17 @@ class ProfileView extends AbstractView {
     const table = document.getElementById("table-history");
     this.playerHistory.forEach((match) => {
       const tr = document.createElement("tr");
-      const nickname = this.userList.filter((user) => {
+
+      const opponent = this.userList.filter((user) => {
         return user.id === Number(match.opponent);
-      })[0].nickname;
+      })[0];
+      const nickname = opponent.nickname;
+      let opponentProfileLink;
+      if (opponent["account_deleted"] === false) {
+        opponentProfileLink = `<a href="/profile/${match.opponent}" class="text-decoration-none" data-link style="padding: 0;margin: 0;background-color: transparent;" >${nickname}</a>`;
+      } else {
+        opponentProfileLink = `<p class="text-secondary" data-link style="padding: 0;margin: 0;background-color: transparent;" >${nickname.toLowerCase()}</p>`;
+      }
 
       tr.innerHTML = `
       <th class="d-flex justify-content-center align-items-center"> ${
@@ -157,19 +165,16 @@ class ProfileView extends AbstractView {
           ? '<img src="/img/winning-cup.png" width="40" height="40" alt="winner"  style="padding: 0;margin: 0; background-color: transparent;">'
           : '<img src="/img/loser.png" width="40" height="40" alt="loser"  style="padding: 0;margin: 0; background-color: transparent;">'
       }</th>
-            <td class="text-center">${match.date.toLocaleString(
-              "fr-FR"
-            )}</td>
+            <td class="text-center">${match.date.toLocaleString("fr-FR")}</td>
           <td class="text-center">${match.score}</td>
           <td class="text-center d-flex align-items-start justify-content-start gap-2"><img src="${Avatar.url(
             match.opponent
           )}" class="rounded-circle border-0" width="40" height="40" alt="${
         match.opponent
-      }" style="padding: 0;margin: 0;" data-avatar="${
-        match.opponent
-      }"> <a href="/profile/${
-        match.opponent
-      }"  class="text-decoration-none" data-link style="padding: 0;margin: 0;background-color: transparent;" >${nickname}</a></td>`;
+      }" style="padding: 0;margin: 0;" data-avatar="${match.opponent}">
+     ${opponentProfileLink}
+</td>
+      `;
 
       table.appendChild(tr);
     });
@@ -352,7 +357,7 @@ class ProfileView extends AbstractView {
   _setHtml() {
     const profileEdit = `
 		<a class="link-offset-2 link-underline link-underline-opacity-0 fw-bold" data-link href="/account">
-      <button class="btn btn-primary" type="button">  
+      <button class="btn btn-primary" type="button">
         ${this.domText.manageAccount}</button></a>
     `;
     const container = document.querySelector("#view-container");
@@ -365,43 +370,37 @@ class ProfileView extends AbstractView {
           <div class="row">
             <img id="profile-img" src="${Avatar.url(
               this.currentUserInfos.id
-              )}" width="300" height="300" data-avatar="${
-              this.currentUserInfos.id
-                }" alt="user" class="rounded-circle img-fluid">
+            )}" width="300" height="300" data-avatar="${
+        this.currentUserInfos.id
+      }" alt="user" class="rounded-circle img-fluid">
           </div>
           <div class="row mt-2">
             ${this.id === Application.getUserInfos().userId ? profileEdit : ""}
           </div>
         </div>
         <div class="col-6 mb-3 p-2 ">
-            <h1 id="nickname">${
-              this.currentUserInfos.nickname
-            }</h1>
+            <h1 id="nickname">${this.currentUserInfos.nickname}</h1>
             <h2 id="username"><small>@${
               this.currentUserInfos.username
             }</small></h2>
             <div class="card bg-dark text-white p-4 rounded shadow">
               <h2 class="text-center text-white mb-4">${
-                  this.domText.level
-                } <strong>${this.playerLevel}</strong></h2>
+                this.domText.level
+              } <strong>${this.playerLevel}</strong></h2>
               <div class="row mb-3 d-flex justify-content-center align-items-center">
-                  <div class="col-6 ">${
-                      this.domText.gamePlayedNumber
-                    }
+                  <div class="col-6 ">${this.domText.gamePlayedNumber}
                   </div>
                   <div class="col-6 text-end text-white fw-bold fs-3">${
-                      this.playerMatchPlayed
-                    }
+                    this.playerMatchPlayed
+                  }
                   </div>
               </div>
               <div class="row mb-3 d-flex justify-content-center align-items-center">
-                  <div class="col-6 ">${
-                      this.domText.victoryNumber
-                    }
+                  <div class="col-6 ">${this.domText.victoryNumber}
                   </div>
                   <div class="col-6 text-end text-white fw-bold fs-4">${
-                      this.playerMatchWon
-                    }
+                    this.playerMatchWon
+                  }
                   </div>
               </div>
               <div class="progress">
@@ -410,8 +409,8 @@ class ProfileView extends AbstractView {
                   </div>
               </div>
               <div class="text-white" id="victories-left-text">${
-                  this.playerVictoryRemain
-                } ${this.domText.winRemain}
+                this.playerVictoryRemain
+              } ${this.domText.winRemain}
               </div>
             </div>
         </div>
