@@ -151,7 +151,10 @@
     "delete": {
       "title": "Delete account",
       "irreversible": "❗ This action is irreversible",
-      "action": "Delete account"
+      "action": "Delete account",
+      "errorUnsubscribe": "Couldn't unsubscribe from tournament(s). Try to do it manually",
+      "tournamentInProgress": "You have a tournament in progress",
+      "cancelTournament": "Unsubscribe or give up before deleting your account"
     },
     "errors": {
       "unexpected": "Something went wrong : "

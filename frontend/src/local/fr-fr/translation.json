@@ -148,8 +148,11 @@
     },
     "delete": {
       "title": "Supprimer le compte",
-      "irreversible": "❗Cette action est irréversible",
-      "action": "Supprimer le compte"
+      "irreversible": "❗ Cette action est irréversible",
+      "action": "Supprimer le compte",
+      "errorUnsubscribe": "Impossible de se désinscrire du ou des tournois. Essayez de le faire manuellement",
+      "tournamentInProgress": "Vous avez un tournoi en cours",
+      "cancelTournament": "Désinscrivez-vous ou abandonnez avant de supprimer votre compte"
     }
   },
   "friends": {

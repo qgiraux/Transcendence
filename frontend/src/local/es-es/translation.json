@@ -300,7 +300,15 @@
     "invalid": "Código 2FA inválido",
     "errors": {
       "unexpected": "Algo salió mal"
-    }
+    },
+  "delete": {
+    "title": "Eliminar cuenta",
+    "irreversible": "❗ Esta acción es irreversible",
+    "action": "Eliminar cuenta",
+    "errorUnsubscribe": "No se pudo cancelar la suscripción al torneo. Intenta hacerlo manualmente",
+    "tournamentInProgress": "Tienes un torneo en curso",
+    "cancelTournament": "Cancela tu inscripción o abandona antes de eliminar tu cuenta"
+  }
   },
   "deleteView": {
     "title": "Eliminar cuenta",

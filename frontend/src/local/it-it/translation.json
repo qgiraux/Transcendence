@@ -153,10 +153,13 @@
     },
     "delete": {
       "title": "Elimina account",
-      "irreversible": "❗Questa azione è irreversibile",
-      "action": "Elimina account"
+      "irreversible": "❗ Questa azione è irreversibile",
+      "action": "Elimina account",
+      "errorUnsubscribe": "Impossibile annullare l'iscrizione ai tornei. Prova a farlo manualmente",
+      "tournamentInProgress": "Hai un torneo in corso",
+      "cancelTournament": "Disiscriviti o rinuncia prima di eliminare il tuo account"
     }
-  },
+    },
   "friends": {
     "card": {
       "viewProfile": "Visualizza il profilo dell'amico",
