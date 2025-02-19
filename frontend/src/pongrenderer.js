@@ -21,17 +21,12 @@ class PongRenderer {
     this.domText.player1 = await Application.localization.t(
       "localPong.player1"
     );
-    console.log("PLAYER1=", this.domText.player1);
     this.domText.player2 = await Application.localization.t(
       "localPong.player2"
     );
-    console.log("PLAYER2=", this.domText.player2);
-
     this.domText.player = await Application.localization.t(
       "localPong.player"
     );
-    console.log("PLAYER=", this.domText.player);
-
     this.domText.won = await Application.localization.t(
       "localPong.won"
     );
@@ -47,8 +42,6 @@ class PongRenderer {
     this.domText.spaceStart = await Application.localization.t(
       "localPong.spaceStart"
     );
-    console.log("Space Start =", this.domText.spaceStart);
-
   }
 
 
