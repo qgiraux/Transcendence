@@ -1,12 +1,18 @@
 import PongRenderer from "./pongrenderer.js";
+import Application from "./Application.js";
 
 class PongGame {
     constructor(canvasId) {
+        
+        this.domText = {};
+
         this.canvas = document.getElementById(canvasId);
         if (!this.canvas) {
             throw new Error(`Canvas element with id ${canvasId} not found`);
         }
         this.renderer = new PongRenderer(this.canvas);
+
+
         
         this.paddle1 = {
             x: this.canvas.width / 160,
@@ -37,7 +43,10 @@ class PongGame {
         this.paused = true;
         this.reset = true;
         this.waitingForServe = true;
-        this.renderer.drawStartMessage(this.paddle1, this.paddle2);
+
+        this.init().then(() => {
+            this.renderer.drawStartMessage(this.paddle1, this.paddle2);
+        });
 
         this.boundHandleKeyDown = this.handleKeyDown.bind(this);
         this.boundHandleKeyUp = this.handleKeyUp.bind(this);
@@ -47,6 +56,52 @@ class PongGame {
         document.addEventListener('keyup', this.boundHandleKeyUp);
         document.addEventListener('keydown', this.boundResumeGame);
     }
+
+    async init()
+    {
+      await this.loadMessages();
+    }
+  
+    async loadMessages() {
+      await Application.setLanguage(Application.lang);
+      await Application.localization.loadTranslations();
+  
+      this.domText.player1 = await Application.localization.t(
+        "localPong.player1"
+      );
+      console.log("PLAYER1=", this.domText.player1);
+      this.domText.player2 = await Application.localization.t(
+        "localPong.player2"
+      );
+      console.log("PLAYER2=", this.domText.player2);
+  
+      this.domText.player = await Application.localization.t(
+        "localPong.player"
+      );
+      console.log("PLAYER=", this.domText.player);
+  
+      this.domText.won = await Application.localization.t(
+        "localPong.won"
+      );
+      console.log("won=", this.domText.won);
+      this.domText.scored = await Application.localization.t(
+        "localPong.scored"
+      );
+      console.log("scored=", this.domText.scored);
+      this.domText.spaceNew = await Application.localization.t(
+        "localPong.spaceNew"
+      );
+      console.log("Space New =", this.domText.spaceNew);
+      this.domText.spaceResume = await Application.localization.t(
+        "localPong.spaceResume"
+      );
+      console.log("Space Resume =", this.domText.spaceResume);
+      this.domText.spaceStart = await Application.localization.t(
+        "localPong.spaceStart"
+      );
+      console.log("Space Start =", this.domText.spaceStart);
+    }
+
 
     destroy() {
         console.log('Destroying PongGame');

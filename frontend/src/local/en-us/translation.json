@@ -321,5 +321,15 @@
     "waitHere": "You can wait here for the next match to start.",
     "goHomeVictory": "You can <a data-link href='/home'>go back home</a> now and savour your victory.",
     "goHomeDefeat": "You can <a data-link href='/home'>go back home</a> now and cry."
+  },
+  "localPong": {
+    "player1": "PLAYER 1",
+    "player2": "PLAYER 2",
+    "player": "PLAYER",
+    "won": "HAS WON!!",
+    "scored": "SCORED!!",
+    "spaceNew":"Press SPACE for a new game",
+    "spaceResume":"Press SPACE to resume",
+    "spaceStart": "Press SPACE to start"
   }
 }

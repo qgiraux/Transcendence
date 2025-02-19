@@ -4,7 +4,53 @@ class PongRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d");
+    this.domText = {};
+    this.init();
+
   }
+
+  async init()
+  {
+    await this.loadMessages();
+  }
+
+  async loadMessages() {
+    await Application.setLanguage(Application.lang);
+    await Application.localization.loadTranslations();
+
+    this.domText.player1 = await Application.localization.t(
+      "localPong.player1"
+    );
+    console.log("PLAYER1=", this.domText.player1);
+    this.domText.player2 = await Application.localization.t(
+      "localPong.player2"
+    );
+    console.log("PLAYER2=", this.domText.player2);
+
+    this.domText.player = await Application.localization.t(
+      "localPong.player"
+    );
+    console.log("PLAYER=", this.domText.player);
+
+    this.domText.won = await Application.localization.t(
+      "localPong.won"
+    );
+    this.domText.scored = await Application.localization.t(
+      "localPong.scored"
+    );
+    this.domText.spaceNew = await Application.localization.t(
+      "localPong.spaceNew"
+    );
+    this.domText.spaceResume = await Application.localization.t(
+      "localPong.spaceResume"
+    );
+    this.domText.spaceStart = await Application.localization.t(
+      "localPong.spaceStart"
+    );
+    console.log("Space Start =", this.domText.spaceStart);
+
+  }
+
 
   drawPaddle1(paddle) {
     this.ctx.shadowColor = "white";
@@ -73,12 +119,12 @@ class PongRenderer {
     this.ctx.textAlign = "center";
     this.ctx.font = "20px Audiowide"
     this.ctx.fillText(
-      `PLAYER ${winner} WON!!`,
+      `${this.domText.player} ${winner} ${this.domText.won}`,
       this.canvas.width / 2,
       this.canvas.height / 2
     );
     this.ctx.fillText(
-      "Press SPACE for a new game",
+      `${this.domText.spaceNew}`,
       this.canvas.width / 2,
       this.canvas.height / 2 + 30
     );
@@ -89,12 +135,12 @@ class PongRenderer {
     this.ctx.font = "20px Audiowide"
     this.ctx.textAlign = "center";
     this.ctx.fillText(
-      `PLAYER ${winner} SCORED!!`,
+      `${this.domText.player} ${winner} ${this.domText.scored}`,
       (this.canvas.width * 1) / 2,
       this.canvas.height / 2
     );
     this.ctx.fillText(
-      "Press SPACE to resume",
+      `${this.domText.spaceResume}`,
       (this.canvas.width * 1) / 2,
       this.canvas.height / 2 + 30
     );
@@ -110,7 +156,7 @@ class PongRenderer {
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = "white";
     this.ctx.fillText(
-      "Press SPACE to start",
+      `${this.domText.spaceStart}`,
       this.canvas.width / 2,
       this.canvas.height / 2
     );
@@ -141,8 +187,8 @@ class PongRenderer {
     this.ctx.fillStyle = "white";
     this.ctx.font = "18px Montserrat";
     this.ctx.textAlign = "center";
-    let p1 = player1 || "Player 1";
-    let p2 = player2 || "Player 2";
+    let p1 = player1 || this.domText.player1;
+    let p2 = player2 || this.domText.player2;
     this.ctx.fillText(
       p1,
       this.canvas.width / 4,
