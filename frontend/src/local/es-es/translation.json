@@ -67,7 +67,7 @@
       "result": "Resultado",
       "date": "Fecha",
       "score": "Puntuación",
-      "opponent": "adversario"
+      "opponent": "Adversario"
     },
     "errorInitTitle": "Algo salió mal",
     "errorInitBody": "Tenemos problemas de comunicación con el servidor. Por favor, inténtelo de nuevo más tarde."
@@ -114,8 +114,7 @@
         "action": "Actualizar avatar",
         "updateSuccess": "La imagen del avatar se ha actualizado correctamente.",
         "uploadFailure": "No se pudo cargar la imagen.",
-        "uploadFileCheck": "Verifique que sea un archivo jpeg o png válido, con un tamaño menor o igual a 5 MB"
-      },
+        "uploadFileCheck": "Por favor, verifica que sea un archivo JPEG o PNG válido, con un tamaño máximo de 5 MB y una resolución máxima de 1200 x 1200"      },
       "reset": {
         "action": "Restablecimiento de avatar"
       }
@@ -289,7 +288,8 @@
       "deleteTournament": "Eliminar",
       "players": "jugadores",
       "player": "jugador",
-      "spots": " plaza"
+      "spots": " plazas",
+      "spot": " plaza"
     }
   },
   "twofa": {
@@ -300,7 +300,15 @@
     "invalid": "Código 2FA inválido",
     "errors": {
       "unexpected": "Algo salió mal"
-    }
+    },
+  "delete": {
+    "title": "Eliminar cuenta",
+    "irreversible": "❗ Esta acción es irreversible",
+    "action": "Eliminar cuenta",
+    "errorUnsubscribe": "No se pudo cancelar la suscripción al torneo. Intenta hacerlo manualmente",
+    "tournamentInProgress": "Tienes un torneo en curso",
+    "cancelTournament": "Cancela tu inscripción o abandona antes de eliminar tu cuenta"
+  }
   },
   "deleteView": {
     "title": "Eliminar cuenta",
@@ -320,5 +328,15 @@
     "waitHere": "Puedes esperar aquí hasta que comience el próximo partido.",
     "goHomeVictory": "Ahora puedes <a data-link href='/home'>volver a casa</a> y saborear tu victoria.",
     "goHomeDefeat": "Ahora puedes <a data-link href='/home'>volver a casa</a> y llorar."
+  },
+  "localPong": {
+    "player1": "JUGADOR 1",
+    "player2": "JUGADOR 2",
+    "player": "JUGADOR",
+    "won": "HA GANADO !!",
+    "scored": "HA MARCADO !!",
+    "spaceNew": "Presiona ESPACIO para un nuevo juego",
+    "spaceResume": "Presiona ESPACIO para continuar",
+    "spaceStart": "Presiona ESPACIO para empezar"
   }
 }

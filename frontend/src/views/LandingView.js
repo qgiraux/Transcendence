@@ -16,10 +16,14 @@ class LandingView extends AbstractView {
   }
 
   async init() {
+    const selectedPanel = document.querySelector('input[name="btnradio"]:checked')?.id || "loginradio"; //Retrieve panel state
     await Application.setLanguage(Application.lang);
     await this.loadMessages();
     Application.toggleLangSelectorShow();
     this.onStart();
+
+    document.getElementById(selectedPanel).checked = true; //Restore panel state upon reloading of the page
+    this._handleToggle(new Event("change")); //Toggle panels
   }
 
   async loadMessages() {
@@ -310,7 +314,6 @@ class LandingView extends AbstractView {
         </div>
       </div>
 `;
-      this._handleToggle(new Event("change"));
     }
   }
 }

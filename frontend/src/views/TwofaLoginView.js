@@ -193,7 +193,7 @@ class TwofaLoginView extends AbstractView {
                 <div class="row border rounded border-secondary">
         <div class="row w-75 mw-75 mx-auto text-white container-md p-4 d-flex flex-column align-items-center" id="twofacard">
         <div class="row align-items-start w-100">
-    <p id="validitymsg" >${this.domText.countdownOne} <strong id="countdown"></strong> ${this.messages.countdownTwo}
+    <p id="validitymsg" >${this.domText.countdownOne} <strong id="countdown"></strong> ${this.domText.countdownTwo}
     </p>
         </div>
         <div class="row mb-3 w-100">

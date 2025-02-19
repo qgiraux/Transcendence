@@ -28,11 +28,23 @@ class AccountDeleteView extends AbstractView {
     this.domText.confirmationText = await Application.localization.t(
       "deleteView.confirmationText"
     );
+    this.messages.errorUnexpected = await Application.localization.t(
+      "accountMgmt.errors.unexpected"
+    );
     this.domText.confirmationYes = await Application.localization.t(
       "deleteView.confirmationYes"
     );
     this.domText.confirmationNo = await Application.localization.t(
       "deleteView.confirmationNo"
+    );
+    this.messages.errorUnsubscribe = await Application.localization.t(
+      "accountMgmt.deleteView.errorUnsubscribe"
+    );
+    this.messages.tournamentInProgress = await Application.localization.t(
+      "accountMgmt.deleteView.tournamentInProgress"
+    );
+    this.messages.cancelTournament = await Application.localization.t(
+      "accountMgmt.deleteView.cancelTournament"
     );
   }
 
@@ -86,8 +98,8 @@ class AccountDeleteView extends AbstractView {
           return response;
         } catch (error) {
           Alert.errorMessage(
-            "Error",
-            "Couldn't unsubscribe from tournament(s). Try to do it manually"
+            this.domText.title,
+            this.messages.errorUnsubscribe
           );
           return;
         }
@@ -112,8 +124,8 @@ class AccountDeleteView extends AbstractView {
       // if the user has an tournament in progress , refuse to delete his account
       if (tournament.status === 1) {
         Alert.errorMessage(
-          "You have a tournament in progress",
-          "unsubscribe or give up before deleting your account"
+          this.messages.tournamentInProgress,
+          this.messages.cancelTournament
         );
         return;
       }
@@ -156,7 +168,7 @@ class AccountDeleteView extends AbstractView {
       await TRequest.request("DELETE", "/api/avatar/delete/");
       Router.reroute("/logout");
     } catch (error) {
-      Alert.errorMessage("Account Delete", error.message);
+      Alert.errorMessage(this.domText.title, error.message);
     }
   }
 

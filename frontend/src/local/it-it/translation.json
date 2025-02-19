@@ -114,7 +114,7 @@
         "action": "Aggiorna avatar",
         "updateSuccess": "L'immagine dell'avatar è stata aggiornata con successo.",
         "uploadFailure": "L'immagine non può essere caricata.",
-        "uploadFileCheck": "Verifica che sia un file jpeg o png valido, con dimensione inferiore o uguale a 5 MB"
+        "uploadFileCheck": "Verifica che sia un file JPEG o PNG valido, con una dimensione massima di 5 MB e una risoluzione massima di 1200 x 1200"
       },
       "reset": {
         "action": "Reimpostazione avatar"
@@ -153,10 +153,13 @@
     },
     "delete": {
       "title": "Elimina account",
-      "irreversible": "❗Questa azione è irreversibile",
-      "action": "Elimina account"
+      "irreversible": "❗ Questa azione è irreversibile",
+      "action": "Elimina account",
+      "errorUnsubscribe": "Impossibile annullare l'iscrizione ai tornei. Prova a farlo manualmente",
+      "tournamentInProgress": "Hai un torneo in corso",
+      "cancelTournament": "Disiscriviti o rinuncia prima di eliminare il tuo account"
     }
-  },
+    },
   "friends": {
     "card": {
       "viewProfile": "Visualizza il profilo dell'amico",
@@ -321,5 +324,15 @@
     "waitHere": "Puoi aspettare qui che inizi la prossima partita.",
     "goHomeVictory": "Puoi <a data-link href='/home'>tornare a casa</a> ora e assaporare la tua vittoria.",
     "goHomeDefeat": "Puoi <a data-link href='/home'>tornare a casa</a> ora e piangere."
+  },
+  "localPong": {
+    "player1": "GIOCATORE 1",
+    "player2": "GIOCATORE 2",
+    "player": "GIOCATORE",
+    "won": "HA VINTO !!",
+    "scored": "HA SEGNATO !!",
+    "spaceNew": "Premi SPAZIO per un nuovo gioco",
+    "spaceResume": "Premi SPAZIO per riprendere",
+    "spaceStart": "Premi SPAZIO per iniziare"
   }
 }

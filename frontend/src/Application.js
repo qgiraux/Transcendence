@@ -231,6 +231,8 @@ class Application {
 
   static toggleLangSelectorShow() {
     const langSelect = document.querySelector("#language-selector-container");
+    const langSelectId = document.querySelector("#lang-select");
+    langSelectId.value = Application.lang; //Added these lines to update the lang selector button in case the language was changed by the system
     langSelect.classList.remove("d-none");
   }
 
@@ -266,7 +268,7 @@ class Application {
     for (let cookie of cookies) {
         const [name, value] = cookie.split("=");
         if (name === "language") {
-            console.log("Le cookie = ", value);
+            // console.log("Le cookie = ", value);
             return value;
         }
     }
@@ -283,15 +285,15 @@ class Application {
           Application.lang = lang;
           this.localization.lang = lang;
       }
-      console.log("The language retrieved in DB is = ", lang);
-      console.log("Application language =", Application.lang);
+      // console.log("The language retrieved in DB is = ", lang);
+      // console.log("Application language =", Application.lang);
       return (lang);
   }
 
   static async setLanguage(lang) {
     Application.lang = lang;
     if (lang !== this.localization.lang) {
-      this.localization.lang = this.lang;
+      this.localization.lang = lang;
       if (location.pathname !== "/landing")
       {
         await this.updateLanguageInDatabase();
@@ -301,24 +303,6 @@ class Application {
     await this.localization.loadTranslations();
     await Application.applyTranslations();
   }
-
-
-  // static async setLanguage(lang) {
-  //    const lang = await Application.getUserInfos().lang;
-  //   console.log("In setLang, Application.lang = ", Application.lang);
-  //   if (lang !== Application.lang) {
-  //     this.localization.lang = lang;
-  //     Application.lang = lang;
-      // if (location.pathname !== "/landing")
-      //   await this.updateLanguageInDatabase();
-  //     this.setLanguageCookie(lang); //Refreshing the language cookie
-  //   }
-  //   console.log(location.pathname)
-  //   await this.localization.loadTranslations();
-  //   // console.log("Application lang after changing =", Application.lang);
-  //   // console.log("Lang in DB after changing", await Application.getUserInfos().lang);
-  //   await Application.applyTranslations();
-  // }
 
   static async updateLanguageInDatabase() {
     try {

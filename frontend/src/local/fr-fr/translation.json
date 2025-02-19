@@ -110,8 +110,7 @@
         "action": "Mettre à jour l'avatar",
         "updateSuccess": "L'image de l'avatar a été mise à jour avec succès.",
         "uploadFailure": "L'image n'a pas pu être téléchargée.",
-        "uploadFileCheck": "Veuillez vérifier qu'il s'agit d'un fichier jpeg ou png valide, d'une taille inférieure ou égale à 5 Mo"
-      },
+        "uploadFileCheck": "Veuillez vérifier qu'il s'agit d'un fichier JPEG ou PNG valide, d'une taille maximale de 5 Mo et d'une résolution maximale de 1200 x 1200"      },
       "reset": {
         "action": "Réinitialisation de l'avatar"
       }
@@ -149,8 +148,11 @@
     },
     "delete": {
       "title": "Supprimer le compte",
-      "irreversible": "❗Cette action est irréversible",
-      "action": "Supprimer le compte"
+      "irreversible": "❗ Cette action est irréversible",
+      "action": "Supprimer le compte",
+      "errorUnsubscribe": "Impossible de se désinscrire du ou des tournois. Essayez de le faire manuellement",
+      "tournamentInProgress": "Vous avez un tournoi en cours",
+      "cancelTournament": "Désinscrivez-vous ou abandonnez avant de supprimer votre compte"
     }
   },
   "friends": {
@@ -317,5 +319,15 @@
     "waitHere": "Tu peux attendre ici que le prochain match commence.",
     "goHomeVictory": "Tu peux <a data-link href='/home'>rentrer chez toi</a> maintenant et savourer ta victoire.",
     "goHomeDefeat": "Tu peux <a data-link href='/home'>rentrer chez toi</a> maintenant et pleurer."
-  }
+  },
+  "localPong": {
+    "player1": "JOUEUR 1",
+    "player2": "JOUEUR 2",
+    "player": "JOUEUR",
+    "won": "A GAGNÉ !!",
+    "scored": "A MARQUÉ !!",
+    "spaceNew": "Appuyez sur ESPACE pour un nouveau jeu",
+    "spaceResume": "Appuyez sur ESPACE pour reprendre",
+    "spaceStart": "Appuyez sur ESPACE pour commencer"
+    }
 }

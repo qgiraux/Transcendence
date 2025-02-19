@@ -22,7 +22,12 @@ class TwofaView extends AbstractView {
     // Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     console.log("OK");
-    this.domText.scanQR = await Application.localization.t("twofa.scanQR");
+    this.domText.title = await Application.localization.t(
+      "accountMgmt.twofa.title"
+    );
+    this.domText.scanQR = await Application.localization.t(
+      "twofa.scanQR"
+    );
     this.domText.confirmActivation = await Application.localization.t(
       "twofa.enterActivation"
     );
@@ -89,11 +94,11 @@ class TwofaView extends AbstractView {
               twofa: twofaCode,
             })
               .then((response) => {
-                Alert.successMessage(this.messages.twofaSuccess);
+                Alert.successMessage(this.domText.title, this.messages.twofaSuccess);
                 Router.reroute("/profile");
               })
               .catch((error) => {
-                Alert.errorMessage(this.messages.twofaInvalid, error.message);
+                Alert.errorMessage(this.domText.title, this.messages.twofaInvalid);
               });
           }
         });
