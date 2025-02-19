@@ -147,11 +147,11 @@
         "partTwo": "secondes pour entrer le code de votre application d'authentification"
       }
     },
-  "delete": {
-    "title": "Supprimer le compte",
-    "irreversible": "❗Cette action est irréversible",
-    "action": "Supprimer le compte"
-  }
+    "delete": {
+      "title": "Supprimer le compte",
+      "irreversible": "❗Cette action est irréversible",
+      "action": "Supprimer le compte"
+    }
   },
   "friends": {
     "card": {
@@ -227,7 +227,7 @@
     "tab": {
       "open": "Tournois ouverts",
       "inProgress": "Tournois en cours",
-      "finished": "Terminé", 
+      "finished": "Terminé",
       "alreadyJoinedTxt": "Terminez vos parties en cours ou annulez votre participation pour créer ou rejoindre un autre tournoi !",
       "noTournamentToDisplay": "Aucun tournoi à afficher",
       "manage": "Paramètres"
@@ -273,7 +273,7 @@
       "true": "Rejoint"
     },
     "quit": {
-      "quitBttn": "Quitter le tournoi", 
+      "quitBttn": "Quitter le tournoi",
       "confirmTxt": "❗ Êtes-vous sûr de vouloir quitter le tournoi ?",
       "confirmYes": "Oui",
       "confirmNo": "Non"
@@ -290,21 +290,21 @@
     }
   },
   "twofa": {
-      "scanQR": "Scannez ce QR code avec votre application d'authentification",
-      "field": "Code 2FA",
-      "enterActivation": "Saisissez votre code 2FA pour confirmer l'activation",
-      "success": "Code 2FA vérifié avec succès",
-      "invalid": "Code 2FA invalide",
-      "errors": {
-        "unexpected": "Une erreur s'est produite"
-      }
-    },
+    "scanQR": "Scannez ce QR code avec votre application d'authentification",
+    "field": "Code 2FA",
+    "enterActivation": "Saisissez votre code 2FA pour confirmer l'activation",
+    "success": "Code 2FA vérifié avec succès",
+    "invalid": "Code 2FA invalide",
+    "errors": {
+      "unexpected": "Une erreur s'est produite"
+    }
+  },
   "deleteView": {
     "title": "Supprimer le compte",
     "confirmationText": "Êtes-vous sûr de vouloir supprimer votre compte ?",
     "confirmationNo": "😊 Non, je veux continuer à jouer !",
     "confirmationYes": "😔 Oui, je veux supprimer mon compte"
-},
+  },
   "pongView": {
     "welcome": "Bienvenue au tournoi",
     "waitingOpponent": "En attente d'un adversaire...",
@@ -315,7 +315,7 @@
     "wonTournament": "Tu AS GAGNÉ le tournoi bébé ! 😎",
     "lost": "Oh noooon, tu as perdu !",
     "waitHere": "Tu peux attendre ici que le prochain match commence.",
-    "goHomeVictory": "Tu peux <a data-link href='https://localhost:5000/home'>rentrer chez toi</a> maintenant et savourer ta victoire.",
-    "goHomeDefeat": "Tu peux <a data-link href='https://localhost:5000/home'>rentrer chez toi</a> maintenant et pleurer."
-}
+    "goHomeVictory": "Tu peux <a data-link href='/home'>rentrer chez toi</a> maintenant et savourer ta victoire.",
+    "goHomeDefeat": "Tu peux <a data-link href='/home'>rentrer chez toi</a> maintenant et pleurer."
+  }
 }

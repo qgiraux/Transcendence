@@ -22,9 +22,11 @@ class TwofaLoginView extends AbstractView {
   }
 
   async loadMessages() {
-    await Application.applyTranslations() ;
+    await Application.applyTranslations();
     console.log("OK");
-    this.domText.title = await Application.localization.t("accountMgmt.twofa.title");
+    this.domText.title = await Application.localization.t(
+      "accountMgmt.twofa.title"
+    );
     this.messages.errorTwofa = await Application.localization.t(
       "accountMgmt.twofa.error.token"
     );
@@ -65,7 +67,9 @@ class TwofaLoginView extends AbstractView {
 
   badTokenExit() {
     Alert.errorMessage(this.domText.title, this.messages.errorTwofa);
-    Router.reroute("/landing");
+    setTimeout(() => {
+      Router.reroute("/landing");
+    }, 20);
   }
 
   updateCountDown(value) {
@@ -147,10 +151,7 @@ class TwofaLoginView extends AbstractView {
         Router.reroute("/home");
       }, 1500);
     } catch (error) {
-      Alert.errorMessage(
-        this.domText.title,
-        this.messages.unexpectedError
-      );
+      Alert.errorMessage(this.domText.title, this.messages.unexpectedError);
       setTimeout(() => {
         Router.reroute("/landing");
       }, 1500);
@@ -158,8 +159,13 @@ class TwofaLoginView extends AbstractView {
   }
 
   onStart() {
+    if (!this.params["token"]) return this.badTokenExit();
+    if (Application.getAccessToken() !== null) {
+      setTimeout(() => {
+        Router.reroute("/home");
+      }, 50);
+    }
     this.tokenArray = this.params["token"].split(":");
-    console.log(this.tokenArray);
     if (this.tokenArray.length !== 3) return this.badTokenExit();
     const timestamp = Number(this.tokenArray[1]) * 1000; //the timestamp is in seconds
     this.validityLimit = new Date(timestamp);
@@ -200,6 +206,10 @@ class TwofaLoginView extends AbstractView {
     </div>
     </div>
 	`;
+  }
+
+  childOnDestroy() {
+    clearInterval(this.interval);
   }
 }
 

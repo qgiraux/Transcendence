@@ -270,12 +270,12 @@ class LandingView extends AbstractView {
               <div class="form-group text-white ">
                 <label for="InputLogin">${this.domText.loginLabel}</label>
                 <input type="text" class="form-control" id="InputLogin" aria-describedby="emailHelp"
-                  placeholder="${this.domText.enterLoginField}" required>
+                  placeholder="${this.domText.enterLoginField}" autocomplete="username" required>
 
               </div>
               <div class="form-group text-white ">
                 <label for="InputPassword">${this.domText.passwordLabel}</label>
-                <input type="password" class="form-control" id="InputPassword" placeholder="${this.domText.passwordField}">
+                <input type="password" class="form-control" id="InputPassword" placeholder="${this.domText.passwordField}" autocomplete="current-password">
               </div>
               <div class="d-flex justify-content-center mt-3">
                 <button id="login-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signInSubmit}</button>
@@ -290,16 +290,16 @@ class LandingView extends AbstractView {
               <div class="form-group text-white  ">
                 <label for="RegisterLogin">${this.domText.loginLabel}</label>
                 <input type="text" class="form-control" id="RegisterLogin" aria-describedby="login"
-                  placeholder="${this.domText.chooseLogin}" required>
+                  placeholder="${this.domText.chooseLogin}" autocomplete="username" required>
 
               </div>
               <div class="form-group text-white mt-2 ">
                 <label for="RegisterPassword">${this.domText.passwordLabel}</label>
-                <input type="password" class="form-control" id="RegisterPassword" placeholder="${this.domText.choosePassword}" required>
+                <input type="password" class="form-control" id="RegisterPassword" placeholder="${this.domText.choosePassword}" autocomplete="new-password" required>
               </div>
               <div class="form-group text-white mt-2 ">
                 <label for="RegisterPasswordConfirm">${this.domText.passwordLabel}</label>
-                <input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="${this.domText.confirmPassword}" required>
+                <input type="password" class="form-control" id="RegisterPasswordConfirm" placeholder="${this.domText.confirmPassword}" autocomplete="new-password" required>
               </div>
               <div class="d-flex justify-content-center mt-3">
                 <button id="register-btn" type="submit" class="btn btn-primary mt-3">${this.domText.signUpSubmit}</button>
