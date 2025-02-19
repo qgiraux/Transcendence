@@ -92,6 +92,10 @@ class LandingView extends AbstractView {
       return;
     }
     this.setHtml();
+    const navBar = document.querySelector("#sidebar");
+    const chatBox = document.querySelector("#chat-btn");
+    if (!navBar.classList.contains("d-none")) navBar.classList.add("d-none");
+    if (!chatBox.classList.contains("d-none")) chatBox.classList.add("d-none");
     const loginRadio = document.getElementById("loginradio");
     const createAccountRadio = document.getElementById("registerradio");
     this.addEventListener(loginRadio, "change", this._handleToggle.bind(this));
