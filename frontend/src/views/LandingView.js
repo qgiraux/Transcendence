@@ -134,7 +134,7 @@ class LandingView extends AbstractView {
 
   _validatePass(passwordValue) {
     const validatExpr = new RegExp(
-      "^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$"
+      "^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$"
     );
     return validatExpr.test(passwordValue);
   }

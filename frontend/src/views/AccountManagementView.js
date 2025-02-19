@@ -383,10 +383,10 @@ Event handlers
       Alert.errorMessage(this.domText.aliasLabel, this.messages.aliasEmpty);
       return;
     }
-    if (newAlias.length > 20) {
+    if (!/^[a-zA-Z0-9!@#$%^*]{1,20}$/.test(newAlias)) {
       Alert.errorMessage(
-        this.domText.aliasLabel,
-        this.messages.aliasRequirements
+      this.domText.aliasLabel,
+      this.messages.aliasRequirements
       );
       aliasInput.value = "";
       return;
@@ -553,7 +553,7 @@ Set HTML
           }</h2>
         </div>
         <div class="row mb-3 w-100">
-          <input type="text" class="form-control mx-auto" id="newAliasInput" minlength="1" maxlength="20"
+          <input type="text" class="form-control mx-auto" id="newAliasInput" minlength="1" maxlength="150"
             placeholder="${this.domText.aliasField}" style="max-width: 300px;">
         </div>
         <div class="row w-100">

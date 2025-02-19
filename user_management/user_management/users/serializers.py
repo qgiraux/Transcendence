@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -18,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(self, user):
@@ -59,7 +60,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_password(self, value):
-        if len(value) < 8:
+        if len(value) < 8 or len(value) > 20:
             raise serializers.ValidationError("Password must be at least 8 characters long.")
         if not re.search(r'[A-Z]', value):
             raise serializers.ValidationError("Password must contain at least one uppercase letter.")
