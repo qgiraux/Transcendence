@@ -923,6 +923,10 @@ Request API function
       `;
     }
   }
+
+  childOnDestroy(){
+    clearTimeout(Application.timeoutId);
+  }
 }
 
 export default TournamentsView;
