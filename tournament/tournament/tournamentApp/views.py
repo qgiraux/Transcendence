@@ -92,7 +92,7 @@ def Invite(request):
             return JsonResponse({'detail': 'Friend ID is required', 'code': 'invalid_data'}, status=400)
 
         # Create the notification message
-        message = t_name
+        message = f"'{t_name}'"
         notification = {
             'type': 'invite_message',
             'group': f'user_{group}',

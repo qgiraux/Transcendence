@@ -46,8 +46,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.accept()
             await self.connect_redis()
 
-        await redis_client.sadd('online_users', self.user_id)        
-
+        await redis_client.sadd('online_users', self.user_id)
+        logger.error(f"[Chat.consumers] User {self.user_id} added to online list")
+        
     async def disconnect(self, close_code):
         logger.info(f"[Chat.consumers] User {self.nickname} disconnected")
         await redis_client.srem('online_users', self.user_id)
