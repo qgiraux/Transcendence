@@ -926,6 +926,10 @@ Request API function
 
   childOnDestroy(){
     clearTimeout(Application.timeoutId);
+    const modals = document.querySelectorAll(".modal");
+    modals.forEach(modal => modal.remove());
+    const alertContainer = document.querySelector("#alert-container");
+    alertContainer.innerHTML = "";
   }
 }
 

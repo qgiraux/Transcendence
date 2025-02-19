@@ -64,6 +64,9 @@ class Alert {
   }
 
   static inviteMessage(title, message, link) {
+    if (location.pathname === "/pong") {
+      return;
+    }
     const alertContainer = document.querySelector("#alert-container");
     
     // Generate the alert HTML
