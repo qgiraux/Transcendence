@@ -98,7 +98,6 @@ class Alert {
               "/api/tournament/join/",
               form
             );
-            console.log(ret);
             this.clearAlerts();
             Application.joinedTournament = link;
             Alert.successMessage(
@@ -111,7 +110,7 @@ class Alert {
           }
         });
       } else {
-        console.error("Invite link not found in the DOM.");
+        console.log("Invite link not found in the DOM.");
       }
     }, 0); // Allow the DOM to update
 

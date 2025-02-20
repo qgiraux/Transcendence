@@ -16,7 +16,7 @@ class HomeView extends AbstractView {
   }
 
   async init() {
-    console.log("Application lang in home = ", Application.lang);
+    // console.log("Application lang in home = ", Application.lang);
     await this.loadMessages();
     Application.toggleLangSelectorShow();
     this.onStart();
@@ -35,16 +35,51 @@ class HomeView extends AbstractView {
       "home.tournaments"
     );
   }
+ 
+  setGameSocketListeners(){
+      try {
+        Application.gameSocket.onmessage = (event) => {
+          // Parse the incoming JSON
+          // console.log("gameSocket message received----:", event.data);
+          const data = JSON.parse(event.data);
+          const sender = data.sender || 0; // Default if field missing
+          const group = data.group || "No group"; // Default if field missing
+          const message = data.message || "No message content"; // Default if field missing
+          const type = data.type || "none"; // Default if field missing
+          if (type === "GOTO") {
+            // Display the alert
+            // console.log("calling reroute from websocket");
 
-  onStart() {
-    if (!Application.mainSocket) {
-      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
-    }
-    if (!Application.gameSocket) {
-    Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
-    }
-    this._setHtml();
-    if (Application.mainSocket) {
+            Router.reroute(message);
+          }
+        };
+      } catch (err) {
+        Application.mainSocket.close();
+        Application.mainSocket = null;
+        console.log("Failed to process WebSocket message:", err);
+      }
+
+      Application.gameSocket.onerror = (error) => {
+        console.log("WebSocket error:", error);
+      };
+
+      Application.gameSocket.onopen = () => {
+        // console.log("WebSocket connection opened.");
+      };
+
+      Application.gameSocket.onclose = () => {
+        // console.log("GameSocket connection closed.");
+        try {
+          Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
+        } catch (err) {
+          Application.gameSocket.close();
+          Application.gameSocket = null;
+          console.log("Failed to reopen gameSocket:", err);
+        }
+      };
+  }
+
+  setMainSocketListeners(){
       try {
         Application.mainSocket.onmessage = (event) => {
           // Parse the incoming JSON
@@ -63,7 +98,7 @@ class HomeView extends AbstractView {
                 }
               })
               .catch((err) => {
-                console.error("Failed to fetch blocklist:", err);
+                console.log("Failed to fetch blocklist:", err);
               });
           }
           if (type === "notification") {
@@ -79,7 +114,7 @@ class HomeView extends AbstractView {
                 Alert.inviteMessage(type, textmessage, link);
               })
               .catch((err) => {
-                console.error("Failed to fetch user info:", err);
+                console.log("Failed to fetch user info:", err);
               });
           }
           if (type === "game") {
@@ -102,13 +137,13 @@ class HomeView extends AbstractView {
                 
               })
               .catch((err) => {
-                console.error("Failed to fetch user info:", err);
+                console.log("Failed to fetch user info:", err);
               });
           }
           if (type === "winner" || type === "deleted") {
             // Display the invite
             Application.joinedTournament = "";
-            console.log("jointournament cleared");
+            // console.log("jointournament cleared");
           }
 
           if (type === "GOTO") {
@@ -118,11 +153,11 @@ class HomeView extends AbstractView {
           }
         };
       } catch (err) {
-        console.error("Failed to process WebSocket message:", err);
+        console.log("Failed to process WebSocket message:", err);
       }
 
       Application.mainSocket.onerror = (error) => {
-        console.error("WebSocket error:", error);
+        console.log("WebSocket error:", error);
       };
 
       Application.mainSocket.onopen = () => {
@@ -132,51 +167,23 @@ class HomeView extends AbstractView {
       Application.mainSocket.onclose = () => {
         console.log("WebSocket connection closed.");
       };
-    } else {
-      console.error("WebSocket connection not established.");
+  
+  }
+
+
+  onStart() {
+    if (!Application.mainSocket) {
+      Application.openWebSocket(`wss://${window.location.host}/ws/chat/`);
+      this.setMainSocketListeners();    
     }
-
-    if (Application.gameSocket) {
-      console.log("WebSocket connection already established.");
-      try {
-        Application.gameSocket.onmessage = (event) => {
-          // Parse the incoming JSON
-          // console.log("gameSocket message received----:", event.data);
-          const data = JSON.parse(event.data);
-          const sender = data.sender || 0; // Default if field missing
-          const group = data.group || "No group"; // Default if field missing
-          const message = data.message || "No message content"; // Default if field missing
-          const type = data.type || "none"; // Default if field missing
-          if (type === "GOTO") {
-            // Display the alert
-            console.log("calling reroute from websocket");
-
-            Router.reroute(message);
-          }
-        };
-      } catch (err) {
-        console.error("Failed to process WebSocket message:", err);
-      }
-
-      Application.gameSocket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
-
-      Application.gameSocket.onopen = () => {
-        console.log("WebSocket connection opened.");
-      };
-
-      Application.gameSocket.onclose = () => {
-        console.log("WebSocket connection closed.");
-        try {
-          Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
-        } catch (err) {
-          console.error("Failed to reopen gameSocket:", err);
-        }
-      };
-    } else {
-      console.error("gameSocket connection not established.");
+    if (!Application.gameSocket) {
+    Application.openGameSocket(`wss://${window.location.host}/ws/pong/`);
+    this.setGameSocketListeners();
     }
+    this._setHtml();
+    // else {
+    //   console.log("WebSocket connection not established.");
+    // }
   }
 
   _setHtml() {
@@ -222,7 +229,7 @@ class HomeView extends AbstractView {
       this.pongGame = new PongGame("pongCanvas");
       this.pongGame.gameLoop();
     } else {
-      console.error("#view-container not found in the DOM.");
+      console.log("#view-container not found in the DOM.");
     }
   }
 

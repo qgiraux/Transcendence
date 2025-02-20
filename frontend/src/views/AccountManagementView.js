@@ -154,7 +154,7 @@ class AccountManagementView extends AbstractView {
       }, 50);
       return;
     }
-    console.log("infos", Application.getUserInfos());
+    // console.log("infos", Application.getUserInfos());
 
     /*
 	View initialization
@@ -233,8 +233,8 @@ Event handlers
     navButtons.forEach((button) => {
       button.classList.remove("active");
     });
-    console.log("Clicked button :", event.target.id);
-    console.log(event.target);
+    // console.log("Clicked button :", event.target.id);
+    // console.log(event.target);
     event.target.classList.add("active");
     switch (event.target.id) {
       case "nav-avatar":
@@ -292,15 +292,15 @@ Event handlers
     });
 
     const newCard = document.querySelector(`#${viewName}`);
-    console.log("NewCard found:", newCard);
+    // console.log("NewCard found:", newCard);
     newCard.classList.remove("d-none");
-    console.log("d-none removed from:", newCard);
+    // console.log("d-none removed from:", newCard);
     this.updateActiveNavButton(viewName);
     Application.activeProfileView = viewName;
-    console.log(
-      "New view set in setActiveView: ",
-      Application.activeProfileView
-    );
+    // console.log(
+    //   "New view set in setActiveView: ",
+    //   Application.activeProfileView
+    // );
   }
 
   _avataRadioHandler(event) {

@@ -79,7 +79,7 @@ class PongGameView extends AbstractView {
       }
     
     childOnDestroy() {
-        console.log("Destroying PongGameView");
+        // console.log("Destroying PongGameView");
         if (this.isGameOver === false)
             Application.gameSocket.send(JSON.stringify({ type: 'giveup', data: "" }));
         
@@ -99,9 +99,9 @@ class PongGameView extends AbstractView {
         if (!this.canvas || !this.canvasContainer || !this.messageContainer) {
             throw new Error(`Missing essential DOM elements`);
         }
-        console.log("🎯 Successfully loaded HTML elements.");
-        console.log("🖼️ Canvas Container:", this.canvasContainer);
-        console.log("🎮 Pong Canvas:", this.canvas);
+        // console.log("🎯 Successfully loaded HTML elements.");
+        // console.log("🖼️ Canvas Container:", this.canvasContainer);
+        // console.log("🎮 Pong Canvas:", this.canvas);
         this.canvasContainer.classList.add("d-none");
         this.renderer = new PongRenderer(this.canvas);
 
@@ -137,7 +137,7 @@ class PongGameView extends AbstractView {
             radius: BALL_RADIUS,
         };        
         if (Application.gameSocket) {
-            console.log("WebSocket connection already established.");
+            console.log("gameSocket connection already established.");
             try {
                 Application.gameSocket.onmessage = (event) => {
                     // console.log("DATA=== ", event.data);
@@ -156,24 +156,24 @@ class PongGameView extends AbstractView {
                     } 
                 };
                 Application.gameSocket.onerror = (error) => {
-                    console.error("WebSocket error:", error);
+                    console.log("WebSocket error:", error);
                 };
             } catch (err) {
-                console.error("Failed to process WebSocket message: ", err);
+                console.log("Failed to process WebSocket message: ", err);
             }
         } else {
-            console.error("gameSocket connection not established.");
+            console.log("gameSocket connection not established.");
         }
         Application.gameSocket.send(JSON.stringify({ type: 'online', data: {} }));        
     }
     update_keys() {
         if (this.up && !this.down) {
             Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'up' } }));
-            console.log("UP");
+            // console.log("UP");
         }
         if (this.down && !this.up) {
             Application.gameSocket.send(JSON.stringify({ type: 'move_paddle', data: { direction: 'down' } }));
-            console.log("DOWN");
+            // console.log("DOWN");
         }
     }
     handleKeyDown(event) {
@@ -219,22 +219,22 @@ class PongGameView extends AbstractView {
         }
       }    
     startGame(data) {
-        console.log("IS STARTGAME CALLED", data);
-        console.log(data)
+        // console.log("IS STARTGAME CALLED", data);
+        // console.log(data)
         // this.canvas.style.display = "block";
         // console.log("🖥️ Pong canvas should now be visible.");
         let uri1 = "/api/users/userinfo/" + data.state.player_left.playerid;
         TRequest.request("GET", uri1)
         .then((result) => {
             this.p1name = result.username;
-            console.log("p1name: ", this.p1name);
-            console.log
+            // console.log("p1name: ", this.p1name);
+            // console.log
             let uri2 = "/api/users/userinfo/" + data.state.player_right.playerid;
             TRequest.request("GET", uri2)
             .then((result) => {
-                console.log("result: ", result);
+                // console.log("result: ", result);
                 this.p2name = result.username;
-                console.log("p2name: ", this.p2name);
+                // console.log("p2name: ", this.p2name);
             })
             .catch((error) => {});
         })
@@ -252,14 +252,14 @@ class PongGameView extends AbstractView {
         this.tournamentContainer.classList.add("d-none");
         this.canvasContainer.classList.remove("d-none");
         if (data.data === 0) {
-            console.log("Game started");
+            // console.log("Game started");
             this.paused = false;
             requestAnimationFrame(this.gameLoop.bind(this));
         }
         else if (data.data > 0) {
             this.paused = true;
         }
-        console.log("THIS PLAYER NAME = ", this.p1name, this.p2name);
+        // console.log("THIS PLAYER NAME = ", this.p1name, this.p2name);
         this.adjustToCanvas();
         this.renderer.drawCountdownMessage(
             this.cpaddle1,
@@ -309,7 +309,7 @@ class PongGameView extends AbstractView {
                 this.displayWinLoseMessage(win, end);
             })
         this.tournamentContainer.classList.remove("d-none");
-        console.log("Game Over");
+        // console.log("Game Over");
         this.isGameOver = true; // Stop game loop when the game ends
     }
     gameLoop() {
@@ -530,7 +530,7 @@ class PongGameView extends AbstractView {
           const canvas = document.getElementById("pongCanvas");
           canvas.focus(); // Ensure the canvas is focusable
       } else {
-          console.error("#view-container not found in the DOM.");
+          console.log("#view-container not found in the DOM.");
       }
     }
 }

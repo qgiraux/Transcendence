@@ -85,7 +85,7 @@ class Application {
         Application.#userInfos.twofa = token.payload.twofa;
         Application.#userInfos.lang = token.payload.lang;
       } catch (error) {
-        console.error(`Application: Error during userInfos setting : ${error}`);
+        console.log(`Application: Error during userInfos setting : ${error}`);
       }
     }
   }
@@ -169,13 +169,13 @@ class Application {
   static openWebSocket(url) {
     if (Application.#token === null) {
       // Correct the check
-      console.error(
+      console.log(
         `Application: Error opening WebSocket: user not identified`
       );
       return null;
     }
     if (!url) {
-      console.error("WebSocket URL must be provided.");
+      console.log("WebSocket URL must be provided.");
       return null;
     }
     const fullpath = `${url}?token=${Application.getAccessToken()}`; // Fix token retrieval
@@ -183,28 +183,27 @@ class Application {
 
     // Add event listeners for debugging
     Application.mainSocket.onopen = () => {
-      console.log("WebSocket connection opened:", fullpath);
+      // console.log("WebSocket connection opened:", fullpath);
     };
     Application.mainSocket.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      console.log("WebSocket error:", error);
     };
     Application.mainSocket.onclose = () => {
-      console.log("WebSocket connection closed.");
+      // console.log("WebSocket connection closed.");
     };
-    console.log(Application.mainSocket);
     return Application.mainSocket;
   }
 
   static openGameSocket(url) {
     if (Application.#token === null) {
       // Correct the check
-      console.error(
+      console.log(
         `Application: Error opening WebSocket: user not identified`
       );
       return null;
     }
     if (!url) {
-      console.error("WebSocket URL must be provided.");
+      console.log("WebSocket URL must be provided.");
       return null;
     }
     const fullpath = `${url}?token=${Application.getAccessToken()}`; // Fix token retrieval
@@ -212,15 +211,14 @@ class Application {
 
     // Add event listeners for debugging
     Application.gameSocket.onopen = () => {
-      console.log("WebSocket connection opened:", fullpath);
+      // console.log("gameSocket connection opened:", fullpath);
     };
     Application.gameSocket.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      console.log("gameSocket error:", error);
     };
     Application.gameSocket.onclose = () => {
-      console.log("WebSocket connection closed.");
+      // console.log("gameSocket connection closed.");
     };
-    console.log(Application.gameSocket);
     return Application.gameSocket;
   }
 
@@ -310,7 +308,7 @@ class Application {
       const newLang =  await TRequest.request("POST", "/api/users/lang/", {
         lang: lang,
       });
-      console.log("Language has been updated:");
+      // console.log("Language has been updated:");
     } 
     catch (error) {
       console.log(`Error updating language ${error}`);
@@ -336,7 +334,7 @@ class Application {
 
   static async listenForLanguageChange(event) {
     const selectedLanguage = event.target.value;
-    console.log("Language change detected :", selectedLanguage);
+    // console.log("Language change detected :", selectedLanguage);
     await Application.setLanguage(selectedLanguage);
     Router.reroute(location.pathname);
   }
