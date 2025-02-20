@@ -308,6 +308,7 @@ class PongGameView extends AbstractView {
                 }
                 this.displayWinLoseMessage(win, end);
             })
+            .catch((error) => {});
         this.tournamentContainer.classList.remove("d-none");
         console.log("Game Over");
         this.isGameOver = true; // Stop game loop when the game ends
@@ -486,27 +487,28 @@ class PongGameView extends AbstractView {
         img.width = size;
         img.height = size;
         if (id !== 0) {
-          img.src = Avatar.url(id);
-          img.dataset.avatar = id;
-          container.appendChild(img);
+            img.src = Avatar.url(id);
+            img.dataset.avatar = id;
+            container.appendChild(img);
 
-          const usernameText = document.createElement("p");
-          usernameText.innerHTML = "Unknown User";
+            const usernameText = document.createElement("p");
+            usernameText.innerHTML = "Unknown User";
 
-          container.appendChild(usernameText);
+            container.appendChild(usernameText);
 
-          TRequest.request("GET", `/api/users/userinfo/${id}`)
-          .then((result) => {
-            usernameText.innerHTML = `${result.username}`;
-            if (winner == true) {
-                usernameText.innerHTML = `<h2><small>${result.username} ${this.domText.hasWon}</small></h2>`
-            }
-            });
-          return container;
+            TRequest.request("GET", `/api/users/userinfo/${id}`)
+                .then((result) => {
+                    usernameText.innerHTML = `${result.username}`;
+                    if (winner == true) {
+                        usernameText.innerHTML = `<h2><small>${result.username} ${this.domText.hasWon}</small></h2>`
+                    }
+                })
+                .catch((error) => {console.log("Failed to fetch users info")});
+            return container;
         } else {
-          img.src = "/img/question_mark_icon.png";
-          container.appendChild(img)
-          return container;
+            img.src = "/img/question_mark_icon.png";
+            container.appendChild(img)
+            return container;
         }
       }
     
