@@ -108,66 +108,71 @@ class AccountDeleteView extends AbstractView {
   }
 
   async deleteConfirm() {
-    const tournaments = await TRequest.request("GET", "/api/tournament/list/");
-
-    const detailedTournamentsList = await this.fetchTournamentDetails(
-      tournaments["tournaments"]
-    );
-    const subscribedList = detailedTournamentsList.filter((tournament) => {
-      return (
-        tournament.status !== 2 &&
-        tournament.players.includes(Application.getUserInfos().userId)
-      );
-    });
-
-    subscribedList.forEach((tournament) => {
-      // if the user has an tournament in progress , refuse to delete his account
-      if (tournament.status === 1) {
-        Alert.errorMessage(
-          this.messages.tournamentInProgress,
-          this.messages.cancelTournament
-        );
-        return;
-      }
-    });
-
-    //Unsubscribe the player form all tournaments
-    await this.unsubscribeFromAll(subscribedList);
-
-    // Delete all the friends of the player
     try {
-      // Anonymise the user in the db and revoque credentials
-      await TRequest.request("DELETE", "/api/users/deleteuser/");
+      const tournaments = await TRequest.request("GET", "/api/tournament/list/");
 
-      const friendsList = await TRequest.request(
-        "GET",
-        "/api/friends/friendslist/"
+      const detailedTournamentsList = await this.fetchTournamentDetails(
+        tournaments["tournaments"]
       );
-      for (const friendId of friendsList["friends"]) {
-        await TRequest.request("DELETE", "/api/friends/removefriend/", {
-          id: friendId,
-        });
-      }
-      // delete the user from all users friendslist
-      await TRequest.request("DELETE", "/api/friends/removefromall/");
-      // Delete all the blocks
-      //where the player blocks other players
-      const blocksList = await TRequest.request(
-        "GET",
-        "/api/friends/blocks/blockslist/"
-      );
-      for (const blockId of blocksList["blocks"]) {
-        await TRequest.request("DELETE", "/api/friends/blocks/removeblock/", {
-          id: blockId,
-        });
-      }
-      // delete the user from all users blockList
-      await TRequest.request("DELETE", "/api/friends/blocks/removefromall/");
+      const subscribedList = detailedTournamentsList.filter((tournament) => {
+        return (
+          tournament.status !== 2 &&
+          tournament.players.includes(Application.getUserInfos().userId)
+        );
+      });
 
-      // Delete profile picture
-      await TRequest.request("DELETE", "/api/avatar/delete/");
-      Router.reroute("/logout");
-    } catch (error) {
+      subscribedList.forEach((tournament) => {
+        // if the user has an tournament in progress , refuse to delete his account
+        if (tournament.status === 1) {
+          Alert.errorMessage(
+            this.messages.tournamentInProgress,
+            this.messages.cancelTournament
+          );
+          return;
+        }
+      });
+
+      //Unsubscribe the player form all tournaments
+      await this.unsubscribeFromAll(subscribedList);
+
+      // Delete all the friends of the player
+      try {
+        // Anonymise the user in the db and revoque credentials
+        await TRequest.request("DELETE", "/api/users/deleteuser/");
+
+        const friendsList = await TRequest.request(
+          "GET",
+          "/api/friends/friendslist/"
+        );
+        for (const friendId of friendsList["friends"]) {
+          await TRequest.request("DELETE", "/api/friends/removefriend/", {
+            id: friendId,
+          });
+        }
+        // delete the user from all users friendslist
+        await TRequest.request("DELETE", "/api/friends/removefromall/");
+        // Delete all the blocks
+        //where the player blocks other players
+        const blocksList = await TRequest.request(
+          "GET",
+          "/api/friends/blocks/blockslist/"
+        );
+        for (const blockId of blocksList["blocks"]) {
+          await TRequest.request("DELETE", "/api/friends/blocks/removeblock/", {
+            id: blockId,
+          });
+        }
+        // delete the user from all users blockList
+        await TRequest.request("DELETE", "/api/friends/blocks/removefromall/");
+
+        // Delete profile picture
+        await TRequest.request("DELETE", "/api/avatar/delete/");
+        Router.reroute("/logout");
+      } catch (error) {
+        Alert.errorMessage(this.domText.title, error.message);
+      }
+    }
+    catch (error) {
       Alert.errorMessage(this.domText.title, error.message);
     }
   }
