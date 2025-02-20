@@ -139,7 +139,7 @@ class TournamentsView extends AbstractView {
       }, 50);
       return;
     }
-    console.log("PANEL STATUS = ", this.panel_status);
+    // console.log("PANEL STATUS = ", this.panel_status);
     //internal state variables
     
     //AV = saved panel status in a global var in Application to reload the page upon translation on the proper tab
@@ -255,7 +255,7 @@ class TournamentsView extends AbstractView {
     this.handle_refresh();
     if (event.target.classList.contains("join-tournament-btn")) {
       const tournamentName = event.target.getAttribute("data-tournament");
-      console.log("trying to join", tournamentName);
+      // console.log("trying to join", tournamentName);
       try {
         const req = await TRequest.request("POST", "/api/tournament/join/", {
           name: tournamentName,
@@ -461,7 +461,7 @@ Request API function
     else {
       playerTxt = await Application.localization.t("tournament.card.player");
     };
-    console.log(freeSpots);
+    // console.log(freeSpots);
     if (freeSpots > 1) {
       spotsTxt = await Application.localization.t("tournament.card.spots");
     }
@@ -543,12 +543,12 @@ Request API function
       }
 
       const userId = Application.getUserInfos().userId;
-      console.log(tournament["players"][0]);
+      // console.log(tournament["players"][0]);
       const isCreator = (userId === tournament["players"][0]) ? true : false;
-      console.log("Is Creator", isCreator);
+      // console.log("Is Creator", isCreator);
 
       const isTournamentFull = tournament["players"].length >= tournament["size"];
-      console.log(isTournamentFull);
+      // console.log(isTournamentFull);
 
       //DROPDOWN ACTIONS
       
@@ -636,13 +636,13 @@ Request API function
         modal.querySelector("#confirm-btn").addEventListener("click", async () => {
           try {
             const userId = Application.getUserInfos().userId
-            console.log("USER ID = ", userId);
-            console.log("Sent parameter :", tournament);
+            // console.log("USER ID = ", userId);
+            // console.log("Sent parameter :", tournament);
             const response = await TRequest.request("POST", "/api/tournament/leave/", 
               { 
                 name: tournament["tournament name"],
                });
-              console.log(response);
+              // console.log(response);
               modal.remove();
               this.ongoingEvent = false;
               Router.reroute("/tournaments");
@@ -666,7 +666,7 @@ Request API function
           this.ongoingEvent = true;
           this.handle_refresh();
           try {
-            console.log("Sent parameter :", tournament);
+            // console.log("Sent parameter :", tournament);
             await TRequest.request("DELETE", "/api/tournament/delete/", { name: tournament["tournament name"] });
             Alert.successMessage("Tournaments", "Tournament deleted successfully"); //TO TRANSLATE
             this.ongoingEvent = false;
@@ -681,8 +681,8 @@ Request API function
       //INVITE MODALE 
       
       const hasFriends = (this.friendsDetails.length === 0) ? false : true;
-      console.log("The user has friends", hasFriends);
-      console.log("Friend number = ", this.friendsDetails.length);
+      // console.log("The user has friends", hasFriends);
+      // console.log("Friend number = ", this.friendsDetails.length);
       const openInviteModalButton = actionDiv.querySelector("[data-action='open-invite-modal']");
       openInviteModalButton.addEventListener("click", () => {
         const modal = document.createElement("div");
@@ -745,7 +745,7 @@ Request API function
               return Alert.errorMessage("Tournament", friendId + "Already in tournament");
             }
             try {
-              console.log("FRIEND ID = ", friendId);
+              // console.log("FRIEND ID = ", friendId);
               const response = await TRequest.request("POST", "/api/tournament/invite/", 
                 { 
                   tournament_name: tournament["tournament name"],
@@ -763,7 +763,7 @@ Request API function
             } catch (error) {
               modal.remove();
               Alert.errorMessage("Error", error.message); //TO TRANSLATE
-              console.error("In inviteFriend:", error.message);
+              console.log("In inviteFriend:", error.message);
             }
           });
         });this.ongoingEvent = false;

@@ -140,7 +140,7 @@ class PongRenderer {
   }
 
   drawStartMessage(paddle1, paddle2, player1, player2) {
-    console.log("drawStartMessage", player1, player2);
+    // console.log("drawStartMessage", player1, player2);
     this.clearCanvas();
     this.drawScore(0, 0);
     this.drawPaddle1(paddle1);

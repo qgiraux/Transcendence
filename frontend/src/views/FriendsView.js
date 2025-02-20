@@ -322,7 +322,7 @@ class FriendsView extends AbstractView {
         }
       })
       .catch((error) => {
-        console.error("Error fetching status:", error);
+        console.log("Error fetching status:", error);
         statusElement.textContent = "Error";
         statusElement.style.color = "orange";
       });

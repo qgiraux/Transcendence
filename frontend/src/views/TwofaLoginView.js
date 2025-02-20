@@ -14,7 +14,7 @@ class TwofaLoginView extends AbstractView {
   }
 
   async init() {
-    console.log(Application.lang);
+    // console.log(Application.lang);
     // await Application.setLanguage(Application.lang);
     await this.loadMessages();
     Application.toggleLangSelectorShow();
@@ -23,7 +23,7 @@ class TwofaLoginView extends AbstractView {
 
   async loadMessages() {
     await Application.applyTranslations();
-    console.log("OK");
+    // console.log("OK");
     this.domText.title = await Application.localization.t(
       "accountMgmt.twofa.title"
     );

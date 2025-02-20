@@ -44,7 +44,7 @@
         };
 
         ws.onmessage = function (event) {
-            console.log(event.data);
+            // console.log(event.data);
             const data = JSON.parse(event.data);
 
             if (data.type === 'game_over') {
@@ -95,7 +95,7 @@
         };
 
         ws.onerror = function (error) {
-            console.error('WebSocket error:', error);
+            console.log('WebSocket error:', error);
         };
 
 

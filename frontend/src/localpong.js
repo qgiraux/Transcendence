@@ -51,7 +51,7 @@ class PongGame {
         this.boundHandleKeyDown = this.handleKeyDown.bind(this);
         this.boundHandleKeyUp = this.handleKeyUp.bind(this);
         this.boundResumeGame = (event) => this.resumeGame(event, this.reset);
-
+        // console.log("opening event listeners for keydown, keyup, and resumeGame");
         document.addEventListener('keydown', this.boundHandleKeyDown);
         document.addEventListener('keyup', this.boundHandleKeyUp);
         document.addEventListener('keydown', this.boundResumeGame);
@@ -69,49 +69,50 @@ class PongGame {
       this.domText.player1 = await Application.localization.t(
         "localPong.player1"
       );
-      console.log("PLAYER1=", this.domText.player1);
+    //   console.log("PLAYER1=", this.domText.player1);
       this.domText.player2 = await Application.localization.t(
         "localPong.player2"
       );
-      console.log("PLAYER2=", this.domText.player2);
+    //   console.log("PLAYER2=", this.domText.player2);
   
       this.domText.player = await Application.localization.t(
         "localPong.player"
       );
-      console.log("PLAYER=", this.domText.player);
+    //   console.log("PLAYER=", this.domText.player);
   
       this.domText.won = await Application.localization.t(
         "localPong.won"
       );
-      console.log("won=", this.domText.won);
+    //   console.log("won=", this.domText.won);
       this.domText.scored = await Application.localization.t(
         "localPong.scored"
       );
-      console.log("scored=", this.domText.scored);
+    //   console.log("scored=", this.domText.scored);
       this.domText.spaceNew = await Application.localization.t(
         "localPong.spaceNew"
       );
-      console.log("Space New =", this.domText.spaceNew);
+    //   console.log("Space New =", this.domText.spaceNew);
       this.domText.spaceResume = await Application.localization.t(
         "localPong.spaceResume"
       );
-      console.log("Space Resume =", this.domText.spaceResume);
+    //   console.log("Space Resume =", this.domText.spaceResume);
       this.domText.spaceStart = await Application.localization.t(
         "localPong.spaceStart"
       );
-      console.log("Space Start =", this.domText.spaceStart);
+    //   console.log("Space Start =", this.domText.spaceStart);
     }
 
 
     destroy() {
-        console.log('Destroying PongGame');
+        // console.log('Destroying PongGame');
+        console.log("closing event listeners for keydown, keyup, and resumeGame");
         document.removeEventListener('keydown', this.boundHandleKeyDown);
         document.removeEventListener('keyup', this.boundHandleKeyUp);
         document.removeEventListener('keydown', this.boundResumeGame);
     }
     
     handleKeyDown(event) {
-        console.log(event.key);
+        console.log("in localpong:", event.key);
         switch (event.key) {
             case 'ArrowUp':
                 this.commands.up = 1;

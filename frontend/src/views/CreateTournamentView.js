@@ -18,7 +18,7 @@ class CreateTournamentView extends AbstractView {
   }
 
   async loadMessages() {
-    console.log("Trying to load messages");
+    // console.log("Trying to load messages");
     // await Application.localization.loadTranslations();
     await Application.setLanguage(Application.lang);
     this.domText.title = await Application.localization.t(
@@ -59,7 +59,7 @@ class CreateTournamentView extends AbstractView {
       "tournament.create.errors.alreadytExists"
 
     );
-    console.log("Messages loaded");
+    // console.log("Messages loaded");
   }
 
   onStart() {
@@ -129,7 +129,7 @@ class CreateTournamentView extends AbstractView {
         name: name,
         size: size,
       });
-      console.log(resp)
+      // console.log(resp)
       if (resp["tournament name"] === undefined) {
         Alert.errorMessage(this.domText.tournament, this.messages.createFailure);
       }

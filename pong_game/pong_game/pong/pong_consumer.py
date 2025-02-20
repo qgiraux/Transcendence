@@ -106,7 +106,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         
         log.debug("[pong.consumer] User %s moved paddle", self.user_id)
         direction = data.get("direction")
-        self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
+        if self.game_name in self.pong:
+            self.pong[self.game_name].engine.get_player_paddle_move(self.user_id, direction)
 
 
     async def ready(self):
@@ -114,7 +115,8 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             log.error("[pong.consumer] User not correctly joined")
             return
         log.debug("[pong.consumer] User %s is ready", self.user_id)
-        self.pong[self.game_name].engine.player_ready(self.user_id)
+        if self.game_name in self.pong:
+            self.pong[self.game_name].engine.player_ready(self.user_id)
     
     async def online(self):
         if not self.user_id:

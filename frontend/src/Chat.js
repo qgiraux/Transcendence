@@ -55,7 +55,7 @@ class Chat {
         chatBox.scrollTop = chatBox.scrollHeight;
       })
       .catch((err) => {
-        console.error("Failed to fetch user info:", err);
+        console.log("Failed to fetch user info:", err);
       });
   }
 }

@@ -35,7 +35,7 @@ const sendMessage = async () => {
         group = "user_" + value["id"];
       })
       .catch((err) => {
-        console.error("no user with this name:", err);
+        console.log("no user with this name:", err);
         group = "none";
       });
   }
