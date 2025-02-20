@@ -97,6 +97,10 @@ class Application {
     Application.#userInfos.lang = infos.lang;
   }
 
+  static setTwofa(value) {
+    Application.#userInfos.twofa = value;
+  }
+
   static getUserInfos() {
     return Application.#userInfos;
   }
@@ -169,9 +173,7 @@ class Application {
   static openWebSocket(url) {
     if (Application.#token === null) {
       // Correct the check
-      console.log(
-        `Application: Error opening WebSocket: user not identified`
-      );
+      console.log(`Application: Error opening WebSocket: user not identified`);
       return null;
     }
     if (!url) {
@@ -197,9 +199,7 @@ class Application {
   static openGameSocket(url) {
     if (Application.#token === null) {
       // Correct the check
-      console.log(
-        `Application: Error opening WebSocket: user not identified`
-      );
+      console.log(`Application: Error opening WebSocket: user not identified`);
       return null;
     }
     if (!url) {
@@ -255,7 +255,7 @@ class Application {
     chatBox.classList.remove("d-none");
   }
 
-  //NEW AV - setting a cookie to store the language and make it persistant 
+  //NEW AV - setting a cookie to store the language and make it persistant
 
   static setLanguageCookie(lang) {
     document.cookie = `language=${lang}; path=/; max-age=${30 * 24 * 60 * 60}`; //30 days duration
@@ -264,11 +264,11 @@ class Application {
   static getLanguageCookie() {
     const cookies = document.cookie.split("; ");
     for (let cookie of cookies) {
-        const [name, value] = cookie.split("=");
-        if (name === "language") {
-            // console.log("Le cookie = ", value);
-            return value;
-        }
+      const [name, value] = cookie.split("=");
+      if (name === "language") {
+        // console.log("Le cookie = ", value);
+        return value;
+      }
     }
     return null;
   }
@@ -277,23 +277,21 @@ class Application {
 
   static async retrieveDBLang() {
     const lang = await Application.getUserInfos().lang;
-    if (lang === "null")
-        return Application.lang;
+    if (lang === "null") return Application.lang;
     else if (lang && Application.lang !== lang) {
-          Application.lang = lang;
-          this.localization.lang = lang;
-      }
-      // console.log("The language retrieved in DB is = ", lang);
-      // console.log("Application language =", Application.lang);
-      return (lang);
+      Application.lang = lang;
+      this.localization.lang = lang;
+    }
+    // console.log("The language retrieved in DB is = ", lang);
+    // console.log("Application language =", Application.lang);
+    return lang;
   }
 
   static async setLanguage(lang) {
     Application.lang = lang;
     if (lang !== this.localization.lang) {
       this.localization.lang = lang;
-      if (location.pathname !== "/landing")
-      {
+      if (location.pathname !== "/landing") {
         await this.updateLanguageInDatabase();
       }
       this.setLanguageCookie(lang);
@@ -305,12 +303,11 @@ class Application {
   static async updateLanguageInDatabase() {
     try {
       const lang = Application.lang;
-      const newLang =  await TRequest.request("POST", "/api/users/lang/", {
+      const newLang = await TRequest.request("POST", "/api/users/lang/", {
         lang: lang,
       });
       // console.log("Language has been updated:");
-    } 
-    catch (error) {
+    } catch (error) {
       console.log(`Error updating language ${error}`);
     }
   }
