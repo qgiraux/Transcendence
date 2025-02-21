@@ -14,7 +14,7 @@ def valid_jwt_token(user_id):
         'user_id': user_id,
         'exp': datetime.now(timezone.utc) + timedelta(seconds=600)
     }
-    secret_key = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q'
+    secret_key = os.getenv('TRANSCENDENCE_SECRET_KEY')
     return jwt.encode(payload, secret_key, algorithm='HS256')
 
 

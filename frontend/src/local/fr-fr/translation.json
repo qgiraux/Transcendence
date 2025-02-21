@@ -41,7 +41,7 @@
       "loginErrorTitle": "Erreur de connexion",
       "registerErrorTitle": "Erreur d'inscription",
       "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide",
-      "wrongCredentialsFormat": "Vous devez fournir un nom d'utilisateur et un mot de passe valides.\nL'identifiant doit contenir uniquement des lettres ou des chiffres et avoir entre 5 et 20 caractères.<br>Le mot de passe doit contenir au moins 8 caractères, un chiffre,\nune lettre majuscule et au moins un caractère spécial : !@#$%^&*",
+      "wrongCredentialsFormat": "Vous devez fournir un nom d'utilisateur et un mot de passe valides. Le nom d'utilisateur doit contenir uniquement des lettres ou des chiffres et avoir une longueur comprise entre 5 et 20 caractères. Le mot de passe doit contenir entre 8 et 20 caractères, inclure un chiffre, une lettre majuscule et au moins un caractère spécial : !@#$%^&* ",
       "serverError": "Le serveur n'a pas pu traiter votre demande. Veuillez réessayer plus tard",
       "userAlreadyExist": "Un utilisateur avec cet identifiant existe déjà.",
       "passwordsDontMatch": "Les deux champs de mot de passe doivent être identiques"

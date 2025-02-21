@@ -4,6 +4,8 @@ import PongRenderer from "../pongrenderer.js";
 import TRequest from "../TRequest.js";
 import Alert from "../Alert.js";
 import Avatar from "../Avatar.js";
+import Router from "../Router.js";
+
 const BALL_RADIUS = 10;
 class PongGameView extends AbstractView {
     constructor(params) {
@@ -114,7 +116,11 @@ class PongGameView extends AbstractView {
                     );
                     this.startMessage = true;
                 }
-            })
+            }).catch((error) => {
+                setTimeout(() => {
+                    Router.reroute("/home");
+                  }, 50);
+            });
        
         // Initialize paddles and ball
         this.paddle1 = {
@@ -358,11 +364,13 @@ class PongGameView extends AbstractView {
             else {
                 this.messageContainer.innerHTML = `<h2><small>${this.domText.wonGame}<br>${this.domText.waitHere}`
                 this.messageContainer.classList.remove("d-none");
+                Application.joinedTournament = "";
             }
         }
         else {
             this.messageContainer.innerHTML = `<h2><small>${this.domText.lost}<br>${this.domText.goHomeDefeat}`
             this.messageContainer.classList.remove("d-none");
+            Application.joinedTournament = "";
         }
     }
 

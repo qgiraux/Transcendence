@@ -36,6 +36,27 @@ class Application {
     throw new Error("Application class must not be instantiated.");
   }
 
+  static resetApplication(){
+    Application.#token = null;
+    Application.#userInfos = {
+      userId: null,
+      userName: null,
+      nickname: null,
+      twofa: null,
+    };
+    Application.mainSocket = null;
+    Application.gameSocket = null;
+    Application.lang = this.getLanguageCookie() || "en-us";
+    Application.localization = new Localization(Application.lang);
+    Application.translationsCache = {};
+    Application.activeProfileView = "avatar"; //test to make the view in account mgmt ersistant upon language change
+    Application.navButtonProfile = "nav-avatar";
+    Application.tournamentPanelStatus = 0;
+    Application.joinedTournament = "";
+    //Placeholder to store timeouts to clear them nicely in onDestroy()
+    Application.timeoutId = null;
+  }
+
   static setToken(newtoken) {
     if (
       !Object.hasOwn(newtoken, "access") ||

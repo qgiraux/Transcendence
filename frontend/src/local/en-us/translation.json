@@ -45,7 +45,7 @@
       "loginErrorTitle": "Login Error",
       "registerErrorTitle": "Register Error",
       "invalidCredentials": "Invalid username or password",
-      "wrongCredentialsFormat": "You must provide a valid username and password. The login must contain only letters or digits and be between 5-20 characters long. The password must be contains at least 8 characters and contains one digit,\none uppercase letter and at least one special character : !@#$%^&* ",
+      "wrongCredentialsFormat": "You must provide a valid username and password. The login must contain only letters or digits and be between 5-20 characters long. The password must be contains between 8 and 20 characters and contains one digit,\none uppercase letter and at least one special character : !@#$%^&* ",
       "serverError": "The server could not process your request. Please try again later",
       "userAlreadyExist": "A user with that username already exists.",
       "passwordsDontMatch": "The two password fields must be identical"

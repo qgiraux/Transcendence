@@ -18,7 +18,6 @@ from PIL import Image, UnidentifiedImageError
 from .mock_jwt_expired  import mock_jwt_expired
 
 MAX_SIZE = 5 # the maximum accepted image size in MB
-SECRET_KEY = 'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q' # a remplacer dans .env
 logger = logging.getLogger(__name__)
 
 
@@ -60,7 +59,7 @@ def validate_jwt_token(request):
     try:
         payload = jwt.decode(
             token,
-            'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q',
+            os.getenv('TRANSCENDENCE_SECRET_KEY'),
             algorithms=['HS256']
         )
         return payload
