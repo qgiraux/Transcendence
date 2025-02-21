@@ -29,8 +29,8 @@ services:
     restart: always
     container_name: db_user_management
     environment:
-      POSTGRES_USER: django
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
+      POSTGRES_USER: ${USER_MANAGEMENT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${USER_MANAGEMENT_DB_PASSWORD}
       POSTGRES_DB: db_user_management
     volumes:
       - postgres_user_management:/var/lib/postgresql/data
@@ -38,7 +38,7 @@ services:
       - transcendence
     env_file: ./.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U django -d db_user_management"]
+      test: ["CMD-SHELL", "pg_isready -U ${USER_MANAGEMENT_DB_USERNAME} -d db_user_management"]
       interval: 1s
       timeout: 2s
       retries: 10
@@ -77,8 +77,8 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: django
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
+      POSTGRES_USER: ${FRIENDS_LIST_DB_USERNAME}
+      POSTGRES_PASSWORD: ${FRIENDS_LIST_DB_PASSWORD}
       POSTGRES_DB: db_friends_list
     volumes:
       - postgres_friends_list:/var/lib/postgresql/data
@@ -86,11 +86,11 @@ services:
       - transcendence
     env_file: ./.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U django -d db_friends_list"]
+      test: ["CMD-SHELL", "pg_isready -U ${FRIENDS_LIST_DB_USERNAME} -d db_friends_list"]
       interval: 1s
       timeout: 2s
       retries: 10
-  
+
   pong_game:
     image: pong_game
     container_name: pong_game
@@ -148,15 +148,15 @@ services:
     restart: always
     container_name: db_tournament
     environment:
-      POSTGRES_USER: django
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-django}
+      POSTGRES_USER: ${TOURNAMENT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${TOURNAMENT_DB_PASSWORD}
       POSTGRES_DB: db_tournament
     volumes:
       - postgres_tournament:/var/lib/postgresql/data
     networks:
       - transcendence
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U django -d db_tournament"]
+      test: ["CMD-SHELL", "pg_isready -U ${TOURNAMENT_DB_USERNAME} -d db_tournament"]
       interval: 1s
       timeout: 2s
       retries: 10
@@ -185,8 +185,8 @@ services:
     restart: always
     container_name: db_avatar
     environment:
-      POSTGRES_USER: avatar
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-avatar}
+      POSTGRES_USER: ${AVATAR_DB_USERNAME}
+      POSTGRES_PASSWORD: ${AVATAR_DB_PASSWORD}
       POSTGRES_DB: db_avatar
     volumes:
       - postgres_avatar:/var/lib/postgresql/data
@@ -194,12 +194,13 @@ services:
       - transcendence
     env_file: ./.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U django -d db_avatar"]
+      test: ["CMD-SHELL", "pg_isready -U ${AVATAR_DB_USERNAME} -d db_avatar"]
       interval: 1s
       timeout: 2s
       retries: 10
-    
+
   web3-tournament:
+    image: web3-tournament
     build: ./blockchain/web3-tournament
     container_name: web3-tournament
     restart: always
@@ -212,6 +213,7 @@ services:
       - 80
 
   hardhat-network:
+    image: hardhat-network
     build: ./blockchain/hardhat-network
     container_name: hardhat-network
     restart: always
@@ -220,7 +222,6 @@ services:
       - transcendence
     expose:
       - 8545
-
 
 volumes:
   postgres_user_management:

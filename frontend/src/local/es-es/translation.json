@@ -45,7 +45,7 @@
       "loginErrorTitle": "Error de inicio de sesión",
       "registerErrorTitle": "Error de registro",
       "invalidCredentials": "Nombre de usuario o contraseña no válidos",
-      "wrongCredentialsFormat": "Debes proporcionar un nombre de usuario y una contraseña válidos.\nEl nombre de usuario debe contener solo letras o números y tener entre 5 y 20 caracteres.<br>La contraseña debe contener al menos 8 caracteres, un número, una letra mayúscula y al menos un carácter especial: !@#$%^&*",
+      "wrongCredentialsFormat": "Debe proporcionar un nombre de usuario y una contraseña válidos. El nombre de usuario debe contener solo letras o dígitos y tener una longitud de entre 5 y 20 caracteres. La contraseña debe contener entre 8 y 20 caracteres, incluir un dígito, una letra mayúscula y al menos un carácter especial: !@#$%^&* ",
       "serverError": "El servidor no pudo procesar tu solicitud. Por favor, inténtalo de nuevo más tarde",
       "userAlreadyExist": "Ya existe un usuario con este nombre de usuario.",
       "passwordsDontMatch": "Los dos campos de contraseña deben coincidir"

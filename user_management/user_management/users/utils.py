@@ -94,14 +94,17 @@ def validate_2FA_accesstoken(token:str, secret_key:str)->int:
     user_id, expire_time, signature = token.split(':')
     user_id = int(user_id)
     expire_time = int(expire_time)
+
+    # verify the validity
+    now = int(time.time())
+    if expire_time < now:
+        raise Token2FAExpiredError()
+    
     # verify the signature
     payload = f"{user_id}:{expire_time}".encode("utf-8")
     expected_signature = hmac.new(secret_key.encode("utf-8"), payload, hashlib.sha256).digest()
     expected_signature_b64 = base64.urlsafe_b64encode(expected_signature).decode()
     if not hmac.compare_digest(expected_signature_b64, signature):
         raise Token2FAAccessSignatureError()
-    # verify the validity
-    now = int(time.time())
-    if expire_time < now:
-        raise Token2FAExpiredError()
+    
     return user_id

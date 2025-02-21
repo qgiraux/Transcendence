@@ -167,6 +167,7 @@ class AccountDeleteView extends AbstractView {
 
         // Delete profile picture
         await TRequest.request("DELETE", "/api/avatar/delete/");
+        Application.resetApplication();
         Router.reroute("/logout");
       } catch (error) {
         Alert.errorMessage(this.domText.title, error.message);

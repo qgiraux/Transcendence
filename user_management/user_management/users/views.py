@@ -4,6 +4,7 @@ import json
 import logging
 import base64
 from urllib.parse import urlencode
+import os
 
 # Imports Django
 from django.contrib.auth import get_user_model, authenticate
@@ -380,7 +381,7 @@ def validate_jwt_token(request):
     try:
         payload = jwt.decode(
             token,
-            'django-insecure-dquen$ta141%61x(1^cf&73(&h+$76*@wbudpia^^ecijswi=q',
+            os.getenv('TRANSCENDENCE_SECRET_KEY'),
             algorithms=['HS256']
         )
         return payload
